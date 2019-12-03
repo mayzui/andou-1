@@ -8,4 +8,5 @@ use App\Http\Controllers\Controller;
 class PublicsController extends Controller
 {
     //
+	echo "ddd";
 }
