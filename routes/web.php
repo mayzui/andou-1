@@ -52,10 +52,15 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
 
         Route::get('banner/index','BannerController@index')->name('banner.index');
         Route::get('banner/add','BannerController@add')->name('banner.add');
-        Route::get('banner/update','BannerController@orders')->name('banner.update');
-        Route::get('banner/delete','BannerController@delete')->name('banner.delete');
+        Route::any('banner/store','BannerController@store')->name('banner.store');
+        Route::get('banner/update/{id}','BannerController@update')->name('banner.update');
+        Route::get('banner/delete/{id}','BannerController@delete')->name('banner.delete');
 
-
+        // 商户板块
+        Route::get('merchants/index','MerchantController@index')->name('merchants.index');
 
     });
+
+    // 图片上传
+    Route::post('upload/uploadImage','UploadController@uploadImage');
 });
