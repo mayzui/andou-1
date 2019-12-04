@@ -64,3 +64,5 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
     // 图片上传
     Route::post('upload/uploadImage','UploadController@uploadImage');
 });
+
+
