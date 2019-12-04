@@ -16,3 +16,11 @@ use Illuminate\Http\Request;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+/**
+ * 接口路由
+ */
+Route::group(['namespace' => 'Api'], function () {
+	//首页
+	 Route::post('index', 'IndexController@index');
+});
