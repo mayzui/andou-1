@@ -5,9 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Models\Banner;
 use App\Models\BannerPosition;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
-use Ramsey\Uuid\Converter\Number\BigNumberConverter;
+
 
 class BannerController extends BaseController
 {
@@ -40,29 +39,56 @@ class BannerController extends BaseController
     // 删除广告
     public function delete (Request $request,$id)
     {
-
-
+        $model = Banner::find($id);
+        if ($model->delete()){
+            return redirect()->route('banner.index');;
+        }
+        return viewError('已删除或者删除失败');
     }
 
 
     public function position (Request $request)
     {
-
+        $list = BannerPosition::paginate($request->input('size'));
+        if ($list) {
+            return $this->view('position',['list'=>$list]);
+        }
     }
 
     public function positionAdd (Request $request)
     {
-
+        return $this->view('positionAdd');
     }
 
-    public function positionEdit (Request $request)
+
+    public function positionStore (Request $request)
     {
+        $validate = Validator::make($request->all(),[
+            'name' => 'required',
+        ],[
+            'name.required'=>'缺少广告位名',
+        ]);
+
+        if ($validate->errors()->first()) {
+            return viewError($validate->errors()->first(),'banner.positionAdd');
+        }
+
+
+        $model = new BannerPosition();
+        if ($request->input('id')) {
+            $model = BannerPosition::find($request->input('id'));
+        }
+        $model->name = $request->input('name');
+        if ($model->save()) {
+            return   redirect()->route('banner.position');
+        }
+        return  viewError('操作失败','banner.positionAdd');
 
     }
-
-    public function positionDelete(Request $request)
+    public function positionEdit (Request $request,$id)
     {
-
+        $position = BannerPosition::find($id);
+        return $this->view('positionEdit',['position'=>$position]);
     }
 
     public function store (Request $request)
@@ -101,6 +127,27 @@ class BannerController extends BaseController
             return   redirect()->route('banner.index');
         }
         return  viewError('操作失败','banner.add');
+    }
+
+    public function  status (Request $request ,$status , $id)
+    {
+
+        $validate = Validator::make(['status'=>$status,'id'=>$id],[
+            'status' => 'required',
+            'id'     => 'required',
+        ],[
+            'status.required'=>'缺少状态值',
+            'id.required'=>'缺少id',
+        ]);
+
+        if ($validate->errors()->first()) {
+            return viewError($validate->errors()->first(),'banner.index');
+        }
+
+        $model = Banner::find($id);
+        $model->status = $status;
+        $model->save();
+        return  redirect()->route('banner.index');
     }
 
 }
