@@ -9,7 +9,8 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('merchants/merchant_type','MerchantsController@merchantType')->name('merchants.merchant_type');
         Route::match(['get','post'],'merchants/merchant_type_add','MerchantsController@merchantTypeAdd')->name('merchants.merchant_type_add');
         //酒店管理
-        Route::get('hotel/index','hotelController@index')->name('hotel.index');
+        Route::get('hotel/index','HotelController@index')->name('hotel.index');
+        Route::get('hotel/faci','HotelController@faci')->name('hotel.faci');
     });
 });
 ?>
