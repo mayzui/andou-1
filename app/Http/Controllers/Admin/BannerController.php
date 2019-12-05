@@ -69,8 +69,9 @@ class BannerController extends BaseController
             'name.required'=>'缺少广告位名',
         ]);
 
-        if ($validate->errors()->first()) {
-            return viewError($validate->errors()->first(),'banner.positionAdd');
+        if ($validate->fails()) {
+            flash($validate->errors()->first())->error()->important();
+           return redirect()->route('banner.positionAdd');
         }
 
 
@@ -107,10 +108,13 @@ class BannerController extends BaseController
             'sort.numeric'=>'排序必须是数字',
             'desc.required'=>'缺少描述',
             'status.required'=>'缺少状态',
+            'img.required'=>'请上传图片',
         ]);
 
-        if ($validate->errors()->first()) {
-            return viewError($validate->errors()->first(),'banner.add');
+
+        if ($validate->fails()) {
+            flash($validate->errors()->first())->error()->important();
+            return redirect()->route('banner.add');
         }
 
         $model = new Banner();

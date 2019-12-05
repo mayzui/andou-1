@@ -46,6 +46,7 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('config/add','ConfigController@add')->name('config.add');
         Route::get('config/update','ConfigController@update')->name('config.update');
         Route::post('config/store','ConfigController@update')->name('config.store');
+        Route::post('config/delete','ConfigController@delete')->name('config.delete');
 
 
         Route::resource('shop','ShopController',['only'=>['index','create','store','update','edit','destroy','goods','goodsCate','orders']]);
@@ -53,6 +54,7 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('shop/goodsCate','ShopController@goodsCate')->name('shop.goodsCate');
         Route::get('shop/orders','ShopController@orders')->name('shop.orders');
         Route::get('shop/goodsBrand','ShopController@goodsBrand')->name('shop.goodsBrand');
+
         // 广告板块
         Route::get('banner/positionIndex','BannerController@position')->name('banner.position');
         Route::get('banner/positionAdd','BannerController@positionAdd')->name('banner.positionAdd');
