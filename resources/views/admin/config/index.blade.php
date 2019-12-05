@@ -31,7 +31,8 @@
                             <tr>
                                 <td>{{$item->id}}</td>
                                 <td>{{$item->key}}</td>
-                                <td>{{$item->val}}</td>
+                                <td>{{$item->value}}</td>
+                                <td>{{$item->type}}</td>
                                 <td>{{$item->desc}}</td>
                                 <td class="text-center">
                                     <div class="btn-group">

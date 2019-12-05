@@ -44,9 +44,9 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
 
         Route::get('config/index','ConfigController@index')->name('config.index');
         Route::get('config/add','ConfigController@add')->name('config.add');
-        Route::get('config/update','ConfigController@update')->name('config.update');
-        Route::post('config/store','ConfigController@update')->name('config.store');
-        Route::post('config/delete','ConfigController@delete')->name('config.delete');
+        Route::get('config/update/{id}','ConfigController@update')->name('config.update');
+        Route::post('config/store','ConfigController@store')->name('config.store');
+        Route::get('config/delete/{id}','ConfigController@delete')->name('config.delete');
 
 
         Route::resource('shop','ShopController',['only'=>['index','create','store','update','edit','destroy','goods','goodsCate','orders']]);
