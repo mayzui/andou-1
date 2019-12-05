@@ -29,6 +29,7 @@
                         <tr>
                             <th width="100">ID</th>
                             <th>商户名字</th>
+                            <th>用户名字</th>
                             <th>商家logo图</th>
                             <th>地址</th>
                             <th>商户类型</th>
@@ -43,6 +44,7 @@
                             <tr>
                                 <td>{{$item->id}}</td>
                                 <td>{{$item->name}}</td>
+                                <th>{{$item->username}}</th>
                                 <td><img src="{{ env('IMAGE_PATH_PREFIX')}}{{$item->logo_img}}" alt="" style="width: 50px;height: 50px;"></td>
                                 <td>{{$item->address}}</td>
                                 <td>{{$item->merchant_type_id}}</td>

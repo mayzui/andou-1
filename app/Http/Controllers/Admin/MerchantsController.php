@@ -31,6 +31,7 @@ class MerchantsController extends BaseController
         $data=DB::table('merchants')->where($where)->paginate(10);
         foreach ($data as $key => $value) {
             $data[$key]->merchant_type_id=Db::table('merchant_type')->where('id',$value->merchant_type_id)->pluck('type_name')[0];
+            $data[$key]->username=Db::table('users')->where('id',$value->user_id)->pluck('name')[0];
         }
         $type=DB::table('merchant_type')->get();
         return $this->view('',['data'=>$data],['type'=>$type]);
@@ -46,10 +47,10 @@ class MerchantsController extends BaseController
         $id=$all['id'];
         $re=Db::table('merchants')->where('id',$id)->update($save);
         if ($re) {
-            flash('修改成功')->success()->important();
+            flash('修改成功')->success();
             return redirect()->route('merchants.index');
         }else{
-            flash('修改失败')->error()->important();
+            flash('修改失败')->error();
             return redirect()->route('merchants.index');
         }
     }
@@ -78,10 +79,10 @@ class MerchantsController extends BaseController
                 $re=Db::table('merchant_type')->where('id',$all['id'])->update($save);
             }
             if ($re) {
-                flash('修改成功')->success()->important();
+                flash('修改成功')->success();
                 return redirect()->route('merchants.merchant_type');
             }else{
-                flash('修改失败')->error()->important();
+                flash('修改失败')->error();
                 return redirect()->route('merchants.merchant_type');
             }
         }else{

@@ -11,6 +11,8 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         //酒店管理
         Route::get('hotel/index','HotelController@index')->name('hotel.index');
         Route::get('hotel/faci','HotelController@faci')->name('hotel.faci');
+        Route::match(['get','post'],'hotel/faci_add','HotelController@faciAdd')->name('hotel.faci_add');
+        Route::match(['get','post'],'hotel/add','HotelController@add')->name('hotel.add');    
     });
 });
 ?>
