@@ -38,10 +38,15 @@ class RouteServiceProvider extends ServiceProvider
         $this->mapApiRoutes();
 
         $this->mapWebRoutes();
-
+        $this->mapLmRoutes();
         //
     }
-
+    protected function mapLmRoutes()
+    {
+        Route::middleware('web')
+             ->namespace($this->namespace)
+             ->group(base_path('routes/lm.php'));
+    }
     /**
      * Define the "web" routes for the application.
      *
