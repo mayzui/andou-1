@@ -3,7 +3,7 @@
     <div class="row">
         <div class="col-sm-12">
             <div class="ibox-title">
-                <h5>管理员管理</h5>
+                <h5>商户管理</h5>
             </div>
             <div class="ibox-content">
                 
@@ -63,7 +63,7 @@
                                     @else
                                         <a href="{{route('merchants.reg')}}?id={{$item->id}}&is_reg=1"><button class="btn btn-group btn-xs" type="button">启用</button></a>
                                     @endif
-                                        
+                                         
                                     </div>
                                 </td>
                             </tr>

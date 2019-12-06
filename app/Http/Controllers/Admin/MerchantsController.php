@@ -29,9 +29,20 @@ class MerchantsController extends BaseController
            $where[]=['name', 'like', '%'.$all['name'].'%']; 
         }
         $data=DB::table('merchants')->where($where)->paginate(10);
+
         foreach ($data as $key => $value) {
-            $data[$key]->merchant_type_id=Db::table('merchant_type')->where('id',$value->merchant_type_id)->pluck('type_name')[0];
-            $data[$key]->username=Db::table('users')->where('id',$value->user_id)->pluck('name')[0];
+            $merchant_type=Db::table('merchant_type')->where('id',$value->merchant_type_id)->pluck('type_name');
+            if (!empty($merchant_type[0])) {
+                $data[$key]->merchant_type_id=$merchant_type[0];
+            }else{
+                $data[$key]->merchant_type_id='';
+            }
+            $username=Db::table('users')->where('id',$value->user_id)->pluck('name');
+            if (!empty($username[0])) {
+                $data[$key]->username=$username[0];
+            }else{
+                $data[$key]->username='';
+            }
         }
         $type=DB::table('merchant_type')->get();
         return $this->view('',['data'=>$data],['type'=>$type]);
@@ -73,6 +84,7 @@ class MerchantsController extends BaseController
         if (request()->isMethod('post')) {
             $save['type_name']=$all['type_name'];
             $save['has_children']=$all['has_children'];
+            $save['role_id']=$all['role_id'];
             if (empty($all['id'])) {
                 $re=Db::table('merchant_type')->insert($save);
             }else{
@@ -90,10 +102,24 @@ class MerchantsController extends BaseController
                 $data = (object)[];
                 $data->type_name='';
                 $data->has_children=0;
+                $data->role_id=0;
             }else{
                 $data=Db::table('merchant_type')->where('id',$all['id'])->first();
             }
-            return $this->view('',['data'=>$data]);
+            $role=Db::table('roles')->get();
+            return $this->view('',['data'=>$data],['role'=>$role]);
         }
+    }
+    /**删除商户分类
+     * [del description]
+     * @param string $value [description]
+     */
+    public function del()
+    {
+        $all = request()->all();
+        $id=$all['id'];
+        $re=Db::table('merchant_type')->where('id',$id)->delete();
+        flash('删除成功')->success();
+        return redirect()->route('merchants.merchant_type');
     }
 }

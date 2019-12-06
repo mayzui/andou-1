@@ -22,7 +22,16 @@
                     </div>
 
                     
-                    
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">创建子商户：</label>
+                        <div class="input-group col-sm-1">
+                            <select class="form-control" name="role_id">
+                                 @foreach($role as $k => $item)
+                                <option value="{{$item->id}}" @if($data->role_id == $item->id) selected="selected" @endif>{{$item->name}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
                     <div class="form-group">
                         <label class="col-sm-2 control-label">创建子商户：</label>
                         <div class="input-group col-sm-1">

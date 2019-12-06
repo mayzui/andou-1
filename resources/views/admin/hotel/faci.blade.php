@@ -3,7 +3,7 @@
     <div class="row">
         <div class="col-sm-12">
             <div class="ibox-title">
-                <h5>管理员管理</h5>
+                <h5>配置管理</h5>
             </div>
             <div class="ibox-content">
                 
@@ -33,7 +33,7 @@
                                 <td class="text-center">
                                     <div class="btn-group">
                                     <a href="{{route('hotel.faci_add')}}?id={{$item->id}}"><button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 修改</button></a>
-                                        
+                                    <a href="{{route('hotel.faci_del')}}?id={{$item->id}}"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o"></i> 删除</button></a>   
                                     </div>
                                 </td>
                             </tr>
