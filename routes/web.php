@@ -48,12 +48,28 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::post('config/store','ConfigController@store')->name('config.store');
         Route::get('config/delete/{id}','ConfigController@delete')->name('config.delete');
 
-
+        // 商品板块
         Route::resource('shop','ShopController',['only'=>['index','create','store','update','edit','destroy','goods','goodsCate','orders']]);
         Route::get('shop/goods','ShopController@goods')->name('shop.goods');
+
+        // 商品分类
         Route::get('shop/goodsCate','ShopController@goodsCate')->name('shop.goodsCate');
+        Route::get('shop/cateAdd','ShopController@cateAdd')->name('shop.cateAdd');
+        Route::get('shop/cateEdit/{id}','ShopController@cateEdit')->name('shop.cateEdit');
+        Route::any('shop/cateStore','ShopController@cateStore')->name('shop.cateStore');
+        Route::any('shop/cateDelete/{id}','ShopController@cateDelete')->name('shop.cateDelete');
+
+        Route::get('foods/information','FoodsController@information')->name('foods.information');
+        Route::get('foods/information1','FoodsController@information')->name('hotel.books');
+
+
+
         Route::get('shop/orders','ShopController@orders')->name('shop.orders');
         Route::get('shop/goodsBrand','ShopController@goodsBrand')->name('shop.goodsBrand');
+        Route::get('shop/brandAdd','ShopController@brandAdd')->name('shop.brandAdd');
+        Route::get('shop/brandUpdate/{id}','ShopController@brandUpdate')->name('shop.brandUpdate');
+        Route::get('shop/brandDelete/{id}','ShopController@brandDelete')->name('shop.brandDelete');
+        Route::post('shop/brandStore','ShopController@brandStore')->name('shop.brandStore');
 
         // 广告板块
         Route::get('banner/positionIndex','BannerController@position')->name('banner.position');
@@ -72,6 +88,8 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         // 商户板块
         Route::get('merchants/index','MerchantController@index')->name('merchants.index');
         Route::get('merchants/merchant_type','MerchantController@index')->name('merchants.merchant_type');
+
+        Route::get('foods/index','FoodsController@index')->name('foods.index');
 
     });
 
