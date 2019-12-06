@@ -17,10 +17,12 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('hotel/faci_del','HotelController@faciDel')->name('hotel.faci_del');
         Route::get('hotel/del','HotelController@del')->name('hotel.del');
         Route::get('hotel/status','HotelController@status')->name('hotel.status');
+        Route::get('hotel/books','HotelController@books')->name('hotel.books');
         //点餐模块
         Route::get('foods/index','FoodsController@index')->name('foods.index');
         Route::match(['get','post'],'foods/add','FoodsController@add')->name('foods.add');
         Route::get('foods/del','FoodsController@del')->name('foods.del');
+        Route::get('foods/information','FoodsController@information')->name('foods.information');
     });
 });
 ?>

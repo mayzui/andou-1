@@ -208,31 +208,45 @@ class HotelController extends BaseController
             return $this->view('',['data'=>$data]);
         }
     }
-    public function goods()
+    /**酒店预定列表
+     * [books description]
+     * @param  string $value [description]
+     * @return [type]        [description]
+     */
+    public function books($value='')
     {
-        dd(123);
-
-        return $this->view(null);
-    }
-
-    public function goodsCate ()
-    {
-        dd(123);
-
-        return $this->view(null);
-    }
-
-    public function orders ()
-    {
-        dd(123);
-
-        return $this->view(null);
-    }
-
-    public function goodsBrand ()
-    {
-        dd(123);
-
-        return $this->view(null);
+        $admin = Auth::guard('admin')->user();
+        $user_id=$admin->id;
+        $datas=Db::table('merchants')->where('user_id',$user_id)->first();
+        if (!empty($datas)) {
+            $role=$datas->id;
+            $data=Db::table('books')->where('merchant_id',$datas->id)->paginate(20);
+         }else{
+            $role=0;
+            $data=Db::table('books')->paginate(20);
+        }
+        if (!empty($data)) {
+             foreach ($data as $key => $value) {
+                 $user=Db::table('users')->where('id',$value->user_id)->first();
+                 if (!empty($user)) {
+                     $data[$key]->user_id=$user->name;
+                 }else{
+                     $data[$key]->user_id='用户不存在';   
+                 }
+                 $merchants=Db::table('merchants')->where('id',$value->merchant_id)->first();
+                 if (!empty($merchants)) {
+                     $data[$key]->merchant_id=$merchants->name;
+                 }else{
+                     $data[$key]->merchant_id='商户不存在';   
+                 }
+                 $hotel=Db::table('hotel_room')->where('id',$value->hotel_room_id)->first();
+                 if (!empty($hotel)) {
+                     $data[$key]->hotel_room_id=$hotel->house_name;
+                 }else{
+                     $data[$key]->hotel_room_id='房间不存在';   
+                 }
+             }
+         } 
+        return $this->view('',['data'=>$data],['role'=>$role]);
     }
 }
