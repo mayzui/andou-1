@@ -20,11 +20,19 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('hotel/books','HotelController@books')->name('hotel.books');
         Route::get('hotel/text','HotelController@text')->name('hotel.text');
         //点餐模块
+        // 菜品分类
         Route::get('foods/index','FoodsController@index')->name('foods.index');
-        Route::match(['get','post'],'foods/add','FoodsController@add')->name('foods.add');
-        Route::get('foods/del','FoodsController@del')->name('foods.del');
-        Route::get('foods/information','FoodsController@information')->name('foods.information');
+        Route::match(['get','post'],'foods/add','FoodsController@add')->name('foods.add');  // 新增 and 修改
+        Route::get('foods/del','FoodsController@del')->name('foods.del'); // 删除
+        // 菜品规格
         Route::get('foods/spec','FoodsController@spec')->name('foods.spec');
+        Route::match(['get','post'],'foods/specadd','FoodsController@specadd')->name('foods.specadd'); // 新增 and 修改
+        Route::get('foods/specdel','FoodsController@specdel')->name('foods.specdel'); // 删除
+        // 菜品详情
+        Route::get('foods/information','FoodsController@information')->name('foods.information');
+        Route::match(['get','post'],'foods/informationadd','FoodsController@informationadd')->name('foods.informationadd'); // 新增 and 修改
+        Route::get('foods/informationdel','FoodsController@informationdel')->name('foods.informationdel'); // 删除
+
     });
 });
 ?>
