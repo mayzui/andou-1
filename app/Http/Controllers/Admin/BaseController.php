@@ -36,7 +36,30 @@ class BaseController extends Controller
     {
         return $this->getCurrentAction()['controller'];
     }
-
+    /**
+     * 多图上传
+     * @return [type] [description]
+     */
+    public function uploads($files)
+    {
+        // $files=$all['imgs'];
+        $count=count($files);
+        $msg=array();
+         // var_dump($files);exit;
+        foreach ($files as $k=>$v){
+            $type = $v->getClientOriginalExtension();
+            $path=$v->getPathname();
+            if($type == "png" || $type == "jpg"){
+                $newname = 'uploads/'.date ( "Ymdhis" ).rand(0,9999);
+                $url = $newname.'.'.$type;
+                $upload=move_uploaded_file($path,$url);
+                $msg[]=$url;
+            }else{
+               return 0;  
+            }
+        }
+       return implode(',',$msg);
+    }
     /**
      * 获取当前方法名称(小写)
      * @return mixed

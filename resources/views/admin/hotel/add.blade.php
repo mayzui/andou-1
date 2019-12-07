@@ -46,6 +46,11 @@
                             <input type="file" id="file" name="content_url"  multiple="multiple" style="display:none">
                             <button type="button"  class="layui-btn" id="upload">上传图片</button>
                             <div class="gallery" id="gallery"></div>
+                            <div class="gallery" id="show">
+                                @foreach($data->img as $k => $v)
+                                <img class="img" src="/{{$v}}">
+                                @endforeach
+                            </div>
                         </div>
                         <style type="text/css">
                         .gallery .img-item {
@@ -178,7 +183,7 @@
         })
         //选择图片
         $("#file").change(function() {
-            //获取所有图片
+            $("#show").hide();
             var img = document.getElementById("file").files;
             //遍历
             for (var i = 0; i < img.length; i++) {

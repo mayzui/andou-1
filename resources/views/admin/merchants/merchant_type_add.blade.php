@@ -23,7 +23,7 @@
 
                     
                     <div class="form-group">
-                        <label class="col-sm-2 control-label">创建子商户：</label>
+                        <label class="col-sm-2 control-label">角色选择：</label>
                         <div class="input-group col-sm-1">
                             <select class="form-control" name="role_id">
                                  @foreach($role as $k => $item)

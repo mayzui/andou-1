@@ -36,7 +36,25 @@ class HotelController extends BaseController
         }
         return $this->view('',['data'=>$data],['role'=>$role]);
     }
-    /**添加修改房间
+    /**事务测试
+     * [add description]
+     * @param string $value [description]
+     */
+    public function text()
+    {
+        DB::beginTransaction(); //开启事务
+        $data['status']=0;
+        $re=DB::table('users')->where('id','1')->update($data);
+        $re2 =DB::table('users')->where('id','2')->update($data);
+        if ($re&&$re2) {
+            DB::commit();
+            echo 1;
+        }else{
+            DB::rollback();
+            echo 0;
+        }
+    }
+     /**添加修改房间
      * [add description]
      * @param string $value [description]
      */
@@ -63,24 +81,13 @@ class HotelController extends BaseController
                return json_encode(array('code'=>201,'msg'=>'缺少图片信息')); 
             }else{
                 if (!empty($all['imgs'])) {
-                    $files=$all['imgs'];
-                    $count=count($files);
-                    $msg=array();
-                    // var_dump($files);exit;
-                    foreach ($files as $k=>$v){
-                        $type = $v->getClientOriginalExtension();
-                        $path=$v->getPathname();
-                        if($type == "png" || $type == "jpg"){
-                            $newname = 'uploads/'.date ( "Ymdhis" ).rand(0,9999);
-                            $url = $newname.'.'.$type;
-                            $upload=move_uploaded_file($path,$url);
-                            $msg[]=$url;
-                        }else{
-                           return json_encode(array('code'=>201,'msg'=>'文件格式错误'));  
-                        }
+                    $save['img'] = $this->uploads($all['imgs']);
+                     // var_dump($save['img']);exit;
+                    if ($save['img'] === 0) {
+                        return json_encode(array('code'=>201,'msg'=>'文件格式错误'));
                     }
-                    $save['img']=implode(',',$msg);
-                }
+                    // var_dump($save['img']);exit();
+                } 
             }
             if (empty($all['id'])) {
                 $save['user_id']=$admin->id;
@@ -105,7 +112,8 @@ class HotelController extends BaseController
                 $data->desc=array();
                 $data->has_breakfast=1;
                 $data->wifi=1;
-                $data->has_window=1;  
+                $data->has_window=1;
+                $data->img=array();  
             }else{
                 $data=Db::table('hotel_room as hr')
                 ->select('hr.*','hv.id as tid','hv.*')
@@ -116,6 +124,7 @@ class HotelController extends BaseController
                     $data->desc=array();
                 }else{
                     $data->desc=explode(',',$data->desc);
+                    $data->img=explode(',',$data->img);
                 }
             }
             $desc=Db::table('hotel_faci')->get();

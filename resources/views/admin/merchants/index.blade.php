@@ -10,11 +10,11 @@
                 <form method="post" action="{{route('merchants.index')}}" name="form">
                 {{ csrf_field() }}
                 <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>
-                <input type="text" style="height: 25px;margin-left: 10px;" name="name" placeholder="商家名字">
+                <input type="text" style="height: 25px;margin-left: 10px;" value="{{$wheres['where']['name']}}" name="name" placeholder="商家名字">
                 <select style="height: 25px;margin-left: 10px;" name="merchant_type_id">
                     <option value="0">商家分类</option>
-                    @foreach($type as $k => $item)
-                    <option value="{{$item->id}}">{{$item->type_name}}</option>
+                    @foreach($wheres['type'] as $k => $item)
+                    <option value="{{$item->id}}" @if($wheres['where']['merchant_type_id'] == $item->id) selected="selected" @endif>{{$item->type_name}}</option>
                     @endforeach
                 </select>
                 <button style="height: 25px;margin-left: 10px;" type="submit">按条件查询</button>

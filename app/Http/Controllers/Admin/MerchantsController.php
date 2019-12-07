@@ -23,10 +23,16 @@ class MerchantsController extends BaseController
         $all = request()->all();
         $where[]=['id','>','0'];
         if (!empty($all['merchant_type_id'])) {
-           $where[]=['merchant_type_id',$all['merchant_type_id']]; 
+           $where[]=['merchant_type_id',$all['merchant_type_id']];
+           $screen['merchant_type_id'] = $all['merchant_type_id'];
+        }else{
+           $screen['merchant_type_id']='';
         }
         if (!empty($all['name'])) {
-           $where[]=['name', 'like', '%'.$all['name'].'%']; 
+           $where[]=['name', 'like', '%'.$all['name'].'%'];
+           $screen['name']=$all['name']; 
+        }else{
+           $screen['name']=''; 
         }
         $data=DB::table('merchants')->where($where)->paginate(10);
 
@@ -44,8 +50,9 @@ class MerchantsController extends BaseController
                 $data[$key]->username='';
             }
         }
-        $type=DB::table('merchant_type')->get();
-        return $this->view('',['data'=>$data],['type'=>$type]);
+        $wheres['type']=DB::table('merchant_type')->get();
+        $wheres['where']=$screen;
+        return $this->view('',['data'=>$data],['wheres'=>$wheres]);
     }
     /**修改商户状态
      * [reg description]
