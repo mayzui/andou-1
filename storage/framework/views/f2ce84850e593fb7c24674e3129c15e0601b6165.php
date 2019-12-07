@@ -14,6 +14,7 @@
     <link href="<?php echo e(loadEdition('/admin/css/font-awesome.min.css')); ?>" rel="stylesheet">
     <link href="<?php echo e(loadEdition('/admin/css/animate.min.css')); ?>" rel="stylesheet">
     <link href="<?php echo e(loadEdition('/admin/css/style.min.css')); ?>" rel="stylesheet">
+
     <?php echo $__env->yieldContent('css'); ?>
 </head>
 <body class="gray-bg">
@@ -23,6 +24,7 @@
 </div>
 <script src="<?php echo e(loadEdition('/js/jquery.min.js')); ?>"></script>
 <script src="<?php echo e(loadEdition('/admin/js/bootstrap.min.js')); ?>"></script>
+
 <?php echo $__env->yieldContent('js'); ?>
 <script>
     $('div.alert').not('.alert-important').delay(3000).fadeOut(350);
