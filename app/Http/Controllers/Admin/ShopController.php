@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 use App\Handlers\Tree;
 use App\Models\GoodBrands;
+use App\Models\Goods;
 use App\Models\GoodsCate;
 use Auth;
 
@@ -30,21 +31,66 @@ class ShopController extends BaseController
 
     public function index ()
     {
-
         return $this->view(null);
     }
 
-    public function goods(Auth $auth)
+    public function goods(Request $request ,Auth $auth)
+    {
+        $admin = Auth::guard('admin')->user();
+        $list = Goods::with(['goodsCate','goodBrands'])
+            ->orderBy('created_at','desc')
+            ->where(function($res) use ($admin){
+//                $res->where('user_id',$admin->id);
+            })
+            ->paginate($request->input('limit'));
+        return $this->view('goods',['list'=>$list]);
+    }
+
+    public function create (Request $request)
+    {
+        $goodsCate = GoodsCate::with(['children'=>function($res){
+            $res->with('children');
+
+        }])->where('pid','=',0)->get();
+        $goodBrands = GoodBrands::select('id','name')->orderBy('id','asc')->get();
+        return $this->view('goodsAdd',['goodsCate'=>json_encode($goodsCate),'goodBrands'=>$goodBrands]);
+    }
+
+    public function addAttr (Request $request)
+    {
+        echo '开发中。。';
+    }
+    public function update(Request $request)
+    {
+        return $this->view('update');
+    }
+
+    public function store (Request $request)
     {
 
-        $admin = Auth::guard('admin')->user();
-
-        dd($admin->id);
-
-
-        return $this->view(null);
     }
 
+    public function distroy (Request $request)
+    {
+        return false;
+    }
+
+
+    public function setStatus (Request $request,$field,$status,$id)
+    {
+        $validate = Validator::make(['status'=>$status,'id'=>$id],[
+            'status' => 'required',
+            'id'     => 'required',
+        ],[
+            'status.required'=>'缺少状态值',
+            'id.required'=>'缺少id',
+        ]);
+
+        $model = Goods::find($id);
+        $model->$field = $status;
+        $model->save();
+        return  redirect()->route('shop.goods');
+    }
     public function goodsCate (Request $request)
     {
         $list = GoodsCate::select('id','name','img','sort','pid')

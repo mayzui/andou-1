@@ -49,7 +49,7 @@
                         <label class="col-sm-2 control-label">图片：</label>
                         <div class="layui-upload">
                             <input type="hidden" name="img" id="img" value="{{$banner->img}}"/>
-                            <button type="button" class="layui-btn" id="image">上传图片</button>
+                            <button type="button" class="layui-btn" style="display: none;" id="image">上传图片</button>
                             <div class="layui-upload-list">
                                 <img class="layui-upload-img"  src="{{env('IMAGE_PATH_PREFIX')}}{{$banner->img}}" id="showImage">
                                 <p id="demoText"></p>

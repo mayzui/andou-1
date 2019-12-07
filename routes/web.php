@@ -49,8 +49,14 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('config/delete/{id}','ConfigController@delete')->name('config.delete');
 
         // 商品板块
-        Route::resource('shop','ShopController',['only'=>['index','create','store','update','edit','destroy','goods','goodsCate','orders']]);
+        Route::resource('shop','ShopController',['only'=>['index','orders']]);
+        Route::get('shop/setStatus/{field}/{status}/{id}','ShopController@setStatus')->name('shop.setStatus');
         Route::get('shop/goods','ShopController@goods')->name('shop.goods');
+        Route::get('shop/create','ShopController@create')->name('shop.create');
+        Route::post('shop/store','ShopController@store')->name('shop.store');
+        Route::get('shop/update','ShopController@update')->name('shop.update');
+        Route::get('shop/destroy','ShopController@destroy')->name('shop.destroy');
+        Route::get('shop/addAttr','ShopController@addAttr')->name('shop.addAttr');
 
         // 商品分类
         Route::get('shop/goodsCate','ShopController@goodsCate')->name('shop.goodsCate');
@@ -58,6 +64,10 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('shop/cateEdit/{id}','ShopController@cateEdit')->name('shop.cateEdit');
         Route::any('shop/cateStore','ShopController@cateStore')->name('shop.cateStore');
         Route::any('shop/cateDelete/{id}','ShopController@cateDelete')->name('shop.cateDelete');
+
+        // 商品
+        Route::get('shop/goodsAdd','ShopController@goods')->name('shop.goodsAdd');
+
 
         Route::get('foods/information','FoodsController@information')->name('foods.information');
         Route::get('foods/information1','FoodsController@information')->name('hotel.books');
@@ -90,6 +100,7 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('merchants/merchant_type','MerchantController@index')->name('merchants.merchant_type');
 
         Route::get('foods/index','FoodsController@index')->name('foods.index');
+        Route::get('foods/spec','FoodsController@spec')->name('foods.spec');
 
     });
 
