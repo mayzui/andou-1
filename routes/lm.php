@@ -19,6 +19,11 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('hotel/status','HotelController@status')->name('hotel.status');
         Route::get('hotel/books','HotelController@books')->name('hotel.books');
         Route::get('hotel/text','HotelController@text')->name('hotel.text');
+        //个人中心
+        Route::get('user/merchant','userController@merchant')->name('user.merchant');
+        Route::match(['get','post'],'user/merchant_update','userController@merchantUpdate')->name('user.merchant_update');
+        Route::get('user/address','userController@address')->name('user.address');
+        
         //点餐模块
         // 菜品分类
         Route::get('foods/index','FoodsController@index')->name('foods.index');
@@ -32,7 +37,8 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('foods/information','FoodsController@information')->name('foods.information');
         Route::match(['get','post'],'foods/informationadd','FoodsController@informationadd')->name('foods.informationadd'); // 新增 and 修改
         Route::get('foods/informationdel','FoodsController@informationdel')->name('foods.informationdel'); // 删除
-
+        Route::get('foods/cart','FoodsController@cart')->name('foods.cart');
+        Route::get('foods/order','FoodsController@order')->name('foods.order');
     });
 });
 ?>
