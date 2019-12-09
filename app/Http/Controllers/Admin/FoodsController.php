@@ -15,6 +15,143 @@ class FoodsController extends BaseController
      *
      * @return \Illuminate\Http\Response
      */
+    /*
+     *      订单表
+     * */
+    // 跳转订单界面
+    public function order(){
+        $id = Auth::id();
+        // 判断该用户，是否开店
+        $i = DB::table('merchants') -> where("user_id",$id) -> first();
+        if(!empty($i)){
+            // 如果开店，则能够看到用户购物车
+            // 查询数据库数据
+            $data = DB::table("foods_user_ordering") -> where('merchant_id',$id) -> paginate(10);
+        }else{
+            // 如果未开店，则为超级管理员，能够看见所有的数据
+            // 查询数据库数据
+            $data = DB::table("foods_user_ordering") -> paginate(10);
+            $id = "";
+        }
+        return $this -> view('',['data'=>$data,'id'=>$id]);
+    }
+
+    // 新增 and 修改订单
+    public function orderadd(){
+        $all = \request() -> all();
+        if(\request() -> isMethod("get")){
+            // 判断是跳转新增界面还是跳转修改界面
+             if(empty($all['id'])){
+                 // 查询用户购物车
+                 $cart = [];
+                 $cart = DB::table("foods_cart") -> where('user_id',Auth::id()) -> get();
+                 // 定义一个数组来用于接收上传数据
+                 $arr = [
+                     'cart' => $cart
+                 ];
+//                 return dd($cart);
+                 // 跳转新增界面
+                return $this -> view('',$arr);
+             }else{
+                 // 跳转修改界面
+                 return "udpate";
+             }
+        }else{
+            return "post";
+        }
+    }
+
+    /*
+     *      购物车
+     * */
+    // 跳转购物车界面
+    public function cart(){
+        $id = Auth::id();
+        // 判断该用户，是否开店
+        $i = DB::table('merchants') -> where("user_id",$id) -> first();
+        if(!empty($i)){
+            // 如果开店，则能够看到用户购物车
+            // 查询数据库数据
+            $data = DB::table("foods_cart") -> where('merchant_id',$id) -> paginate(10);
+        }else{
+            // 如果未开店，则为超级管理员，能够看见所有的数据
+            // 查询数据库数据
+            $data = DB::table("foods_cart") -> paginate(10);
+            $id = "";
+        }
+        return $this -> view('',['data'=>$data,'id'=>$id]);
+    }
+    // 添加购物车
+    public function cartadd(){
+        $all = \request() -> all();
+        if(\request()->isMethod("get")){
+            // 判断跳转新增界面还是跳转修改界面
+            if(empty($all['id'])){
+                // 跳转新增界面
+                return $this -> view('');
+            }else{
+                // 根据当前传入的id，查询数据库中的值
+                $datas = DB::table("foods_cart") -> where("id",$all['id']) -> first();
+                // 跳转修改界面
+                return $this -> view('',['data'=>$datas]);
+            }
+        }else{
+            // 判断执行新增操作还是执行修改操作
+            if(empty($all['id'])){
+                // 执行新增操作
+                // 获取提交数据
+                $data = [
+                    'user_id' => Auth::id(),
+                    'merchant_id' => Auth::id(),
+                    'name' => $all['name'],
+                    'price' => $all['price'],
+                    'num' => $all['num']
+                ];
+                // 链接数据库，新增数据
+                $i = DB::table("foods_cart") -> insert($data);
+                if($i){
+                    flash('新增成功') -> success();
+                    return redirect()->route('foods.cart');
+                }else{
+                    flash('新增失败') -> error();
+                    return redirect()->route('foods.cart');
+                }
+            }else{
+                // 执行修改操作
+                // 获取提交的数据
+                $data = [
+                    'name' => $all['name'],
+                    'price' => $all['price'],
+                    'num' => $all['num']
+                ];
+                // 链接数据库，执行修改操作
+                $i = DB::table("foods_cart") -> where('id',$all['id']) ->update($data);
+                if($i){
+                    flash('修改成功') -> success();
+                    return redirect()->route('foods.cart');
+                }else{
+                    flash('修改失败！未修改任何内容') -> error();
+                    return redirect()->route('foods.cart');
+                }
+            }
+
+        }
+    }
+
+    // 删除购物车
+    public function cartdel(){
+        // 获取传入的id
+        $id = \request() -> all();
+        // 根据id，删除数据库中的值
+        $i = DB::table("foods_cart") -> where("id",$id) ->delete();
+        if($i){
+            flash('删除成功') -> success();
+            return redirect()->route('foods.cart');
+        }else{
+            flash('删除失败') -> error();
+            return redirect()->route('foods.cart');
+        }
+    }
 
 
     
