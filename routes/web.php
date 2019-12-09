@@ -41,12 +41,21 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::resource('actions','ActionLogsController',['only'=> ['index','destroy'] ]);  //日志
 
         // 配置管理
-
         Route::get('config/index','ConfigController@index')->name('config.index');
         Route::get('config/add','ConfigController@add')->name('config.add');
         Route::get('config/update/{id}','ConfigController@update')->name('config.update');
         Route::post('config/store','ConfigController@store')->name('config.store');
         Route::get('config/delete/{id}','ConfigController@delete')->name('config.delete');
+
+
+
+        // 区域管理
+        Route::get('districts/index','DistrictsController@index')->name('districts.index');
+        Route::get('districts/create','DistrictsController@add')->name('districts.add');
+        Route::get('districts/update/{id}','DistrictsController@update')->name('districts.update');
+        Route::post('districts/store','DistrictsController@store')->name('districts.store');
+        Route::get('districts/close/{id}','DistrictsController@delete')->name('districts.close');
+
 
         // 商品板块
         Route::resource('shop','ShopController',['only'=>['index','orders']]);
@@ -64,13 +73,25 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('shop/cateEdit/{id}','ShopController@cateEdit')->name('shop.cateEdit');
         Route::any('shop/cateStore','ShopController@cateStore')->name('shop.cateStore');
         Route::any('shop/cateDelete/{id}','ShopController@cateDelete')->name('shop.cateDelete');
+        Route::get('shop/goodsAttr','ShopController@goodsAttr')->name('shop.goodsAttr');
+
+
 
         // 商品
         Route::get('shop/goodsAdd','ShopController@goods')->name('shop.goodsAdd');
-
-
         Route::get('foods/information','FoodsController@information')->name('foods.information');
         Route::get('foods/information1','FoodsController@information')->name('hotel.books');
+
+        // 活动
+
+        Route::get('shop/activity','ActivityController@activity')->name('shop.activity');
+
+
+
+        // 快递
+        Route::get('shop/express','ShopController@express')->name('shop.express');
+        // 统计
+        Route::get('shop/statics','ShopController@statics')->name('shop.statics');
 
 
 
@@ -80,6 +101,18 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('shop/brandUpdate/{id}','ShopController@brandUpdate')->name('shop.brandUpdate');
         Route::get('shop/brandDelete/{id}','ShopController@brandDelete')->name('shop.brandDelete');
         Route::post('shop/brandStore','ShopController@brandStore')->name('shop.brandStore');
+
+
+        // 优惠券
+
+        Route::get('coupon/list','CouponController@list')->name('coupon.list');
+        Route::get('coupon/create','CouponController@create')->name('coupon.create');
+        Route::get('coupon/update','CouponController@update')->name('coupon.update');
+        Route::get('coupon/delete','CouponController@delete')->name('coupon.delete');
+        Route::get('coupon/useLog','CouponController@useLog')->name('coupon.useLog');
+        Route::get('coupon/getLog','CouponController@getLog')->name('coupon.getLog');
+
+
 
         // 广告板块
         Route::get('banner/positionIndex','BannerController@position')->name('banner.position');
@@ -101,11 +134,16 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
 
         Route::get('foods/index','FoodsController@index')->name('foods.index');
         Route::get('foods/spec','FoodsController@spec')->name('foods.spec');
+        Route::get('foods/cart','FoodsController@cart')->name('foods.cart');
+        Route::get('foods/order','FoodsController@order')->name('foods.order');
+        Route::get('user/merchant','userController@merchant')->name('user.merchant');
+        Route::get('user/merchant_detailed','userController@merchant_detailed')->name('user.merchant_detailed');
+        Route::get('user/users_detailed','userController@users_detailed')->name('user.users_detailed');
 
     });
 
     // 图片上传
-    Route::post('upload/uploadImage','UploadController@uploadImage');
+    Route::any('upload/uploadImage','UploadController@uploadImage');
 });
 
 

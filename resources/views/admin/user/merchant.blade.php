@@ -6,19 +6,8 @@
                 <h5>商户管理</h5>
             </div>
             <div class="ibox-content">
-                
-                <form method="post" action="{{route('merchants.index')}}" name="form">
-                {{ csrf_field() }}
                 <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>
-                <input type="text" style="height: 25px;margin-left: 10px;" value="{{$wheres['where']['name']}}" name="name" placeholder="商家名字">
-                <select style="height: 25px;margin-left: 10px;" name="merchant_type_id">
-                    <option value="0">商家分类</option>
-                    @foreach($wheres['type'] as $k => $item)
-                    <option value="{{$item->id}}" @if($wheres['where']['merchant_type_id'] == $item->id) selected="selected" @endif>{{$item->type_name}}</option>
-                    @endforeach
-                </select>
-                <button style="height: 25px;margin-left: 10px;" type="submit">按条件查询</button>
-                </form>
+                
                     <style>
                         th ,td{
                             text-align: center;
@@ -58,12 +47,12 @@
                                 <td>{{$item->updated_at}}</td>
                                 <td class="text-center">
                                     <div class="btn-group">
-                                    @if($item->is_reg==1)
+                                    <!-- @if($item->is_reg==1)
                                         <a href="{{route('merchants.reg')}}?id={{$item->id}}&is_reg=0"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o"></i> 禁用</button></a>
                                     @else
                                         <a href="{{route('merchants.reg')}}?id={{$item->id}}&is_reg=1"><button class="btn btn-group btn-xs" type="button">启用</button></a>
-                                    @endif
-                                         
+                                    @endif -->
+                                       <a href="{{route('user.merchant_update')}}?id={{$item->id}}"><button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 修改</button></a>  
                                     </div>
                                 </td>
                             </tr>

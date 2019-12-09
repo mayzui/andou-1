@@ -1,6 +1,41 @@
 @extends('admin.layouts.layout')
+<script src="{{loadEdition('/js/jquery.min.js')}}"></script>
 <link href="{{loadEdition('/admin/plugins/layui/css/layui.css')}}">
 <script src="{{loadEdition('/admin/plugins/layui/layui.all.js')}}"></script>
+<script  src="{{loadEdition('/admin/plugins/webupload/webuploader.min.js')}}"></script>
+
+<style>
+    .dropDown{display:inline-block}.dropDown_A{display:inline-block}
+    .dropDown-menu{ display:none;transition: all 0.3s ease 0s}
+    .dropDown:focus,.dropDown-menu:focus {outline:0}
+    .dropDown-menu li.arrow{ position:absolute;display:block; width:12px; height:8px; margin-top:-13px; margin-left:20%; line-height:0;background:url(../images/icon-jt.png) no-repeat 0 0}
+
+    /*鼠标经过	*/
+    .dropDown.hover.dropDown_A,.dropDown.open.dropDown_A{text-decoration:none;background-color:rgba(255,255,255,0.2)}
+    .dropDown.open.dropDown_A.menu_dropdown-arrow{transition-duration:0.3s ;transition-property:all;_background-position:0 0}
+    .dropDown.open.dropDown_A.menu_dropdown-arrow{transform: rotate(180deg)}
+    .menu{background-color:#fff;border:solid 1px #f2f2f2; display: inline-block}
+    .menu.radius{border-top-left-radius:0;border-top-right-radius:0}
+    .menu.box-shadow{border-top:none}
+    .menu > li{ position: relative; float: none;display:block}
+    .menu > li > a{ display: block;clear: both;border-bottom:solid 1px #f2f2f2;padding:6px 20px;text-align:left;line-height:1.5;font-weight: normal;white-space:nowrap}
+    .menu > li:last-child > a{ border-bottom:none}
+    .menu > li > a:hover,.menu > li > a:focus,.menu > li.open > a{ text-decoration:none;background-color:#fafafa}
+    .menu > li > a.arrow{ position:absolute; top:50%; margin-top:-10px; right:5px;line-height: 20px; height: 20px; color: #999}
+    .menu > li >.menu{ display: none}
+    .menu > li.open >.menu{ display: inline-block;position: absolute; left:100%;top:-1px;min-width:100%}
+    /*禁用菜单*/
+    .menu > li.disabled > a{color:#999;text-decoration:none; cursor:no-drop; background-color:transparent}
+    /*线条*/
+    .menu > li.divider{ display:block;height:0px; line-height:0px;margin:9px 0;overflow:hidden; border-top:solid 1px #eee}
+    /*打开菜单*/
+    .dropDown >.dropDown-menu{ display: none}
+    .dropDown.open{position:relative;z-index:990}
+    /*默认左对齐*/
+    .dropDown.open >.dropDown-menu{position:absolute;z-index:1000;display:inline-block;top:100%;left:-1px;min-width:100%;background-color:#fff;border:solid 1px #f2f2f2}
+    /*右对齐*/
+    .dropDown.open.right >.dropDown-menu{right:-1px!important;left:auto!important}
+</style>
 @section('content')
     <div class="row">
         <div class="col-sm-12">
@@ -14,76 +49,62 @@
                 <div class="hr-line-dashed m-t-sm m-b-sm"></div>
                 <form class="form-horizontal m-t-md" action="{{ route('shop.store') }}" method="post" accept-charset="UTF-8" enctype="multipart/form-data">
                     {!! csrf_field() !!}
+
+
                     <div class="form-group">
                         <label class="col-sm-2 control-label">商品分类：</label>
-                        <div class="input-group col-sm-2">
-                            <input type="text" name="goods_cate_i" value="">
-                            <div id="test13" class="demo-tree-more"></div>
-                            <div id="goodsCate" class="demo-tree-more"></div>
-                        </div>
+                        <div class="input-group col-sm-2" style="width: 500px;">
+                            <select class="form-control" name="goods_cate_level_1" id="goods_cate_level_1" style="width: 100px;">
+                                @foreach($configure['province'] as $k => $province)
+                                    <option value="{{$province->id}}" @if($province->id === $data->province_id) selected="selected" @endif>{{$province->name}}</option>
+                                @endforeach
+                            </select>
 
+                            <select class="form-control" name="city_id" id="city" style="float: left;margin-left:10px;width: 100px;@if($data->province_id == 0) display:none; @endif">
+                                @foreach($configure['city'] as $k => $city)
+                                    <option value="{{$city->id}}" @if($city->id === $data->city_id) selected="selected" @endif>{{$city->name}}</option>
+                                @endforeach
+                            </select>
+
+                            <select class="form-control" name="area_id" id="area" style="float: left;margin-left: 10px;width: 100px;@if($data->city_id == 0) display:none; @endif">
+                                @foreach($configure['area'] as $k => $area)
+                                    <option value="{{$area->id}}" @if($area->id === $data->area_id) selected="selected" @endif>{{$area->name}}</option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
 
-                    <script>
-                    layui.use(['tree', 'util'],function () {
-                        var dataCate = "{{$goodsCate}}";
-                        var tree = layui.tree
-                            ,layer = layui.layer
-                            ,util = layui.util
-                            //模拟数据1
-                            ,data1 = [{
-                                title: '江西'
-                                ,id: 1
-                                ,children: [{
-                                    title: '南昌'
-                                    ,id: 1000
-                                    ,children: [{
-                                        title: '青山湖区'
-                                        ,id: 10001
-                                    },{
-                                        title: '高新区'
-                                        ,id: 10002
-                                    }]
-                                },{
-                                    title: '九江'
-                                    ,id: 1001
-                                },{
-                                    title: '赣州'
-                                    ,id: 1002
-                                }]
-                            },{
-                                title: '广西'
-                                ,id: 2
-                                ,children: [{
-                                    title: '南宁'
-                                    ,id: 2000
-                                },{
-                                    title: '桂林'
-                                    ,id: 2001
-                                }]
-                            },{
-                                title: '陕西'
-                                ,id: 3
-                                ,children: [{
-                                    title: '西安'
-                                    ,id: 3000
-                                },{
-                                    title: '延安'
-                                    ,id: 3001
-                                }]
-                            }]
-                        //无连接线风格
-                        tree.render({
-                            elem: '#goodsCate'
-                            ,data : dataCate
-                            ,showLine: true  //是否开启连接线
-                        });
-                    });
-
-                    </script>
 
                     <div class="form-group">
-                        <label class="col-sm-2 control-label">品牌：</label>
+                        <label class="col-sm-2 control-label">：</label>
+                        <div class="input-group col-sm-2">
+
+{{--                            <ul class="dropDown-menu menu radius box-shadow" >--}}
+{{--                                @foreach($goodsCate as $v)--}}
+{{--                                <li><a href="#">{{$v->name}}<i class="arrow Hui-iconfont"></i></a>--}}
+{{--                                    @if ($v->children)--}}
+{{--                                    <ul class="menu" >--}}
+{{--                                        @foreach($v->children as $vv)--}}
+{{--                                        <li><a href="javascript:;">{{$vv->name}}<i class="arrow Hui-iconfont"></i></a>--}}
+{{--                                            @if ($vv->children)--}}
+{{--                                            <ul class="menu"  >--}}
+{{--                                                @foreach($vv->children as $vvv)--}}
+{{--                                                    <li><a href="javascript:;">{{$vvv->name}}</a></li>--}}
+{{--                                                @endforeach--}}
+{{--                                            </ul>--}}
+{{--                                            @endif--}}
+{{--                                        </li>--}}
+{{--                                        @endforeach--}}
+{{--                                    </ul>--}}
+{{--                                    @endif--}}
+{{--                                </li>--}}
+{{--                              @endforeach--}}
+{{--                            </ul>--}}
+                        </div>
+                    </div>
+                    <div class="hr-line-dashed m-t-sm m-b-sm"></div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">商品品牌：</label>
                         <div class="input-group col-sm-2">
                             <select name="goods_brand_id" class="form-control form-select">
                                 @foreach($goodBrands as $k=>$b)
@@ -92,42 +113,70 @@
                             </select>
                         </div>
                     </div>
+                    <div class="hr-line-dashed m-t-sm m-b-sm"></div>
                     <div class="form-group">
                         <label class="col-sm-2 control-label">商品名称：</label>
                         <div class="input-group col-sm-2">
                             <input type="text" class="form-control" name="name" value="{{old('name')}}" required data-msg-required="请输入商品名称">
                         </div>
                     </div>
+                    <div class="hr-line-dashed m-t-sm m-b-sm"></div>
                     <div class="form-group">
                         <label class="col-sm-2 control-label">商品描述：</label>
                         <div class="input-group col-sm-4">
                             <textarea type="text" rows="5" name="desc" id="desc" placeholder="商品简介" class="form-control" required data-msg-required="请输入跳转链接">{{old('desc')}}</textarea>
                         </div>
                     </div>
+                    <div class="hr-line-dashed m-t-sm m-b-sm"></div>
                     <div class="form-group">
                         <label class="col-sm-2 control-label">商品价格：</label>
                         <div class="input-group col-sm-2">
-                            <input type="text" class="form-control" name="price" value="{{old('price')}}" required data-msg-required="请输入商品价格">
+                            <input type="text" class="form-control" name="price" value="{{old('price')}}" required data-msg-required="请输入商品价格" >
                         </div>
                     </div>
-
+                    <div class="hr-line-dashed m-t-sm m-b-sm"></div>
                     <div class="form-group">
                         <label class="col-sm-2 control-label">商品邮费：</label>
                         <div class="input-group col-sm-2">
                             <input type="text" class="form-control" name="dilivery" value="{{old('dilivery')}}" required data-msg-required="请输入商品邮费">
                         </div>
                     </div>
-
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label">排序：</label>
-                        <div class="input-group col-sm-2">
-                            <input type="text" class="form-control" name="sort" value="{{old('sort')}}" required data-msg-required="排序">
-                        </div>
-                    </div>
-
                     <div class="hr-line-dashed m-t-sm m-b-sm"></div>
                     <div class="form-group">
-                        <label class="col-sm-2 control-label">图片：</label>
+                        <label class="col-sm-2 control-label">热卖：</label>
+                        <div class="input-group col-sm-2">
+                            <div class="radio i-checks">
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <input type="radio" name='is_hot' value="1" checked="checked"/>开启&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <input type="radio" name='is_hot' value="0" />关闭
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hr-line-dashed"></div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">推荐：</label>
+                        <div class="input-group col-sm-2">
+                            <div class="radio i-checks">
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <input type="radio" name='is_recommend' value="1" checked="checked"/>开启&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <input type="radio" name='is_recommend' value="0" />关闭
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hr-line-dashed"></div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">特价：</label>
+                        <div class="input-group col-sm-2">
+                            <div class="radio i-checks">
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <input type="radio" name='is_bargain' value="1" checked="checked"/>开启&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <input type="radio" name='is_bargain' value="0" />关闭
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hr-line-dashed"></div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">封面图片：</label>
                         <div class="layui-upload">
                             <input type="hidden" name="img" id="img" value=""/>
                             <button type="button" class="layui-btn" id="image" style="display: none;">上传图片</button>
@@ -136,7 +185,6 @@
                                 <p id="demoText"></p>
                             </div>
                         </div>
-
                         <script>
                             layui.use('upload', function(){
                                 var $ = layui.jquery
@@ -172,20 +220,61 @@
                             });
                         </script>
                     </div>
-                    <div class="hr-line-dashed m-t-sm m-b-sm"></div>
+                    <div class="hr-line-dashed"></div>
+
+
                     <div class="form-group">
-                        <label class="col-sm-2 control-label">状态：</label>
-                        <div class="input-group col-sm-1">
-                            <select class="form-control" name="status">
-                                <option value="1" @if(old('status') == 1) selected="selected" @endif>正常</option>
-                                <option value="2" @if(old('status') == 0) selected="selected" @endif>未发布</option>
-                            </select>
-                            @if ($errors->has('status'))
-                                <span class="help-block m-b-none"><i class="fa fa-info-circle"></i>{{$errors->first('status')}}</span>
-                            @endif
+                        <label class="col-sm-2 control-label">相册：</label>
+                        <div class="input-group col-sm-2">
+                            <input type="hidden" id="data_photo" name="photo" >
+                            <div id="fileList" class="uploader-list" style="float:right"></div>
+                            <div id="imgPicker" style="float:left">选择图片</div>
+                            <img id="img_data" height="100px" style="float:left;margin-left: 50px;margin-top: -10px;" src="/admin/images/no_img.jpg"/>
                         </div>
                     </div>
-                    <div class="hr-line-dashed m-t-sm m-b-sm"></div>
+                    <div class="hr-line-dashed"></div>
+                    <script type="text/javascript">
+                        var $list = $('#fileList');
+                        //上传图片,初始化WebUploader
+                        var uploader = WebUploader.create({
+                            auto: true
+                            ,swf: "{{loadEdition('/admin/plugins/webupload/Uploader.swf')}}"
+                            ,url: '/admin/upload/uploadImage'
+                            ,headers : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')}
+                            ,duplicate :true,// 重复上传图片，true为可重复false为不可重复
+                            pick: '#imgPicker',// 选择文件的按钮。可选。
+                            accept: {
+                                title: 'Images',
+                                extensions: 'gif,jpg,jpeg,bmp,png',
+                                mimeTypes: 'image/jpg,image/jpeg,image/png'
+                            },
+                            'onUploadSuccess': function(file, data, response) {
+                                $("#data_photo").val(data._raw);
+                                $("#img_data").attr('src', '/uploads/images/' + data._raw).show();
+                            }
+                        });
+
+                        uploader.on( 'fileQueued', function( file ) {
+                            $list.html( '<div id="' + file.id + '" class="item">' +
+                                '<h4 class="info">' + file.name + '</h4>' +
+                                '<p class="state">正在上传...</p>' +
+                                '</div>' );
+                        });
+
+                        // 文件上传成功
+                        uploader.on( 'uploadSuccess', function( file ) {
+                            $( '#'+file.id ).find('p.state').text('上传成功！');
+                        });
+
+                        // 文件上传失败，显示上传出错。
+                        uploader.on( 'uploadError', function( file ) {
+                            $( '#'+file.id ).find('p.state').text('上传出错!');
+                        });
+
+                    </script>
+
+
+
                     <div class="form-group">
                         <div class="col-sm-12 col-sm-offset-2">
                             <button class="btn btn-primary" type="submit"><i class="fa fa-check"></i>&nbsp;保 存</button>　<button class="btn btn-white" type="reset"><i class="fa fa-repeat"></i> 重 置</button>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 use App\Handlers\Tree;
 use App\Models\GoodBrands;
 use App\Models\Goods;
+use App\Models\GoodsAttr;
 use App\Models\GoodsCate;
 use Auth;
 
@@ -49,12 +50,22 @@ class ShopController extends BaseController
     public function create (Request $request)
     {
         $goodsCate = GoodsCate::with(['children'=>function($res){
-            $res->with('children');
+                $res->with('children');
+            }])->where('pid','=',0)
+            ->get();
 
-        }])->where('pid','=',0)->get();
+        $level1 = GoodsCate::where('pid','=',0)->get();
         $goodBrands = GoodBrands::select('id','name')->orderBy('id','asc')->get();
-        return $this->view('goodsAdd',['goodsCate'=>json_encode($goodsCate),'goodBrands'=>$goodBrands]);
+        return $this->view('goodsAdd',['goodsCate'=>$goodsCate,'goodBrands'=>$goodBrands]);
     }
+
+
+    public function goodsAttr ()
+    {
+        $list = GoodsAttr::orderBy('id','desc')->paginate();
+        return $this->view('goodsAttr',['list'=>$list]);
+    }
+
 
     public function addAttr (Request $request)
     {
