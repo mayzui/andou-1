@@ -39,8 +39,6 @@ class UploadController extends Controller
     public function uploadImage(Request $request)
     {
         $file = $request->file('file');
-
-
         //如果是有效的上传文件
         if($file->isValid()) {
             //            获取原文件的文件类型
