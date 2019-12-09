@@ -39,6 +39,7 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('foods/informationdel','FoodsController@informationdel')->name('foods.informationdel'); // 删除
         Route::get('foods/cart','FoodsController@cart')->name('foods.cart');
         Route::get('foods/order','FoodsController@order')->name('foods.order');
+        Route::get('shop/goodsAttr','ShopController@goodsAttr')->name('shop.goodsAttr');
     });
 });
 ?>

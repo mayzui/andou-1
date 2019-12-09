@@ -122,7 +122,7 @@
                 for (var i = 0; i < res.data.length; i++) {
                          html+='<option value="'+res.data[i].id+'">'+res.data[i].name+'</option>';           
                     }
-                if(res.data.length==1){
+                
                     $.get("{{route('user.address')}}",{id:res.data[0].id},function(res){
                         var html1='';
                     for (var i = 0; i < res.data.length; i++) {
@@ -133,11 +133,7 @@
                     $("#city").show();                                
                     $("#city").html(html);
                     },"json");
-                }else{
-                    $("#area").hide();
-                    $("#city").show();                                
-                    $("#city").html(html);
-                }
+
         },"json")
     });
     $("#city").change(function() {

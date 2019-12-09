@@ -38,12 +38,12 @@ class UserController extends BaseController
         if (request()->isMethod('post')) {
             $id=$all['id'];
             $all['updated_at']=date('Y-m-d H:i:s',time());
+            // echo date('Y-m-d H:i:s',time());exit();
             if(!empty(request()->file('file'))){
                 $file[0]=request()->file('file');
                 $all['logo_img']=$this->uploads($file);
                 unset($all['file']);
             }
-            // }
             unset($all['id']);
             unset($all['_token']);
             $re=Db::table('merchants')->where('id',$id)->update($all);

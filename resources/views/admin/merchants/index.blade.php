@@ -45,7 +45,7 @@
                                 <td>{{$item->id}}</td>
                                 <td>{{$item->name}}</td>
                                 <th>{{$item->username}}</th>
-                                <td><img src="{{ env('IMAGE_PATH_PREFIX')}}{{$item->logo_img}}" alt="" style="width: 50px;height: 50px;"></td>
+                                <td><img src="/{{$item->logo_img}}" alt="" style="width: 50px;height: 50px;"></td>
                                 <td>{{$item->address}}</td>
                                 <td>{{$item->merchant_type_id}}</td>
                                 <td>@if($item->is_reg==1)
