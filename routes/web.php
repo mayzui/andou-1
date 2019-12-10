@@ -112,6 +112,19 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('coupon/useLog','CouponController@useLog')->name('coupon.useLog');
         Route::get('coupon/getLog','CouponController@getLog')->name('coupon.getLog');
 
+        // 财务中心
+        Route::get('finance/integral','FinanceController@integral')->name('finance.integral');
+        Route::get('finance/cashOut','FinanceController@cashOut')->name('finance.cashOut');
+        Route::get('finance/cashLogs','FinanceController@cashLogs')->name('finance.cashLogs');
+        Route::get('finance/charge','FinanceController@charge')->name('finance.charge');
+
+        // 用户中心
+        Route::get('user/list','UserController@integral')->name('user.list');
+        Route::get('user/cashOut','UserController@cashOut')->name('user.cashOut');
+        Route::get('user/cashLogs','UserController@cashLogs')->name('user.cashLogs');
+        Route::get('user/charge','UserController@charge')->name('user.charge');
+
+
 
 
         // 广告板块
@@ -131,6 +144,7 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         // 商户板块
         Route::get('merchants/index','MerchantController@index')->name('merchants.index');
         Route::get('merchants/merchant_type','MerchantController@index')->name('merchants.merchant_type');
+        Route::get('hotel/merchant','MerchantController@merchant')->name('hotel.merchant');
 
         Route::get('foods/index','FoodsController@index')->name('foods.index');
         Route::get('foods/spec','FoodsController@spec')->name('foods.spec');
@@ -139,6 +153,14 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('user/merchant','userController@merchant')->name('user.merchant');
         Route::get('user/merchant_detailed','userController@merchant_detailed')->name('user.merchant_detailed');
         Route::get('user/users_detailed','userController@users_detailed')->name('user.users_detailed');
+        Route::get('merchants.industry','userController@industry')->name('merchants.industry');
+
+
+
+        Route::get('foods/orders','userController@orders')->name('foods.orders');
+        Route::get('foods/examine','userController@examine')->name('foods.examine');
+
+
 
     });
 
