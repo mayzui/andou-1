@@ -157,4 +157,57 @@ class MerchantsController extends BaseController
         flash('删除成功')->success();
         return redirect()->route('merchants.merchant_type');
     }
+
+    /**商户行业列表
+     * [industry description]
+     * @return [type] [description]
+     */
+    public function industry()
+    {   
+        $data=DB::table('merchant_industry')->paginate(20);
+        return $this->view('',['data'=>$data]);
+    }
+    /**新增修改商户行业
+     * [industryAdd description]
+     * @return [type] [description]
+     */
+    public function industryAdd()
+    {   
+        $all = request()->all();
+        if (request()->isMethod('post')) {
+            $save['name']=$all['name'];
+            if (empty($all['id'])) {
+                $re=Db::table('merchant_industry')->insert($save);
+            }else{
+                $re=Db::table('merchant_industry')->where('id',$all['id'])->update($save);
+            }
+            if ($re) {
+                flash('修改成功')->success();
+                return redirect()->route('merchants.industry');
+            }else{
+                flash('修改失败')->error();
+                return redirect()->route('merchants.industry');
+            }
+        }else{
+            if (empty($all['id'])) {
+                $data = (object)[];
+                $data->name='';
+            }else{
+                $data=Db::table('merchant_industry')->where('id',$all['id'])->first();
+            }
+            return $this->view('',['data'=>$data]);
+        }
+    }
+    /**删除商户行业
+     * [industryDel description]
+     * @param string $value [description]
+     */
+    public function industryDel()
+    {
+        $all = request()->all();
+        $id=$all['id'];
+        $re=Db::table('merchant_industry')->where('id',$id)->delete();
+        flash('删除成功')->success();
+        return redirect()->route('merchants.industry');
+    }
 }

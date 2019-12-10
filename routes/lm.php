@@ -10,7 +10,7 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('merchants/merchant_type','MerchantsController@merchantType')->name('merchants.merchant_type');
         Route::match(['get','post'],'merchants/merchant_type_add','MerchantsController@merchantTypeAdd')->name('merchants.merchant_type_add');
         Route::get('merchants/industry','MerchantsController@industry')->name('merchants.industry');
-        Route::get('merchants/industry_add','MerchantsController@industryAdd')->name('merchants.industry_add');
+        Route::match(['get','post'],'merchants/industry_add','MerchantsController@industryAdd')->name('merchants.industry_add');
         Route::get('merchants/industry_del','MerchantsController@industryDel')->name('merchants.industry_del');
         //酒店管理
         Route::match(['get','post'],'hotel/index','HotelController@index')->name('hotel.index');
@@ -39,6 +39,8 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('foods/specdel','FoodsController@specdel')->name('foods.specdel'); // 删除
         // 菜品详情
         Route::get('foods/information','FoodsController@information')->name('foods.information');
+        Route::get('foods/comment','FoodsController@comment')->name('foods.comment');
+        Route::get('foods/merchant_classification','FoodsController@merchantClassification')->name('foods.merchant_classification');
         Route::match(['get','post'],'foods/informationadd','FoodsController@informationadd')->name('foods.informationadd'); // 新增 and 修改
         Route::get('foods/informationdel','FoodsController@informationdel')->name('foods.informationdel'); // 删除
         Route::get('foods/cart','FoodsController@cart')->name('foods.cart');
