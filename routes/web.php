@@ -65,7 +65,13 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::post('shop/store','ShopController@store')->name('shop.store');
         Route::get('shop/update','ShopController@update')->name('shop.update');
         Route::get('shop/destroy','ShopController@destroy')->name('shop.destroy');
+
+
         Route::get('shop/addAttr','ShopController@addAttr')->name('shop.addAttr');
+        Route::get('shop/attrUpdate/{id}','ShopController@attrUpdate')->name('shop.attrUpdate');
+        Route::get('shop/attrDelete/{id}','ShopController@attrDelete')->name('shop.attrDelete');
+        Route::get('shop/addAttrValue/{id}','ShopController@addAttrValue')->name('shop.addAttrValue');
+        Route::post('shop/attrStore','ShopController@attrStore')->name('shop.attrStore');
 
         // 商品分类
         Route::get('shop/goodsCate','ShopController@goodsCate')->name('shop.goodsCate');
@@ -74,8 +80,7 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::any('shop/cateStore','ShopController@cateStore')->name('shop.cateStore');
         Route::any('shop/cateDelete/{id}','ShopController@cateDelete')->name('shop.cateDelete');
         Route::get('shop/goodsAttr','ShopController@goodsAttr')->name('shop.goodsAttr');
-
-
+        Route::post('shop/saveAttrValue','ShopController@saveAttrValue')->name('shop.saveAttrValue');
 
         // 商品
         Route::get('shop/goodsAdd','ShopController@goods')->name('shop.goodsAdd');
@@ -124,9 +129,6 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('user/cashLogs','UserController@cashLogs')->name('user.cashLogs');
         Route::get('user/charge','UserController@charge')->name('user.charge');
 
-
-
-
         // 广告板块
         Route::get('banner/positionIndex','BannerController@position')->name('banner.position');
         Route::get('banner/positionAdd','BannerController@positionAdd')->name('banner.positionAdd');
@@ -159,11 +161,13 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
 
         Route::get('foods/orders','userController@orders')->name('foods.orders');
         Route::get('foods/examine','userController@examine')->name('foods.examine');
-
-
+        Route::get('foods/administration','userController@administration')->name('foods.administration');
+        Route::get('foods/comment','userController@administration')->name('foods.comment');
+        Route::get('foods/merchant_classification','userController@merchant_classification')->name('foods.merchant_classification');
+        Route::get('foods/set_meal','userController@set_meal')->name('foods.set_meal');
 
     });
-
+    Route::post('shop/getAttr','ShopController@getAttr')->name('shop.getAttr');
     // 图片上传
     Route::any('upload/uploadImage','UploadController@uploadImage');
 });
