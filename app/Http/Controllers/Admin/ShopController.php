@@ -5,7 +5,9 @@ use App\Handlers\Tree;
 use App\Models\GoodBrands;
 use App\Models\Goods;
 use App\Models\GoodsAttr;
+use App\Models\GoodsAttrValue;
 use App\Models\GoodsCate;
+use App\Models\Merchant;
 use Auth;
 
 use App\Http\Requests\Admin\ShopRequest;
@@ -21,6 +23,8 @@ class ShopController extends BaseController
 
     protected $shopService;
 
+    protected $merchant_type_id = 2;
+
     /**
      * ActionLogsController constructor.
      * @param $actionLogsService
@@ -28,11 +32,6 @@ class ShopController extends BaseController
     public function __construct(ShopService $shopService)
     {
         $this->shopService = $shopService;
-    }
-
-    public function index ()
-    {
-        return $this->view(null);
     }
 
     public function goods(Request $request ,Auth $auth)
@@ -60,20 +59,119 @@ class ShopController extends BaseController
     }
 
 
-    public function goodsAttr ()
+    public function goodsAttr (Request $request)
     {
-        $list = GoodsAttr::orderBy('id','desc')->paginate();
+        $admin = Auth::guard('admin')->user();
+        $list = GoodsAttr::orderBy('id','desc')
+            ->where('user_id','=',$admin->id)
+            ->paginate($request->input('limit'));
         return $this->view('goodsAttr',['list'=>$list]);
     }
 
-
     public function addAttr (Request $request)
     {
-        echo '开发中。。';
+        return $this->view('addAttr');
     }
-    public function update(Request $request)
+
+    public function attrUpdate ($id)
     {
-        return $this->view('update');
+        $data = GoodsAttr::find($id);
+        return $this->view('updateAttr',['data'=>$data]);
+    }
+
+    // 异步获取属性
+    public function getAttr (Request $request)
+    {
+        $data = GoodsAttr::with('attrValue')->find($request->input('id'));
+        if ($data) {
+            $result = ['code'=>200,'data'=>$data];
+            echo  json_encode($result);
+        }
+    }
+
+    // 存储属性值
+    public function saveAttrValue (Request $request)
+    {
+        $validate = Validator::make($request->all(),[
+            'id' => 'required',
+            'attr_value' => 'required|array',
+        ],[
+            'name.required'=>'名称必须',
+            'attr_value.required'=>'属性必须',
+            'attr_value.array'=>'请填写属性值',
+        ]);
+
+        if ($validate->fails()) {
+            flash($validate->errors()->first())->error()->important();
+            return redirect()->route('shop.goodsAttr');
+        }
+
+        $data = $request->all();
+        try {
+            foreach ($data['attr_value'] as $k=>$v) {
+                $model =  GoodsAttrValue::find($k);
+                if (!$model) {
+                    $model = new GoodsAttrValue();
+                }
+                $model->goods_attr_id = $request->input('id');
+                $model->value = $v;
+                $model->save();
+            }
+        }catch (\Exception $e) {
+            flash($e->getMessage())->error()->important();
+            return redirect()->route('shop.goodsAttr');
+        }
+    }
+
+    public function attrStore (Request $request)
+    {
+        $validate = Validator::make($request->all(),[
+            'name' => 'required',
+            'is_sale_attr' => 'required',
+        ],[
+            'name.required'=>'名称必须',
+            'is_sale_attr.numeric'=>'排序必须是数字',
+        ]);
+
+
+        if ($validate->fails()) {
+            flash($validate->errors()->first())->error()->important();
+            return redirect()->route('shop.addAttr');
+        }
+
+        $model = new GoodsAttr();
+        if ($request->input('id')) {
+            $model = GoodsAttr::find($request->input('id'));
+        }
+
+        $admin = Auth::guard('admin')->user();
+        $model->user_id = $admin->id;
+
+        $merchant =  Merchant::where('user_id','=',$admin->id)
+            ->where('merchant_type_id',$this->merchant_type_id)
+            ->first();
+
+        // 判断是哪个商户或者修改  上线后可以删除判断
+
+        $model->merchant_id = 0;
+        if ($merchant) {
+            $model->merchant_id = $merchant->id;
+        }
+
+        $model->name = $request->input('name');
+        $model->is_sale_attr = $request->input('is_sale_attr');
+
+        if ($model->save()) {
+            return   redirect()->route('shop.goodsAttr');
+        }
+        return  viewError('操作失败','shop.addAttr');
+    }
+
+
+    public function update(Request $request,$id)
+    {
+
+        return $this->view('update',['data'=>$data]);
     }
 
     public function store (Request $request)
@@ -200,9 +298,9 @@ class ShopController extends BaseController
 
     public function orders ()
     {
-        dd(123);
 
-        return $this->view(null);
+
+        return $this->view('orders',['list'=>[]]);
     }
 
     public function goodsBrand (Request $request)
@@ -262,5 +360,15 @@ class ShopController extends BaseController
             return redirect()->route('shop.goodsBrand');
         }
         return viewError('已删除或者删除失败');
+    }
+
+    public function statics (Request $request)
+    {
+        return view('statics',[]);
+    }
+
+    public function express (Request $request)
+    {
+        return $this->view('express');
     }
 }
