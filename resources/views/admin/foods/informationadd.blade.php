@@ -46,19 +46,8 @@
                         <label class="col-sm-2 control-label">菜品规格：</label>
                         <div class="input-group col-sm-2 checkbox">
                             @foreach($spec as $k => $v)
-                                <label><input type="checkbox" name="specifications[]" value="{{ $v->id }}" />{{ $v->name }}</label>
+                                <label><input type="checkbox" @if(in_array($v->id,$data->specifications)) checked="checked" @endif name="specifications[]" value="{{ $v->id }}" />{{ $v->name }}</label>
                             @endforeach
-                            {{--@foreach($spec as $v)--}}
-                                {{--@foreach($data_spec as $m)--}}
-                                    {{--@if($v -> id == $m)--}}
-                                        {{--<label><input type="checkbox" name="specifications[]" value="{{ $v->id }}" checked />{{ $v->name }}</label>--}}
-                                        {{--@else--}}
-                                        {{--<label><input type="checkbox" name="specifications[]" value="{{ $v->id }}" />{{ $v->name }}</label>--}}
-                                        {{--@continue;--}}
-                                    {{--@endif--}}
-
-                                {{--@endforeach--}}
-                            {{--@endforeach--}}
                         </div>
                     </div>
                     <div class="form-group">

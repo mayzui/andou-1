@@ -28,32 +28,33 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::match(['get','post'],'user/merchant_update','UserController@merchantUpdate')->name('user.merchant_update');
         Route::get('user/address','UserController@address')->name('user.address');
         Route::get('user/list','UserController@list')->name('user.list');
-        //点餐模块
+
+        //饭店模块
+        // 饭店商家管理
+        Route::get('foods/administration','FoodsController@administration')->name('foods.administration');
+        // 饭店商家审核
+        Route::get('foods/examine','FoodsController@examine')->name('foods.examine');
+        Route::get('foods/examinepass','FoodsController@examinepass')->name('foods.examinepass'); // 删除
+        // 订单总管理
+        Route::get('foods/orders','FoodsController@orders')->name('foods.orders');
+        // 菜品详情
+        Route::get('foods/information','FoodsController@information')->name('foods.information');
+        Route::match(['get','post'],'foods/informationadd','FoodsController@informationadd')->name('foods.informationadd'); // 新增 and 修改
+        Route::get('foods/informationdel','FoodsController@informationdel')->name('foods.informationdel'); // 删除
+        // 商家评论
+        Route::get('foods/comment','FoodsController@comment')->name('foods.comment');
         // 菜品分类
         Route::get('foods/index','FoodsController@index')->name('foods.index');
         Route::match(['get','post'],'foods/add','FoodsController@add')->name('foods.add');  // 新增 and 修改
         Route::get('foods/del','FoodsController@del')->name('foods.del'); // 删除
+        // 菜品套餐
+        Route::get('foods/set_meal','FoodsController@set_meal')->name('foods.set_meal');
+        Route::match(['get','post'],'foods/set_mealchange','FoodsController@set_mealchange')->name('foods.set_mealchange');  // 新增 and 修改
+        Route::get('foods/set_mealdel','FoodsController@set_mealdel')->name('foods.set_mealdel'); // 删除
         // 菜品规格
         Route::get('foods/spec','FoodsController@spec')->name('foods.spec');
         Route::match(['get','post'],'foods/specadd','FoodsController@specadd')->name('foods.specadd'); // 新增 and 修改
         Route::get('foods/specdel','FoodsController@specdel')->name('foods.specdel'); // 删除
-        // 菜品详情
-        Route::get('foods/information','FoodsController@information')->name('foods.information');
-        Route::get('foods/comment','FoodsController@comment')->name('foods.comment');
-        Route::get('foods/merchant_classification','FoodsController@merchantClassification')->name('foods.merchant_classification');
-        Route::match(['get','post'],'foods/informationadd','FoodsController@informationadd')->name('foods.informationadd'); // 新增 and 修改
-        Route::get('foods/informationdel','FoodsController@informationdel')->name('foods.informationdel'); // 删除
-        Route::get('foods/cart','FoodsController@cart')->name('foods.cart');
-        Route::get('foods/order','FoodsController@order')->name('foods.order');
-        Route::get('foods/orders','FoodsController@orders')->name('foods.orders');
-        Route::get('foods/verify','FoodsController@verify')->name('foods.verify');
-        Route::get('foods/verify','FoodsController@examine')->name('foods.examine');
-        Route::get('foods/administration','FoodsController@administration')->name('foods.administration');
-        Route::get('shop/goodsAttr','ShopController@goodsAttr')->name('shop.goodsAttr');
-        Route::get('finance/integral','FinanceController@integral')->name('finance.integral');
-        Route::get('finance/charge','FinanceController@charge')->name('finance.charge');
-        Route::get('finance/cashOut','FinanceController@cashOut')->name('finance.cashOut');
-        Route::get('finance/cashLogs','FinanceController@cashLogs')->name('finance.cashLogs');
         
     });
 });

@@ -3,17 +3,10 @@
     <div class="row">
         <div class="col-sm-12">
             <div class="ibox-title">
-                <h5>用户菜品购物车</h5>
+                <h5>饭店审核</h5>
             </div>
             <div class="ibox-content">
                 <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>&nbsp;
-                {{--判断用户是否是超级管理员，超级管理员不能新增规格--}}
-                {{--@if($id)--}}
-                <a href="{{route('foods.cartadd')}}" link-url="javascript:void(0)">
-                    <button class="btn btn-primary btn-sm" type="button">
-                        <i class="fa fa-plus-circle"></i> 新增菜品购物车</button>
-                </a>
-                {{--@endif--}}
                 <style>
                     th ,td{
                         text-align: center;
@@ -24,9 +17,11 @@
                     <tr>
                         <th width="100">ID</th>
                         <th>用户ID</th>
-                        <th>菜品名称</th>
-                        <th>菜品单价</th>
-                        <th>菜品数量</th>
+                        <th>商家名称</th>
+                        <th style="width: 300px">商家简介</th>
+                        <th>商家地址</th>
+                        <th>商家类型名称</th>
+                        <th>认证状态</th>
                         <th>操作</th>
                     </tr>
                     </thead>
@@ -37,19 +32,24 @@
                                 <th>{{ $v->id }}</th>
                                 <th>{{ $v->user_id }}</th>
                                 <th>{{ $v->name }}</th>
-                                <th>{{ $v->price }}</th>
-                                <th>{{ $v->num }}</th>
+                                <th><p style="width: 300px;overflow: hidden;white-space: nowrap;text-overflow: ellipsis;" >{{ $v->desc }}</p></th>
+                                <th>{{ $v->address }}</th>
+                                <th>{{ $v->type_name }}</th>
+                                <th style="color: blue">{{ $v->is_reg == 0 ? "未认证" : "已通过" }} </th>
                                 <td class="text-center">
                                     <div class="btn-group">
-                                        <a href="{{route('foods.cartadd')}}?id={{$v->id}}"><button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 修改</button></a>
-                                        <a onclick="del({{$v->id}})"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-ban"></i> 删除</button></a>
+                                        @if($v->is_reg == 0)
+                                            <a onclick="del({{$v->id}})"><button class="btn btn-primary btn-xs" type="button"><i class="fa fa-adn"></i> 认证通过</button></a>
+                                            @else
+                                            <a><button class="btn btn-primary btn-xs" type="button" disabled><i class="fa fa-adn"></i> 认证通过</button></a>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
                         @endforeach
                     @else
                         <tr>
-                            <th colspan="6">暂时还没有数据</th>
+                            <th colspan="7">暂时还没有数据</th>
                         </tr>
                     @endif
                     </tbody>
@@ -63,8 +63,8 @@
     <script type="text/javascript">
         function del(e) {
             var id = e;
-            layer.alert("是否删除该数据？",{icon:3},function (index) {
-                location.href="{{route('foods.cartdel')}}?id="+id;
+            layer.alert("是否通过该商家的申请？",{icon:3},function (index) {
+                location.href="{{route('foods.examinepass')}}?id="+id;
                 layer.close(index);
             });
         }

@@ -91,7 +91,6 @@ class RulesController extends BaseController
     public function destroy($id)
     {
         $rule = $this->rulesService->ById($id);
-
         if(empty($rule))
         {
             flash('删除失败')->error()->important();

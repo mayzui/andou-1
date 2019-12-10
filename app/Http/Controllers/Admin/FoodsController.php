@@ -16,10 +16,152 @@ class FoodsController extends BaseController
      * @return \Illuminate\Http\Response
      */
     /*
+     *      套餐
+     * */
+    public function set_meal(){
+        // 判断用户是否开店，并且已经认证通过
+        $id = 4;
+        // 判断该用户，是否申请饭店 并且已经认证通过
+        $i = DB::table('merchants')
+            -> join("merchant_type","merchants.merchant_type_id","=","merchant_type.id")
+            -> where("role_id",5)
+            -> where("user_id",$id)
+            -> where("is_reg",1)
+            -> first();
+        if(!empty($i)){
+            // 商户
+            // 查询数据库，套餐信息表内容
+            $data = DB::table("foods_set_meal") -> where('merchant_id',$id) -> paginate(10);
+        }else{
+            // 管理员
+            // 查询数据库，套餐信息表内容
+            $data = DB::table("foods_set_meal") -> paginate(10);
+        }
+        return $this->view('',['data'=>$data]);
+    }
+
+    // 新增 and 修改 套餐信息
+    public function set_mealchange(){
+        $all = \request() -> all();
+        if(\request() -> isMethod("get")){
+            // 判断跳转新增界面，还是修改界面
+            if(empty($all['id'])){
+                // 跳转新增界面
+                return $this->view('');
+            }else{
+                // 跳转修改界面
+                return "update";
+            }
+        }else{
+            // 判断执行新增操作，还是执行修改操作
+            if(empty($all['id'])){
+                // 执行新增操作
+                return "doadd";
+            }else{
+                // 执行修改操作
+                return "doupdate";
+            }
+        }
+    }
+
+    /*
+     *      商家评论
+     * */
+    public function comment(){
+        // 判断用户是否开店，并且已经认证通过
+        $id = 4;
+        // 判断该用户，是否申请饭店 并且已经认证通过
+        $i = DB::table('merchants')
+            -> join("merchant_type","merchants.merchant_type_id","=","merchant_type.id")
+            -> where("role_id",5)
+            -> where("user_id",$id)
+            -> where("is_reg",1)
+            -> first();
+        if(!empty($i)){
+            // 商户
+            return "shanghu";
+        }else{
+            // 管理员
+            return "admin";
+        }
+        return "模块功能开发中......";
+    }
+
+
+    /*
+     *      饭店管理
+     * */
+    public function administration(){
+        $id = Auth::id();
+        // 判断该用户，是否开店 并且已经认证通过
+        $i = DB::table('merchants') -> where("user_id",$id) -> where("is_reg",1) -> first();
+        if(!empty($i)){
+            // 如果开店，则查询当前商户的信息
+            // 链接数据库 查询商户表
+            $data = DB::table("merchants")
+                -> join("merchant_type","merchants.merchant_type_id","=","merchant_type.id")
+                -> join("foods_classification","merchants.user_id","=","foods_classification.merchants_id")
+                -> where("role_id",5)
+                -> where("user_id",$id)
+                -> where("is_reg",1)
+                -> select(['merchants.id','merchants.user_id','merchant_type.type_name','foods_classification.name','merchants.name as name2' ,'merchants.address'])
+                -> paginate(10);
+        }else{
+            // 反之则为。管理员
+            $data = DB::table("merchants")
+                -> join("merchant_type","merchants.merchant_type_id","=","merchant_type.id")
+                -> join("foods_classification","merchants.user_id","=","foods_classification.merchants_id")
+                -> where("role_id",5)
+                -> where("is_reg",1)
+                -> select(['merchants.id','merchants.user_id','merchant_type.type_name','foods_classification.name','merchants.name as name2' ,'merchants.address'])
+                -> paginate(10);
+        }
+        // 跳转饭店管理模块
+        return $this -> view('',['data'=>$data]);
+    }
+
+
+    /*
+     *      饭店审核
+     * */
+    public function examine(){
+        // 链接数据库，查询商户表
+        $data = DB::table("merchants")
+            -> join("merchant_type","merchants.merchant_type_id","=","merchant_type.id")
+            -> where("role_id",5)
+            -> select(['merchants.id','merchants.user_id','is_reg','merchants.name','merchants.desc','merchants.address','merchant_type.type_name'])
+            -> paginate(10);
+        // 跳转饭店审核界面
+        return $this->view('',['data'=>$data]);
+    }
+
+    // 审核通过
+    public function examinepass(){
+        // 获取传入的值
+        $all = \request() -> all();
+        // 定义一个数组用于存放修改数据
+        $data = [
+            'is_reg' => 1
+        ];
+        // 链接数据库，修改商户认证状态
+        $i = DB::table("merchants") -> where('id',$all['id']) -> update($data);
+        if($i){
+            flash('认证成功') -> success();
+            return redirect()->route('foods.examine');
+        }else{
+            flash('认证失败') -> error();
+            return redirect()->route('foods.examine');
+        }
+
+    }
+
+
+    /*
      *      订单表
      * */
     // 跳转订单界面
-    public function order(){
+    public function orders(){
+        return "模块功能开发中......";
         $id = Auth::id();
         // 判断该用户，是否开店
         $i = DB::table('merchants') -> where("user_id",$id) -> first();
@@ -61,100 +203,7 @@ class FoodsController extends BaseController
         }
     }
 
-    /*
-     *      购物车
-     * */
-    // 跳转购物车界面
-    public function cart(){
-        $id = Auth::id();
-        // 判断该用户，是否开店
-        $i = DB::table('merchants') -> where("user_id",$id) -> first();
-        if(!empty($i)){
-            // 如果开店，则能够看到用户购物车
-            // 查询数据库数据
-            $data = DB::table("foods_cart") -> where('merchant_id',$id) -> paginate(10);
-        }else{
-            // 如果未开店，则为超级管理员，能够看见所有的数据
-            // 查询数据库数据
-            $data = DB::table("foods_cart") -> paginate(10);
-            $id = "";
-        }
-        return $this -> view('',['data'=>$data,'id'=>$id]);
-    }
-    // 添加购物车
-    public function cartadd(){
-        $all = \request() -> all();
-        if(\request()->isMethod("get")){
-            // 判断跳转新增界面还是跳转修改界面
-            if(empty($all['id'])){
-                // 跳转新增界面
-                return $this -> view('');
-            }else{
-                // 根据当前传入的id，查询数据库中的值
-                $datas = DB::table("foods_cart") -> where("id",$all['id']) -> first();
-                // 跳转修改界面
-                return $this -> view('',['data'=>$datas]);
-            }
-        }else{
-            // 判断执行新增操作还是执行修改操作
-            if(empty($all['id'])){
-                // 执行新增操作
-                // 获取提交数据
-                $data = [
-                    'user_id' => Auth::id(),
-                    'merchant_id' => Auth::id(),
-                    'name' => $all['name'],
-                    'price' => $all['price'],
-                    'num' => $all['num']
-                ];
-                // 链接数据库，新增数据
-                $i = DB::table("foods_cart") -> insert($data);
-                if($i){
-                    flash('新增成功') -> success();
-                    return redirect()->route('foods.cart');
-                }else{
-                    flash('新增失败') -> error();
-                    return redirect()->route('foods.cart');
-                }
-            }else{
-                // 执行修改操作
-                // 获取提交的数据
-                $data = [
-                    'name' => $all['name'],
-                    'price' => $all['price'],
-                    'num' => $all['num']
-                ];
-                // 链接数据库，执行修改操作
-                $i = DB::table("foods_cart") -> where('id',$all['id']) ->update($data);
-                if($i){
-                    flash('修改成功') -> success();
-                    return redirect()->route('foods.cart');
-                }else{
-                    flash('修改失败！未修改任何内容') -> error();
-                    return redirect()->route('foods.cart');
-                }
-            }
 
-        }
-    }
-
-    // 删除购物车
-    public function cartdel(){
-        // 获取传入的id
-        $id = \request() -> all();
-        // 根据id，删除数据库中的值
-        $i = DB::table("foods_cart") -> where("id",$id) ->delete();
-        if($i){
-            flash('删除成功') -> success();
-            return redirect()->route('foods.cart');
-        }else{
-            flash('删除失败') -> error();
-            return redirect()->route('foods.cart');
-        }
-    }
-
-
-    
     /*
      *      菜品详情
      * */
@@ -205,11 +254,10 @@ class FoodsController extends BaseController
                 // 链接数据库，查询菜品规格
                 $spec = DB::table("foods_spec") -> get();
                 // 获得查询出来的菜品规格
-                $data_spec =$data->specifications;
+                $data->specifications =explode(",",$data->specifications);
                 // 定义一个传值用的数组
                 $arr = [
                     'data' => $data,
-                    'data_spec' => explode(",",$data_spec),
                     'type' => $type,
                     'spec' => $spec
                 ];
