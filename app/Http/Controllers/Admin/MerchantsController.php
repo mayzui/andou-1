@@ -63,13 +63,41 @@ class MerchantsController extends BaseController
         $all = request()->all();
         $save['is_reg']=$all['is_reg'];
         $id=$all['id'];
+        if(empty($all['url'])){
+            $url='merchants.index';
+        }else{
+            $url=$all['url']; 
+        }
+        $data=Db::table('merchants')->where('id',$id)->first();
+        
+        if($save['is_reg']==1 && !empty($data)){
+            $res['allow_in']=1;
+            $res['status']=1;
+            $re=Db::table('users')->where('id',$data->user_id)->update($res);
+            $role=Db::table('merchant_type')->where('id',$data->merchant_type_id)->first();
+            
+            $datas['role_id']=$role->role_id;
+            $datas['user_id']=$data->user_id;
+            $datas['created_at']=date('Y-m-d H:i:s',time());
+            $datas['updated_at']=date('Y-m-d H:i:s',time());
+            $ress=Db::table('user_role')->insert($datas);
+        }else if($save['is_reg']==0 && !empty($data)){
+            $res['allow_in']=0;
+            $res['status']=0;
+            $re=Db::table('users')->where('id',$data->user_id)->update($res);
+            $role=Db::table('merchant_type')->where('id',$data->merchant_type_id)->first();
+            $when['role_id']=$role->role_id;
+            $when['user_id']=$data->user_id;
+            $ress=Db::table('user_role')->where($when)->delete();
+        }
         $re=Db::table('merchants')->where('id',$id)->update($save);
+        
         if ($re) {
             flash('修改成功')->success();
-            return redirect()->route('merchants.index');
+            return redirect()->route($url);
         }else{
             flash('修改失败')->error();
-            return redirect()->route('merchants.index');
+            return redirect()->route($url);
         }
     }
     /**商户分类列表

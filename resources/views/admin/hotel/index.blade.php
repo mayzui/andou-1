@@ -47,7 +47,7 @@
                                     @if($item->status==1)
                                         <a href="{{route('hotel.status')}}?id={{$item->id}}&status=0"><button class="btn btn-danger btn-xs" type="button"> 禁用</button></a>
                                     @else
-                                        <a href="{{route('hotel.status')}}?id={{$item->id}}&status=1"><button class="btn btn-group btn-xs" type="button">启用</button></a>
+                                        <a href="{{route('hotel.status')}}?id={{$item->id}}&status=1"><button class="btn btn-group btn-xs" type="button">通过审核</button></a>
                                     @endif
                                         <a href="{{route('hotel.del')}}?id={{$item->id}}"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o"></i> 删除</button></a>   
                                     </div>

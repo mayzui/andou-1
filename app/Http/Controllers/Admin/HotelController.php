@@ -16,20 +16,21 @@ class HotelController extends BaseController
      * @return [type] [description]
      */
     public function index ()
-    {   
+    {   $all = request()->all();
         $admin = Auth::guard('admin')->user();
-        // foreach ($admin->roles as $key => $value) {
-        //     $role[]=$value->id;
-        // }
+        $where = [];
+        if (!empty($all['merchant_id'])) {
+            $where[]=['merchant_id',$all['merchant_id']];
+        }
         $user_id=$admin->id;
         $datas=Db::table('merchants')->where('user_id',$user_id)->first();
         if (!empty($datas)) {
             $role=$datas->id;
-            $data=Db::table('hotel_room')->where('user_id',$user_id)->paginate(20);
+            $where[]=['merchant_id',$datas->id];
          }else{
-            $role=0;
-            $data=Db::table('hotel_room')->paginate(20);
+            $role=0; 
         } 
+        $data=Db::table('hotel_room')->where($where)->paginate(20);
         foreach ($data as $key => $value) {
             $data[$key]->merchant_id=Db::table('merchants')->where('id',$value->merchant_id)->pluck('name')[0];
             $data[$key]->user_id=Db::table('users')->where('id',$value->user_id)->pluck('name')[0];
@@ -227,13 +228,24 @@ class HotelController extends BaseController
         $admin = Auth::guard('admin')->user();
         $user_id=$admin->id;
         $datas=Db::table('merchants')->where('user_id',$user_id)->first();
+        $where=[];
         if (!empty($datas)) {
-            $role=$datas->id;
-            $data=Db::table('books')->where('merchant_id',$datas->id)->paginate(20);
+            $wheres['role']=$datas->id;
+            $where[]=['merchant_id',$datas->id];
+            // $data=Db::table('books')->where('merchant_id',$datas->id)->paginate(20);
          }else{
-            $role=0;
-            $data=Db::table('books')->paginate(20);
+            $wheres['role']=0;    
         }
+        $all = request()->all();
+        if (!empty($all['merchant_id'])) {
+            $where[]=['merchant_id',$all['merchant_id']];
+            $wheres['merchant_id']=$all['merchant_id'];
+        }
+        if(!empty($all['book_sn'])){
+            $where[]=['book_sn','like','%'.$all['book_sn'].'%'];
+            $wheres['book_sn']=$all['book_sn'];
+        }
+        $data=Db::table('books')->where($where)->paginate(20);
         if (!empty($data)) {
              foreach ($data as $key => $value) {
                  $user=Db::table('users')->where('id',$value->user_id)->first();
@@ -256,6 +268,36 @@ class HotelController extends BaseController
                  }
              }
          } 
-        return $this->view('',['data'=>$data],['role'=>$role]);
+        return $this->view('',['data'=>$data],['wheres'=>$wheres]);
+    }
+    public function merchant()
+    {
+        $all = request()->all();
+        $where[]=['merchant_type_id',3];
+        
+        if (!empty($all['name'])) {
+           $where[]=['name', 'like', '%'.$all['name'].'%'];
+           $screen['name']=$all['name']; 
+        }else{
+           $screen['name']=''; 
+        }
+        $data=DB::table('merchants')->where($where)->paginate(10);
+        foreach ($data as $key => $value) {
+            $merchant_type=Db::table('merchant_type')->where('id',$value->merchant_type_id)->pluck('type_name');
+            if (!empty($merchant_type[0])) {
+                $data[$key]->merchant_type_id=$merchant_type[0];
+            }else{
+                $data[$key]->merchant_type_id='';
+            }
+            $username=Db::table('users')->where('id',$value->user_id)->pluck('name');
+            if (!empty($username[0])) {
+                $data[$key]->username=$username[0];
+            }else{
+                $data[$key]->username='';
+            }
+        }
+        $wheres['type']=DB::table('merchant_type')->get();
+        $wheres['where']=$screen;
+        return $this->view('',['data'=>$data],['wheres'=>$wheres]);
     }
 }

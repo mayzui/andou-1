@@ -7,8 +7,13 @@
             </div>
             <div class="ibox-content">
                 
+                <form method="post" action="{{route('hotel.books')}}" name="form">
+                {{ csrf_field() }}
+                <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>
+                <input type="text" style="height: 25px;margin-left: 10px;" value="{{$wheres['book_sn'] or ''}}" name="book_sn" placeholder="预订编号">
                 
-                <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>&nbsp;
+                <button style="height: 25px;margin-left: 10px;" type="submit">按条件查询</button>
+                </form>
                     <style>
                         th ,td{ 
                             text-align: center;
