@@ -1,6 +1,10 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use App\Handlers\Tree;
 use App\Models\GoodBrands;
 use App\Models\Goods;
@@ -8,31 +12,14 @@ use App\Models\GoodsAttr;
 use App\Models\GoodsAttrValue;
 use App\Models\GoodsCate;
 use App\Models\Merchant;
+use App\Libraires\ApiResponse;
 use Auth;
-
-use App\Http\Requests\Admin\ShopRequest;
-use App\Services\ActionLogsService;
-use Illuminate\Http\Request;
-use App\Services\ShopService;
-use App\Repositories\ShopRepository;
-use Illuminate\Support\Facades\Validator;
 
 
 class ShopController extends BaseController
 {
-
-    protected $shopService;
-
+    use ApiResponse;
     protected $merchant_type_id = 2;
-
-    /**
-     * ActionLogsController constructor.
-     * @param $actionLogsService
-     */
-    public function __construct(ShopService $shopService)
-    {
-        $this->shopService = $shopService;
-    }
 
     public function goods(Request $request ,Auth $auth)
     {
@@ -55,7 +42,16 @@ class ShopController extends BaseController
 
         $level1 = GoodsCate::where('pid','=',0)->get();
         $goodBrands = GoodBrands::select('id','name')->orderBy('id','asc')->get();
-        return $this->view('goodsAdd',['goodsCate'=>$goodsCate,'goodBrands'=>$goodBrands]);
+        return $this->view('addGoods',['goodsCate'=>$goodsCate,'goodBrands'=>$goodBrands]);
+    }
+
+    public function getCateChildren (Request $request)
+    {
+        $list = GoodsCate::where('pid','=',$request->input('id'))->select('id','pid','name')->get();
+        if ($list) {
+            return $this->success($list);
+        }
+        return  $this->failed('没有子分类了');
     }
 
 
@@ -108,6 +104,8 @@ class ShopController extends BaseController
 
         $data = $request->all();
         try {
+            $ids = [];
+
             foreach ($data['attr_value'] as $k=>$v) {
                 $model =  GoodsAttrValue::find($k);
                 if (!$model) {
@@ -116,7 +114,11 @@ class ShopController extends BaseController
                 $model->goods_attr_id = $request->input('id');
                 $model->value = $v;
                 $model->save();
+                $ids [] = $model->id;
             }
+
+            GoodsAttrValue::where('goods_attr_id', $request->input('id'))->whereNotIn('id',$ids)->delete();
+            return redirect()->route('shop.goodsAttr');
         }catch (\Exception $e) {
             flash($e->getMessage())->error()->important();
             return redirect()->route('shop.goodsAttr');
@@ -144,6 +146,7 @@ class ShopController extends BaseController
             $model = GoodsAttr::find($request->input('id'));
         }
 
+
         $admin = Auth::guard('admin')->user();
         $model->user_id = $admin->id;
 
@@ -168,15 +171,102 @@ class ShopController extends BaseController
     }
 
 
+    public function attrDelete(Request $request,$id)
+    {
+        $model = GoodsAttr::find($id);
+        if  (!$model) flash('操作失败')->error()->important();
+        try {
+            DB::beginTransaction();
+            GoodsAttrValue::where('goods_attr_id','=',$id)->delete();
+            $model->delete();
+            DB::commit();
+            return   redirect()->route('shop.goodsAttr');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            flash('操作失败')->error()->important();
+        }
+    }
+
+
     public function update(Request $request,$id)
     {
-
         return $this->view('update',['data'=>$data]);
     }
 
     public function store (Request $request)
     {
+        $validate = Validator::make($request->all(),[
+            'goods_cate_id'=>'required',
+            'goods_brand_id'=>'required',
+            'name' => 'required',
+            'desc' => 'required',
+            'img' => 'required',
+            'price' => 'required',
+            'is_hot' => 'required',
+            'is_recommend' => 'required',
+            'is_bargain' => 'required',
+            'is_team_buy' => 'required',
+        ],[
+            'goods_cate_id.required'=>'缺少分类',
+            'goods_brand_id.required'=>'缺少品牌',
+            'name.required'=>'缺少名称',
+            'desc.required'=>'缺少描述',
+            'img.required'=>'缺少图片',
+            'price.required'=>'缺少基础价',
+        ]);
 
+        if ($validate->fails()) {
+            flash($validate->errors()->first())->error()->important();
+            return redirect()->route('shop.create');
+        }
+
+        $model = new Goods();
+
+        if ($request->input('id')) {
+            $model = Goods::find($request->input('id'));
+        }
+
+        $model->goods_cate_id = $request->input('goods_cate_id');
+        $model->goods_brand_id = $request->input('goods_brand_id');
+        $model->name = $request->input('name');
+        $model->img = $request->input('img');
+        $model->desc = $request->input('desc');
+        $model->price = $request->input('price');
+
+        $model->is_hot = $request->input('is_hot',0);
+        $model->is_recommend = $request->input('is_recommend',0);
+        $model->is_bargain = $request->input('is_bargain',0);
+        $model->is_team_buy = $request->input('is_team_buy',0);
+        try {
+           $model->save();
+           return $this->status('保存成功',['id'=>$model->id],200);
+       } catch (\Exception $e) {
+           return $this->failed($e->getMessage());
+       }
+    }
+
+    public function addAlbum (Request $request)
+    {
+        $validate = Validator::make($request->all(),[
+            'id'=>'required|exists:goods,id',
+            'images'=>'required',
+
+        ],[
+            'id.required'=>'缺少商品',
+            'id.exists'=>'无效的商品数据',
+        ]);
+       $model =  Goods::find($request->input('id'));
+       $model->album  = '';
+        if (is_array($request->filled('images')) && !empty($request->input('images'))){
+            $model->album = implode(',',$request->input('images'));
+        }
+
+        try {
+            $model->save();
+            return $this->status('保存成功',['id'=>$model->id],200);
+        } catch (\Exception $e) {
+            return $this->failed($e->getMessage());
+        }
     }
 
     public function distroy (Request $request)
@@ -195,6 +285,10 @@ class ShopController extends BaseController
             'id.required'=>'缺少id',
         ]);
 
+        if ($validate->fails()) {
+            return $this->message('获取失败');
+        }
+
         $model = Goods::find($id);
         $model->$field = $status;
         $model->save();
@@ -206,8 +300,6 @@ class ShopController extends BaseController
             ->orderBy('sort','asc')
             ->orderBy('pid','asc')
             ->get();
-
-
         $list = Tree::tree($list->toArray(),'name','id','pid');
         return $this->view('goodsCate',['list'=>$list]);
     }
