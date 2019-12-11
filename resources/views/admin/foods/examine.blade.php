@@ -16,7 +16,6 @@
                     <thead>
                     <tr>
                         <th width="100">ID</th>
-                        <th>用户ID</th>
                         <th>商家名称</th>
                         <th style="width: 300px">商家简介</th>
                         <th>商家地址</th>
@@ -30,7 +29,6 @@
                         @foreach($data as $v)
                             <tr>
                                 <th>{{ $v->id }}</th>
-                                <th>{{ $v->user_id }}</th>
                                 <th>{{ $v->name }}</th>
                                 <th><p style="width: 300px;overflow: hidden;white-space: nowrap;text-overflow: ellipsis;" >{{ $v->desc }}</p></th>
                                 <th>{{ $v->address }}</th>
@@ -39,9 +37,9 @@
                                 <td class="text-center">
                                     <div class="btn-group">
                                         @if($v->is_reg == 0)
-                                            <a onclick="del({{$v->id}})"><button class="btn btn-primary btn-xs" type="button"><i class="fa fa-adn"></i> 认证通过</button></a>
+                                            <a onclick="del({{$v->id}})"><button class="btn btn-primary btn-xs" type="button"><i class="fa fa-check"></i> 认证通过</button></a>
                                             @else
-                                            <a><button class="btn btn-primary btn-xs" type="button" disabled><i class="fa fa-adn"></i> 认证通过</button></a>
+                                            <a><button class="btn btn-primary btn-xs" type="button" disabled><i class="fa fa-check"></i> 认证通过</button></a>
                                         @endif
                                     </div>
                                 </td>

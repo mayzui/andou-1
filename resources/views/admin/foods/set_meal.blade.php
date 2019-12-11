@@ -25,13 +25,13 @@
                             <th width="100">ID</th>
                             <th>商户ID</th>
                             <th>套餐名称</th>
-                            <th>套餐图片</th>
+                            <th style="width: 200px;">套餐图片</th>
                             <th>套餐价格</th>
                             <th>几人餐</th>
                             <th>有无包间</th>
                             <th>包间价格</th>
                             <th>套餐状态</th>
-                            <th>操作</th>
+                            <th style="width: 300px;">操作</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -39,12 +39,24 @@
                                 @foreach($data as $v)
                                     <tr>
                                         <th>{{$v->id}}</th>
-                                        <th>{{$v->merchants_id}}</th>
+                                        <th>{{$v->merchant_id}}</th>
                                         <th>{{$v->name}}</th>
+                                        <th><img src="{{$v->image}}" style="width: 100px;"></th>
+                                        <th>{{$v->price}}</th>
+                                        <th>{{$v->num}}</th>
+                                        <th>{{$v->room == 1 ? "有包间" : "无包间"}}</th>
+                                        <th>{{$v->room_price}}</th>
+                                        <th style="color: blue">{{$v->status == 1 ? "上架中" : "未上架"}}</th>
                                         <td class="text-center">
-                                            <div class="btn-group">
+                                            <div cass="btn-group">
+                                                <a href="{{route('foods.set_meal_information')}}?id={{$v->id}}"><button class="btn btn-primary btn-xs" type="button"><i class="fa fa-rebel"></i> 菜品信息</button></a>
                                                 <a href="{{route('foods.set_mealchange')}}?id={{$v->id}}"><button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 修改</button></a>
                                                 <a onclick="del({{$v->id}})"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-ban"></i> 删除</button></a>
+                                                @if($v->status == 1)
+                                                    <a onclick="statuse({{$v->id}})"><button class="btn btn-group btn-xs" type="button"><i class="fa fa-calendar"></i> 下架</button></a>
+                                                    @else
+                                                    <a onclick="statuse({{$v->id}})"><button class="btn btn-group btn-xs" type="button"><i class="fa fa-calendar"></i> 上架</button></a>
+                                                @endif
                                             </div>
                                         </td>
                                     </tr>
@@ -67,6 +79,13 @@
             var id = e;
             layer.alert("是否删除该数据？",{icon:3},function (index) {
                 location.href="{{route('foods.set_mealdel')}}?id="+id;
+                layer.close(index);
+            });
+        }
+        function statuse(e) {
+            var id = e;
+            layer.alert("是否修改上/下架状态？",{icon:3},function (index) {
+                location.href="{{route('foods.set_mealstatus')}}?id="+id;
                 layer.close(index);
             });
         }

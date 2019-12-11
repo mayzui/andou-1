@@ -37,12 +37,12 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('foods/examinepass','FoodsController@examinepass')->name('foods.examinepass'); // 删除
         // 订单总管理
         Route::get('foods/orders','FoodsController@orders')->name('foods.orders');
+        Route::match(['get','post'],'foods/orderschange','FoodsController@orderschange')->name('foods.orderschange'); // 新增 and 修改
+        Route::get('foods/ordersdel','FoodsController@ordersdel')->name('foods.ordersdel'); // 删除
         // 菜品详情
         Route::get('foods/information','FoodsController@information')->name('foods.information');
         Route::match(['get','post'],'foods/informationadd','FoodsController@informationadd')->name('foods.informationadd'); // 新增 and 修改
         Route::get('foods/informationdel','FoodsController@informationdel')->name('foods.informationdel'); // 删除
-        // 商家评论
-        Route::get('foods/comment','FoodsController@comment')->name('foods.comment');
         // 菜品分类
         Route::get('foods/index','FoodsController@index')->name('foods.index');
         Route::match(['get','post'],'foods/add','FoodsController@add')->name('foods.add');  // 新增 and 修改
@@ -51,6 +51,9 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('foods/set_meal','FoodsController@set_meal')->name('foods.set_meal');
         Route::match(['get','post'],'foods/set_mealchange','FoodsController@set_mealchange')->name('foods.set_mealchange');  // 新增 and 修改
         Route::get('foods/set_mealdel','FoodsController@set_mealdel')->name('foods.set_mealdel'); // 删除
+        Route::get('foods/set_mealstatus','FoodsController@set_mealstatus')->name('foods.set_mealstatus'); // 修改上下架状态
+        Route::match(['get','post'],'foods/set_meal_information','FoodsController@set_meal_information')->name('foods.set_meal_information');  // 新增 and 修改
+        Route::match(['get','post'],'foods/set_meal_informationChange','FoodsController@set_meal_informationChange')->name('foods.set_meal_informationChange');  // 修改套餐中的商品信息
         // 菜品规格
         Route::get('foods/spec','FoodsController@spec')->name('foods.spec');
         Route::match(['get','post'],'foods/specadd','FoodsController@specadd')->name('foods.specadd'); // 新增 and 修改

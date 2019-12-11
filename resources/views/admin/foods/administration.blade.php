@@ -23,12 +23,11 @@
                         <thead>
                         <tr>
                             <th>商户ID</th>
-                            <th>用户ID</th>
                             <th>商户类型</th>
-                            <th>菜品分类</th>
                             <th>饭店名称</th>
+                            <th>菜品分类</th>
                             <th>饭店地址</th>
-                            <th>操作</th>
+                            {{--<th>操作</th>--}}
                         </tr>
                         </thead>
                         <tbody>
@@ -36,16 +35,13 @@
                                 @foreach($data as $v)
                                     <tr>
                                         <th>{{$v->id}}</th>
-                                        <th>{{$v->user_id}}</th>
                                         <th>{{$v->type_name}}</th>
-                                        <th>{{$v->name}}</th>
                                         <th>{{$v->name2}}</th>
+                                        <th>{{$v->name}}</th>
                                         <th>{{$v->address}}</th>
                                         <td class="text-center">
                                             <div class="btn-group">
-                                                <button class="btn btn-primary btn-xs" type="button">详情</button>
-                                                {{--<a href="{{route('foods.add')}}?id={{$v->id}}"><button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 修改</button></a>--}}
-                                                {{--<a onclick="del({{$v->id}})"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-ban"></i> 删除</button></a>--}}
+                                                {{--<button class="btn btn-primary btn-xs" type="button">详情</button>--}}
                                             </div>
                                         </td>
                                     </tr>

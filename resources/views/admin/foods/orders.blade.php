@@ -9,7 +9,7 @@
                 <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>&nbsp;
                 {{--判断用户是否是超级管理员，超级管理员不能新增规格--}}
                 {{--@if($id)--}}
-                <a href="{{route('foods.orderadd')}}" link-url="javascript:void(0)">
+                <a href="{{route('foods.orderschange')}}" link-url="javascript:void(0)">
                     <button class="btn btn-primary btn-sm" type="button">
                         <i class="fa fa-plus-circle"></i> 新增点餐订单</button>
                 </a>
@@ -23,12 +23,12 @@
                     <thead>
                     <tr>
                         <th width="100">ID</th>
-                        <th>用户ID</th>
-                        <th>联系电话</th>
+                        <th>客户名称</th>
+                        <th>客户电话</th>
                         <th>下单时间</th>
                         <th>用餐时间</th>
                         <th>用餐人数</th>
-                        <th>备注</th>
+                        <th style="width: 200px;">备注</th>
                         <th>下单金额</th>
                         <th>订单状态</th>
                         <th>支付方式</th>
@@ -40,19 +40,28 @@
                         @foreach($data as $v)
                             <tr>
                                 <th>{{ $v->id }}</th>
-                                <th>{{ $v->user_id }}</th>
+                                <th>{{ $v->user_name }}</th>
                                 <th>{{ $v->phone }}</th>
                                 <th>{{ $v->orderingtime }}</th>
                                 <th>{{ $v->dinnertime }}</th>
                                 <th>{{ $v->people }}</th>
-                                <th>{{ $v->remark }}</th>
-                                <th>{{ $v->price }}</th>
-                                <th>{{ $v->status }}</th>
-                                <th>{{ $v->method }}</th>
+                                <th><p style="width: 200px;overflow: hidden;white-space: nowrap;text-overflow: ellipsis;">{{ $v->remark }}</p></th>
+                                <th>{{ $v->prices }}</th>
+                                <th style="color: blue;">{{ $v->status == 0 ? "未支付" : "已支付" }}</th>
+                                <th style="color: blue;">
+                                    @if($v->method == 1)
+                                        微信
+                                        @elseif($v->method == 2)
+                                        支付宝
+                                        @elseif($v->method == 3)
+                                        银联
+                                        @else
+                                        余额
+                                    @endif
+                                </th>
                                 <td class="text-center">
                                     <div class="btn-group">
-                                        <a href="{{route('foods.cartadd')}}?id={{$v->id}}"><button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 修改</button></a>
-                                        <a onclick="del({{$v->id}})"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-ban"></i> 删除</button></a>
+                                        <a href="{{route('foods.orderschange')}}?id={{$v->id}}"><button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 详情</button></a>
                                     </div>
                                 </td>
                             </tr>
@@ -74,7 +83,7 @@
         function del(e) {
             var id = e;
             layer.alert("是否删除该数据？",{icon:3},function (index) {
-                location.href="{{route('foods.cartdel')}}?id="+id;
+                location.href="{{route('foods.ordersdel')}}?id="+id;
                 layer.close(index);
             });
         }
