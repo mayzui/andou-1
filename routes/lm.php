@@ -58,7 +58,25 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('foods/spec','FoodsController@spec')->name('foods.spec');
         Route::match(['get','post'],'foods/specadd','FoodsController@specadd')->name('foods.specadd'); // 新增 and 修改
         Route::get('foods/specdel','FoodsController@specdel')->name('foods.specdel'); // 删除
-        
+
+
+
+        /*
+         *      财务管理模块
+         * */
+        // 感恩币中心
+        Route::match(['get','post'],'finance/integralChange','FinanceController@integralChange')->name('finance.integralChange'); // 新增 and 修改
+        Route::get('finance/integralDel','FinanceController@integralDel')->name('finance.integralDel'); // 删除
+        // 感恩币类型
+        Route::get('finance/integral_type','FinanceController@integral_type')->name('finance.integral_type');
+        Route::match(['get','post'],'finance/integral_typeChange','FinanceController@integral_typeChange')->name('finance.integral_typeChange'); // 新增 and 修改
+        Route::get('finance/integral_typeDel','FinanceController@integral_typeDel')->name('finance.integral_typeDel'); // 删除
+        // 感恩币明细
+        Route::get('finance/integral_record','FinanceController@integral_record')->name('finance.integral_record');
+        Route::match(['get','post'],'finance/integral_recordChange','FinanceController@integral_recordChange')->name('finance.integral_recordChange'); // 新增 and 修改
+        Route::get('finance/integral_recordDel','FinanceController@integral_recordDel')->name('finance.integral_recordDel'); // 删除
+
+
     });
 });
 ?>
