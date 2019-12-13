@@ -6,6 +6,10 @@
 <meta name="author" content="Vincent Garreau">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <link rel="stylesheet" media="screen" href="{{loadEdition('/admin/login/css/style.css')}}">
+	<style>
+		.geetest_holder.geetest_wind{
+			min-width: 380px !important;}
+	</style>
 </head>
 <body>
 <div id="particles-js">
@@ -23,10 +27,11 @@
 
 						<input type="text" name="mobile" value="{{old('mobile')}}"  placeholder="手机号" required />
 						<input type="password" name="password"  placeholder="密码" required />
-						<div style="width: 900px;">
+						<div style="width: 36px;">
 							{!! Geetest::render() !!}
 						</div>
-                        <button class="btn">登录</button>
+						<input type="submit" id="submit" style="display:none;">
+						<a href="javascript:;" onclick="document.getElementById('submit').click()" class="btn">登录</a>
 						@include('flash::message')
 						@if (count($errors) > 0)
 						<div class="alert alert-danger">

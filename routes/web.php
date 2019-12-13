@@ -110,7 +110,8 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('shop/deleteExpress/{id}','ShopController@deleteExpress')->name('shop.deleteExpress');
         Route::get('shop/addExpressAttrs/{id}','ShopController@addExpressAttrs')->name('shop.addExpressAttrs');
         Route::get('shop/expressAttr','ShopController@expressAttr')->name('shop.expressAttr');
-
+        Route::post('shop/storeExpressAttrs','ShopController@storeExpressAttrs')->name('shop.storeExpressAttrs');
+        Route::get('shop/deleteExpressAttr/{id}','ShopController@deleteExpressAttr')->name('shop.deleteExpressAttr');
 
         // 统计
         Route::get('shop/statics','ShopController@statics')->name('shop.statics');
@@ -158,6 +159,34 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('banner/update/{id}','BannerController@update')->name('banner.update');
         Route::get('banner/delete/{id}','BannerController@delete')->name('banner.delete');
         Route::get('banner/delete/{id}','BannerController@delete')->name('banner.delete');
+
+
+        // 商户板块
+        Route::get('merchants/index','MerchantController@index')->name('merchants.index');
+        Route::get('merchants/merchant_type','MerchantController@index')->name('merchants.merchant_type');
+        Route::get('hotel/merchant','MerchantController@merchant')->name('hotel.merchant');
+
+        Route::get('foods/index','FoodsController@index')->name('foods.index');
+        Route::get('foods/spec','FoodsController@spec')->name('foods.spec');
+        Route::get('foods/cart','FoodsController@cart')->name('foods.cart');
+        Route::get('foods/order','FoodsController@order')->name('foods.order');
+        Route::get('user/merchant','userController@merchant')->name('user.merchant');
+        Route::get('user/merchant_detailed','userController@merchant_detailed')->name('user.merchant_detailed');
+        Route::get('user/users_detailed','userController@users_detailed')->name('user.users_detailed');
+        Route::get('merchants.industry','userController@industry')->name('merchants.industry');
+
+
+
+        Route::get('foods/orders','userController@orders')->name('foods.orders');
+        Route::get('foods/examine','userController@examine')->name('foods.examine');
+        Route::get('foods/administration','userController@administration')->name('foods.administration');
+        Route::get('foods/comment','userController@administration')->name('foods.comment');
+        Route::get('foods/merchant_classification','userController@merchant_classification')->name('foods.merchant_classification');
+        Route::get('foods/set_meal','userController@set_meal')->name('foods.set_meal');
+        Route::get('finance/integral_type','FinanceController@integral_type')->name('finance.integral_type');
+        Route::get('finance/integral_record','FinanceController@integral_record')->name('finance.integral_record');
+        Route::get('finance/integral_type','FinanceController@integral_type')->name('finance.integral_type');
+
 
     });
 

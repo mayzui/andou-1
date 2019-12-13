@@ -39,8 +39,8 @@ class ShopController extends BaseController
     public function create (Request $request)
     {
         $goodsCate = GoodsCate::with(['children'=>function($res){
-                $res->with('children');
-            }])->where('pid','=',0)
+            $res->with('children');
+        }])->where('pid','=',0)
             ->get();
 
         $level1 = GoodsCate::where('pid','=',0)->get();
@@ -241,11 +241,11 @@ class ShopController extends BaseController
         $model->is_bargain = $request->input('is_bargain',0);
         $model->is_team_buy = $request->input('is_team_buy',0);
         try {
-           $model->save();
-           return $this->status('保存成功',['id'=>$model->id],200);
-       } catch (\Exception $e) {
-           return $this->failed($e->getMessage());
-       }
+            $model->save();
+            return $this->status('保存成功',['id'=>$model->id],200);
+        } catch (\Exception $e) {
+            return $this->failed($e->getMessage());
+        }
     }
 
     public function addAlbum (Request $request)
@@ -258,8 +258,8 @@ class ShopController extends BaseController
             'id.required'=>'缺少商品',
             'id.exists'=>'无效的商品数据',
         ]);
-       $model =  Goods::find($request->input('id'));
-       $model->album  = '';
+        $model =  Goods::find($request->input('id'));
+        $model->album  = '';
         if (is_array($request->filled('images')) && !empty($request->input('images'))){
             $model->album = implode(',',$request->input('images'));
         }
@@ -458,6 +458,7 @@ class ShopController extends BaseController
 
     public function statics (Request $request)
     {
+        echo '开发中...';exit;
         return view('statics',[]);
     }
 
@@ -480,8 +481,7 @@ class ShopController extends BaseController
             ->find($id);
         return $this->view('updateExpress',['data'=>$data]);
     }
-
-
+    // 删除快递模板
     public function deleteExpress (Request $request,$id)
     {
         $model = ExpressModel::find($id);
@@ -498,13 +498,81 @@ class ShopController extends BaseController
         }
     }
 
+
+
+    // 渲染列表
     public function addExpressAttrs (Request $request,$id)
     {
-        $list = ExpressAttr::where('express_model_id',$id)->get();
-        $data = ExpressModel::find($id);
-        $city  = District::select('id','name','deep')->where('deep',1)->get();
-        return $this->view('expressAttr',['list'=>$list,'data'=>$data,'city'=>$city]);
+        $list   = ExpressAttr::with('city')->where('express_model_id',$id)->get();
+        $ids = [];
+        foreach ($list as $item) {
+            $ids[]=$item->city_id;
+        }
+
+        $data   = ExpressModel::find($id);
+        $city   = District::select('id','name','deep')->where('deep',0)->get();
+
+        return $this->view('expressAttr',['list'=>$list,'data'=>$data,'city'=>$city,'ids'=>$ids]);
     }
+
+    // 存储信息
+    public function storeExpressAttrs (Request $request)
+    {
+        $validate = Validator::make($request->all(),[
+            'express_id' => 'required',
+            'caculate_method' => 'required',
+            'ids'=>''
+        ],[
+            'express_id.required'=>'快递模板id必须',
+            'caculate_method.required'=>'计量方式必须',
+            'ids.required'=>'区域必须',
+        ]);
+
+        if ($validate->fails()) {
+            flash($validate->errors()->first())->error()->important();
+            return redirect()->route('shop.createExpress');
+        }
+
+        $ids = $request->input('ids');
+
+        try {
+
+            // 先删除 不在里面的
+            foreach ($ids as $v=>$id) {
+                $model = ExpressAttr::where('city_id',$id)
+                    ->where('express_model_id',$request->input('express_id'))
+                    ->first();
+                if (!$model) {
+                    $model = new ExpressAttr();
+                }
+                $model->express_model_id = $request->input('express_id');
+                if ($request->filled('caculate_method')) $model->caculate_method = $request->input('caculate_method');
+                if ($request->filled('basic_price')) $model->basic_price = $request->input('basic_price');
+                if ($request->filled('unit_price')) $model->unit_price = $request->input('unit_price');
+                $model->city_id = $id;
+                $model->save();
+            }
+            // 删除不在ids 中的行
+            $res =  ExpressAttr::where('express_model_id',$request->input('express_id'))->whereNotIn('city_id',$ids)->delete();
+
+        } catch (\Exception $e) {
+            flash($e->getMessage())->error()->important();
+        }
+        return redirect()->route('shop.addExpressAttrs',['id'=>$request->input('express_id')]);
+    }
+
+    public function deleteExpressAttr (Request $request , $id)
+    {
+        $model = ExpressAttr::find($id);
+        if  (!$model) flash('操作失败')->error()->important();
+        try {
+            $model->delete();
+            return   redirect()->route('shop.addExpressAttrs',['id'=>$model->express_model_id]);
+        } catch (\Exception $e) {
+            flash('操作失败')->error()->important();
+        }
+    }
+
 
     public function storeExpress (Request $request)
     {
