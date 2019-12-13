@@ -23,7 +23,7 @@
 
 						<input type="text" name="mobile" value="{{old('mobile')}}"  placeholder="手机号" required />
 						<input type="password" name="password"  placeholder="密码" required />
-						<div style="width: 300px;">
+						<div style="width: 900px;">
 							{!! Geetest::render() !!}
 						</div>
                         <button class="btn">登录</button>

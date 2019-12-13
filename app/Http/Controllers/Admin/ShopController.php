@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\District;
+use App\Models\ExpressAttr;
+use App\Models\ExpressModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -336,6 +339,7 @@ class ShopController extends BaseController
         }
         return viewError('已删除或者删除失败');
     }
+
     public function cateStore (Request $request)
     {
         $validate = Validator::make($request->all(),[
@@ -390,8 +394,6 @@ class ShopController extends BaseController
 
     public function orders ()
     {
-
-
         return $this->view('orders',['list'=>[]]);
     }
 
@@ -461,6 +463,84 @@ class ShopController extends BaseController
 
     public function express (Request $request)
     {
-        return $this->view('express');
+        $admin = Auth::guard('admin')->user();
+        $list = ExpressModel::with('merchant')->where('merchant_user_id',$admin->id)->paginate();
+        return $this->view('express',['list'=>$list]);
+    }
+
+    public function createExpress (Request $request)
+    {
+
+        return $this->view('createExpress');
+    }
+
+    public function updateExpress (Request $request,$id)
+    {
+        $data = ExpressModel::with('merchant')
+            ->find($id);
+        return $this->view('updateExpress',['data'=>$data]);
+    }
+
+
+    public function deleteExpress (Request $request,$id)
+    {
+        $model = ExpressModel::find($id);
+        if  (!$model) flash('操作失败')->error()->important();
+        try {
+            DB::beginTransaction();
+            ExpressAttr::where('express_model_id','=',$id)->delete();
+            $model->delete();
+            DB::commit();
+            return   redirect()->route('shop.express');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            flash('操作失败')->error()->important();
+        }
+    }
+
+    public function addExpressAttrs (Request $request,$id)
+    {
+        $list = ExpressAttr::where('express_model_id',$id)->get();
+        $data = ExpressModel::find($id);
+        $city  = District::select('id','name','deep')->where('deep',1)->get();
+        return $this->view('expressAttr',['list'=>$list,'data'=>$data,'city'=>$city]);
+    }
+
+    public function storeExpress (Request $request)
+    {
+        $validate = Validator::make($request->all(),[
+            'name' => 'required',
+            'ship_address' => 'required',
+            'is_free' => 'required',
+        ],[
+            'name.required'=>'名称必须',
+            'ship_address.required'=>'宝贝地址必须',
+            'is_free.required'=>'名称是否包邮',
+        ]);
+
+        if ($validate->fails()) {
+            flash($validate->errors()->first())->error()->important();
+            return redirect()->route('shop.createExpress');
+        }
+
+        $model = new ExpressModel();
+        if ($request->input('id')) {
+            $model = ExpressModel::find($request->input('id'));
+        }
+
+        $admin = Auth::guard('admin')->user();
+        $model->merchant_user_id = $admin->id;
+        $model->name = $request->input('name');
+        $model->ship_address = $request->input('ship_address');
+        $model->is_free = $request->input('is_free');
+
+        try {
+            $model->save();
+            return redirect()->route('shop.express');
+        } catch ( \Exception $e) {
+            flash($validate->errors()->first())->error()->important();
+            return redirect()->route('shop.createExpress');
+        }
+
     }
 }

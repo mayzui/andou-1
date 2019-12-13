@@ -66,12 +66,18 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('shop/update','ShopController@update')->name('shop.update');
         Route::get('shop/destroy','ShopController@destroy')->name('shop.destroy');
 
-
+        // 商品属性
         Route::get('shop/addAttr','ShopController@addAttr')->name('shop.addAttr');
         Route::get('shop/attrUpdate/{id}','ShopController@attrUpdate')->name('shop.attrUpdate');
         Route::get('shop/attrDelete/{id}','ShopController@attrDelete')->name('shop.attrDelete');
         Route::get('shop/addAttrValue/{id}','ShopController@addAttrValue')->name('shop.addAttrValue');
         Route::post('shop/attrStore','ShopController@attrStore')->name('shop.attrStore');
+        Route::post('shop/getAttr','ShopController@getAttr')->name('shop.getAttr');
+        Route::get('shop/goodsAttr','ShopController@goodsAttr')->name('shop.goodsAttr');
+        Route::post('shop/saveAttrValue','ShopController@saveAttrValue')->name('shop.saveAttrValue');
+        Route::post('shop/storeAlbum','ShopController@storeAlbum')->name('shop.storeAlbum');
+        Route::post('shop/storeComplateAttrs','ShopController@storeComplateAttrs')->name('shop.storeComplateAttrs');
+
 
         // 商品分类
         Route::get('shop/goodsCate','ShopController@goodsCate')->name('shop.goodsCate');
@@ -79,8 +85,10 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('shop/cateEdit/{id}','ShopController@cateEdit')->name('shop.cateEdit');
         Route::any('shop/cateStore','ShopController@cateStore')->name('shop.cateStore');
         Route::any('shop/cateDelete/{id}','ShopController@cateDelete')->name('shop.cateDelete');
-        Route::get('shop/goodsAttr','ShopController@goodsAttr')->name('shop.goodsAttr');
-        Route::post('shop/saveAttrValue','ShopController@saveAttrValue')->name('shop.saveAttrValue');
+        Route::post('shop/getCateChildren','ShopController@getCateChildren')->name('shop.getCateChildren');
+
+
+
 
         // 商品
         Route::get('shop/goodsAdd','ShopController@goods')->name('shop.goodsAdd');
@@ -95,9 +103,16 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
 
         // 快递
         Route::get('shop/express','ShopController@express')->name('shop.express');
+        Route::get('shop/createExpress','ShopController@createExpress')->name('shop.createExpress');
+        Route::get('shop/updateExpress/{id}','ShopController@updateExpress')->name('shop.updateExpress');
+        Route::post('shop/storeExpress','ShopController@storeExpress')->name('shop.storeExpress');
+        Route::get('shop/deleteExpress/{id}','ShopController@deleteExpress')->name('shop.deleteExpress');
+        Route::get('shop/addExpressAttrs/{id}','ShopController@addExpressAttrs')->name('shop.addExpressAttrs');
+        Route::get('shop/expressAttr','ShopController@expressAttr')->name('shop.expressAttr');
+
+
         // 统计
         Route::get('shop/statics','ShopController@statics')->name('shop.statics');
-
 
 
         Route::get('shop/orders','ShopController@orders')->name('shop.orders');
@@ -106,7 +121,6 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('shop/brandUpdate/{id}','ShopController@brandUpdate')->name('shop.brandUpdate');
         Route::get('shop/brandDelete/{id}','ShopController@brandDelete')->name('shop.brandDelete');
         Route::post('shop/brandStore','ShopController@brandStore')->name('shop.brandStore');
-
 
         // 优惠券
 
@@ -165,9 +179,12 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('foods/comment','userController@administration')->name('foods.comment');
         Route::get('foods/merchant_classification','userController@merchant_classification')->name('foods.merchant_classification');
         Route::get('foods/set_meal','userController@set_meal')->name('foods.set_meal');
+        Route::get('finance/integral_type','FinanceController@integral_type')->name('finance.integral_type');
+        Route::get('finance/integral_record','FinanceController@integral_record')->name('finance.integral_record');
+        Route::get('finance/integral_type','FinanceController@integral_type')->name('finance.integral_type');
 
     });
-    Route::post('shop/getAttr','ShopController@getAttr')->name('shop.getAttr');
+
     // 图片上传
     Route::any('upload/uploadImage','UploadController@uploadImage');
 });
