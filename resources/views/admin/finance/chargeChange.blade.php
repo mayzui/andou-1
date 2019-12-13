@@ -6,36 +6,31 @@
         <div class="col-sm-12">
             <div class="ibox-title">
                 @if(empty($data->id))
-                    <h5>新增感恩币明细</h5>
+                    <h5>新增充值明细</h5>
                     @else
-                    <h5>修改感恩币明细</h5>
+                    <h5>修改充值明细</h5>
                 @endif
             </div>
             <div class="ibox-content">
                 <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>
 
                 <div class="hr-line-dashed m-t-sm m-b-sm"></div>
-                <form class="form-horizontal m-t-md" action="{{route('finance.integral_recordChange')}}" method="post" accept-charset="UTF-8">
+                <form class="form-horizontal m-t-md" action="{{route('finance.chargeChange')}}" method="post" accept-charset="UTF-8">
                     {!! csrf_field() !!}
                     <input type="hidden" name="id" value="{{ $data->id or '' }}" />
                     <div class="form-group">
-                        <label class="col-sm-2 control-label">类型描述：</label>
+                        <label class="col-sm-2 control-label">充值金额：</label>
                         <div class="input-group col-sm-2">
-                            <input type="text" class="form-control" name="describe" value="{{$data->describe or ''}}" required placeholder="类型描述">
+                            <input type="text" class="form-control" name="price" value="{{$data->price or ''}}" required placeholder="请输入充值金额">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-sm-2 control-label">感恩币状态：</label>
-                        <select  style="height: 25px;width: 273px;" name="state" >
-                                <option value="1" >获得</option>
-                                <option value="0" >消耗</option>
+                        <label class="col-sm-2 control-label">充值方式：</label>
+                        <select  style="height: 25px;width: 273px;" name="describe" >
+                            <option value="微信充值" >微信</option>
+                            <option value="支付宝充值" >支付宝</option>
+                            <option value="银联充值" >银联</option>
                         </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label">感恩币值：</label>
-                        <div class="input-group col-sm-2">
-                            <input type="text" class="form-control" name="price" value="{{$data->price or ''}}" required placeholder="感恩币值">
-                        </div>
                     </div>
                     <div class="hr-line-dashed m-t-sm m-b-sm"></div>
                     <div class="form-group">

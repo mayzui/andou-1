@@ -60,7 +60,6 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('foods/specdel','FoodsController@specdel')->name('foods.specdel'); // 删除
 
 
-
         /*
          *      财务管理模块
          * */
@@ -76,6 +75,16 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::match(['get','post'],'finance/integral_recordChange','FinanceController@integral_recordChange')->name('finance.integral_recordChange'); // 新增 and 修改
         Route::get('finance/integral_recordDel','FinanceController@integral_recordDel')->name('finance.integral_recordDel'); // 删除
 
+        // 充值中心
+        Route::match(['get','post'],'finance/chargeChange','FinanceController@chargeChange')->name('finance.chargeChange'); // 新增 and 修改
+        Route::get('finance/chargeDel','FinanceController@chargeDel')->name('finance.chargeDel'); // 删除
+        // 提现管理
+        Route::match(['get','post'],'finance/cashOutChange','FinanceController@cashOutChange')->name('finance.cashOutChange'); // 新增 and 修改
+        Route::get('finance/cashOutDel','FinanceController@cashOutDel')->name('finance.cashOutDel'); // 删除
+        Route::get('finance/cashOutExamine','FinanceController@cashOutExamine')->name('finance.cashOutExamine'); // 删除
+
+        // 平台流水
+        Route::get('finance/cashLogsDel','FinanceController@cashLogsDel')->name('finance.cashLogsDel'); // 删除
 
     });
 });

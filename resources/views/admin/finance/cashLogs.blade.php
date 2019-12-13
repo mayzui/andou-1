@@ -3,15 +3,13 @@
     <div class="row">
         <div class="col-sm-12">
             <div class="ibox-title">
-                <h5>感恩币明细</h5>
+                <h5>平台流水</h5>
             </div>
             <div class="ibox-content">
                 <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>&nbsp;
-                {{--判断用户是否是超级管理员，超级管理员不能新增菜品--}}
-                {{--@if($id)--}}
                     <a href="{{route('finance.integral_recordChange')}}" link-url="javascript:void(0)">
                         <button class="btn btn-primary btn-sm" type="button">
-                            <i class="fa fa-plus-circle"></i> 新增感恩币明细</button>
+                            <i class="fa fa-plus-circle"></i> 新增平台流水</button>
                     </a>
                     <style>
                         th ,td{
@@ -21,12 +19,13 @@
                     <table class="table table-striped table-bordered table-hover m-t-md">
                         <thead>
                         <tr>
-                            <th width="100">感恩币明细id</th>
+                            <th width="100">流水id</th>
                             <th>用户名称</th>
-                            <th style="width: 200px">感恩币描述</th>
-                            <th>感恩币值</th>
-                            <th>感恩币状态</th>
-                            <th>操作时间</th>
+                            <th>流动金额</th>
+                            <th style="width: 200px">流动描述</th>
+                            <th>财务状况</th>
+                            <th>流动时间</th>
+                            <th>所属类型</th>
                             <th>操作</th>
                         </tr>
                         </thead>
@@ -36,10 +35,19 @@
                                     <tr>
                                         <th>{{ $v -> id }}</th>
                                         <th>{{ $v -> name }}</th>
-                                        <th><p style="width: 200px;overflow: hidden;white-space: nowrap;text-overflow: ellipsis;">{{ $v -> describe }}</p></th>
                                         <th>{{ $v -> price }}</th>
-                                        <th>{{ $v -> state == 1 ? "获得" : "消耗" }}</th>
+                                        <th><p style="width: 200px;overflow: hidden;white-space: nowrap;text-overflow: ellipsis;">{{ $v -> describe }}</p></th>
+                                        <th style="color: green">{{ $v -> state == 1 ? "获得" : "消耗" }}</th>
                                         <th>{{ $v -> create_time }}</th>
+                                        <th>
+                                            @if($v -> type_id == 1)
+                                                感恩币流水
+                                                @elseif($v -> type_id == 2)
+                                                充值流水
+                                                @elseif($v -> type_id == 3)
+                                                提现流水
+                                            @endif
+                                        </th>
                                         <td class="text-center">
                                             <div class="btn-group">
                                                 <a onclick="del({{$v->id}})"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-ban"></i> 删除</button></a>
@@ -65,7 +73,7 @@
         function del(e) {
             var id = e;
             layer.alert("是否删除该数据？",{icon:3},function (index) {
-                location.href="{{route('finance.integral_recordDel')}}?id="+id;
+                location.href="{{route('finance.cashLogsDel')}}?id="+id;
                 layer.close(index);
             });
         }

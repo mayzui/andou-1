@@ -156,7 +156,7 @@ class AdminsController extends BaseController {
     }
     public function showLoginForm()
     {
-        return view('admin.admins.login');
+        return view('/admin/admins/login');
     }
 
     /**

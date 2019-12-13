@@ -11,9 +11,188 @@ use App\Http\Requests\Admin\RoleRequest;
 use App\Models\Role;
 use App\Repositories\RulesRepository;
 use App\Handlers\Tree;
+use Mockery\Exception;
 
 class FinanceController extends Controller
 {
+    /*
+     *      平台流水
+     * */
+    public function cashLogs ()
+    {
+        // 链接数据库，查询流水数据
+        $data = DB::table("cashlogs")
+            -> join("users","cashlogs.user_id","=","users.id")
+            -> where('source',0)
+            -> where('cashlogs.is_del',0)
+            -> select(['cashlogs.id','users.name','cashlogs.price','cashlogs.state','cashlogs.describe','cashlogs.create_time','cashlogs.type_id'])
+            -> orderBy("type_id")
+            -> paginate(10);
+        return view("/admin/finance/cashLogs",['data'=>$data]);
+    }
+    // 删除 流水
+    public function cashLogsDel(){
+        // 获取传入的id
+        $all = \request() -> all();
+        // 链接数据库，根据id 删除数据库中的内容
+        // 链接数据库，根据id，删除数据
+        $data = [
+            'is_del' => 1
+        ];
+        // 执行删除操作
+        $i = DB::table("cashlogs") -> where('id',$all['id']) -> update($data);
+        if($i){
+            flash('删除成功') -> success();
+            return redirect()->route('finance.cashLogs');
+        }else{
+            flash('删除失败') -> error();
+            return redirect()->route('finance.cashLogs');
+        }
+    }
+
+    /*
+     *      提现管理
+     * */
+    public function cashOut ()
+    {
+        // 查询数据库中，资金流动表
+        $data = DB::table("money_flow")
+            -> join("users","money_flow.user_id","=","users.id")
+            -> where('source',0)
+            -> where('money_flow.is_del',0)
+            -> select(['money_flow.id','users.name','money_flow.price','money_flow.create_time','money_flow.status'])
+            -> paginate(10);
+        return view("/admin/finance/cashOut",['data'=>$data]);
+    }
+    // 新增提现明细
+    public function cashOutChange(){
+        // 判断跳转页面还是，执行操作
+        if(\request() -> isMethod("get")){
+            // 跳转新增界面
+            return view('/admin/finance/cashOutChange');
+        }else{
+            // 执行新增操作
+            $all = \request() -> all();
+            // 获取提交的内容
+            $data = [
+                'user_id' => Auth::id(),
+                'price' => $all['price'],
+                'create_time' => date("Y-m-d H:i:s")
+            ];
+            // 链接数据库，执行新增操作
+            $i = DB::table("money_flow") -> insert($data);
+            if($i){
+                flash('新增成功') -> success();
+                return redirect()->route('finance.cashOut');
+            }else{
+                flash('新增失败') -> error();
+                return redirect()->route('finance.cashOut');
+            }
+        }
+    }
+    // 审核提现
+    public function cashOutExamine(){
+        // 获取传入的id
+        $all = \request() -> all();
+        // 链接数据库，根据id 删除数据库中的内容
+        // 链接数据库，根据id，删除数据
+        $data = [
+            'status' => 1
+        ];
+        return dd(json_decode(json_encode(DB::table("money_flow")-> where('id',$all['id']) -> first()),true));
+        // 执行删除操作
+        $i = DB::table("money_flow") -> where('id',$all['id']) -> update($data);
+        if($i){
+            flash('审核成功') -> success();
+            return redirect()->route('finance.cashOut');
+        }else{
+            flash('审核失败') -> error();
+            return redirect()->route('finance.cashOut');
+        }
+    }
+    // 删除提现明细
+    public function cashOutDel(){
+        // 获取传入的id
+        $all = \request() -> all();
+        // 链接数据库，根据id 删除数据库中的内容
+        // 链接数据库，根据id，删除数据
+        $data = [
+            'is_del' => 1
+        ];
+        // 执行删除操作
+        $i = DB::table("money_flow") -> where('id',$all['id']) -> update($data);
+        if($i){
+            flash('删除成功') -> success();
+            return redirect()->route('finance.cashOut');
+        }else{
+            flash('删除失败') -> error();
+            return redirect()->route('finance.cashOut');
+        }
+    }
+
+
+    /*
+     *      充值中心
+     * */
+    public function charge()
+    {
+        // 链接数据库，查询充值明细表内容
+        $data = DB::table("cashlogs")
+            -> join("users","cashlogs.user_id","=","users.id")
+            -> where('source',0)
+            -> where('cashlogs.type_id',2)
+            -> where('cashlogs.is_del',0)
+            -> select(['cashlogs.id','users.name','cashlogs.price','cashlogs.describe','cashlogs.create_time'])
+            -> paginate(10);
+        return view("/admin/finance/charge",['data'=>$data]);
+    }
+    // 新增充值明细
+    public function chargeChange(){
+        if(\request() -> isMethod("get")){
+            // 跳转新增界面
+            return view('/admin/finance/chargeChange');
+        }else{
+            // 执行新增操作
+            // 获取提交的值
+            $all = \request() -> all();
+            $data = [
+                'user_id' => Auth::id(),
+                'merchant_id' => Auth::id(),
+                'price' => $all['price'],
+                'describe' => $all['describe'],
+                'create_time' => date("Y-m-d H:i:s"),
+                'type_id' => 2
+            ];
+            // 链接数据库，执行新增操作
+            $i = DB::table("cashlogs") -> insert($data);
+            if($i){
+                flash('新增成功') -> success();
+                return redirect()->route('finance.charge');
+            }else{
+                flash('新增失败') -> error();
+                return redirect()->route('finance.charge');
+            }
+        }
+    }
+    // 删除充值明细
+    public function chargeDel(){
+        // 获取传入的id
+        $all = \request() -> all();
+        // 链接数据库，根据id，删除数据
+        $data = [
+            'is_del' => 1
+        ];
+        // 执行删除操作
+        $i = DB::table("cashlogs") -> where('id',$all['id']) -> update($data);
+        if($i){
+            flash('删除成功') -> success();
+            return redirect()->route('finance.charge');
+        }else{
+            flash('删除失败') -> error();
+            return redirect()->route('finance.charge');
+        }
+    }
+
     /*
      *      感恩币中心
      * */
@@ -204,19 +383,21 @@ class FinanceController extends Controller
         $all = \request() -> all();
         if(!empty($all['id'])){
             // 如果有id传入，则根据这个id查询，明细表中的数据
-            $data = DB::table("integral_record")
-                -> join("users","integral_record.user_id","=","users.id")
+            $data = DB::table("cashlogs")
+                -> join("users","cashlogs.user_id","=","users.id")
                 -> where('source',0)
                 -> where('is_del',0)
-                -> where('integral_record.user_id',$all['id'])
-                -> select(['integral_record.id','users.name','integral_record.describe','integral_record.num','integral_record.create_time'])
+                -> where('cashlogs.type_id',1)
+                -> where('cashlogs.user_id',$all['id'])
+                -> select(['cashlogs.id','users.name','cashlogs.describe','cashlogs.state','cashlogs.price','cashlogs.create_time'])
                 -> paginate(10);
         }else{
-            $data = DB::table("integral_record")
-                -> join("users","integral_record.user_id","=","users.id")
+            $data = DB::table("cashlogs")
+                -> join("users","cashlogs.user_id","=","users.id")
                 -> where('source',0)
                 -> where('is_del',0)
-                -> select(['integral_record.id','users.name','integral_record.describe','integral_record.num','integral_record.create_time'])
+                -> where('cashlogs.type_id',1)
+                -> select(['cashlogs.id','users.name','cashlogs.describe','cashlogs.state','cashlogs.price','cashlogs.create_time'])
                 -> paginate(10);
         }
         // 链接数据库，查询感恩币明细
@@ -238,23 +419,66 @@ class FinanceController extends Controller
         }else{
             // 判断执行新增方法，还是执行修改方法
             if(empty($all['id'])){
+//                $id = 6;
+                $id = Auth::id();
                 // 执行新增方法
-                // 获取提交的值
-                $data = [
-                    'user_id' => Auth::id(),
-                    'describe' => $all['describe'],
-                    'num' => $all['num'],
-                    'create_time' => date("Y-m-d H:i:s")
-                ];
-                // 链接数据库执行新增操作
-                $i = DB::table("integral_record") -> insert($data);
-                if($i){
-                    flash('新增成功') -> success();
-                    return redirect()->route('finance.integral_record');
+                // 判断财务状况
+                if($all['state'] == 1){
+                    // 获得感恩币
+                    // 计算感恩币总值
+                    $a = $all['price'];     // 当前获取的值
+                    // 获取感恩币总表中的 感恩币值
+                    $integral = DB::table("integral") -> where('user_id',$id) ->first();
+                    // 将获取的数据转换成数组
+                    $arr = json_decode(json_encode($integral),true);
+                    $num = $arr['count']+$a;
+                    // 修改感恩币总表中的值
+                    $inte = [
+                        'count' => $num
+                    ];
                 }else{
-                    flash('新增失败') -> error();
-                    return redirect()->route('finance.integral_record');
+                    // 消耗感恩币
+                    // 计算感恩币总值
+                    $a = $all['price'];     // 当前获取的值
+                    // 获取感恩币总表中的 感恩币值
+                    $integral = DB::table("integral") -> where('user_id',$id) ->first();
+                    // 将获取的数据转换成数组
+                    $arr = json_decode(json_encode($integral),true);
+                    $num = $arr['count']-$a;
+                    // 修改感恩币总表中的值
+                    $inte = [
+                        'count' => $num
+                    ];
                 }
+                DB::beginTransaction();
+                try{
+                    // 链接感恩币总表数据库
+                    DB::table("integral") -> where('user_id',$id) -> update($inte);
+                    // 获取提交的值
+                    $data = [
+                        'user_id' => $id,
+                        'merchant_id' => $id,
+                        'price' => $all['price'],
+                        'describe' => $all['describe'],
+                        'create_time' => date("Y-m-d H:i:s"),
+                        'state' => $all['state'],
+                        'type_id' => 1
+                    ];
+                    // 链接数据库执行新增操作
+                    $i = DB::table("cashlogs") -> insert($data);
+                    if($i){
+                        DB::commit();
+                        flash('新增成功') -> success();
+                        return redirect()->route('finance.integral_record');
+                    }else{
+                        DB::rollBack();
+                        flash('新增失败') -> error();
+                        return redirect()->route('finance.integral_record');
+                    }
+                }catch (Exception $e){
+                    DB::rollBack();
+                }
+
             }else{
                 // 执行修改方法
                 return "doUpdate";
@@ -279,20 +503,8 @@ class FinanceController extends Controller
         }
     }
 
-    public function cashOut ()
-    {
-        return "提现管理，模块开发中... ...";
-    }
 
-    public function cashLogs ()
-    {
-        return "平台流水，模块开发中... ...";
-    }
 
-    public function charge ()
-    {
-        return "充值中心，模块开发中... ...";
-    }
 
 
 
