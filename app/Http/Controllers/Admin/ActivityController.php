@@ -7,5 +7,8 @@ use App\Http\Controllers\Controller;
 
 class ActivityController extends Controller
 {
-    //
+    public function activity ()
+    {
+    	echo '开发中....';
+    }
 }
