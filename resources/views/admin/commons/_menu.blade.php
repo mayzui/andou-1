@@ -10,7 +10,8 @@
             <li class="nav-header text-center">
                 <div class="dropdown profile-element">
                                 <span>
-                                    <img alt="image" class="img-circle" src="{{$admin->avator}}" width="64"/>
+                                    {{--<img alt="image" class="img-circle" src="{{$admin->avator}}" width="64"/>--}}
+                                    <img alt="image" class="img-circle" src="http://img4.imgtn.bdimg.com/it/u=166011432,2730618898&fm=26&gp=0.jpg" width="64"/>
                                 </span>
                                 <a data-toggle="dropdown" class="dropdown-toggle" href="#">
                                 <span class="clear">
