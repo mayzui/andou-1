@@ -3,7 +3,7 @@
     $admin = Auth::guard('admin')->user();
 @endphp
 <nav class="navbar-default navbar-static-side" role="navigation">
-    <div class="nav-close"><i class="fa fa-times-circle"></i>
+    <div claszs="nav-close"><i class="fa fa-times-circle"></i>
     </div>
     <div class="sidebar-collapse">
         <ul class="nav" id="side-menu">
@@ -19,9 +19,9 @@
                                     <strong class="font-bold">{{$admin->name}}</strong>
                                 </span>
                                 <span class="text-muted text-xs block">
-                                    @foreach($admin->roles as $role)
-                                      {{$role->name}}
-                                    @endforeach
+                                    {{--@foreach($admin->roles as $role)--}}
+                                      {{--{{$role->name}}--}}
+                                    {{--@endforeach--}}
                                     <b class="caret"></b>
                                 </span>
                                 </span>

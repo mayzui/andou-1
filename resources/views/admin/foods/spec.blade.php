@@ -6,14 +6,20 @@
                 <h5>商户菜品规格</h5>
             </div>
             <div class="ibox-content">
-                <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>&nbsp;
-                {{--判断用户是否是超级管理员，超级管理员不能新增规格--}}
-                {{--@if($id)--}}
-                <a href="{{route('foods.specadd')}}" link-url="javascript:void(0)">
-                    <button class="btn btn-primary btn-sm" type="button">
-                        <i class="fa fa-plus-circle"></i> 新增规格</button>
-                </a>
-                {{--@endif--}}
+                <form method="post" action="{{route('foods.spec')}}" name="form">
+                    {{ csrf_field() }}
+                    <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>
+                    {{--判断用户是否是超级管理员，超级管理员不能新增规格--}}
+                    {{--@if($id)--}}
+                    <a href="{{route('foods.specadd')}}" link-url="javascript:void(0)">
+                        <button class="btn btn-primary btn-sm" type="button">
+                            <i class="fa fa-plus-circle"></i> 新增规格</button>
+                    </a>
+                    {{--@endif--}}
+                    <input type="text" style="height: 25px;margin-left: 10px;" value="{{ $name or '' }}" name="name" placeholder="规格名称">
+                    <button style="height: 25px;margin-left: 10px;" type="submit">按条件查询</button>
+                </form>
+
                 <style>
                     th ,td{
                         text-align: center;
@@ -43,6 +49,9 @@
                                 </td>
                             </tr>
                         @endforeach
+                        <tr style="height: 35px">
+                            <td  colspan="7" style="text-align: center;">{{$data}}</td>
+                        </tr>
                     @else
                         <tr>
                             <th colspan="4">暂时还没有数据</th>

@@ -6,23 +6,19 @@
                 <h5>商户菜品分类</h5>
             </div>
             <div class="ibox-content">
-                {{-- 按条件查询 --}}
-                {{--<form method="post" action="{{route('merchants.index')}}" name="form">--}}
-                {{--{{ csrf_field() }}--}}
-                <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>&nbsp;
-                {{--判断用户是否是超级管理员，超级管理员不能新增菜品--}}
-                {{--@if($id)--}}
+                <form method="post" action="{{route('foods.index')}}" name="form">
+                    {{ csrf_field() }}
+                    <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>
+                    {{--判断用户是否是超级管理员，超级管理员不能新增菜品--}}
+                    {{--@if($id)--}}
                     <a href="{{route('foods.add')}}" link-url="javascript:void(0)">
                         <button class="btn btn-primary btn-sm" type="button">
                             <i class="fa fa-plus-circle"></i> 新增分类</button>
                     </a>
-                {{--@endif--}}
-                {{--<input type="text" style="height: 25px;margin-left: 10px;" name="name" placeholder="菜品名字">--}}
-                    {{--<select style="height: 25px;margin-left: 10px;" name="merchant_type_id">--}}
-                        {{--<option value="0">菜品分类</option>--}}
-                    {{--</select>--}}
-                    {{--<button style="height: 25px;margin-left: 10px;" type="submit">按条件查询</button>--}}
-                {{--</form>--}}
+                    {{--@endif--}}
+                    <input type="text" style="height: 25px;margin-left: 10px;" value="{{ $name or '' }}" name="name" placeholder="商户名称">
+                    <button style="height: 25px;margin-left: 10px;" type="submit">按条件查询</button>
+                </form>
                     <style>
                         th ,td{
                             text-align: center;
@@ -32,7 +28,7 @@
                         <thead>
                         <tr>
                             <th width="100">ID</th>
-                            <th>商户ID</th>
+                            <th>商户名称</th>
                             <th>分类名称</th>
                             <th>操作</th>
                         </tr>
@@ -42,8 +38,8 @@
                                 @foreach($data as $v)
                                     <tr>
                                         <th>{{$v->id}}</th>
-                                        <th>{{$v->merchants_id}}</th>
-                                        <th>{{$v->name}}</th>
+                                        <th>{{$v->merchants_name}}</th>
+                                        <th>{{$v->class_name}}</th>
                                         <td class="text-center">
                                             <div class="btn-group">
                                                 <a href="{{route('foods.add')}}?id={{$v->id}}"><button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 修改</button></a>
@@ -52,6 +48,9 @@
                                         </td>
                                     </tr>
                                 @endforeach
+                                <tr style="height: 35px">
+                                    <td  colspan="4" style="text-align: center;">{{$data}}</td>
+                                </tr>
                                 @else
                                 <tr>
                                     <th colspan="4">暂时还没有数据</th>

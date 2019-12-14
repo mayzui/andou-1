@@ -19,6 +19,7 @@ class FoodsController extends BaseController
      *      套餐
      * */
     public function set_meal(){
+        $all = \request() -> all();
         // 判断用户是否开店，并且已经认证通过
         $id = Auth::id();
         // 判断该用户，是否申请饭店 并且已经认证通过
@@ -28,19 +29,38 @@ class FoodsController extends BaseController
             -> where("user_id",$id)
             -> where("is_reg",1)
             -> first();
+        // 判断是否执行条件查询
+        if(!empty($all['name'])){
+            // 条件查询
+            $where[] = ['foods_set_meal.name', 'like', '%'.$all['name'].'%'];
+            $name = $all['name'];
+        }else{
+            // 跳转页面
+            $where[] = ['foods_set_meal.name', 'like', '%'."".'%'];
+            $name = "";
+        }
+
         if(!empty($i)){
             // 商户
             // 查询数据库，套餐信息表内容
             $data = DB::table("foods_set_meal")
+                -> join('merchants','foods_set_meal.merchant_id','=','merchants.id')
                 -> where('merchant_id',$id)
                 -> where('is_del',0)
+                -> where($where)
+                -> select(['foods_set_meal.id','foods_set_meal.name as set_meal_name','image','price','num','room','room_price','status','merchants.name as merchants_name'])
                 -> paginate(10);
         }else{
             // 管理员
             // 查询数据库，套餐信息表内容
-            $data = DB::table("foods_set_meal")-> where('is_del',0) -> paginate(10);
+            $data = DB::table("foods_set_meal")
+                -> join('merchants','foods_set_meal.merchant_id','=','merchants.id')
+                -> where('is_del',0)
+                -> where($where)
+                -> select(['foods_set_meal.id','foods_set_meal.name as set_meal_name','image','price','num','room','room_price','status','merchants.name as merchants_name'])
+                -> paginate(10);
         }
-        return $this->view('',['data'=>$data]);
+        return $this->view('',['data'=>$data,'name'=>$name]);
     }
 
     // 新增 and 修改 套餐信息
@@ -232,14 +252,24 @@ class FoodsController extends BaseController
         }
     }
 
-
     /*
      *      饭店管理
      * */
     public function administration(){
+        $all = \request() -> all();
         $id = Auth::id();
         // 判断该用户，是否开店 并且已经认证通过
         $i = DB::table('merchants') -> where("user_id",$id) -> where("is_reg",1) -> first();
+        // 判断是否执行条件查询
+        if(!empty($all['name'])){
+            // 条件查询
+            $where[] = ['merchants.name', 'like', '%'.$all['name'].'%'];
+            $name = $all['name'];
+        }else{
+            // 跳转页面
+            $where[] = ['merchants.name', 'like', '%'."".'%'];
+            $name = "";
+        }
         if(!empty($i)){
             // 如果开店，则查询当前商户的信息
             // 链接数据库 查询商户表
@@ -249,6 +279,7 @@ class FoodsController extends BaseController
                 -> where("role_id",5)
                 -> where("user_id",$id)
                 -> where("is_reg",1)
+                -> where($where)
                 -> select(['merchants.id','merchants.user_id','merchant_type.type_name','foods_classification.name','merchants.name as name2' ,'merchants.address'])
                 -> paginate(10);
         }else{
@@ -258,11 +289,12 @@ class FoodsController extends BaseController
                 -> join("foods_classification","merchants.user_id","=","foods_classification.merchants_id")
                 -> where("role_id",5)
                 -> where("is_reg",1)
+                -> where($where)
                 -> select(['merchants.id','merchants.user_id','merchant_type.type_name','foods_classification.name','merchants.name as name2' ,'merchants.address'])
                 -> paginate(10);
         }
         // 跳转饭店管理模块
-        return $this -> view('',['data'=>$data]);
+        return $this -> view('',['data'=>$data,'name'=>$name]);
     }
 
 
@@ -306,6 +338,7 @@ class FoodsController extends BaseController
      * */
     // 跳转订单界面
     public function orders(){
+        $all = \request() -> all();
         // 判断用户是否开店，并且已经认证通过
         $id = Auth::id();
         // 判断该用户，是否申请饭店 并且已经认证通过
@@ -315,17 +348,29 @@ class FoodsController extends BaseController
             -> where("user_id",$id)
             -> where("is_reg",1)
             -> first();
+        // 判断是否执行条件查询
+        if(!empty($all['name'])){
+            // 条件查询
+            $where[] = ['phone', 'like', '%'.$all['name'].'%'];
+            $name = $all['name'];
+        }else{
+            // 跳转页面
+            $where[] = ['phone', 'like', '%'."".'%'];
+            $name = "";
+        }
         if(!empty($i)){
             // 如果开店，则能够看到当前店铺用户订单信息
             // 查询数据库数据
-            $data = DB::table("foods_user_ordering") -> where('merchant_id',$id) -> paginate(10);
+            $data = DB::table("foods_user_ordering")-> where($where) -> where('merchant_id',$id) -> paginate(10);
         }else{
             // 如果未开店，则为超级管理员，能够看见所有的数据
             // 查询数据库数据
-            $data = DB::table("foods_user_ordering") -> paginate(10);
+            $data = DB::table("foods_user_ordering")
+                -> where($where)
+                -> paginate(10);
             $id = "";
         }
-        return $this -> view('',['data'=>$data,'id'=>$id]);
+        return $this -> view('',['data'=>$data,'id'=>$id,'name'=>$name]);
     }
 
     // 新增 and 修改订单
@@ -429,20 +474,44 @@ class FoodsController extends BaseController
      * */
     //跳转菜品详情界面
     public function information(){
+        $all = \request() -> all();
         $id = Auth::id();
         // 判断该用户，是否开店
         $i = DB::table('merchants') -> where("user_id",$id) -> first();
+        // 判断是否执行条件查询
+        if(!empty($all['name'])){
+            // 条件查询
+            $where[] = ['foods_information.name', 'like', '%'.$all['name'].'%'];
+            $name = $all['name'];
+        }else{
+            // 跳转页面
+            $where[] = ['foods_information.name', 'like', '%'."".'%'];
+            $name = "";
+        }
+
         if(!empty($i)){
             // 如果开店，则能够看到自己的菜品详情
             // 查询数据库数据
-            $data = DB::table("foods_information") -> where('merchant_id',$id) -> paginate(10);
+            $data = DB::table("foods_information")
+                -> join('foods_classification','foods_information.classification_id','=','foods_classification.id')
+                -> join('merchants','foods_classification.merchants_id','=','merchants.id')
+                -> where('merchant_id',$id)
+                -> where($where)
+                -> select(['foods_information.id','merchants.name as merchants_name','foods_classification.name as class_name','foods_information.name as info_name','price','image','specifications','remark','quantitySold','num'])
+                -> paginate(10);
         }else{
             // 如果开店，则为超级管理员，能够看见所有的数据
             // 查询数据库数据
-            $data = DB::table("foods_information") -> paginate(10);
+            $data = DB::table("foods_information")
+                -> join('foods_classification','foods_information.classification_id','=','foods_classification.id')
+                -> join('merchants','foods_classification.merchants_id','=','merchants.id')
+                -> where('merchant_id',$id)
+                -> where($where)
+                -> select(['foods_information.id','merchants.name as merchants_name','foods_classification.name as class_name','foods_information.name as info_name','price','image','specifications','remark','quantitySold','num'])
+                -> paginate(10);
             $id = "";
         }
-        return $this -> view('',['data'=>$data,'id'=>$id]);
+        return $this -> view('',['data'=>$data,'id'=>$id,'name'=>$name]);
     }
     // 新增菜品详情
     public function informationadd(){
@@ -491,6 +560,7 @@ class FoodsController extends BaseController
             if(empty($all['id'])){
                 // 执行新增操作
                 $spec = $all['specifications'];
+
                 // 将数组转换成字符串
                 $specs = implode(",",$spec);
                 // 定义一个数组用于接收需要上传数据库的值
@@ -516,8 +586,12 @@ class FoodsController extends BaseController
                 // 执行修改操作
                 // 获取提交的值
                 $spec = $all['specifications'];
+                // 根据获取的id查询规格表中数据库
+                foreach ($spec as $v){
+                    $specdata[] = json_decode(json_encode(DB::table('foods_spec') -> where('id',$v)->select(['name']) -> first()),true);
+                }
                 // 将数组转换成字符串
-                $specs = implode(",",$spec);
+                $specs = implode(",",array_column($specdata,'name'));
                 // 定义一个数组用于接收需要上传数据库的值
                 $data = [
                     "merchant_id" => Auth::id(),
@@ -566,20 +640,36 @@ class FoodsController extends BaseController
      * */
     // 跳转菜品规格
     public function spec(){
+        $all = \request() -> all();
         $id = Auth::id();
         // 判断该用户，是否开店
         $i = DB::table('merchants') -> where("user_id",$id) -> first();
+        // 判断是否执行条件查询
+        if(!empty($all['name'])){
+            // 条件查询
+            $where[] = ['name', 'like', '%'.$all['name'].'%'];
+            $name = $all['name'];
+        }else{
+            // 跳转页面
+            $where[] = ['name', 'like', '%'."".'%'];
+            $name = "";
+        }
+
         if(!empty($i)){
             // 如果开店，则能够看到自己的菜品规格
             // 查询数据库数据
-            $data = DB::table("foods_spec") -> where('merchant_id',$id) -> paginate(10);
+            $data = DB::table("foods_spec")
+                -> where($where)
+                -> where('merchant_id',$id) -> paginate(5);
         }else{
             // 如果开店，则为超级管理员，能够看见所有的数据
             // 查询数据库数据
-            $data = DB::table("foods_spec") -> paginate(10);
+            $data = DB::table("foods_spec")
+                -> where($where)
+                -> paginate(5);
             $id = "";
         }
-        return $this -> view('',['data'=>$data,'id'=>$id]);
+        return $this -> view('',['data'=>$data,'id'=>$id,'name'=>$name]);
     }
     // 新增 and 修改，菜品规格
     public function specadd(){
@@ -682,20 +772,39 @@ class FoodsController extends BaseController
     // 跳转菜品分类模块
     public function index()
     {
+        $all = \request() -> all();
         // 判断当前用户是否是酒店用户
         $id = Auth::id();
         // 判断该用户，是否开店
         $i = DB::table('merchants') -> where("user_id",$id) -> first();
-
+        // 判断是否执行条件查询
+        if(!empty($all['name'])){
+            // 条件查询
+            $where[] = ['merchants.name', 'like', '%'.$all['name'].'%'];
+            $name = $all['name'];
+        }else{
+            // 跳转页面
+            $where[] = ['merchants.name', 'like', '%'."".'%'];
+            $name = "";
+        }
         if(!empty($i)){
             // 如果是酒店用户，只能看见自己的菜品分类
-            $data = DB::table("foods_classification")->where('merchants_id',$id)->paginate(10);
+            $data = DB::table("foods_classification")
+                -> join('merchants','foods_classification.merchants_id','=','merchants.id')
+                -> where('merchants_id',$id)
+                -> where($where)
+                -> select(['foods_classification.id','foods_classification.name as class_name','merchants.name as merchants_name'])
+                -> paginate(10);
         }else{
             // 查询数据库中商户菜品分类表
-            $data = DB::table("foods_classification")->paginate(10);
+            $data = DB::table("foods_classification")
+                -> join('merchants','foods_classification.merchants_id','=','merchants.id')
+                -> where($where)
+                -> select(['foods_classification.id','foods_classification.name as class_name','merchants.name as merchants_name'])
+                -> paginate(10);
             $id = "";
         }
-        return $this->view('',['data'=>$data,'id'=>$id]);
+        return $this->view('',['data'=>$data,'id'=>$id,'name'=>$name]);
     }
 
     // 新增菜品分类

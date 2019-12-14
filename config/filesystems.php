@@ -74,6 +74,12 @@ return [
                 'isCName'       => false, // 是否使用自定义域名,true: 则Storage.url()会使用自定义的cdn或域名生成文件url， false: 则使用外部节点生成url
                 'debug'         =>false ,
         ],
+        //自定义
+        'uploads' => [
+            'driver' => 'local',
+            //'root' => storage_path('app/uploads'),
+            'root' => public_path('uploads/'.date('Ymd')),
+        ],
 
     ],
 

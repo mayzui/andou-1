@@ -3,10 +3,16 @@
     <div class="row">
         <div class="col-sm-12">
             <div class="ibox-title">
-                <h5>商户管理</h5>
+                <h5>饭店管理</h5>
             </div>
             <div class="ibox-content">
-                <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>&nbsp;
+                <form method="post" action="{{route('foods.administration')}}" name="form">
+                    {{ csrf_field() }}
+                    <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>
+
+                    <input type="text" style="height: 25px;margin-left: 10px;" value="{{ $name or '' }}" name="name" placeholder="饭店名称">
+                    <button style="height: 25px;margin-left: 10px;" type="submit">按条件查询</button>
+                </form>
                 {{--判断用户是否是超级管理员，超级管理员不能新增菜品--}}
                 {{--@if($id)--}}
                     {{--<a href="{{route('foods.add')}}" link-url="javascript:void(0)">--}}
@@ -46,12 +52,16 @@
                                         </td>
                                     </tr>
                                 @endforeach
+                                <tr style="height: 35px">
+                                    <td  colspan="7" style="text-align: center">{{$data}}</td>
+                                </tr>
                                 @else
                                 <tr>
                                     <th colspan="7">暂时还没有数据</th>
                                 </tr>
                             @endif
                         </tbody>
+
                     </table>
 
             </div>

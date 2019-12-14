@@ -6,14 +6,20 @@
                 <h5>套餐列表</h5>
             </div>
             <div class="ibox-content">
-                <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>&nbsp;
-                {{--判断用户是否是超级管理员，超级管理员不能新增菜品--}}
-                {{--@if($id)--}}
+                <form method="post" action="{{route('foods.set_meal')}}" name="form">
+                    {{ csrf_field() }}
+                    <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>
+                    {{--判断用户是否是超级管理员，超级管理员不能新增菜品--}}
+                    {{--@if($id)--}}
                     <a href="{{route('foods.set_mealchange')}}" link-url="javascript:void(0)">
                         <button class="btn btn-primary btn-sm" type="button">
                             <i class="fa fa-plus-circle"></i> 新增套餐</button>
                     </a>
-                {{--@endif--}}
+                    {{--@endif--}}
+                    <input type="text" style="height: 25px;margin-left: 10px;" value="{{ $name or '' }}" name="name" placeholder="套餐名称">
+                    <button style="height: 25px;margin-left: 10px;" type="submit">按条件查询</button>
+                </form>
+
                     <style>
                         th ,td{
                             text-align: center;
@@ -23,7 +29,7 @@
                         <thead>
                         <tr>
                             <th width="100">ID</th>
-                            <th>商户ID</th>
+                            <th>商户名称</th>
                             <th>套餐名称</th>
                             <th style="width: 200px;">套餐图片</th>
                             <th>套餐价格</th>
@@ -39,8 +45,8 @@
                                 @foreach($data as $v)
                                     <tr>
                                         <th>{{$v->id}}</th>
-                                        <th>{{$v->merchant_id}}</th>
-                                        <th>{{$v->name}}</th>
+                                        <th>{{$v->merchants_name}}</th>
+                                        <th>{{$v->set_meal_name}}</th>
                                         <th><img src="{{$v->image}}" style="width: 100px;"></th>
                                         <th>{{$v->price}}</th>
                                         <th>{{$v->num}}</th>

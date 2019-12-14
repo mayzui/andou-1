@@ -97,9 +97,7 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('foods/information1','FoodsController@information')->name('hotel.books');
 
         // 活动
-
         Route::get('shop/activity','ActivityController@activity')->name('shop.activity');
-
 
 
         // 快递
@@ -140,10 +138,17 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('finance/charge','FinanceController@charge')->name('finance.charge');
 
         // 用户中心
-        Route::get('user/list','UserController@integral')->name('user.list');
-        Route::get('user/cashOut','UserController@cashOut')->name('user.cashOut');
-        Route::get('user/cashLogs','UserController@cashLogs')->name('user.cashLogs');
-        Route::get('user/charge','UserController@charge')->name('user.charge');
+        Route::get('user/user_list','UserController@user_list')->name('user.user_list');
+        Route::match(['get','post'],'user/user_listChange','UserController@user_listChange')->name('user.user_listChange'); // 新增 and 修改
+        Route::get('user/user_listDel','UserController@user_listDel')->name('user.user_listDel');   // 删除
+
+        Route::get('user/integralLog','UserController@integralLog')->name('user.integralLog');     // 积分记录
+        Route::get('user/charge','UserController@charge')->name('user.charge');                      // 用户充值
+        Route::get('user/cashOut','UserController@cashOut')->name('user.cashOut');                   // 用户提现
+
+        Route::get('user/cashLogs','UserController@cashLogs')->name('user.cashLogs');               // 用户流水
+        Route::match(['get','post'],'user/cashLogsChange','UserController@cashLogsChange')->name('user.cashLogsChange'); // 新增 and 修改
+        Route::get('user/cashLogsDel','UserController@cashLogsDel')->name('user.cashLogsDel');   // 删除
 
         // 广告板块
         Route::get('banner/positionIndex','BannerController@position')->name('banner.position');

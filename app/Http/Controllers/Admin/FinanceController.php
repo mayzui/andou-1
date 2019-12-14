@@ -23,7 +23,6 @@ class FinanceController extends Controller
         // 链接数据库，查询流水数据
         $data = DB::table("cashlogs")
             -> join("users","cashlogs.user_id","=","users.id")
-            -> where('source',0)
             -> where('cashlogs.is_del',0)
             -> select(['cashlogs.id','users.name','cashlogs.price','cashlogs.state','cashlogs.describe','cashlogs.create_time','cashlogs.type_id'])
             -> orderBy("type_id")
@@ -58,7 +57,6 @@ class FinanceController extends Controller
         // 查询数据库中，资金流动表
         $data = DB::table("money_flow")
             -> join("users","money_flow.user_id","=","users.id")
-            -> where('source',0)
             -> where('money_flow.is_del',0)
             -> select(['money_flow.id','users.name','money_flow.price','money_flow.create_time','money_flow.status'])
             -> paginate(10);
@@ -139,7 +137,6 @@ class FinanceController extends Controller
         // 链接数据库，查询充值明细表内容
         $data = DB::table("cashlogs")
             -> join("users","cashlogs.user_id","=","users.id")
-            -> where('source',0)
             -> where('cashlogs.type_id',2)
             -> where('cashlogs.is_del',0)
             -> select(['cashlogs.id','users.name','cashlogs.price','cashlogs.describe','cashlogs.create_time'])
@@ -202,7 +199,6 @@ class FinanceController extends Controller
         $data = DB::table("integral")
             -> join("integral_type","integral.type_id","=","integral_type.id")
             -> join("users","integral.user_id","=","users.id")
-            -> where('source',0)
             -> where('integral.is_del',0)
             -> select(['users.name as username','integral.id','integral_type.name as typename','user_id','count','integral.describe','integral.create_time','integral.update_time'])
             -> paginate(10);
@@ -385,7 +381,6 @@ class FinanceController extends Controller
             // 如果有id传入，则根据这个id查询，明细表中的数据
             $data = DB::table("cashlogs")
                 -> join("users","cashlogs.user_id","=","users.id")
-                -> where('source',0)
                 -> where('is_del',0)
                 -> where('cashlogs.type_id',1)
                 -> where('cashlogs.user_id',$all['id'])
