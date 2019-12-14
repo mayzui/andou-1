@@ -1,0 +1,8 @@
+{ 
+  "name": "安抖", 
+  "version": "0.0.0", 
+  "description": "安抖接口",
+  "title": "安抖接口", 
+  "sampleUrl" : "http://andou.com/index.php",
+  "url" : "http://andou.com/index.php"
+}
