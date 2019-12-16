@@ -647,11 +647,11 @@ class FoodsController extends BaseController
         // 判断是否执行条件查询
         if(!empty($all['name'])){
             // 条件查询
-            $where[] = ['name', 'like', '%'.$all['name'].'%'];
+            $where[] = ['merchants.name', 'like', '%'.$all['name'].'%'];
             $name = $all['name'];
         }else{
             // 跳转页面
-            $where[] = ['name', 'like', '%'."".'%'];
+            $where[] = ['merchants.name', 'like', '%'."".'%'];
             $name = "";
         }
 
@@ -665,7 +665,9 @@ class FoodsController extends BaseController
             // 如果开店，则为超级管理员，能够看见所有的数据
             // 查询数据库数据
             $data = DB::table("foods_spec")
+                -> join('merchants','foods_spec.merchant_id','=','merchants.id')
                 -> where($where)
+                -> select(['foods_spec.id','foods_spec.name as spec_name','merchants.name as merchants_name'])
                 -> paginate(5);
             $id = "";
         }

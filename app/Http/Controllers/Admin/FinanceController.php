@@ -381,7 +381,7 @@ class FinanceController extends Controller
             // 如果有id传入，则根据这个id查询，明细表中的数据
             $data = DB::table("cashlogs")
                 -> join("users","cashlogs.user_id","=","users.id")
-                -> where('is_del',0)
+                -> where('cashlogs.is_del',0)
                 -> where('cashlogs.type_id',1)
                 -> where('cashlogs.user_id',$all['id'])
                 -> select(['cashlogs.id','users.name','cashlogs.describe','cashlogs.state','cashlogs.price','cashlogs.create_time'])
@@ -390,7 +390,7 @@ class FinanceController extends Controller
             $data = DB::table("cashlogs")
                 -> join("users","cashlogs.user_id","=","users.id")
                 -> where('source',0)
-                -> where('is_del',0)
+                -> where('cashlogs.is_del',0)
                 -> where('cashlogs.type_id',1)
                 -> select(['cashlogs.id','users.name','cashlogs.describe','cashlogs.state','cashlogs.price','cashlogs.create_time'])
                 -> paginate(10);

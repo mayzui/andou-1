@@ -5,11 +5,10 @@
 <meta name="description" content="particles.js is a lightweight JavaScript library for creating particles.">
 <meta name="author" content="Vincent Garreau">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<link rel="stylesheet" media="screen" href="{{loadEdition('/admin/login/css/style.css')}}">
-	<style>
-		.geetest_holder.geetest_wind{
-			min-width: 380px !important;}
-	</style>
+<link rel="stylesheet" href="{{loadEdition('/admin/login/css/base.css')}}">
+<link rel="stylesheet" media="(min-width:750px)" href="{{loadEdition('/admin/login/css/style.css')}}">
+<link rel="stylesheet" media="(max-width:750px)" href="{{loadEdition('/admin/login/css/wap.css')}}">
+
 </head>
 <body>
 <div id="particles-js">
@@ -27,7 +26,7 @@
 
 						<input type="text" name="mobile" value="{{old('mobile')}}"  placeholder="手机号" required />
 						<input type="password" name="password"  placeholder="密码" required />
-						<div style="width: 36px;">
+						<div style="width: 36px;margin-top: 10px">
 							{!! Geetest::render() !!}
 						</div>
 						<input type="submit" id="submit" style="display:none;">

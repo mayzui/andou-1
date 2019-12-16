@@ -21,6 +21,62 @@ use Auth;
 
 class ShopController extends BaseController
 {
+    // 异步上传文件
+    public function storeAlbum(Request $request){
+        // 获取上传的文件
+        $choose_file = $_FILES['choose-file'];
+        //判断第一个文件名是否为空
+        if ($choose_file['name'][0] == "") {
+            return "请选择商品图片";
+        }
+        // 判断保存文件的路径是否存在
+        $dir = $_SERVER['DOCUMENT_ROOT']."/shop/shopImage/";
+        // 如果文件不存在，则创建
+        if (!is_dir($dir)) {
+            mkdir($dir,0777,true);
+        }
+        // 声明支持的文件类型
+        $types = array("png", "jpg", "webp", "jpeg", "gif");
+        // 执行文件上传操作
+        for ($i = 0; $i < count($choose_file['name']); $i++) {
+            //在循环中取得每次要上传的文件名
+            $name = $choose_file['name'][$i];
+            // 将上传的文件名，分割成数组
+            $end = explode(".", $name);
+            //在循环中取得每次要上传的文件类型
+            $type = strtolower(end($end));
+            // 判断上传的文件是否正确
+            if (!in_array($type, $types)) {
+                return '第'.($i + 1).'个文件类型错误';
+            } else {
+                //在循环中取得每次要上传的文件的错误情况
+                $error = $choose_file['error'][$i];
+                if ($error != 0) {
+                    flash("第" . ($i + 1) . "个文件上传错误") -> error();
+                    return redirect()->route('shop.create');
+                } else {
+                    //在循环中取得每次要上传的文件的临时文件
+                    $tmp_name = $choose_file['tmp_name'][$i];
+                    if (!is_uploaded_file($tmp_name)) {
+                        return "第" . ($i + 1) . "个临时文件错误";
+                    } else {
+                        // 给上传的文件重命名
+                        $newname = $dir.date("YmdHis") . rand(1, 10000) . "." . $type;
+                        $img_array[$i] = substr($newname,strpos($newname,'/shop/shopImage/'));
+                        //对文件执行上传操作
+                        if (!move_uploaded_file($tmp_name, $newname)) {
+                            return "第" . ($i + 1) . "个文件上传失败";
+                        }
+                    }
+                }
+            }
+        }
+        $img_array = json_encode($img_array);
+        // 上传成功
+        return 1;
+
+    }
+
     use ApiResponse;
     protected $merchant_type_id = 2;
 
@@ -45,7 +101,23 @@ class ShopController extends BaseController
 
         $level1 = GoodsCate::where('pid','=',0)->get();
         $goodBrands = GoodBrands::select('id','name')->orderBy('id','asc')->get();
-        return $this->view('addGoods',['goodsCate'=>$goodsCate,'goodBrands'=>$goodBrands]);
+        // 查询商品参数
+//        $attrData = DB::table("goods_attr")
+//            -> join('goods_attr_value','goods_attr.id','=','goods_attr_value.goods_attr_id')
+//            -> select(['goods_attr.name as attr_name','goods_attr_value.id','goods_attr_value.value'])
+//            -> orderBy('goods_attr.id')
+//            -> get();
+        $attrData = DB::table('goods_attr') -> get();
+        $a = DB::table('goods_attr_value') -> get();
+//        $attrvalueData = json_decode(json_encode($a),true);
+        $arr = [
+            'goodsCate'=>$goodsCate,
+            'goodBrands'=>$goodBrands,
+            'attrData'=>$attrData,
+            'attrvalueData'=>$a
+        ];
+//        return dd($attrvalueData);
+        return $this->view('addGoods',$arr);
     }
 
     public function getCateChildren (Request $request)

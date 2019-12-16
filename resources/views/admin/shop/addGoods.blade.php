@@ -9,14 +9,55 @@
 
 <script src="{{loadEdition('/assets/js/jquery.min.js')}}"></script>
 <script src="{{loadEdition('/admin/plugins/layui/layui.all.js')}}"></script>
-<script  src="{{loadEdition('/admin/plugins/webupload/webuploader.min.js')}}"></script>
+<script src="https://cdn.bootcss.com/webuploader/0.1.1/webuploader.js"></script>
 <script src="{{loadEdition('/assets/plugins/bootstrap/js/bootstrap.min.js')}}"></script>
 <script src="{{loadEdition('/assets/plugins/waypoints/waypoints.min.js')}}"></script>
 <script src="{{loadEdition('/assets/js/application.js')}}"></script>
 <script src="{{loadEdition('/assets/plugins/wizard/js/loader.min.js')}}"></script>
 <script src="{{loadEdition('/assets/plugins/wizard/js/jquery.form.js')}}"></script>
 <script src="{{loadEdition('/assets/js/modernizr-2.6.2.min.js')}}"></script>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdn.bootcss.com/layer/2.3/layer.js"></script>
+<style>
 
+    .add_div {
+        width: 700px;
+        height: 500px;
+        border: solid #ccc 1px;
+        margin-top: 40px;
+        margin-left: 170px;
+        padding-left: 20px;
+    }
+
+    .file-list {
+        height: 125px;
+        display: none;
+        list-style-type: none;
+    }
+
+    .file-list img {
+        max-width: 70px;
+        vertical-align: middle;
+        font-size: 12px;
+    }
+
+    .file-list .file-item {
+        margin-bottom: 10px;
+        float: left;
+        margin-left: 20px;
+    }
+
+
+    .file-list .file-item .file-del {
+        display: block;
+        margin-left: 24px;
+        margin-top: 5px;
+        cursor: pointer;
+        font-size: 12px;
+    }
+
+
+</style>
 @section('content')
     <section class="main-content-wrapper">
         <section id="main-content">
@@ -49,7 +90,7 @@
                                     </ul>
                                     <div class="actions">
                                         <button type="button" class="btn btn-default btn-mini btn-prev"> <i class="fa fa-chevron-left"></i>上一步</button>
-                                        <button type="button" class="btn btn-primary btn-mini btn-next" data-last="Finish">下一步 <i class="fa fa-chevron-right"></i>
+                                        <button type="button" class="btn btn-primary btn-mini btn-next" id="next" data-last="Finish">下一步 <i class="fa fa-chevron-right"></i>
                                         </button>
                                     </div>
                                 </div>
@@ -110,6 +151,7 @@
                                                         <p id="demoText"></p>
                                                     </div>
                                                 </div>
+                                                {{--上传图片--}}
                                                 <script>
                                                     layui.use('upload', function(){
                                                         var $ = layui.jquery
@@ -165,8 +207,8 @@
                                                     <div class="input-group col-sm-2">
                                                         <div class="radio i-checks">
                                                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                                            <input type="radio" name='is_hot' value="1" checked="checked"/>开启&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                                            <input type="radio" name='is_hot' value="0" />关闭
+                                                            <label><input type="radio" name='is_hot' value="1" checked="checked"/>开启</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                            <label><input type="radio" name='is_hot' value="0" />关闭</label>
                                                         </div>
                                                     </div>
                                             </div>
@@ -176,8 +218,8 @@
                                                 <div class="input-group col-sm-2">
                                                     <div class="radio i-checks">
                                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                                        <input type="radio" name='is_bargain' value="1" checked="checked"/>开启&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                                        <input type="radio" name='is_bargain' value="0" />关闭
+                                                        <label><input type="radio" name='is_bargain' value="1" checked="checked"/>开启</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                        <label><input type="radio" name='is_bargain' value="0" />关闭</label>
                                                     </div>
                                                 </div>
                                             </div>
@@ -187,8 +229,8 @@
                                                 <div class="input-group col-sm-2">
                                                     <div class="radio i-checks">
                                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                                        <input type="radio" name='is_recommend' value="1" checked="checked"/>开启&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                                        <input type="radio" name='is_recommend' value="0" />关闭
+                                                        <label><input type="radio" name='is_recommend' value="1" checked="checked"/>开启</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                        <label><input type="radio" name='is_recommend' value="0" />关闭</label>
                                                     </div>
                                                 </div>
                                             </div>
@@ -198,8 +240,8 @@
                                                 <div class="input-group col-sm-2">
                                                     <div class="radio i-checks">
                                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                                        <input type="radio" name='is_team_buy' value="1" checked="checked"/>开启&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                                        <input type="radio" name='is_team_buy' value="0" />关闭
+                                                        <label><input type="radio" name='is_team_buy' value="1" checked="checked"/>开启</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                        <label><input type="radio" name='is_team_buy' value="0" />关闭</label>
                                                     </div>
                                                 </div>
                                             </div>
@@ -214,7 +256,7 @@
                                     </div>
 
                                     <div class="step-pane" id="step2">
-                                        <form class="form-horizontal" action="{{ route('shop.storeAlbum') }}" method="post" id='addAlbum' accept-charset="UTF-8" enctype="multipart/form-data">
+                                        <form class="form-horizontal" action="{{ route('shop.storeAlbum') }}" method="post" id='imageSubForm' accept-charset="UTF-8" enctype="multipart/form-data">
                                             {!! csrf_field() !!}
                                             <input type="hidden" name="id" value="" id="goodsAlbum" />
                                             <div class="form-group">
@@ -222,19 +264,31 @@
                                                     <h2 class="title">添加商品相册</h2>
                                                 </div>
                                             </div>
+                                            {{--<div class="form-group">--}}
+                                                {{--<label class="col-sm-2 control-label">相册：</label>--}}
+                                                {{--<div class="input-group">--}}
+                                                    {{--<div id="fileList" class="uploader-list" style="float:right"></div>--}}
+                                                    {{--<div id="imgPicker" style="display: none;">选择图片</div>--}}
+                                                    {{--<div class="form-group" id="img-contener"></div>--}}
+                                                {{--</div>--}}
+                                            {{--</div>--}}
                                             <div class="form-group">
-                                                <label class="col-sm-2 control-label">相册：</label>
-                                                <div class="input-group">
-                                                    <div id="fileList" class="uploader-list" style="float:right"></div>
-                                                    <div id="imgPicker" style="display: none;">选择图片</div>
-                                                    <div class="form-group" id="img-contener"></div>
+                                                <div class="add_div">
+                                                    <p>
+                                                        <input type="file" name="choose-file[]" id="choose-file" multiple="multiple"/>
+                                                    </p>
+                                                    <p>
+                                                        <ul class="file-list image_ul "></ul>
+                                                    </p>
                                                 </div>
                                             </div>
+
 
                                             <div class="hr-line-dashed"></div>
                                             <div class="form-group">
                                                 <div class="col-sm-12 col-sm-offset-2">
-                                                    <button class="btn btn-primary" type="submit" id="addAlbumSub"><i class="fa fa-check"></i>&nbsp;保 存</button>
+                                                    <button class="btn btn-primary" type="button" id="imageSub"><i class="fa fa-check"></i>&nbsp;保 存</button>
+                                                    <button class="btn btn-primary" type="button" id="imageSub"><i class="fa fa-check"></i>&nbsp;保 存</button>
                                                 </div>
                                             </div>
                                             <div class="hr-line-dashed"></div>
@@ -250,6 +304,21 @@
                                                     <h2 class="title">添加商品参数</h2>
                                                 </div>
                                             </div>
+                                            @foreach($attrData as $k =>$v)
+                                            <div class="hr-line-dashed"></div>
+                                            <div class="form-group">
+                                                <label class="col-sm-2 control-label">{{ $v -> name }}</label>
+                                                <div class="input-group col-sm-2">
+                                                    <div class="radio i-checks checkbox">
+                                                        @foreach($attrvalueData as $m)
+                                                            @if($v -> id == $m -> goods_attr_id)
+                                                            <label><input type="checkbox"/>  {{$m -> value}} </label>
+                                                            @endif
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            @endforeach
                                         </form>
                                     </div>
                                 </div>
@@ -290,50 +359,173 @@
         }
 
         // 上传相册
-        var $list = $('#fileList');
-        var uploader = WebUploader.create({
-            auto: true,// 选完文件后，是否自动上传。
-            swf: '/static/admin/webupload/Uploader.swf',// swf文件路径
-            server: '/admin/upload/uploadImage',
-            headers : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-            duplicate :true,// 重复上传图片，true为可重复false为不可重复
-            pick: '#imgPicker',// 选择文件的按钮。可选。
-            accept: {
-                title: 'Images',
-                extensions: 'gif,jpg,jpeg,bmp,png',
-                mimeTypes: 'image/jpg,image/jpeg,image/png'
-            },
-            'onUploadSuccess': function(file, data, response) {
-                var contener = $('#img-contener').html();
-                contener += '<span>';
-                contener += '<input type="hidden"  name="images[]"  value="" >';
-                contener += '<img  ondblclick="$(this).parent().remove()" height="100px" style="float:left;margin-left: 50px;margin-top: -10px;" src="http://'+data.showUrl+'"/>';
-                contener += '</span>';
-                $('#img-contener').html(contener);
-            }
-        });
-        uploader.on( 'fileQueued', function( file ) {});
-        uploader.on( 'uploadSuccess', function( file ) {});
-        uploader.on( 'uploadError', function( file ) {
-            $( '#'+file.id ).find('p.state').text('上传出错!');
-        });
+        // var $list = $('#fileList');
+        // var uploader = WebUploader.create({
+        //     auto: true,// 选完文件后，是否自动上传。
+        //     swf: '/static/admin/webupload/Uploader.swf',// swf文件路径
+        //     server: '/admin/upload/uploadImage',
+        //     headers : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+        //     duplicate :true,// 重复上传图片，true为可重复false为不可重复
+        //     pick: '#imgPicker',// 选择文件的按钮。可选。
+        //     accept: {
+        //         title: 'Images',
+        //         extensions: 'gif,jpg,jpeg,bmp,png',
+        //         mimeTypes: 'image/jpg,image/jpeg,image/png'
+        //     },
+        //     'onUploadSuccess': function(file, data, response) {
+        //         var contener = $('#img-contener').html();
+        //         contener += '<span>';
+        //         contener += '<input type="hidden"  name="images[]"  value="" >';
+        //         contener += '<img  ondblclick="$(this).parent().remove()" height="100px" style="float:left;margin-left: 50px;margin-top: -10px;" src="http://'+data.showUrl+'"/>';
+        //         contener += '</span>';
+        //         $('#img-contener').html(contener);
+        //     }
+        // });
+        // uploader.on( 'fileQueued', function( file ) {});
+        // uploader.on( 'uploadSuccess', function( file ) {});
+        // uploader.on( 'uploadError', function( file ) {
+        //     $( '#'+file.id ).find('p.state').text('上传出错!');
+        // });
+        //
+        // $('#addGoods').ajaxForm({
+        //     beforeSubmit: function () {},
+        //     success: complete,
+        //     dataType: 'json'
+        // });
+        // function complete(data){
+        //     if(data.code == 200){
+        //         $('#addSub').attr('disabled','true');
+        //         $('#goodsAlbum').val(data.id);
+        //         $('#goodsAttrId').val(data.id);
+        //         alert('保存成功，点击下一步');
+        //     }else {
+        //
+        //         return false;
+        //     }
+        // }
+        $(function () {
+            ////////////////////////////////////////////////图片上传//////////////////////////////////////////////
+            //声明变量
+            var $button = $('#upload'),
+                //选择文件按钮
+                $file = $("#choose-file"),
+                //回显的列表
+                $list = $('.file-list'),
+                //选择要上传的所有文件
+                fileList = [];
+            //当前选择上传的文件
+            var curFile;
+            $file.on('change', function (e) {
+                //上传过图片后再次上传时限值数量
+                var numold = $('.image_ul li').length;
+                if(numold >= 6){
+                    layer.alert('最多上传6张图片');
+                    return;
+                }
+                //限制单次批量上传的数量
+                var num = e.target.files.length;
+                var numall = numold + num;
+                if(num >6 ){
+                    layer.alert('最多上传6张图片');
+                    return;
+                }else if(numall > 6){
+                    layer.alert('最多上传6张图片');
+                    return;
+                }
+                //原生的文件对象，相当于$file.get(0).files;//files[0]为第一张图片的信息;
+                curFile = this.files;
+                //将FileList对象变成数组
+                fileList = fileList.concat(Array.from(curFile));
+                //console.log(fileList);
+                for (var i = 0, len = curFile.length; i < len; i++) {
+                    reviewFile(curFile[i])
+                }
+                $('.file-list').fadeIn(1000);
+            })
 
-        $('#addGoods').ajaxForm({
-            beforeSubmit: function () {},
-            success: complete,
-            dataType: 'json'
-        });
-        function complete(data){
-            if(data.code == 200){
-                $('#addSub').attr('disabled','true');
-                $('#goodsAlbum').val(data.id);
-                $('#goodsAttrId').val(data.id);
-                alert('保存成功，点击下一步');
-            }else {
 
-                return false;
+            function reviewFile(file) {
+                //实例化fileReader,
+                var fd = new FileReader();
+                //获取当前选择文件的类型
+                var fileType = file.type;
+                //调它的readAsDataURL并把原生File对象传给它，
+                fd.readAsDataURL(file);//base64
+                //监听它的onload事件，load完读取的结果就在它的result属性里了
+                fd.onload = function () {
+                    if (/^image\/[jpeg|png|jpg|gif]/.test(fileType)) {
+                        $list.append('<li style="border:1px gray solid; margin:5px 5px;" class="file-item"><img src="' + this.result + '" alt="" height="70"><span class="file-del">删除</span></li>').children(':last').hide().fadeIn(1000);
+                    } else {
+                        $list.append('<li class="file-item"><span class="file-name">' + file.name + '</span><span class="file-del" style="font-size: 12px;">删除</span></li>')
+                    }
+
+                }
             }
-        }
+
+            //点击删除按钮事件：
+            $(".file-list").on('click', '.file-del', function () {
+                let $parent = $(this).parent();
+                console.log($parent);
+                let index = $parent.index();
+                fileList.splice(index, 1);
+                $parent.fadeOut(850, function () {
+                    $parent.remove()
+                });
+                //$parent.remove()
+            });
+
+            $("#imageSub").on('click',function () {
+
+                if(fileList.length > 6){
+                    layer.alert('最多允许上传6张图片');
+                    return;
+                } else {
+                    var form = document.getElementById("imageSubForm");
+                    var formData = new FormData(form);
+                    for (var i = 0, len = fileList.length; i < len; i++) {
+                        //console.log(fileList[i]);
+                        formData.append('choose-file[]',fileList[i]);
+                    }
+                    $.ajax({
+                        url: "{{ route('shop.storeAlbum') }}",
+                        type: 'post',
+                        data: formData,
+                        dataType: 'json',
+                        processData: false,
+                        contentType: false,
+                        success: function (data) {
+                            if(data == 1){
+                                layer.alert("图片上传成功,即将跳转下一步...",{icon:1},function (index) {
+                                    $("#next").click();
+                                    layer.close(index);
+                                });
+                            }else{
+                                layer.alert(data,{icon:2});
+                            }
+                        },
+                        error:function (e) {
+                            layer.alert(e.responseText,{icon:2});
+                        }
+                    })
+
+                }
+                {{--layer.alert(fileList.length);--}}
+                {{--return;--}}
+                {{--//选择要上传的所有文件--}}
+                {{--$.post("{{ route('shop.storeAlbum') }}",{id:1,_token:'{{csrf_token()}}'},function (data) {--}}
+                    {{--var form = document.getElementById('imageSubForm');--}}
+                    {{--form.submit();--}}
+                    {{--// if(data == 1){--}}
+                    {{--//     layer.alert("ok",{icon:1})--}}
+                    {{--// }else{--}}
+                    {{--//     layer.alert("no",{icon:2})--}}
+                    {{--// }--}}
+                    {{--console.log(data);--}}
+                {{--});--}}
+            })
+
+        })
+
     </script>
 
 @endsection

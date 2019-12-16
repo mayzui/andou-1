@@ -16,7 +16,7 @@
                             <i class="fa fa-plus-circle"></i> 新增规格</button>
                     </a>
                     {{--@endif--}}
-                    <input type="text" style="height: 25px;margin-left: 10px;" value="{{ $name or '' }}" name="name" placeholder="规格名称">
+                    <input type="text" style="height: 25px;margin-left: 10px;" value="{{ $name or '' }}" name="name" placeholder="商户名称">
                     <button style="height: 25px;margin-left: 10px;" type="submit">按条件查询</button>
                 </form>
 
@@ -29,7 +29,7 @@
                     <thead>
                     <tr>
                         <th width="100">ID</th>
-                        <th>商户ID</th>
+                        <th>商户名称</th>
                         <th>规格名称</th>
                         <th>操作</th>
                     </tr>
@@ -39,8 +39,8 @@
                         @foreach($data as $v)
                             <tr>
                                 <th>{{ $v->id }}</th>
-                                <th>{{ $v->merchant_id }}</th>
-                                <th>{{ $v->name }}</th>
+                                <th>{{ $v->merchants_name }}</th>
+                                <th>{{ $v->spec_name }}</th>
                                 <td class="text-center">
                                     <div class="btn-group">
                                         <a href="{{route('foods.specadd')}}?id={{$v->id}}"><button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 修改</button></a>
