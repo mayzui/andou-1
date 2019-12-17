@@ -7,6 +7,7 @@ use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\DB;
 class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
@@ -47,4 +48,29 @@ class Controller extends BaseController
             return true;
         }
     }
+
+    public function districts(){
+        $provincelist=Db::table('districts')->select('name','id','pid')->where('deep',0)->get();
+        $citylist =Db::table('districts')->select('name','id','pid')->where('deep',1)->get();
+        $arealist =Db::table('districts')->select('name','id','pid')->where('deep',2)->get();
+        $provinceArray = [];
+        $cityArray = [];
+        $areaArray = [];
+        foreach($arealist as $area)
+        {
+            $areaArray[$area->pid][] = $area;
+        }
+        foreach($citylist as $city)
+        {
+            $city->areas = isset($areaArray[$city->id]) ? $areaArray[$city->id] : null;
+            $cityArray[$city->pid][] = $city;
+        }
+        foreach($provincelist as $province)
+        {
+            $province->cities = isset($cityArray[$province->id]) ? $cityArray[$province->id] : null;
+            $provinceArray[]= $province;
+        }
+        return $provinceArray;
+    }
+
 }

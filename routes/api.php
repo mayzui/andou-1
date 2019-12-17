@@ -23,6 +23,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::group(['namespace' => 'Api'], function () {
 	//首页
 	 Route::post('index/index', 'IndexController@index');
+     Route::post('index/merchants', 'IndexController@merchants');
      Route::post('login/login', 'LoginController@login');
      Route::post('login/send', 'LoginController@send');
      Route::post('login/cache', 'LoginController@cache');
