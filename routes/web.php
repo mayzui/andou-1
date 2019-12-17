@@ -67,6 +67,9 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::post('shop/store','ShopController@store')->name('shop.store');
         Route::get('shop/update','ShopController@update')->name('shop.update');
         Route::get('shop/destroy','ShopController@destroy')->name('shop.destroy');
+        Route::get('shop/commnets','ShopController@commnets')->name('shop.commnets');
+        Route::match(['get','post'],'shop/commnetsAdd','ShopController@commnetsAdd')->name('shop.commnetsAdd');
+        Route::get('shop/commnetsDel','ShopController@commnetsDel')->name('shop.commnetsDel');
 
         // 商品属性
         Route::get('shop/addAttr','ShopController@addAttr')->name('shop.addAttr');

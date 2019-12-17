@@ -23,6 +23,10 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::match(['get','post'],'hotel/books','HotelController@books')->name('hotel.books');
         Route::get('hotel/text','HotelController@text')->name('hotel.text');
         Route::match(['get','post'],'hotel/merchant','HotelController@merchant')->name('hotel.merchant');
+        Route::get('hotel/commnets','HotelController@commnets')->name('hotel.commnets');
+        Route::match(['get','post'],'hotel/commnetsAdd','HotelController@commnetsAdd')->name('hotel.commnetsAdd');
+        Route::get('hotel/commnetsDel','HotelController@commnetsDel')->name('hotel.commnetsDel');
+
         //个人中心
         Route::get('user/merchant','UserController@merchant')->name('user.merchant');
         Route::match(['get','post'],'user/merchant_update','UserController@merchantUpdate')->name('user.merchant_update');
@@ -58,6 +62,10 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::match(['get','post'],'foods/spec','FoodsController@spec')->name('foods.spec');
         Route::match(['get','post'],'foods/specadd','FoodsController@specadd')->name('foods.specadd'); // 新增 and 修改
         Route::get('foods/specdel','FoodsController@specdel')->name('foods.specdel'); // 删除
+        // 饭店评论
+        Route::match(['get','post'],'foods/commnets','FoodsController@commnets')->name('foods.commnets');
+        Route::match(['get','post'],'foods/commnetsAdd','FoodsController@commnetsAdd')->name('foods.commnetsAdd');
+        Route::get('foods/commnetsDel','FoodsController@commnetsDel')->name('foods.commnetsDel');
 
 
         /*
@@ -81,7 +89,7 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         // 提现管理
         Route::match(['get','post'],'finance/cashOutChange','FinanceController@cashOutChange')->name('finance.cashOutChange'); // 新增 and 修改
         Route::get('finance/cashOutDel','FinanceController@cashOutDel')->name('finance.cashOutDel'); // 删除
-        Route::get('finance/cashOutExamine','FinanceController@cashOutExamine')->name('finance.cashOutExamine'); // 删除
+        Route::get('finance/cashOutExamine','FinanceController@cashOutExamine')->name('finance.cashOutExamine');
 
         // 平台流水
         Route::get('finance/cashLogsDel','FinanceController@cashLogsDel')->name('finance.cashLogsDel'); // 删除

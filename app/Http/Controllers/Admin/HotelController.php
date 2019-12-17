@@ -11,6 +11,87 @@ use Auth;
 
 class HotelController extends BaseController
 {
+    /*
+     *      酒店评论
+     * */
+    public function commnets(){
+        $id = Auth::id();
+        // 判断该用户，是否开店 并且已经认证通过
+        $i = DB::table('merchants') -> where("user_id",$id) -> where("is_reg",1) -> first();
+        if(!empty($i)) {
+            // 如果开店，则查询当前商户的信息
+            // 查询，酒店评论
+            $data = DB::table('order_commnets')
+                -> join('users','order_commnets.user_id','=','users.id')     // 链接用户表
+                -> join('hotel_room','order_commnets.goods_id','=','hotel_room.id')     // 链接商品表
+                -> where('type',1)
+                -> where('merchants_id',$id)
+                -> where('order_commnets.is_del',0)
+                -> select(['order_commnets.id','users.name as username','hotel_room.house_name as goodsname','stars','order_commnets.content','order_commnets.created_at'])
+                -> paginate(10);
+        }else{
+            // 查询，酒店评论
+            $data = DB::table('order_commnets')
+                -> join('users','order_commnets.user_id','=','users.id')     // 链接用户表
+                -> join('hotel_room','order_commnets.goods_id','=','hotel_room.id')     // 链接商品表
+                -> where('type',1)
+                -> where('order_commnets.is_del',0)
+                -> select(['order_commnets.id','users.name as username','hotel_room.house_name as goodsname','stars','order_commnets.content','order_commnets.created_at'])
+                -> paginate(10);
+        }
+        return $this->view('',['data' => $data]);
+    }
+    // 新增酒店评论
+    public function commnetsAdd(){
+        $id = Auth::id();
+        if(\request() -> isMethod("get")){
+            // 查询商品列表
+            $goodsData = DB::table("hotel_room") -> get();
+            // 跳转新增界面
+            return $this->view('',['goodsData'=>$goodsData]);
+        }else{
+            // 执行新增操作
+            // 获取提交的内容
+            $all = \request() -> all();
+            $data  = [
+                'order_id' => $id,
+                'user_id' => $id,
+                'goods_id' => $all['goods_id'],
+                'type' => 1,
+                'merchants_id' => $id,
+                'stars' => $all['stars'],
+                'content' => $all['content'],
+                'created_at' => date("Y-m-d H:i:s")
+            ];
+            // 链接数据库，新增内容
+            $i = DB::table('order_commnets') -> insert($data);
+            if($i){
+                flash('新增成功') -> success();
+                return redirect()->route('hotel.commnets');
+            }else{
+                flash('新增失败') -> error();
+                return redirect()->route('hotel.commnets');
+            }
+        }
+    }
+    // 删除商品评论
+    public function commnetsDel(){
+        // 获取传入的id
+        $all = \request() -> all();
+        // 根据id删除表中数据
+        $data = [
+            'is_del' => 1
+        ];
+        $i = DB::table("order_commnets") -> where('id',$all['id']) -> update($data);
+        if($i){
+            flash('删除成功') -> success();
+            return redirect()->route('hotel.commnets');
+        }else{
+            flash('删除失败') -> error();
+            return redirect()->route('hotel.commnets');
+        }
+    }
+
     /**房间列表
      * [index description]
      * @return [type] [description]

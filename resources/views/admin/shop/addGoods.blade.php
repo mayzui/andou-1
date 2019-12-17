@@ -264,14 +264,6 @@
                                                     <h2 class="title">添加商品相册</h2>
                                                 </div>
                                             </div>
-                                            {{--<div class="form-group">--}}
-                                                {{--<label class="col-sm-2 control-label">相册：</label>--}}
-                                                {{--<div class="input-group">--}}
-                                                    {{--<div id="fileList" class="uploader-list" style="float:right"></div>--}}
-                                                    {{--<div id="imgPicker" style="display: none;">选择图片</div>--}}
-                                                    {{--<div class="form-group" id="img-contener"></div>--}}
-                                                {{--</div>--}}
-                                            {{--</div>--}}
                                             <div class="form-group">
                                                 <div class="add_div">
                                                     <p>
@@ -287,7 +279,6 @@
                                             <div class="hr-line-dashed"></div>
                                             <div class="form-group">
                                                 <div class="col-sm-12 col-sm-offset-2">
-                                                    <button class="btn btn-primary" type="button" id="imageSub"><i class="fa fa-check"></i>&nbsp;保 存</button>
                                                     <button class="btn btn-primary" type="button" id="imageSub"><i class="fa fa-check"></i>&nbsp;保 存</button>
                                                 </div>
                                             </div>
@@ -307,12 +298,14 @@
                                             @foreach($attrData as $k =>$v)
                                             <div class="hr-line-dashed"></div>
                                             <div class="form-group">
-                                                <label class="col-sm-2 control-label">{{ $v -> name }}</label>
+                                                <label class="col-sm-2 control-label">
+                                                    <input type="text" name="attrname_{{ $v -> id }}" value="{{ $v -> name }}" readonly style="border: 0px;width: 50px;" />
+                                                </label>
                                                 <div class="input-group col-sm-2">
                                                     <div class="radio i-checks checkbox">
                                                         @foreach($attrvalueData as $m)
                                                             @if($v -> id == $m -> goods_attr_id)
-                                                            <label><input type="checkbox"/>  {{$m -> value}} </label>
+                                                            <label><input type="checkbox" name="attrvalue_{{ $v -> id }}" />  {{$m -> value}} </label>
                                                             @endif
                                                         @endforeach
                                                     </div>
