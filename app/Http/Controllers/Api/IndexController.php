@@ -15,14 +15,20 @@ class IndexController extends Controller
      *     {
      *       "code": "200",
      *       "data": {
-                "banner": [
+     *           "banner": [
+     *               {
+     *                   "id": "轮播图id",
+     *                   "img": "图片地址",
+     *                   "url": "跳转地址"
+     *                }
+     *          ],
+     *           "merchant_type": [
                     {
-                        "id": "轮播图id",
-                        "img": "图片地址",
-                        "url": "跳转地址"
+                        "id": "商户分类id",
+                        "img": "商户分类图片"
                     }
                 ]
-             }
+     *        }
      *       "msg":"登陆成功"
      *     }
      */
@@ -30,7 +36,12 @@ class IndexController extends Controller
         $data['banner']=Db::table('banner')
         ->select('id','img','url')
         ->where(['banner_position_id'=>6],['status'=>1])
-        ->orderBy('sort','DESC')
+        ->orderBy('sort','ASC')
+        ->get();
+        $data['merchant_type']=Db::table('merchant_type')
+        ->select('id','img')
+        ->where('status',1)
+        ->orderBy('sort','ASC')
         ->get();
         return $this->rejson(200,'查询成功',$data);
     }

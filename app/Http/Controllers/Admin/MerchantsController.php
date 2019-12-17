@@ -106,7 +106,7 @@ class MerchantsController extends BaseController
      */
     public function merchantType()
     {   
-        $data=DB::table('merchant_type')->paginate(20);
+        $data=DB::table('merchant_type')->where('status',1)->paginate(20);
         return $this->view('',['data'=>$data]);
     }
     /**新增修改商户分类
@@ -153,7 +153,7 @@ class MerchantsController extends BaseController
     {
         $all = request()->all();
         $id=$all['id'];
-        $re=Db::table('merchant_type')->where('id',$id)->delete();
+        $re=Db::table('merchant_type')->where('id',$id)->update(array('status'=>0));
         flash('删除成功')->success();
         return redirect()->route('merchants.merchant_type');
     }
@@ -164,7 +164,7 @@ class MerchantsController extends BaseController
      */
     public function industry()
     {   
-        $data=DB::table('merchant_industry')->paginate(20);
+        $data=DB::table('merchant_industry')->where('status',1)->paginate(20);
         return $this->view('',['data'=>$data]);
     }
     /**新增修改商户行业
@@ -206,7 +206,7 @@ class MerchantsController extends BaseController
     {
         $all = request()->all();
         $id=$all['id'];
-        $re=Db::table('merchant_industry')->where('id',$id)->delete();
+        $re=Db::table('merchant_industry')->where('id',$id)->update(array('status'=>0));
         flash('删除成功')->success();
         return redirect()->route('merchants.industry');
     }
