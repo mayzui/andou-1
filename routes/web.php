@@ -113,6 +113,7 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
 
         // 统计
         Route::get('shop/statics','ShopController@statics')->name('shop.statics');
+        Route::get('shop/staticsDel','ShopController@staticsDel')->name('shop.staticsDel');
 
         Route::get('shop/ordersAdd','ShopController@ordersAdd')->name('shop.ordersAdd');//添加订单测试数据
         Route::any('shop/ordersAdds','ShopController@ordersAdds')->name('shop.ordersAdds');//订单测试

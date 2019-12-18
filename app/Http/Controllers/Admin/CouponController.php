@@ -125,14 +125,12 @@ class CouponController extends BaseController
 
     public function getLogDel ()
     {
-
         $id = input::get('id');
         $res = Getlog::where('id',$id)->delete();
         if ($res){
             return redirect()->route('coupon.getLog');
         }
         return viewError('已删除或者删除失败');
-
     }
 
 }

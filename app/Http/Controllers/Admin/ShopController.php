@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Handlers\Tree;
 use App\Models\GoodBrands;
 use App\Models\Goods;
+use App\Models\Statics;
 use Illuminate\Support\Facades\Input;
 use App\Models\Orders;
 use App\Models\GoodsAttr;
@@ -520,8 +521,8 @@ class ShopController extends BaseController
 
     public function statics (Request $request)
     {
-        echo '开发中...';exit;
-        return view('statics',[]);
+        $data =  Statics::orderBy('id','desc')->where('is_del',0)->paginate($request->input('limit'));
+        return $this->view('statics',['data'=>$data]);
     }
 
     public function express (Request $request)
