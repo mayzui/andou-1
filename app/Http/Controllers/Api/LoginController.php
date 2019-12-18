@@ -22,7 +22,8 @@ class LoginController extends Controller
      *       "data": {
      *           'name':'刘明',
      *           'login_count':'登陆次数',
-     *           'mobile':'18883562091'
+     *           'mobile':'18883562091',
+     *           'token':'登陆验证'
      *       },
      *       "msg":"登陆成功"
      *     }
@@ -40,11 +41,15 @@ class LoginController extends Controller
         ])){
             return $this->rejson(201,'账号密码错误');
         }else{
-            DB::table('users')->increment('login_count');
             $data=Db::table('users')
-            ->select('id','name','mobile')
+            ->select('id','name','login_count','mobile')
             ->where('mobile',$phone)
             ->first();
+            $token = $this->token($data->id);
+            $datas['token']=$token['token'];
+            $datas['login_count']=$data->login_count+1;
+            DB::table('users')->where('mobile',$phone)->update($datas);
+            $data->token = $token['noncestr'];
             return $this->rejson(200,'登陆成功',$data);
         }
         

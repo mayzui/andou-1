@@ -23,7 +23,17 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::group(['namespace' => 'Api'], function () {
 	//首页
 	 Route::post('index/index', 'IndexController@index');
-     Route::post('index/merchants', 'IndexController@merchants');
+
+     Route::post('merchant/merchants', 'MerchantController@merchants');
+     Route::post('merchant/merchant_goods', 'MerchantController@merchantGoods');
+
+     Route::post('goods/index', 'GoodsController@index');
+     Route::post('goods/goods', 'GoodsController@goods');
+     
+     Route::post('cart/index', 'CartController@index');
+     Route::post('cart/delcar', 'CartController@delcar');
+     Route::post('cart/update_num', 'CartController@update_num');
+    
      Route::post('login/login', 'LoginController@login');
      Route::post('login/send', 'LoginController@send');
      Route::post('login/cache', 'LoginController@cache');

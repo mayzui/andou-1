@@ -1,0 +1,117 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
+class CartController extends Controller
+{   
+    public function __construct()
+    {
+        $all=request()->all();
+        if (empty($all['uid'])||empty($all['token'])) {
+           return $this->rejson(201,'登陆失效');
+        }
+        $check=$this->checktoten($all['uid'],$all['token']);
+        if ($check['code']==201) {
+           return $this->rejson($check['code'],$check['msg']);
+        }
+    }
+    /**
+     * @api {post} /api/cart/index 购物车列表
+     * @apiName index
+     * @apiGroup cart
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} token 验证登陆
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": [
+                        {
+                        "id": "购物车id",
+                        "goods_id": "商品id",
+                        "goods_sku_id": "商品规格id",
+                        "merchant_id": "商户id",
+                        "num": "购买数量",
+                        "goods_name": "商品名字",
+                        "img": "商品图片",
+                        "price": "价格",
+                        "merchant_name": "商家名字",
+                        "logo_img": "商家图片"
+                        }
+             ],
+     *       "msg":"查询成功"
+     *     }
+     */
+    public function index(){
+        $all=request()->all();
+        $data=Db::table('cart as c')
+        ->join("goods as g","c.goods_id","=","g.id")
+        ->join("goods_sku as s","c.goods_sku_id","=","s.id")
+        ->join("merchants as m","c.merchant_id","=","m.id")
+        ->select('c.id','c.goods_id','c.goods_sku_id','c.merchant_id','c.num','g.name as goods_name','g.img','s.price','m.name as merchant_name','m.logo_img')
+        ->where('c.user_id',$all['uid'])
+        ->orderBy('c.created_at','DESC')
+        ->get();
+        return $this->rejson(200,'查询成功',$data);
+    }
+    /**
+     * @api {post} /api/cart/delcar 删除购物车 
+     * @apiName delcar
+     * @apiGroup cart
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} token 验证登陆
+     * @apiParam {array} id 需要删除的购物车id
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": "",
+     *       "msg":"删除成功"
+     *     }
+     */
+    public function delcar(){
+        $all=request()->all();
+        if (empty($all['id'])) {
+            return $this->rejson(201,'请选择需要删除的数据');
+        }
+        $re=Db::table('cart')->whereIn(['id'=>$all['id']],['user_id'=>$all['uid']])->delete();
+        if($re){
+            return $this->rejson(200,'删除成功');
+        }else{
+            return $this->rejson(201,'删除失败');
+        }
+    }
+    /**
+     * @api {post} /api/cart/update_num 修改购物车购买数量 
+     * @apiName update_num
+     * @apiGroup cart
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} token 验证登陆
+     * @apiParam {array} id 购物车id
+     * @apiParam {string} type 修改的方式(1自动加1 0自动减1)
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": "",
+     *       "msg":"删除成功"
+     *     }
+     */
+    public function update_num(){
+        $all=request()->all();
+        if (empty($all['id']) || !isset($all['type'])) {
+            return $this->rejson(201,'缺少参数');
+        }
+        $data=DB::table('cart')->select('num')->where('id',$all['id'])->first();
+        if ($all['type'] == 1) {   
+            $re=DB::table('cart')->where('id',$all['id'])->increment('num'); 
+        }else if($all['type'] == 0){
+            if ($data->num <= 1) {
+                 return $this->rejson(200,'购买数量不能小于1');
+            }else{
+                $re=DB::table('cart')->where(['id'=>$all['id']],['user_id'=>$all['uid']])->decrement('num');
+            }
+        }
+        return $this->rejson(200,'修改成功');
+    }
+}

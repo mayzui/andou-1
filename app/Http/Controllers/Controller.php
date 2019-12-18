@@ -48,7 +48,10 @@ class Controller extends BaseController
             return true;
         }
     }
-
+    /**地址查询
+     * [districts description]
+     * @return [type] [description]
+     */
     public function districts(){
         $provincelist=Db::table('districts')->select('name','id','pid')->where('deep',0)->get();
         $citylist =Db::table('districts')->select('name','id','pid')->where('deep',1)->get();
@@ -72,5 +75,59 @@ class Controller extends BaseController
         }
         return $provinceArray;
     }
+    /**随机生成token
+     * [token description]
+     * @param  [type] $id [description]
+     * @return [type]     [description]
+     */
+    function token($id){
+        $charts = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz0123456789";
+        $max = strlen($charts);
+        $noncestr = "";
+        for($i = 0; $i < 16; $i++){
+            $noncestr .= $charts[mt_rand(0, $max)];
+        }
+        $token['token'] = md5('andou'.$id.$noncestr);
+        $token['noncestr'] = $noncestr;
+        return $token;
+    }
+    /**验证toten
+     * [checktoten description]
+     * @return [type] [description]
+     */
+    public function checktoten($id,$token){
+        $tokens=md5('andou'.$id.$token);
+        $user=Db::table('users')->select('token')->where('id',$id)->first();
+        if(empty($user->token)){
+            return array('code'=>201,'msg'=>'登陆失效');
+        }
+        if ($tokens!=$user->token) {
+            return array('code'=>201,'msg'=>'登陆失效');
+        }
+    }
+    /**添加浏览记录
+     * [seemerchant description]
+     * @param  [type] $uid  [用户id]
+     * @param  [type] $id   [产品id]
+     * @param  [type] $type [浏览类型]
+     * @return [type]       [description]
+     */
+    public function seemerchant($uid,$id,$type){
+        $data['user_id']=$uid;
+        $data['pid']=$id;
+        $data['type']=$type;
+        $data['created_at']=date('Y-m-d H:i:s',time());
+        $datas=DB::table('see_log')
+        ->where(['user_id'=>$uid],['pid'=>$id],['type'=>$type])
+        ->orderBy('created_at','DESC')
+        ->first();
 
+        if (!empty($datas)) {
+            $date=date('Y-m-d H:i:s',strtotime("-1 day"));
+            if ($datas->created_at>$date) {
+                return 0;
+            }
+        }
+        DB::table('see_log')->insert($data);
+    }
 }
