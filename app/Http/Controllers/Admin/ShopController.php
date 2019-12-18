@@ -673,6 +673,16 @@ class ShopController extends BaseController
         return $this->view('statics',['data'=>$data]);
     }
 
+    public function staticsDel (Request $request)
+    {
+        $id = input::get('id');
+        $res = Statics::where('id',$id)->update(['is_del' => 1]);
+        if ($res){
+            return redirect()->route('shop.statics');
+        }
+        return viewError('已删除或者删除失败');
+    }
+
     public function express (Request $request)
     {
         $admin = Auth::guard('admin')->user();
