@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Validator;
 use App\Handlers\Tree;
 use App\Models\GoodBrands;
 use App\Models\Goods;
+use Illuminate\Support\Facades\Input;
+use App\Models\Orders;
 use App\Models\GoodsAttr;
 use App\Models\GoodsAttrValue;
 use App\Models\GoodsCate;
@@ -392,9 +394,69 @@ class ShopController extends BaseController
 
 
 
-    public function orders ()
+    /*
+        * 订单数据展示
+        * */
+    public function orders (Request $request)
     {
-        return $this->view('orders',['list'=>[]]);
+        $list = Orders::orderBy('id','desc')->where('is_del',0)->paginate($request->input('limit'));
+//        var_dump($list);die;
+        return $this->view('orders',['list'=>$list]);
+    }
+
+    /*
+     * 添加订单测试数据
+     * */
+    public function ordersAdd (Request $request)
+    {
+        return $this->view('ordersAdd',['list'=>[]]);
+    }
+
+    /*
+     * 添加订单测试数据
+     * */
+
+    public function ordersAdds (Request $request)
+    {
+        $input = request()->all();
+        $data = [
+            'user_id'=> $input['user_id'],
+            'order_sn'=> rand(100000,999999),
+            'order_money'=>$input['order_money'],
+            'pay_way'=>$input['pay_way'],
+            'pay_money'=>$input['pay_money'],
+            'pay_discount'=>$input['pay_discount'],
+            'shipping_free'=>$input['shipping_free'],
+            'remark'=>$input['remark'],
+            'pay_time'=> date('Y-m-d h:i:s',time()),
+            'send_time'=> date('Y-m-d h:i:s',time()),
+            'auto_receipt'=>$input['auto_receipt'],
+            'status'=>$input['status'],
+        ];
+//        var_dump($data);die;
+        $res = DB::table('orders')->insert($data);
+        if($res){
+            flash('编辑成功')->success();
+            return redirect()->route('shop.orders');
+        }else{
+            flash('编辑失败')->error();
+            return redirect()->route('shop.orders');
+        }
+    }
+
+    /*
+     * 删除订单
+     * 只是将数据软删除并未被真正删除
+     * */
+    public function ordersDel (Request $request)
+    {
+        $id = input::get('id');
+        $res = Orders::where('id',$id)->update(['is_del' => 1]);
+        if ($res){
+            return redirect()->route('shop.orders');
+        }
+        return viewError('已删除或者删除失败');
+
     }
 
     public function goodsBrand (Request $request)
