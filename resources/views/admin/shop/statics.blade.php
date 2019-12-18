@@ -3,7 +3,7 @@
     <div class="row">
         <div class="col-sm-12">
             <div class="ibox-title">
-                <h5>广告管理</h5>
+                <h5>商城统计</h5>
             </div>
             <div class="ibox-content">
                 <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>
@@ -33,7 +33,7 @@
                             <td>{{$item->price}}</td>
                             <td>{{$item->describe}}</td>
                             <th style="color: green">{{ $item -> state == 1 ? "获得" : "消耗" }}</th>
-                            <td>{{$item->create_time}}</td>state
+                            <td>{{$item->create_time}}</td>
                             <td>
                                 @if($item -> type_id == 1)
                                     感恩币流水
@@ -43,7 +43,6 @@
                                     提现流水
                                 @endif
                             </td>
-
                             <td>
                                 <div class="btn-group">
                                     <a href="{{url("/admin/shop/staticsDel?id=$item->id")}}" onClick="delcfm()"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o" ></i> 删除</button></a>
@@ -53,7 +52,6 @@
                             @endforeach
                         </tbody>
                     </table>
-
                 </form>
             </div>
         </div>
