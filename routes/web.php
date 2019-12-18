@@ -135,6 +135,7 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::any('coupon/uselogAdds','CouponController@uselogAdds')->name('coupon.uselogAdds');
         Route::get('coupon/useLogDel','CouponController@useLogDel')->name('coupon.useLogDel');
         Route::get('coupon/getLog','CouponController@getLog')->name('coupon.getLog');
+        Route::get('coupon/getLogDel','CouponController@getLogDel')->name('coupon.getLogDel');
 
         // 财务中心
         Route::get('finance/integral','FinanceController@integral')->name('finance.integral');

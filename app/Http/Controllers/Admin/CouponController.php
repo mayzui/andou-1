@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Uselog;
+use App\Models\Getlog;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Input;
 class CouponController extends BaseController
@@ -117,6 +118,20 @@ class CouponController extends BaseController
 
     public function getLog ()
     {
+        $data = Getlog::all();
+        return $this->view('getLog',['data'=>$data]);
+//        return $this->view('getLog');
+    }
+
+    public function getLogDel ()
+    {
+
+        $id = input::get('id');
+        $res = Getlog::where('id',$id)->delete();
+        if ($res){
+            return redirect()->route('coupon.getLog');
+        }
+        return viewError('已删除或者删除失败');
 
     }
 
