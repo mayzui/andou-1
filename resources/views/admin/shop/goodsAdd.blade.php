@@ -19,18 +19,16 @@
                     <div class="form-group">
                         <label class="col-sm-2 control-label">商品分类：</label>
                         <div class="input-group col-sm-2" style="width: 500px;">
-                            <select class="form-control pull-left" id="level1"  onchange="getChildren(this,1)" style="width: 100px;" >
+                            <select class="form-control pull-left" id="level1"  onchange="getChildren(this,1)" name="goods_cate_id1" style="width: 100px;" >
                                 @foreach($goodsCate as $item)
                                     <option value="{{$item->id}}"> {{$item->name}}</option>
                                 @endforeach
                             </select>
                             &nbsp;&nbsp;
-                            <select class="form-control col-sm-2pull-left " id="level2"  onchange="getChildren(this,2)" style="width: 100px;">
+                            <select class="form-control col-sm-2pull-left " id="level2"  onchange="getChildren(this,2)" name="goods_cate_id2" style="width: 100px;">
                             </select>
                             &nbsp;&nbsp;
-                            <select class="form-control col-sm-2" id="level3" onchange="getChildren(this,3)" style="width: 100px;"  name="goods_cate_id"></select>
-
-
+                            <select class="form-control col-sm-2" id="level3" onchange="getChildren(this,3)" style="width: 100px;"  name="goods_cate_id3"></select>
                         </div>
                     </div>
                     <div class="hr-line-dashed m-t-sm m-b-sm"></div>
