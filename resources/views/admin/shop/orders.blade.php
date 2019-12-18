@@ -2,6 +2,7 @@
 <style>
     th ,td{
         text-align: center;
+        font-size: 13px;
     }
 </style>
 
@@ -17,7 +18,11 @@
                         <input type="text" class="form-control" v-model="key" placeholder="输入需查询的关键字" />
                         <span class="input-group-btn">
                            <a type="button" class="btn btn-primary" @click="search"><i class="fa fa-search"></i> 搜索</a>
+                    </span>&nbsp;&nbsp;&nbsp;
+                        <span class="input-group-btn">
+                           <a  href="{{url('/admin/shop/ordersAdd')}}" type="button" class="btn btn-primary"><i class="fa fa-plus-circle"></i>添加</a>
                     </span>
+
                     </div>
                 </div>
                 <div class="hr-line-dashed"></div>
@@ -40,8 +45,60 @@
                             <th>操作</th>
                         </tr>
                         </thead>
+                        @foreach($list as $k => $item)
+                            <tr>
+                                <td>{{$item->id}}</td>
+                                <td>{{$item->order_sn}}</td>
+                                <td>{{$item->user_id}}</td>
+                                <td>
+                                    @if($item->pay_way == 0)
+                                        微信支付
+                                    @elseif($item->pay_way == 1)
+                                        支付宝支付
+                                    @elseif($item->pay_way == 2)
+                                        平台余额支付
+                                    @elseif($item->pay_way == 3)
+                                        银联支付
+                                    @endif
+                                </td>
+                                <td>{{$item->pay_money}}</td>
+                                <td>{{$item->order_money}}</td>
+                                <td>{{$item->pay_discount}}</td>
+                                <td>
+                                    @if($item->status == 0)
+                                        取消支付
+                                    @elseif($item->status == 10)
+                                        未支付
+                                    @elseif($item->status == 20)
+                                        已支付
+                                    @elseif($item->status == 40)
+                                        已发货
+                                    @elseif($item->status == 50)
+                                        交易成功
+                                    @elseif($item->status == 60)
+                                        交易关闭
+                                    @endif
+                                </td>
+                                <td>{{$item->shipping_free}}</td>
+                                <td>{{$item->remark}}</td>
+                                <td>
+                                    @if($item->auto_receipt == 0)
+                                        不开发票
+                                    @elseif($item->auto_receipt == 1)
+                                        自动发票
+                                    @elseif($item->auto_receipt == 3)
+                                        客户发票
+                                    @endif
+                                </td>
+                                <td>{{$item->pay_time}}</td>
+                                <td class="text-center">
+                                    <div class="btn-group">
+                                        <a href="{{url("/admin/shop/ordersDel?id=$item->id")}}" onClick="delcfm()"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o" ></i> 删除</button></a>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
                         <tbody>
-
                     </table>
 
                 </form>
@@ -49,4 +106,12 @@
         </div>
         <div class="clearfix"></div>
     </div>
+    <script language="javascript">
+        function delcfm() {
+            if (!confirm("订单数据很重要确认要删除吗？")) {
+                window.event.returnValue = false;
+            }
+        }
+
+    </script>
 @endsection

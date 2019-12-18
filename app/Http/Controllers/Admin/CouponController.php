@@ -4,7 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\Uselog;
+use App\Models\Getlog;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Input;
 class CouponController extends BaseController
 {
     public function list ()
@@ -67,14 +70,67 @@ class CouponController extends BaseController
         return redirect()->route('coupon.list');
     }
 
+    //优惠券领取记录展示
     public function useLog ()
     {
+        $data = Uselog::all();
+//        var_dump($data);die;
+        return $this->view('useLog',['data'=>$data]);
+    }
+    /*
+    *添加测试数据
+    */
+    public function uselogAdd ()
+    {
+        return $this->view('uselogAdd');
+    }
 
+    public function uselogAdds ()
+    {
+        $input = request()->all();
+        $data = [
+            'user_id'=>$input['user_id'],
+            'coupon_name'=>$input['coupon_name'],
+            'coupon_type_id'=>$input['coupon_type_id'],
+            'start_at'=>date('Y-m-d H:i:s',time()),
+            'end_at'=>date('Y-m-d H:i:s',time()+24*3600),
+        ];
+        $res = DB::table('uselog')->insert($data);
+        if($res){
+            flash('编辑成功')->success();
+            return redirect()->route('coupon.useLog');
+        }else{
+            flash('编辑失败')->error();
+            return redirect()->route('coupon.useLog');
+        }
+    }
+
+    //删除优惠券领取记录
+    public function useLogDel ()
+    {
+        $id = input::get('id');
+        $res = Uselog::where('id',$id)->delete();
+        if ($res){
+            return redirect()->route('coupon.useLog');
+        }
+        return viewError('已删除或者删除失败');
     }
 
     public function getLog ()
     {
+        $data = Getlog::all();
+        return $this->view('getLog',['data'=>$data]);
+//        return $this->view('getLog');
+    }
 
+    public function getLogDel ()
+    {
+        $id = input::get('id');
+        $res = Getlog::where('id',$id)->delete();
+        if ($res){
+            return redirect()->route('coupon.getLog');
+        }
+        return viewError('已删除或者删除失败');
     }
 
 }
