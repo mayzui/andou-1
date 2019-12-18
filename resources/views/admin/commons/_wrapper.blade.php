@@ -1,17 +1,6 @@
 <!--右侧部分开始-->
-<div id="page-wrapper" class="gray-bg dashbard-1">
-    <div class="row border-bottom">
-        <nav class="navbar navbar-static-top" role="navigation" style="margin-bottom: 0">
-            <div class="navbar-header"><a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#"><i
-                            class="fa fa-bars"></i> </a>
-            </div>
-            <ul class="nav navbar-top-links navbar-right">
-                <li class="dropdown hidden-xs">
-                    <a href="/" target="_blank"><i class="fa fa-home"></i> 站点主页</a>
-                </li>
-            </ul>
-        </nav>
-    </div>
+<div id="page-wrapper" class="gray-bg dashbard-1" style="margin: 0px 0px 0px 255px">
+    {{--导航栏--}}
     <div class="row content-tabs">
         <button class="roll-nav roll-left J_tabLeft"><i class="fa fa-backward"></i>
         </button>
@@ -39,12 +28,15 @@
         <a href="{{route('admin.logout')}}" class="roll-nav roll-right J_tabExit"><i class="fa fa fa-sign-out"></i>
             退出</a>
     </div>
+
     <div class="row J_mainContent" id="content-main">
         <iframe class="J_iframe" name="iframe0" width="100%" height="100%" src="{{route('index.main')}}" frameborder="0" data-id="index_v1.html" seamless></iframe>
     </div>
+
     <div class="footer">
         <div class="pull-right">&copy; 2015-2017 <a href="http://www.yicms.vip/" target="_blank">{{config('app.name')}}</a>
         </div>
     </div>
 </div>
+
 <!--右侧部分结束-->

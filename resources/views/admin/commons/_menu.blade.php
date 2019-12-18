@@ -1,66 +1,48 @@
 <!--左侧导航开始-->
+<link href="{{loadEdition('/admin/css/base.css')}}" rel="stylesheet">
+<link href="{{loadEdition('/admin/css/layui.css')}}" rel="stylesheet">
+<link href="{{loadEdition('/admin/css/style.css')}}" rel="stylesheet">
 @php
     $admin = Auth::guard('admin')->user();
 @endphp
 <nav class="navbar-default navbar-static-side" role="navigation">
-    <div claszs="nav-close"><i class="fa fa-times-circle"></i>
-    </div>
+    {{--<div claszs="nav-close"><i class="fa fa-times-circle"></i>--}}
+    {{--</div>--}}
     <div class="sidebar-collapse">
-        <ul class="nav" id="side-menu">
-            <li class="nav-header text-center">
-                <div class="dropdown profile-element">
-                                <span>
-                                    {{--<img alt="image" class="img-circle" src="{{$admin->avator}}" width="64"/>--}}
-                                    <img alt="image" class="img-circle" src="http://img4.imgtn.bdimg.com/it/u=166011432,2730618898&fm=26&gp=0.jpg" width="64"/>
-                                </span>
-                                <a data-toggle="dropdown" class="dropdown-toggle" href="#">
-                                <span class="clear">
-                                <span class="block m-t-xs">
-                                    <strong class="font-bold">{{$admin->name}}</strong>
-                                </span>
-                                <span class="text-muted text-xs block">
-                                    {{--@foreach($admin->roles as $role)--}}
-                                      {{--{{$role->name}}--}}
-                                    {{--@endforeach--}}
-                                    <b class="caret"></b>
-                                </span>
-                                </span>
-                                </a>
-                    <ul class="dropdown-menu animated fadeInRight m-t-xs">
-{{--                        <li><a class="J_menuItem" href="form_avatar.html">修改头像</a></li>--}}
-{{--                        <li><a class="J_menuItem" href="form_avatar.html">修改密码</a></li>--}}
-{{--                        <li class="divider"></li>--}}
-                        <li><a href="{{route('admin.logout')}}">安全退出</a></li>
-                    </ul>
-                </div>
-                <div class="logo-element">ANDOU</div>
-            </li>
-
+        <ul class="andou_left" id="side-menu">
+            <div class="logo"><img class="transform" src="{{loadEdition('/admin/images/logo.png')}}" ></div>
+            <div class="ad-user">
+                <img src="{{loadEdition('/admin/images/userIcon.png')}}" >
+                <p>{{$admin->name}}</p>
+            </div>
+            <ul class="layui-nav layui-nav-tree layui-inline" lay-filter="demo">
             @foreach(Auth::guard('admin')->user()->getMenus() as $key => $rule)
                 @if($rule['route'] == 'index.index')
-                    <li>
+                    {{--跳转后台首页--}}
+                    <li class="layui-nav-item layui-nav-itemed" >
+                        <i class="icon10"></i>
                         <a title="{{$rule['name']}}" href="{{route($rule['route'])}}" target="_blank">
-                            <i class="fa fa-{{$rule['fonts']}}"></i>
-                            <span class="nav-label">{{$rule['name']}}</span>
+                            {{$rule['name']}}
                         </a>
-                        @if(isset($rule['children']))
-                            <ul class="nav nav-second-level collapse">
-                                @foreach($rule['children'] as $k=>$item)
-                                    <li><a class="J_menuItem" href="{{ route($item['route']) }}" data-index="{{$item['id']}}">{{$item['name']}}</a></li>
-                                @endforeach
-                            </ul>
-                        @endif
                     <li>
                 @else
-                    <li>
-                        <a title="{{$rule['name']}}"> <i class="fa fa-{{$rule['fonts']}}"></i>
+                    {{--下拉列表--}}
+                    <li class="layui-nav-item">
+{{--                        <i class="fa fa-{{$rule['fonts']}}"></i>--}}
+                        <i class="icon{{$key}}"></i>
+                        <a title="{{$rule['name']}}">
                             <span class="nav-label">{{$rule['name']}}</span>
-                            <span class="fa arrow"></span>
+                            <span class="layui-nav-more"></span>
                         </a>
+
                         @if(isset($rule['children']))
                             <ul class="nav nav-second-level collapse">
                                 @foreach($rule['children'] as $k=>$item)
-                                    <li><a class="J_menuItem" href="{{ route($item['route']) }}" data-index="index_v1.html">{{$item['name']}}</a></li>
+                                    <li style="background-color: grey">
+                                        <a class="J_menuItem"  href="{{ route($item['route']) }}" data-index="index_v1.html">
+                                            {{$item['name']}}
+                                        </a>
+                                    </li>
                                 @endforeach
                             </ul>
                         @endif
@@ -68,6 +50,7 @@
                 @endif
                 <li>
             @endforeach
+            </ul>
         </ul>
     </div>
 </nav>

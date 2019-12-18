@@ -1,0 +1,77 @@
+.andou_left{width: 256px;overflow-y: auto;background: #4dcec0;height: 100%;position: fixed;left: 0;top: 0;bottom: 0;}
+.andou_left .logo{height: 80px;width: 100%;position: relative;background: #37b8aa;}
+.andou_left .logo img{width: 189px;height: 50px;position: absolute;left: 50%;top: 50%;}
+.ad-user{margin-top: 30px;text-align: center;}
+.ad-user img{width: 88px;height: 88px;}
+.ad-user p{margin-top: 30px;padding-bottom: 30px; color: #FFFFFF;font-size: 20px;font-weight: 600;}
+
+.layui-nav-item i{position: absolute;left: 57px;display: block;z-index: 999;}
+.layui-nav-item i.icon1{ width: 24px;height: 24px; background: url(../images/icon4.png) no-repeat;background-size: 100%;top: 18px;}
+.layui-nav-item i.icon2{ width: 24px;height: 24px; background: url(../images/icon2.png) no-repeat;background-size: 100%;top: 18px;}
+.layui-nav-item i.icon3{ width: 23px;height: 23px; background: url(../images/icon5.png) no-repeat;background-size: 100%;top: 19px;}
+.layui-nav-item i.icon4{ width: 24px;height: 24px; background: url(../images/icon1.png) no-repeat;background-size: 100%;top: 18px;}
+.layui-nav-item i.icon5{ width: 25px;height: 22px; background: url(../images/icon3.png) no-repeat;background-size: 100%;top: 17px;}
+.layui-nav-item i.icon6{ width: 24px;height: 24px; background: url(../images/icon1.png) no-repeat;background-size: 100%;top: 18px;}
+.layui-nav-item i.icon7{ width: 24px;height: 23px; background: url(../images/icon6.png) no-repeat;background-size: 100%;top: 18px;}
+.layui-nav-item i.icon8{ width: 24px;height: 23px; background: url(../images/icon3.png) no-repeat;background-size: 100%;top: 18px;}
+.layui-nav-item i.icon9{ width: 24px;height: 23px; background: url(../images/icon7.png) no-repeat;background-size: 100%;top: 18px;}
+.layui-nav-item i.icon10{ width: 24px;height: 23px; background: url(../images/icon7.png) no-repeat;background-size: 100%;top: 18px;}
+
+
+.ad-right{position: fixed;left: 256px;top: 0;bottom: 0;right: 0;background: #f7f7f7;width: calc(100% - 256px);}
+.ad-wrapper{position: fixed;width: calc(100% - 256px);bottom: 0;right: 0;top:80px;}
+.sign{width: 100%;height: 80px;line-height: 80px;background: #e4ebea;position: relative;}
+.sign a{display: inline-block;float: right;padding-right: 100px;overflow: hidden;}
+.sign a .sign-out{display: inline-block;width: 20px;height: 20px;background: url(../images/signOut.png) no-repeat;background-size: 100%;float: left;margin-top: 30px;margin-right: 10px;}
+.sign a span{display: inline-block;float: left;}
+/* 会员统计 */
+.member{position: absolute;top: 0;left: 0;width: 100%;height: 100%;background: #f7f7f7;overflow: scroll;}
+.member .title{height: 70px;line-height: 70px;padding: 0 60px;}
+.member .title h2{font-size: 20px;font-weight: 600;}
+.member-user{padding: 0 60px;}
+.member-user .item{float: left;width: 24.2%;margin-right: 1%;height: 125px;position: relative;background: #FFFFFF;border-radius: 10px;}
+
+.member-user .item:nth-of-type(4){margin-right: 0;}
+.member-user .item span{font-size: 30px;display: block;margin-top: 25px;margin-left: 36px;}
+.member-user .item p{font-size: 18px;color: #333;display: block;margin-top: 16px;margin-left: 36px;}
+.member-user .item img{position: absolute;right: 30px;bottom: 0;width: 106px;height: 100px;}
+.member-user .item.icon9 img{width: 105px;height: 101px;}
+.member-user .item.icon10 img{width: 117px;height: 101px;}
+.member-user .item.icon11 img{width: 94px;height: 100px;}
+
+.statistics-left{width: 70%;height: 550px;background: #FFFFFF;padding: 30px 0 0 0;border-radius: 10px;position: relative;}
+.company{position: absolute;top: 30px;left: 55px;}
+.choose-tiem{position: absolute;right: 8%;top: 20px;width: 120px;height: 30px;border: 1px solid #14bdac;line-height: 30px;border-radius: 3px;background: #14bdac;}
+.choose-tiem .time{}
+.choose-tiem span{background: #fff;display: block;margin-right: 40px;border-radius: 3px 0 0 5px;text-align: center;}
+.choose-tiem i{position: absolute;top: 10px;right: 12px;width: 16px;height: 9px;background: url(../images/iocn12.png) no-repeat;background-size: 100%;}
+.choose-tiem ul{width: 100%;border: 1px solid #14bdac;position: absolute;left: -1px;background: #FFFFFF;display: none;}
+.choose-tiem ul li{text-indent: 26px;cursor: pointer;}
+#container{width: 100%;height: 100%;}
+.statistics-right{background: #FFFFFF;height: 550px;width: 29%;padding: 30px 0 0 0;border-radius: 10px;position: relative;}
+.round{position: absolute;top: 0;left: 0;width: 100%;height: 100%;background: #FFFFFF;border-radius: 10px;}
+
+.round-info{position: absolute;left: 0px;bottom: 20px;right:0;padding: 0 50px;}
+.info{height: 60px;line-height: 60px;padding-left: 20px;position: relative;font-size: 16px;}
+.icon{width: 14px;height: 14px;border-radius: 50%;position: absolute;top: 23px;left: 0;}
+.info1{background: #fd7e2a;}
+.info2{background: #007DDB;}
+.info3{background: #4dcec0;}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

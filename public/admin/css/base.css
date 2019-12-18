@@ -1,0 +1,72 @@
+html { -ms-touch-action: none;}
+body { font-family:"Microsoft YaHei",Arial, Heiti, Heiti SC, DroidSans, DroidSansFallback ; background-color: #FFFFFF; }
+input { font-family: Arial, "Microsoft YaHei", sans-serif; }
+a { text-decoration: none;  -webkit-touch-callout: none;}
+body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, code, form, fieldset, legend, input, textarea, p, blockquote, th, td, span, a { margin: 0; padding: 0 }
+table { border-collapse: collapse; border-spacing: 0 }
+fieldset, img, iframe { border: 0 }
+:focus { outline: 0 }
+i, address, caption, cite, code, dfn, em, strong, th, var { font-style: normal }
+ol, ul { list-style: none }
+li { list-style: none }
+caption, th { text-align: left }
+h1, h2, h3, h4, h5, h6 { font-size: 100%; font-weight: normal }
+blockquote:before, blockquote:after, q:before, q:after { content: '' }
+abbr, acronym { border: 0; font-variant: normal }
+img { vertical-align: top; border: none; }
+input, textarea { -webkit-user-select: text; -ms-user-select: text; user-select: text; -webkit-appearance: none; }
+input:focus, select:focus, textarea:focus, button:focus { outline: none; }
+input[type="text"], input[type="password"], input[type="search"], input[type="tel"], input[type="number"], input[type="email"], input[type="url"], textarea { -webkit-appearance: none; border: 1px solid; border-radius: 0; }
+input[type="number"]::-webkit-inner-spin-button {
+-webkit-appearance:none;
+}
+em, i { font-style: normal; }
+li { list-style: none; }
+input[type="checkbox"] { position: relative; width: 0.35rem; height: 0.35rem; background-color: #F5F5F5; border: 0.03rem solid #CCC; -webkit-border-radius: 50%; border-radius: 50%; vertical-align: middle; }
+input[type="checkbox"]:checked { border-color: #ED5564; background-color: #ED5564; }
+input[type="checkbox"]:checked:after { content: ''; position: absolute; left: 0.04rem; top: 0.06rem; width: 0.16rem; height: 0.08rem; border-left: 0.04rem solid #fff; border-bottom: 0.04rem solid #fff; -webkit-transform: rotate(-45deg); -ms-transform: rotate(-45deg); transform: rotate(-45deg); }
+select::-ms-expand { display: none; }
+select{appearance:none;-moz-appearance:none;-webkit-appearance:none;}
+
+img{font-size: 0.2rem;color: #666}
+sup { vertical-align: text-top }
+sub { vertical-align: text-bottom }
+
+/* 清除浮动 */
+.clearfix:after { visibility:hidden; display:block; font-size:0; content:" "; clear:both; height:0; }
+.clear { clear:both; }
+
+/* float */
+.fl { float: left !important; }
+.fr { float: right !important; }
+
+/* 隐藏与显示 */
+.show{ display:block !important;}
+.hidden{ display:none !important;}
+.visible-hidden { visibility: hidden;}
+.over-initial{ overflow: initial !important;}
+#main-frame { width: 100%; height: 100%; min-width: 850px;overflow: auto;}
+#round-frame{width: 100%;height: 100%;overflow: auto;border-radius: 10px;}
+.red{color: #f64445;}
+.yollew{color: #fd7e2a;}
+.blue{color: #4da1ff;}
+.green{color: #4dcec0;}
+.font12{font-size: 12px !important;}
+.font16{font-size: 16px !important;}
+.box-shadow{-moz-box-shadow:0px px 12px #DDDDDD; -webkit-box-shadow:0px 0px 12px #DDDDDD; box-shadow:0px 0px 12px #DDDDDD;}
+
+.transform{transform: translateX(-50%) translateY(-50%); -ms-transform: :translateX(-50%) translateY(-50%) ;-moz-transform: : translateX(-50%) translateY(-50%) ;-webkit-transform: :translateX(-50%) translateY(-50%) ;-o-transform: :translateX(-50%) translateY(-50%) ;}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -20,4 +20,8 @@ class IndexsController extends Controller
     {
         return view('admin.indexs.main');
     }
+    public function round()
+    {
+        return view('admin.indexs.round');
+    }
 }

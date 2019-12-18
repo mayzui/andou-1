@@ -2,165 +2,167 @@
 @extends('admin.layouts.layout')
 
 @section('title', '首页')
-
-@section('css')
-  <link href="{{loadEdition('/admin/css/pxgridsicons.min.css')}}" rel="stylesheet" />
-@endsection
-@section('content')
-  <div class="row state-overview">
-    <div class="col-lg-3 col-sm-6">
-      <section class="panel">
-        <div class="symbol userblue">
-          <i class="icon-users"></i>
-        </div>
-        <div class="value">
-          <a href="#"><h1 id="count1">1</h1></a>
-          <p>用户总量</p>
-        </div>
-      </section>
+<link href="{{loadEdition('/admin/css/base.css')}}" rel="stylesheet">
+<link href="{{loadEdition('/admin/css/layui.css')}}" rel="stylesheet">
+<link href="{{loadEdition('/admin/css/style.css')}}" rel="stylesheet">
+<div class="member">
+  <!-- 会员统计 start -->
+  <div class="title"><h2>会员统计</h2></div>
+  <div class="member-user clearfix">
+    <div class="item box-shadow">
+      <span class="green">12452</span>
+      <p>会员</p>
+      <img src="{{loadEdition('/admin/images/icon8.png')}}" >
     </div>
-    <div class="col-lg-3 col-sm-6">
-      <section class="panel">
-        <div class="symbol commred">
-          <i class="icon-user-add"></i>
-        </div>
-        <div class="value">
-          <a href="#"><h1 id="count2">56</h1></a>
-          <p>今日注册用户</p>
-        </div>
-      </section>
+    <div class="item box-shadow icon11">
+      <span class="red">12452</span>
+      <p>商场商家</p>
+      <img src="{{loadEdition('/admin/images/icon11.png')}}" >
     </div>
-    <div class="col-lg-3 col-sm-6">
-      <section class="panel">
-        <div class="symbol articlegreen">
-          <i class="icon-check-circle"></i>
-        </div>
-        <div class="value">
-          <a href="#"><h1 id="count3">1876</h1></a>
-          <p>笑话总数</p>
-        </div>
-      </section>
+    <div class="item box-shadow icon9">
+      <span class="yollew">12452</span>
+      <p>酒店商家</p>
+      <img src="{{loadEdition('/admin/images/icon9.png')}}" >
     </div>
-    <div class="col-lg-3 col-sm-6">
-      <section class="panel">
-        <div class="symbol rsswet">
-          <i class="icon-file-word-o"></i>
-        </div>
-        <div class="value">
-          <a href="#"><h1 id="count4">3</h1></a>
-          <p>待审核笑话总数</p>
-        </div>
-      </section>
+    <div class="item box-shadow icon10">
+      <span class="blue">12452</span>
+      <p>饭店商家</p>
+      <img src="{{loadEdition('/admin/images/icon10.png')}}" >
     </div>
   </div>
-  <div class="row">
-    <!-- 表单 -->
-    <div class="col-lg-6">
-      <section class="panel">
-        <header class="panel-heading bm0">
-          <span><strong>最新发布内容</strong></span>
-          <span class="tools pull-right">
-                                <a class="icon-chevron-down" href="javascript:;"></a>
-                            </span>
-
-        </header>
-        <div class="panel-body" id="panel-bodys" style="display: block;">
-          <table class="table table-hover personal-task">
-            <tbody>
-
-            </tbody>
-          </table>
+  <!-- 会员统计 end -->
+  <!-- 销售量统计 -->
+  <div class="title"><h2>销售量统计</h2></div>
+  <div class="member-user clearfix ">
+    <div class="statistics-left fl box-shadow">
+      <span class="company">单位:(元)</span>
+      <div id="container" style="width: 100%;height: 100%;"></div>
+      <div class="choose-tiem">
+        <div class="time tim">
+          <span>一周</span>
+          <i></i>
         </div>
-      </section>
-    </div>
-    <!-- 表单 -->
-
-    <!-- 版权信息 -->
-    <div class="col-lg-6">
-      <section class="panel">
-        <header class="panel-heading bm0">
-          <span><strong>团队及版权信息</strong></span>
-          <span class="tools pull-right">
-                                <a class="icon-chevron-down" href="javascript:;"></a>
-                            </span>
-        </header>
-        <div class="panel-body" id="panel-bodys" style="display: block;">
-          <table class="table table-hover personal-task">
-            <tbody>
-            <tr>
-              <td>
-                <strong>检测更新</strong>：已是最新版
-              </td>
-              <td></td>
-            </tr>
-            <tr>
-              <td><strong>程序名称</strong>：安抖后台系统 </td>
-              <td></td>
-            </tr>
-            <tr>
-              <td><strong>当前版本</strong>：V1.0</td>
-              <td></td>
-            </tr>
-            <tr>
-              <td><strong>开发团队</strong>：卓松科技 </td>
-              <td></td>
-            </tr>
-            <tr>
-              <td><strong>版权所有</strong>：<a href="#" target="_bliank">卓松科技</a> </td>
-              <td></td>
-            </tr>
-            <tr>
-              <td>
-                <strong>操作系统：</strong>：{{PHP_OS}}</td>
-              <td></td>
-            </tr>
-            <tr>
-              <td>
-                <strong>WEB服务器</strong>：{{php_sapi_name()}}</td>
-              <td></td>
-            </tr>
-            <tr>
-              <td>
-                <strong>PHP版本</strong>：{{PHP_VERSION}}</td>
-              <td></td>
-            </tr>
-            <tr>
-              <td>
-                <strong>官方网址</strong>http://cqzskj.huibo.cn</td>
-              <td></td>
-            </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-    </div>
-    <!-- 版权信息 -->
-  </div>
-  <div class="row">
-    <div class="col-sm-12">
-      <div class="ibox-title">
-        <h5>系统更新日志</h5>
-      </div>
-      <div class="ibox-content timeline">
-
-        <div class="timeline-item">
-          <div class="row">
-            <div class="col-xs-3 date">
-              <i class="fa fa-file-text"></i>
-              <small class="text-navy">2019年11月28日更新</small>
-            </div>
-            <div class="col-xs-7 content">
-              <p>
-                1、使用Auth进行后台管理员登陆认证√<br>
-                1、RBAC权限操作日志完成以及RBAC缓存优化机制 √<br>
-                2、增加后台管理员操作日志记录 √<br>
-                3、后台权限日志增加登录操作记录以及细节BUG修复 √<br>
-              </p>
-            </div>
-          </div>
-        </div>
-
+        <ul class="hidden t">
+          <li>一周</li>
+          <li>一个月</li>
+        </ul>
       </div>
     </div>
+    <div class="statistics-right fr box-shadow">
+      <span class="company">单位:(元)</span>
+      <div class="choose-tiem">
+        <div class="time times">
+          <span>12月</span>
+          <i></i>
+        </div>
+        <ul class="hidden t">
+          <li>12月</li>
+          <li>11月</li>
+        </ul>
+      </div>
+      <iframe id="round-frame" name="mainFrame" frameborder="0" src="{{route('index.round')}}" scrolling="no"></iframe>
+
+    </div>
   </div>
-@stop
+
+  <!-- 销售量统计 end-->
+</div>
+<script src="{{loadEdition('/js/jquery.min.js')}}"></script>
+<script src="{{loadEdition('/admin/js/bootstrap.min.js')}}"></script>
+<script src="{{loadEdition('/admin/js/echarts.common.min.js')}}"></script>
+<script type="text/javascript">
+
+    $(function(){
+        var tim = $(".tim");
+        var times = $(".times");
+        var timSb = tim.siblings().find('li');
+        var timesSb = times.siblings().find('li');
+
+        function xios(s_b){
+            if(s_b.hasClass("hidden")){
+                s_b.addClass('show').removeClass("hidden");
+            }else{
+                s_b.addClass("hidden")
+            }
+        }
+        tim.on('click',function(){
+            var that = $(this);
+            var s_b = that.siblings();
+            xios(s_b);
+        })
+        times.on('click',function(){
+            var that = $(this);
+            var s_b = that.siblings();
+            xios(s_b);
+        })
+        function chooseTime(that){
+            var time = that.text();
+            that.parents('.t').addClass("hidden");
+            that.parent().siblings().find("span").html(time);
+        }
+        timSb.click(function(){
+            var that = $(this);
+            chooseTime(that);
+        })
+        timesSb.click(function(){
+            var that = $(this);
+            chooseTime(that);
+        })
+
+    })
+
+    // 统计数据
+    var dom = document.getElementById("container");
+    var myChart = echarts.init(dom);
+    var app = {};
+    option = null;
+
+    setTimeout(function () {
+
+        option = {
+            legend: {},
+            tooltip: {
+                showContent: true,
+            },
+            color:['#ffa45a', '#4baef9','#14bdac'],
+            dataset: {
+                source: [
+                    ['product', '12-06', '212-07', '12-08', '12-09', '12-10', '12-11','12-12'],
+                    ['商家商城', 100,200,400,500,200,1000,2001],
+                    ['酒店商城', 300,1100,500,800,100,550,1856],
+                    ['饭店商城', 2000,1200,100,500,892,457,2222],
+
+                ]
+            },
+            xAxis: {type: 'category'},
+            yAxis: {gridIndex: 0},
+            grid: {top: '8%'},
+            series: [
+                {type: 'line', smooth: true, seriesLayoutBy: 'row'},
+                {type: 'line', smooth: true, seriesLayoutBy: 'row'},
+                {type: 'line', smooth: true, seriesLayoutBy: 'row'},
+                {type: 'line', smooth: true, seriesLayoutBy: 'row'},
+                {
+                    type: 'pie',
+                    id: 'pie',
+                    radius: '',
+                    center: ['50%', '25%'],
+                    label: {
+                        formatter: '{b}: {c} ({d}%)'
+                    },
+                    encode: {
+                        itemName: 'product',
+                        value: '2019',
+                        tooltip: '2019'
+                    }
+                }
+            ]
+        };
+        myChart.setOption(option);
+
+
+    });
+    if (option && typeof option === "object") {
+        myChart.setOption(option, true);
+    }
+</script>
