@@ -49,7 +49,7 @@
                             <tr>
                                 <td>{{$item->id}}</td>
                                 <td>{{$item->order_sn}}</td>
-                                <td>{{$item->user_id}}</td>
+                                <td>{{$item->name}}</td>
                                 <td>
                                     @if($item->pay_way == 0)
                                         微信支付

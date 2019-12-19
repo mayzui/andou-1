@@ -29,7 +29,7 @@
                         @foreach($data as $k=>$item)
                         <tr>
                             <td>{{$item->id}}</td>
-                            <td>{{$item->user_id}}</td>
+                            <td>{{$item->name}}</td>
                             <td>{{$item->price}}</td>
                             <td>{{$item->describe}}</td>
                             <th style="color: green">{{ $item -> state == 1 ? "获得" : "消耗" }}</th>

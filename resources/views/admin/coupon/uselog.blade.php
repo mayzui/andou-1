@@ -31,7 +31,7 @@
                     @foreach( $data as $k => $item)
                         <tr>
                             <td>{{$item->id}}</td>
-                            <td>{{$item->user_id}}</td>
+                            <td>{{$item->name}}</td>
                             <td>{{$item->coupon_name}}</td>
                             <td>
                                 @if($item->coupon_type_id == 0)

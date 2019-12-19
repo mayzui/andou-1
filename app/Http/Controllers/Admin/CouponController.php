@@ -73,8 +73,10 @@ class CouponController extends BaseController
     //优惠券领取记录展示
     public function useLog ()
     {
-        $data = Uselog::all();
-//        var_dump($data);die;
+        $data = DB::table('uselog')
+            -> join('users','uselog.user_id','=','users.id')
+            -> select(['uselog.id','uselog.coupon_name','uselog.coupon_type_id','uselog.start_at','uselog.end_at','users.name'])
+            -> paginate(10);
         return $this->view('useLog',['data'=>$data]);
     }
     /*

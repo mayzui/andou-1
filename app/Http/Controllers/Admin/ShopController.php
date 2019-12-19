@@ -9,9 +9,11 @@ use App\Models\Statics;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Input;
 use App\Handlers\Tree;
 use App\Models\GoodBrands;
 use App\Models\Goods;
+use App\Models\Orders;
 use App\Models\GoodsAttr;
 use App\Models\GoodsAttrValue;
 use App\Models\GoodsCate;
@@ -365,7 +367,12 @@ class ShopController extends BaseController
 
     public function statics (Request $request)
     {
-        $data =  Statics::orderBy('id','desc')->where('is_del',0)->paginate($request->input('limit'));
+        $data = DB::table('Statics')
+            -> join('users','Statics.user_id','=','users.id')
+            -> where('Statics.is_del',0)
+            -> select(['Statics.id','Statics.price','Statics.describe','Statics.state','Statics.create_time','Statics.type_id','users.name'])
+            -> paginate(10);
+//        var_dump($data);die;
         return $this->view('',['data'=> $data]);
     }
 
@@ -381,12 +388,15 @@ class ShopController extends BaseController
     /*
             * 订单数据展示
             * */
-    public function orders (Request $request)
+    public function orders(Request $request)
     {
-//        return 213;
-        $list = Orders::orderBy('id','desc')->where('is_del',0)->paginate($request->input('limit'));
-
+        $list = DB::table('Orders')
+            -> join('users','Orders.user_id','=','users.id')
+            -> where('Orders.is_del',0)
+            -> select(['Orders.id','Orders.order_sn','Orders.pay_way','Orders.pay_money','Orders.order_money','Orders.pay_discount','Orders.status','Orders.shipping_free','Orders.remark','Orders.auto_receipt','Orders.pay_time','users.name'])
+            -> paginate(10);
         return $this->view('orders',['list'=>$list]);
+
     }
 
     /*
