@@ -97,7 +97,7 @@ class FinanceController extends Controller
         $data = [
             'status' => 1
         ];
-        return dd(json_decode(json_encode(DB::table("money_flow")-> where('id',$all['id']) -> first()),true));
+//        return dd(json_decode(json_encode(DB::table("money_flow")-> where('id',$all['id']) -> first()),true));
         // 执行删除操作
         $i = DB::table("money_flow") -> where('id',$all['id']) -> update($data);
         if($i){

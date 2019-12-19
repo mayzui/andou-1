@@ -84,7 +84,7 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::post('shop/storeComplateAttrs','ShopController@storeComplateAttrs')->name('shop.storeComplateAttrs');
 
 
-        // 商品分类
+        // 分类管理
         Route::get('shop/goodsCate','ShopController@goodsCate')->name('shop.goodsCate');
         Route::get('shop/cateAdd','ShopController@cateAdd')->name('shop.cateAdd');
         Route::get('shop/cateEdit/{id}','ShopController@cateEdit')->name('shop.cateEdit');
@@ -92,7 +92,10 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::any('shop/cateDelete/{id}','ShopController@cateDelete')->name('shop.cateDelete');
         Route::post('shop/getCateChildren','ShopController@getCateChildren')->name('shop.getCateChildren');
 
-
+        // 商品分类
+        Route::get('shop/merchants_goods_type','ShopController@merchants_goods_type')->name('shop.merchants_goods_type');
+        Route::match(['get','post'],'shop/merchants_goods_typeChange','ShopController@merchants_goods_typeChange')->name('shop.merchants_goods_typeChange');
+        Route::get('shop/merchants_goods_typeDel','ShopController@merchants_goods_typeDel')->name('shop.merchants_goods_typeDel');
 
 
         // 商品
@@ -101,7 +104,9 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('foods/information1','FoodsController@information')->name('hotel.books');
 
         // 活动
-        Route::get('shop/activity','ActivityController@activity')->name('shop.activity');
+        Route::get('shop/activity','ShopController@activity')->name('shop.activity');
+        Route::match(['get','post'],'shop/activityChange','ShopController@activityChange')->name('shop.activityChange'); // 新增 and 修改
+        Route::get('shop/activityDel','ShopController@activityDel')->name('shop.activityDel'); // 删除
 
 
         // 快递

@@ -296,22 +296,30 @@
                                                 </div>
                                             </div>
                                             @foreach($attrData as $k =>$v)
-                                            <div class="hr-line-dashed"></div>
-                                            <div class="form-group">
-                                                <label class="col-sm-2 control-label">
-                                                    <input type="text" name="attrname_{{ $v -> id }}" value="{{ $v -> name }}" readonly style="border: 0px;width: 50px;" />
-                                                </label>
-                                                <div class="input-group col-sm-2">
-                                                    <div class="radio i-checks checkbox">
-                                                        @foreach($attrvalueData as $m)
-                                                            @if($v -> id == $m -> goods_attr_id)
-                                                            <label><input type="checkbox" name="attrvalue_{{ $v -> id }}" />  {{$m -> value}} </label>
-                                                            @endif
-                                                        @endforeach
+                                                <div class="hr-line-dashed"></div>
+                                                <div class="form-group">
+                                                    <label class="col-sm-2 control-label">
+                                                        <input type="hidden" name="attrname[]" value="{{ $v -> id }}"  />
+                                                        <input type="text"  value="{{ $v -> name }}" readonly style="border: 0px;width: 50px;" />
+                                                    </label>
+                                                    <div class="input-group col-sm-2">
+                                                        <div class="radio i-checks checkbox">
+                                                            @foreach($attrvalueData as $m)
+                                                                @if($v -> id == $m -> goods_attr_id)
+                                                                    <label><input type="checkbox" name="attrvalue_{{ $v -> id }}[]" value="{{$m -> value}}" />{{$m -> value}} </label>
+                                                                @endif
+                                                            @endforeach
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
                                             @endforeach
+                                            <div class="hr-line-dashed"></div>
+                                            <div class="form-group">
+                                                <div class="col-sm-12 col-sm-offset-2">
+                                                    <button class="btn btn-primary" type="submit"><i class="fa fa-check"></i>&nbsp;保 存</button>
+                                                </div>
+                                            </div>
+                                            <div class="hr-line-dashed"></div>
                                         </form>
                                     </div>
                                 </div>

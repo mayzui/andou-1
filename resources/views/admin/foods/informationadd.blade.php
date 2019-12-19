@@ -46,7 +46,7 @@
                         <label class="col-sm-2 control-label">菜品规格：</label>
                         <div class="input-group col-sm-2 checkbox">
                             @foreach($spec as $k => $v)
-                                <label><input type="checkbox" @if(in_array($v->id,$data->specifications)) checked="checked" @endif name="specifications[]" value="{{ $v->id }}" />{{ $v->name }}</label>
+                                <label><input type="checkbox" @if(in_array($v->name,$data->specifications)) checked="checked" @endif name="specifications[]" value="{{ $v->id }}" />{{ $v->name }}</label>
                             @endforeach
                         </div>
                     </div>

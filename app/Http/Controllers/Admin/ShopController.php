@@ -11,9 +11,6 @@ use Illuminate\Support\Facades\Validator;
 use App\Handlers\Tree;
 use App\Models\GoodBrands;
 use App\Models\Goods;
-use App\Models\Statics;
-use Illuminate\Support\Facades\Input;
-use App\Models\Orders;
 use App\Models\GoodsAttr;
 use App\Models\GoodsAttrValue;
 use App\Models\GoodsCate;
@@ -24,7 +21,265 @@ use Auth;
 
 class ShopController extends BaseController
 {
+    // 商品参数
+    public function storeComplateAttrs(){
+        // 获得提交的数据
+        $all = \request() -> all();
+        foreach ($all['attrname'] as $item) {
+            // 通过该id 在商品参数中去找值
+            $name = DB::table('goods_attr') -> where('id',$item)-> select(['name']) -> first();
+            if(!empty($all['attrvalue_'.$item.''])){
+                $data[] =[
+                    'name' => json_decode(json_encode($name),true)['name'],
+                    'value' => $all['attrvalue_'.$item.'']
+                ];
+            }
+        }
+        foreach ($data as $k=>$v){
+            foreach ($v['value'] as $kk =>$item) {
+                $a[$k][$kk] = $item;
+            }
+        }
+        return dd($a);
+        return $this->view('',['data'=>$data]);
+    }
+    // 活动管理
+    public function activity(){
+        $id = Auth::id();
+        // 判断该用户，是否开店 并且已经认证通过
+        $i = DB::table('merchants') -> where("user_id",$id) -> where("is_reg",1) -> first();
+        if(!empty($i)) {
+            // 如果开店，则查询当前商户的信息
+            // 查询活动表中数据
+            $data = DB::table('goods_activity')
+                -> join('merchants','goods_activity.merchant_id','=','merchants.id')
+                -> where('merchant_id',$id)
+                -> where('is_del',0)
+                -> select(['goods_activity.id','merchants.name as merchants_name','goods_activity.name as activity_name','goods_activity.goods','goods_activity.create_time','goods_activity.end_time','goods_activity.status'])
+                -> paginate(10);
+        }else{
+            // 未开店，则为管理员
+            // 查询活动表中数据
+            $data = DB::table('goods_activity')
+                -> join('merchants','goods_activity.merchant_id','=','merchants.id')
+                -> where('is_del',0)
+                -> select(['goods_activity.id','merchants.name as merchants_name','goods_activity.name as activity_name','goods_activity.goods','goods_activity.create_time','goods_activity.end_time','goods_activity.status'])
+                -> paginate(10);
+        }
+        return $this->view('',['data'=>$data]);
+    }
+    // 新增 and 修改 活动管理
+    public function activityChange(){
+        $all = \request() -> all();
+        if(\request() -> isMethod("get")){
+            // 判断是跳转新增界面 还是 跳转修改界面
+            if(empty($all['id'])){
+                // 跳转新增界面
+                // 查询数据库，获取商品数据
+                $goodsdata = DB::table('goods') -> get();
+                return $this->view('',['goodsdata'=>$goodsdata]);
+            }else{
+                // 跳转修改界面
+                // 查询数据库，获取商品数据
+                $goodsdata = DB::table('goods') -> get();
+                // 根据获取的id 查询活动表中的数据
+                $activitydata = DB::table('goods_activity') -> where('id',$all['id']) ->first();
+                // 将获取的对象转换为数组
+                $one = json_decode(json_encode($activitydata),true);
+                // 提取商品id
+                $activityid = array_column(json_decode($one['goods']),'id');
+//                return dd();
+                $arr = [
+                    'goodsdata'=>$goodsdata,
+                    'activitydata'=>$activitydata,
+                    'activityid'=>$activityid
+                ];
+                return $this->view('',$arr);
+            }
+        }else{
+            // 判断是执行新增操作 还是 执行修改操作
+            if(empty($all['id'])){
+                // 跳转新增界面
+                $goodsid = $all['goods'];
+                // 根据当前获得的id，查询数据库中，商品的id
+                foreach ($goodsid as $v){
+                    $name = DB::table('goods') -> where('id',$v)->select(['name']) -> first();
+                    $goodsname[] = json_decode(json_encode($name),true);
+                }
+                // 封装数据
+                foreach ($goodsname as $k =>$v){
+                    $goods[]=[
+                        'id' => $goodsid[$k],
+                        'names' => $v['name']
+                    ];
+                }
+                // 将封装的数据，转码成字符串
+                $goods = json_encode($goods,JSON_UNESCAPED_UNICODE);        // JSON_UNESCAPED_UNICODE：保留中文字符，不被转码
 
+                // 获取提交的数据
+                $data = [
+                    'merchant_id' => Auth::id(),
+                    'name' => $all['name'],
+                    'goods' => $goods,
+                    'create_time' => $all['create_time'],
+                    'end_time' => $all['end_time'],
+                    'status' => $all['status'],
+                ];
+                // 执行新增操作
+                $i = DB::table('goods_activity') -> insert($data);
+                if($i){
+                    flash('新增成功') -> success();
+                    return redirect()->route('shop.activity');
+                }else{
+                    flash('新增失败') -> error();
+                    return redirect()->route('shop.activity');
+                }
+            }else{
+                // 跳转修改界面
+                $goodsid = $all['goods'];
+                // 根据当前获得的id，查询数据库中，商品的id
+                foreach ($goodsid as $v){
+                    $name = DB::table('goods') -> where('id',$v)->select(['name']) -> first();
+                    $goodsname[] = json_decode(json_encode($name),true);
+                }
+                // 封装数据
+                foreach ($goodsname as $k =>$v){
+                    $goods[]=[
+                        'id' => $goodsid[$k],
+                        'names' => $v['name']
+                    ];
+                }
+                // 将封装的数据，转码成字符串
+                $goods = json_encode($goods,JSON_UNESCAPED_UNICODE);        // JSON_UNESCAPED_UNICODE：保留中文字符，不被转码
+
+                // 获取提交的数据
+                $data = [
+                    'merchant_id' => Auth::id(),
+                    'name' => $all['name'],
+                    'goods' => $goods,
+                    'create_time' => $all['create_time'],
+                    'end_time' => $all['end_time'],
+                    'status' => $all['status'],
+                ];
+                // 链接数据库执行修改操作
+                $i = DB::table('goods_activity') -> where('id',$all['id']) -> update($data);
+                if($i){
+                    flash('修改成功') -> success();
+                    return redirect()->route('shop.activity');
+                }else{
+                    flash('修改失败，未修改任何内容') -> error();
+                    return redirect()->route('shop.activity');
+                }
+            }
+        }
+    }
+    // 删除活动表
+    public function activityDel(){
+        // 获取传入的id
+        $all = \request() -> all();
+        $data = [
+            'is_del' => 1
+        ];
+        // 根据id 对数据进行删除
+        $i = DB::table('goods_activity') -> where('id',$all['id']) -> update($data);
+        if($i){
+            flash('删除成功') -> success();
+            return redirect()->route('shop.activity');
+        }else{
+            flash('删除失败') -> error();
+            return redirect()->route('shop.activity');
+        }
+    }
+
+    // 商品分类
+    public function merchants_goods_type(){
+        $id = Auth::id();
+        // 判断该用户，是否开店 并且已经认证通过
+        $i = DB::table('merchants') -> where("user_id",$id) -> where("is_reg",1) -> first();
+        if(!empty($i)) {
+            // 如果开店，则查询当前商户的信息
+            // 链接数据库，查询商户的商品分类
+            $data = DB::table('merchants_goods_type')
+                -> join('merchants','merchants_goods_type.merchant_id','=','merchants.id')
+                -> where('is_del',1)
+                -> where('merchant_id',$id)
+                -> select(['merchants.name as merchants_name','merchants_goods_type.id','merchants_goods_type.name'])
+                -> paginate(10);
+        }else{
+            // 链接数据库，查询商户的商品分类
+            $data = DB::table('merchants_goods_type')
+                -> join('merchants','merchants_goods_type.merchant_id','=','merchants.id')
+                -> where('is_del',1)
+                -> select(['merchants.name as merchants_name','merchants_goods_type.id','merchants_goods_type.name'])
+                -> paginate(10);
+        }
+        return $this->view('',['data'=>$data]);
+    }
+    // 新增 and 修改 商品分类
+    public function merchants_goods_typeChange(){
+        $all = \request() -> all();
+        if(\request() -> isMethod("get")){
+            if(empty($all['id'])){
+                // 跳转新增界面
+                return $this->view('');
+            }else{
+                // 跳转修改界面
+                // 根据传入的id 查询数据库中的值
+                $data = DB::table('merchants_goods_type') -> where('id',$all['id']) -> first();
+                return $this->view('',['data'=> $data]);
+            }
+        }else{
+            if(empty($all['id'])){
+                // 执行新增操作
+                // 获取提交的内容
+                $data  = [
+                    'name' => $all['name'],
+                    'merchant_id' => Auth::id()
+                ];
+                // 链接数据库，新增内容
+                $i = DB::table('merchants_goods_type') -> insert($data);
+                if($i){
+                    flash('新增成功') -> success();
+                    return redirect()->route('shop.merchants_goods_type');
+                }else{
+                    flash('新增失败') -> error();
+                    return redirect()->route('shop.merchants_goods_type');
+                }
+            }else{
+                // 执行修改操作
+                // 获取提交的内容
+                $data  = [
+                    'name' => $all['name'],
+                ];
+                $i = DB::table('merchants_goods_type') -> where('id',$all['id']) -> update($data);
+                if($i){
+                    flash('修改成功') -> success();
+                    return redirect()->route('shop.merchants_goods_type');
+                }else{
+                    flash('修改失败，未修改任何内容。') -> error();
+                    return redirect()->route('shop.merchants_goods_type');
+                }
+            }
+
+        }
+    }
+    // 删除 商品分类
+    public function merchants_goods_typeDel(){
+        // 获取传入的id
+        $all = \request() -> all();
+        $data = [
+            'is_del' => 0
+        ];
+        // 根据id 删除数据表中内容
+        $i = DB::table('merchants_goods_type') -> where('id',$all['id']) -> update($data);
+        if($i){
+            flash('删除成功') -> success();
+            return redirect()->route('shop.merchants_goods_type');
+        }else{
+            flash('删除失败') -> error();
+            return redirect()->route('shop.merchants_goods_type');
+        }
+    }
 
     // 商品评论
     public function commnets(){
@@ -105,6 +360,86 @@ class ShopController extends BaseController
             flash('删除失败') -> error();
             return redirect()->route('shop.commnets');
         }
+    }
+
+    public function statics (Request $request)
+    {
+        $data =  Statics::orderBy('id','desc')->where('is_del',0)->paginate($request->input('limit'));
+        return $this->view('statics',['data'=>$data]);
+    }
+
+    public function staticsDel (Request $request)
+    {
+        $id = input::get('id');
+        $res = Statics::where('id',$id)->update(['is_del' => 1]);
+        if ($res){
+            return redirect()->route('shop.statics');
+        }
+        return viewError('已删除或者删除失败');
+    }
+    /*
+            * 订单数据展示
+            * */
+    public function orders (Request $request)
+    {
+        $list = Orders::orderBy('id','desc')->where('is_del',0)->paginate($request->input('limit'));
+//        var_dump($list);die;
+        return $this->view('orders',['list'=>$list]);
+    }
+
+    /*
+     * 添加订单测试数据
+     * */
+    public function ordersAdd (Request $request)
+    {
+        return $this->view('ordersAdd',['list'=>[]]);
+    }
+
+    /*
+     * 添加订单测试数据
+     * */
+
+    public function ordersAdds (Request $request)
+    {
+        $input = request()->all();
+        $data = [
+            'user_id'=> $input['user_id'],
+            'order_sn'=> rand(100000,999999),
+            'order_money'=>$input['order_money'],
+            'pay_way'=>$input['pay_way'],
+            'pay_money'=>$input['pay_money'],
+            'pay_discount'=>$input['pay_discount'],
+            'shipping_free'=>$input['shipping_free'],
+            'remark'=>$input['remark'],
+            'pay_time'=> date('Y-m-d h:i:s',time()),
+            'send_time'=> date('Y-m-d h:i:s',time()),
+            'auto_receipt'=>$input['auto_receipt'],
+            'status'=>$input['status'],
+        ];
+//        var_dump($data);die;
+        $res = DB::table('orders')->insert($data);
+        if($res){
+            flash('编辑成功')->success();
+            return redirect()->route('shop.orders');
+        }else{
+            flash('编辑失败')->error();
+            return redirect()->route('shop.orders');
+        }
+    }
+
+    /*
+     * 删除订单
+     * 只是将数据软删除并未被真正删除
+     * */
+    public function ordersDel (Request $request)
+    {
+        $id = input::get('id');
+        $res = Orders::where('id',$id)->update(['is_del' => 1]);
+        if ($res){
+            return redirect()->route('shop.orders');
+        }
+        return viewError('已删除或者删除失败');
+
     }
 
     // 异步上传文件
@@ -344,7 +679,7 @@ class ShopController extends BaseController
 
     public function update(Request $request,$id)
     {
-        return $this->view('update',['data'=>$data]);
+        return $this->view('update',['data'=>[]]);
     }
 
     public function store (Request $request)
@@ -380,7 +715,8 @@ class ShopController extends BaseController
             $model = Goods::find($request->input('id'));
         }
 
-        $model->goods_cate_id = $request->input('goods_cate_id');
+        $model->goods_cate_id = $request->input('goods_cate_id1').','.$request->input('goods_cate_id2').','.$request->input('goods_cate_id3');
+
         $model->goods_brand_id = $request->input('goods_brand_id');
         $model->name = $request->input('name');
         $model->img = $request->input('img');
@@ -427,7 +763,6 @@ class ShopController extends BaseController
     {
         return false;
     }
-
 
     public function setStatus (Request $request,$field,$status,$id)
     {
@@ -541,73 +876,6 @@ class ShopController extends BaseController
         return  viewError('操作失败','shop.cateAdd');
     }
 
-
-
-    /*
-        * 订单数据展示
-        * */
-    public function orders (Request $request)
-    {
-        $list = Orders::orderBy('id','desc')->where('is_del',0)->paginate($request->input('limit'));
-//        var_dump($list);die;
-        return $this->view('orders',['list'=>$list]);
-    }
-
-    /*
-     * 添加订单测试数据
-     * */
-    public function ordersAdd (Request $request)
-    {
-        return $this->view('ordersAdd',['list'=>[]]);
-    }
-
-    /*
-     * 添加订单测试数据
-     * */
-
-    public function ordersAdds (Request $request)
-    {
-        $input = request()->all();
-        $data = [
-            'user_id'=> $input['user_id'],
-            'order_sn'=> rand(100000,999999),
-            'order_money'=>$input['order_money'],
-            'pay_way'=>$input['pay_way'],
-            'pay_money'=>$input['pay_money'],
-            'pay_discount'=>$input['pay_discount'],
-            'shipping_free'=>$input['shipping_free'],
-            'remark'=>$input['remark'],
-            'pay_time'=> date('Y-m-d h:i:s',time()),
-            'send_time'=> date('Y-m-d h:i:s',time()),
-            'auto_receipt'=>$input['auto_receipt'],
-            'status'=>$input['status'],
-        ];
-//        var_dump($data);die;
-        $res = DB::table('orders')->insert($data);
-        if($res){
-            flash('编辑成功')->success();
-            return redirect()->route('shop.orders');
-        }else{
-            flash('编辑失败')->error();
-            return redirect()->route('shop.orders');
-        }
-    }
-
-    /*
-     * 删除订单
-     * 只是将数据软删除并未被真正删除
-     * */
-    public function ordersDel (Request $request)
-    {
-        $id = input::get('id');
-        $res = Orders::where('id',$id)->update(['is_del' => 1]);
-        if ($res){
-            return redirect()->route('shop.orders');
-        }
-        return viewError('已删除或者删除失败');
-
-    }
-
     public function goodsBrand (Request $request)
     {
         $list = GoodBrands::orderBy('id','desc')->paginate($request->input('limit'));
@@ -663,22 +931,6 @@ class ShopController extends BaseController
         $model = GoodBrands::find($id);
         if ($model->delete()){
             return redirect()->route('shop.goodsBrand');
-        }
-        return viewError('已删除或者删除失败');
-    }
-
-    public function statics (Request $request)
-    {
-        $data =  Statics::orderBy('id','desc')->where('is_del',0)->paginate($request->input('limit'));
-        return $this->view('statics',['data'=>$data]);
-    }
-
-    public function staticsDel (Request $request)
-    {
-        $id = input::get('id');
-        $res = Statics::where('id',$id)->update(['is_del' => 1]);
-        if ($res){
-            return redirect()->route('shop.statics');
         }
         return viewError('已删除或者删除失败');
     }
