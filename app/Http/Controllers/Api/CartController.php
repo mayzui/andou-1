@@ -109,7 +109,7 @@ class CartController extends Controller
             if ($data->num <= 1) {
                  return $this->rejson(200,'购买数量不能小于1');
             }else{
-                $re=DB::table('cart')->where(['id'=>$all['id']],['user_id'=>$all['uid']])->decrement('num');
+                $re=DB::table('cart')->where(['id'=>$all['id'],'user_id'=>$all['uid']])->decrement('num');
             }
         }
         return $this->rejson(200,'修改成功');

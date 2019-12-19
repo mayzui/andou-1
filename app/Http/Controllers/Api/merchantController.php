@@ -198,7 +198,7 @@ class MerchantController extends Controller
         ->offset($pages)
         ->limit($num)
         ->get();
-        $data->type=Db::table('merchants_goods_type')->select('name','id')->where(['merchant_id'=>$id],['is_del'=>1])->get();
+        $data->type=Db::table('merchants_goods_type')->select('name','id')->where(['merchant_id'=>$id,'is_del'=>1])->get();
         return $this->rejson('200','查询成功',$data);
 
     }

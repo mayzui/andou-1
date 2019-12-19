@@ -118,10 +118,9 @@ class Controller extends BaseController
         $data['type']=$type;
         $data['created_at']=date('Y-m-d H:i:s',time());
         $datas=DB::table('see_log')
-        ->where(['user_id'=>$uid],['pid'=>$id],['type'=>$type])
+        ->where(['user_id'=>$uid,'pid'=>$id,'type'=>$type])
         ->orderBy('created_at','DESC')
         ->first();
-
         if (!empty($datas)) {
             $date=date('Y-m-d H:i:s',strtotime("-1 day"));
             if ($datas->created_at>$date) {

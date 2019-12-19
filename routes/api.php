@@ -29,7 +29,22 @@ Route::group(['namespace' => 'Api'], function () {
 
      Route::post('goods/index', 'GoodsController@index');
      Route::post('goods/goods', 'GoodsController@goods');
+     Route::post('goods/details', 'GoodsController@details');
+     Route::post('goods/comment', 'GoodsController@comment');
+     Route::post('goods/collection', 'GoodsController@collection');
+     Route::post('goods/goods_cate', 'GoodsController@goodsCate');
+     Route::post('goods/good_list', 'GoodsController@goodList');
+     Route::post('goods/specslist', 'GoodsController@specslist');
      
+     Route::post('Usersaddress/districts', 'UsersaddressController@districts');
+     Route::post('Usersaddress/address_add', 'UsersaddressController@addressAdd');
+     Route::post('Usersaddress/address','UsersaddressController@address');
+     Route::post('Usersaddress/defualt','UsersaddressController@defualt');
+     Route::post('Usersaddress/details','UsersaddressController@details');
+     Route::post('Usersaddress/address_edit','UsersaddressController@addressEdit');
+     Route::post('Usersaddress/address_del','UsersaddressController@addressDel');
+     
+
      Route::post('cart/index', 'CartController@index');
      Route::post('cart/delcar', 'CartController@delcar');
      Route::post('cart/update_num', 'CartController@update_num');

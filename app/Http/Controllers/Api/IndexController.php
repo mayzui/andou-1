@@ -50,7 +50,7 @@ class IndexController extends Controller
     public function index(){
         $data['banner']=Db::table('banner')
         ->select('id','img','url')
-        ->where(['banner_position_id'=>1],['status'=>1])
+        ->where(['banner_position_id'=>1,'status'=>1])
         ->orderBy('sort','ASC')
         ->get();
         $data['merchant_type']=Db::table('merchant_type')
