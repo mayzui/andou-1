@@ -127,6 +127,7 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('shop/ordersAdd','ShopController@ordersAdd')->name('shop.ordersAdd');//添加订单测试数据
         Route::any('shop/ordersAdds','ShopController@ordersAdds')->name('shop.ordersAdds');//订单测试
         Route::get('shop/ordersDel','ShopController@ordersDel')->name('shop.ordersDel');//订单删除
+
         Route::get('shop/orders','ShopController@orders')->name('shop.orders');
         Route::get('shop/goodsBrand','ShopController@goodsBrand')->name('shop.goodsBrand');
         Route::get('shop/brandAdd','ShopController@brandAdd')->name('shop.brandAdd');
@@ -145,6 +146,7 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::any('coupon/uselogAdds','CouponController@uselogAdds')->name('coupon.uselogAdds');
         Route::get('coupon/useLogDel','CouponController@useLogDel')->name('coupon.useLogDel');
         Route::get('coupon/getLog','CouponController@getLog')->name('coupon.getLog');
+
         Route::get('coupon/getLogDel','CouponController@getLogDel')->name('coupon.getLogDel');
 
         // 财务中心
