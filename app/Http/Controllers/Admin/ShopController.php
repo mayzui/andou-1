@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Models\District;
 use App\Models\ExpressAttr;
 use App\Models\ExpressModel;
+use App\Models\Statics;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -365,7 +366,7 @@ class ShopController extends BaseController
     public function statics (Request $request)
     {
         $data =  Statics::orderBy('id','desc')->where('is_del',0)->paginate($request->input('limit'));
-        return $this->view('statics',['data'=>$data]);
+        return $this->view('',['data'=> $data]);
     }
 
     public function staticsDel (Request $request)
