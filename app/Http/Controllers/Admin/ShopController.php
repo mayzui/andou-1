@@ -383,8 +383,9 @@ class ShopController extends BaseController
             * */
     public function orders (Request $request)
     {
+//        return 213;
         $list = Orders::orderBy('id','desc')->where('is_del',0)->paginate($request->input('limit'));
-//        var_dump($list);die;
+
         return $this->view('orders',['list'=>$list]);
     }
 

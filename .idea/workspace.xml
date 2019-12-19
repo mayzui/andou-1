@@ -2,15 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="cb3676e2-1426-4c0a-acd2-dbf8f66fbb17" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/resources/views/admin/shop/activity.blade.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/views/admin/shop/activityChange.blade.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/views/admin/shop/commnets.blade.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/views/admin/shop/commnetsAdd.blade.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/views/admin/shop/merchants_goods_type.blade.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/views/admin/shop/merchants_goods_typeChange.blade.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/resources/views/admin/shop/storeComplateAttrs.blade.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/routes/web.php" beforeDir="false" afterPath="$PROJECT_DIR$/routes/web.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/Http/Controllers/Admin/ShopController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Http/Controllers/Admin/ShopController.php" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -26,8 +18,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app/Http/Controllers/Admin/ShopController.php">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-3011">
-              <caret line="672" column="33" lean-forward="true" selection-start-line="672" selection-start-column="33" selection-end-line="672" selection-end-column="33" />
+            <state relative-caret-position="322">
+              <caret line="388" column="53" selection-start-line="388" selection-start-column="53" selection-end-line="388" selection-end-column="53" />
               <folding>
                 <element signature="e#46#70#0#PHP" expanded="true" />
               </folding>
@@ -172,8 +164,8 @@
     </include_path>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="408" />
-    <option name="y" value="71" />
+    <option name="x" value="444" />
+    <option name="y" value="49" />
     <option name="width" value="1375" />
     <option name="height" value="896" />
   </component>
@@ -286,15 +278,15 @@
       <workItem from="1576631398312" duration="3175000" />
       <workItem from="1576656324286" duration="10000" />
       <workItem from="1576657085665" duration="6368000" />
-      <workItem from="1576717207981" duration="608000" />
+      <workItem from="1576717207981" duration="894000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="57422000" />
+    <option name="totallyTimeSpent" value="57708000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="408" y="71" width="1375" height="896" extended-state="0" />
+    <frame x="444" y="49" width="1375" height="896" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.23954372" />
@@ -670,8 +662,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/app/Http/Controllers/Admin/ShopController.php">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-3011">
-          <caret line="672" column="33" lean-forward="true" selection-start-line="672" selection-start-column="33" selection-end-line="672" selection-end-column="33" />
+        <state relative-caret-position="322">
+          <caret line="388" column="53" selection-start-line="388" selection-start-column="53" selection-end-line="388" selection-end-column="53" />
           <folding>
             <element signature="e#46#70#0#PHP" expanded="true" />
           </folding>
