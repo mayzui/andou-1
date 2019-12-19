@@ -127,6 +127,8 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('shop/ordersAdd','ShopController@ordersAdd')->name('shop.ordersAdd');//添加订单测试数据
         Route::any('shop/ordersAdds','ShopController@ordersAdds')->name('shop.ordersAdds');//订单测试
         Route::get('shop/ordersDel','ShopController@ordersDel')->name('shop.ordersDel');//订单删除
+        Route::get('shop/ordersUpd','ShopController@ordersUpd')->name('shop.ordersUpd');//订单修改
+        Route::any('shop/ordersUpds','ShopController@ordersUpds')->name('shop.ordersUpds');//订单修改提交
 
         Route::get('shop/orders','ShopController@orders')->name('shop.orders');
         Route::get('shop/goodsBrand','ShopController@goodsBrand')->name('shop.goodsBrand');

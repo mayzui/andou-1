@@ -37,11 +37,11 @@
                             <th>支付金额</th>
                             <th>总计金额</th>
                             <th>抵扣金额</th>
-                            <th>订单状态</th>
                             <th>邮费</th>
                             <th>订单备注</th>
                             <th>发票信息</th>
                             <th>支付时间</th>
+                            <th>订单状态</th>
                             <th>操作</th>
                         </tr>
                         </thead>
@@ -64,21 +64,6 @@
                                 <td>{{$item->pay_money}}</td>
                                 <td>{{$item->order_money}}</td>
                                 <td>{{$item->pay_discount}}</td>
-                                <td>
-                                    @if($item->status == 0)
-                                        取消支付
-                                    @elseif($item->status == 10)
-                                        未支付
-                                    @elseif($item->status == 20)
-                                        已支付
-                                    @elseif($item->status == 40)
-                                        已发货
-                                    @elseif($item->status == 50)
-                                        交易成功
-                                    @elseif($item->status == 60)
-                                        交易关闭
-                                    @endif
-                                </td>
                                 <td>{{$item->shipping_free}}</td>
                                 <td>{{$item->remark}}</td>
                                 <td>
@@ -91,8 +76,26 @@
                                     @endif
                                 </td>
                                 <td>{{$item->pay_time}}</td>
+                                <td>
+                                    @if($item->status == 0)
+                                        <font color="880000">取消支付</font>
+                                    @elseif($item->status == 10)
+                                        <font color="red">未支付</font>
+                                    @elseif($item->status == 20)
+                                        <font color="#ff6600">已支付</font>
+                                    @elseif($item->status == 40)
+                                        <font color="#cc9900">已发货</font>
+                                    @elseif($item->status == 50)
+                                        <font color="#228b22">交易成功</font>
+                                    @elseif($item->status == 60)
+                                        <font color="#004400">交易关闭</font>
+                                    @endif
+                                </td>
                                 <td class="text-center">
                                     <div class="btn-group">
+                                        <a href="{{url("/admin/shop/ordersUpd?id=$item->id")}}">
+                                            <button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 修改</button>
+                                        </a>
                                         <a href="{{url("/admin/shop/ordersDel?id=$item->id")}}" onClick="delcfm()"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o" ></i> 删除</button></a>
                                     </div>
                                 </td>

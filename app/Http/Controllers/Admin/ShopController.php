@@ -24,6 +24,24 @@ use Auth;
 
 class ShopController extends BaseController
 {
+    //订单修改
+    public function ordersUpd()
+    {
+        $id = input::get('id');
+        $data = Orders::where('id',$id)->select(['status'])->get();
+        return $this->view('ordersUpd',['data'=>$data,'id'=>$id]);
+    }
+    //订单修改提交
+    public function ordersUpds()
+    {
+        $status = input::post('status');
+        $id = input::post('id');
+        $res = Orders::where('id',$id)->update(['status' => $status]);
+        if ($res){
+            return redirect()->route('shop.orders');
+        }
+        return viewError('已修改或者修改失败');
+    }
     // 商品参数
     public function storeComplateAttrs(){
         // 获得提交的数据
