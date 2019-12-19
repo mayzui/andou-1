@@ -47,7 +47,6 @@
         margin-left: 20px;
     }
 
-
     .file-list .file-item .file-del {
         display: block;
         margin-left: 24px;
@@ -71,6 +70,7 @@
                                 <i class="fa fa-times"></i>
                             </div>
                         </div>
+                        <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>
                         <div class="panel-body">
                             <section class="fuelux">
                                 <div id="MyWizard" class="wizard">
@@ -98,6 +98,7 @@
                                     <div class="step-pane active" id="step1">
                                         <form class="form-horizontal" action="{{ route('shop.store') }}" method="post" id='addGoods' accept-charset="UTF-8" enctype="multipart/form-data">
                                             {!! csrf_field() !!}
+                                            <input type="hidden" name="goods_id" value="{{ $goods_id or ''}}" />
                                             <div class="form-group">
                                                 <div class="col-sm-2">
                                                     <h2 class="title">添加商品基本信息</h2>
@@ -108,7 +109,7 @@
                                                 <div class="col-sm-2">
                                                     <select name="goods_brand_id" class="form-control form-select">
                                                         @foreach($goodBrands as $k=>$b)
-                                                            <option value="{{$b->id}}">{{$b->name}}</option>
+                                                            <option value="{{$b->id}}" @if($b->id == $goodsdata->goods_brand_id) selected @endif >{{$b->name}}</option>
                                                         @endforeach
                                                     </select>
                                                 </div>
@@ -116,38 +117,41 @@
                                             <div class="form-group">
                                                 <label class="col-sm-2 control-label">分类：</label>
                                                 <div class="col-sm-2">
-                                                    <select class="form-control pull-left" id="level1"  onchange="getChildren(this,1)">
+                                                    <select class="form-control pull-left" id="level1" name="goods_cate_id" onchange="getChildren(this,1)">
                                                         @foreach($goodsCate as $item)
                                                             <option value="{{$item->id}}"> {{$item->name}}</option>
                                                         @endforeach
                                                     </select>
                                                 </div>
                                                 <div class="col-sm-2">
-                                                    <select class="form-control col-sm-2 pull-left " id="level2"  onchange="getChildren(this,2)" >
+                                                    <select class="form-control col-sm-2 pull-left " id="level2" name="goods_cate_id1" onchange="getChildren(this,2)" >
                                                     </select>
                                                 </div>
                                                 <div class="col-sm-2">
-                                                    <select class="form-control col-sm-2 pull-left" id="level3" onchange="getChildren(this,3)"   name="goods_cate_id"></select>
+                                                    <select class="form-control col-sm-2 pull-left" id="level3" onchange="getChildren(this,3)" name="goods_cate_id2"></select>
                                                 </div>
                                             </div>
-
 
                                             <div class="form-group">
                                                 <label class="col-sm-2 control-label">名称：</label>
                                                 <div class="col-sm-6">
-                                                    <input type="text"  name="name" class="form-control">
+                                                    <input type="text"  name="name" value="{{ $goodsdata ->name or "" }}" class="form-control">
                                                 </div>
                                             </div>
-
 
                                             <div class="hr-line-dashed"></div>
                                             <div class="form-group" method ="post" id="addAlbum" >
                                                 <label class="col-sm-2 control-label">封面图片：</label>
                                                 <div class="layui-upload">
-                                                    <input type="hidden" name="img" id="img" value=""/>
                                                     <button type="button" class="layui-btn" id="image" style="display: none;">上传图片</button>
                                                     <div class="layui-upload-list">
-                                                        <img class="layui-upload-img" id="showImage">
+                                                        @if(empty($goodsdata -> img))
+                                                            <input type="hidden" name="img" id="img" value=""/>
+                                                            <img class="layui-upload-img" id="showImage">
+                                                            @else
+                                                            <input type="hidden" name="img" id="img" value="{{ $goodsdata -> img }}"/>
+                                                            <img class="layui-upload-img" src="{{ $goodsdata -> img }}" id="showImage">
+                                                        @endif
                                                         <p id="demoText"></p>
                                                     </div>
                                                 </div>
@@ -191,14 +195,14 @@
                                             <div class="form-group">
                                                 <label class="col-sm-2 control-label">基础价格：</label>
                                                 <div class="input-group col-sm-2">
-                                                    <input type="text" class="form-control" name="price" value="{{old('price')}}" required data-msg-required="请输入商品价格" >
+                                                    <input type="text" class="form-control" name="price" value="{{ $goodsdata ->price or '' }}" required data-msg-required="请输入商品价格" >
                                                 </div>
                                             </div>
                                             <div class="hr-line-dashed"></div>
                                             <div class="form-group">
-                                                <label class="col-sm-2 control-label">描述：</label>
+                                                <label class="col-sm-2 control-label">详情：</label>
                                                 <div class="col-sm-6">
-                                                    <textarea type="text" rows="5" name="desc" id="desc" placeholder="商品简介" class="form-control" required data-msg-required="请输入跳转链接">{{old('desc')}}</textarea>
+                                                    <textarea type="text" rows="5" name="desc" id="desc" placeholder="商品详情" class="form-control" required data-msg-required="请输入跳转链接">{{ $goodsdata ->desc or '' }}</textarea>
                                                 </div>
                                             </div>
                                             <div class="hr-line-dashed"></div>
@@ -207,8 +211,8 @@
                                                     <div class="input-group col-sm-2">
                                                         <div class="radio i-checks">
                                                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                                            <label><input type="radio" name='is_hot' value="1" checked="checked"/>开启</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                                            <label><input type="radio" name='is_hot' value="0" />关闭</label>
+                                                            <label><input type="radio" name='is_hot' value="1" {{$goodsdata -> is_hot == 1 ? "checked" : ''}}  />开启</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                            <label><input type="radio" name='is_hot' value="0" {{$goodsdata -> is_hot == 0 ? "checked" : ''}}  />关闭</label>
                                                         </div>
                                                     </div>
                                             </div>
@@ -218,8 +222,8 @@
                                                 <div class="input-group col-sm-2">
                                                     <div class="radio i-checks">
                                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                                        <label><input type="radio" name='is_bargain' value="1" checked="checked"/>开启</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                                        <label><input type="radio" name='is_bargain' value="0" />关闭</label>
+                                                        <label><input type="radio" name='is_bargain' value="1" {{$goodsdata -> is_bargain == 1 ? "checked" : ''}}/>开启</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                        <label><input type="radio" name='is_bargain' value="0" {{$goodsdata -> is_bargain == 0 ? "checked" : ''}}/>关闭</label>
                                                     </div>
                                                 </div>
                                             </div>
@@ -229,8 +233,8 @@
                                                 <div class="input-group col-sm-2">
                                                     <div class="radio i-checks">
                                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                                        <label><input type="radio" name='is_recommend' value="1" checked="checked"/>开启</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                                        <label><input type="radio" name='is_recommend' value="0" />关闭</label>
+                                                        <label><input type="radio" name='is_recommend' value="1" {{$goodsdata -> is_recommend == 1 ? "checked" : ''}}/>开启</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                        <label><input type="radio" name='is_recommend' value="0" {{$goodsdata -> is_recommend == 0 ? "checked" : ''}}/>关闭</label>
                                                     </div>
                                                 </div>
                                             </div>
@@ -240,8 +244,8 @@
                                                 <div class="input-group col-sm-2">
                                                     <div class="radio i-checks">
                                                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                                        <label><input type="radio" name='is_team_buy' value="1" checked="checked"/>开启</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                                        <label><input type="radio" name='is_team_buy' value="0" />关闭</label>
+                                                        <label><input type="radio" name='is_team_buy' value="1" {{$goodsdata -> is_team_buy == 1 ? "checked" : ''}}/>开启</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                        <label><input type="radio" name='is_team_buy' value="0" {{$goodsdata -> is_team_buy == 0 ? "checked" : ''}}/>关闭</label>
                                                     </div>
                                                 </div>
                                             </div>
@@ -258,7 +262,7 @@
                                     <div class="step-pane" id="step2">
                                         <form class="form-horizontal" action="{{ route('shop.storeAlbum') }}" method="post" id='imageSubForm' accept-charset="UTF-8" enctype="multipart/form-data">
                                             {!! csrf_field() !!}
-                                            <input type="hidden" name="id" value="" id="goodsAlbum" />
+                                            <input type="hidden" name="goods_id" value="{{ $goods_id or ''}}" />
                                             <div class="form-group">
                                                 <div class="col-sm-3">
                                                     <h2 class="title">添加商品相册</h2>
@@ -274,8 +278,6 @@
                                                     </p>
                                                 </div>
                                             </div>
-
-
                                             <div class="hr-line-dashed"></div>
                                             <div class="form-group">
                                                 <div class="col-sm-12 col-sm-offset-2">
@@ -283,13 +285,12 @@
                                                 </div>
                                             </div>
                                             <div class="hr-line-dashed"></div>
-
                                         </form>
                                     </div>
                                     <div class="step-pane" id="step3">
-                                        <form class="form-horizontal" action="{{ route('shop.storeComplateAttrs') }}" method="post" id='storeComplateAttrs' accept-charset="UTF-8" enctype="multipart/form-data">
+                                        <form class="form-horizontal" action="{{ route('shop.storeComplateAttrs') }}" method="get" id='storeComplateAttrs' accept-charset="UTF-8" enctype="multipart/form-data">
                                             {!! csrf_field() !!}
-                                            <input type="hidden" name="id" value="" id="goodsAttrId"/>
+                                            <input type="hidden" name="goods_id" value="{{ $goods_id or ''}}" />
                                             <div class="form-group">
                                                 <div class="col-sm-2">
                                                     <h2 class="title">添加商品参数</h2>
@@ -306,6 +307,7 @@
                                                         <div class="radio i-checks checkbox">
                                                             @foreach($attrvalueData as $m)
                                                                 @if($v -> id == $m -> goods_attr_id)
+                                                                    {{--@if(in_array($m -> value,$goodssku)) checked @endif--}}
                                                                     <label><input type="checkbox" name="attrvalue_{{ $v -> id }}[]" value="{{$m -> value}}" />{{$m -> value}} </label>
                                                                 @endif
                                                             @endforeach
@@ -359,51 +361,6 @@
             })
         }
 
-        // 上传相册
-        // var $list = $('#fileList');
-        // var uploader = WebUploader.create({
-        //     auto: true,// 选完文件后，是否自动上传。
-        //     swf: '/static/admin/webupload/Uploader.swf',// swf文件路径
-        //     server: '/admin/upload/uploadImage',
-        //     headers : {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-        //     duplicate :true,// 重复上传图片，true为可重复false为不可重复
-        //     pick: '#imgPicker',// 选择文件的按钮。可选。
-        //     accept: {
-        //         title: 'Images',
-        //         extensions: 'gif,jpg,jpeg,bmp,png',
-        //         mimeTypes: 'image/jpg,image/jpeg,image/png'
-        //     },
-        //     'onUploadSuccess': function(file, data, response) {
-        //         var contener = $('#img-contener').html();
-        //         contener += '<span>';
-        //         contener += '<input type="hidden"  name="images[]"  value="" >';
-        //         contener += '<img  ondblclick="$(this).parent().remove()" height="100px" style="float:left;margin-left: 50px;margin-top: -10px;" src="http://'+data.showUrl+'"/>';
-        //         contener += '</span>';
-        //         $('#img-contener').html(contener);
-        //     }
-        // });
-        // uploader.on( 'fileQueued', function( file ) {});
-        // uploader.on( 'uploadSuccess', function( file ) {});
-        // uploader.on( 'uploadError', function( file ) {
-        //     $( '#'+file.id ).find('p.state').text('上传出错!');
-        // });
-        //
-        // $('#addGoods').ajaxForm({
-        //     beforeSubmit: function () {},
-        //     success: complete,
-        //     dataType: 'json'
-        // });
-        // function complete(data){
-        //     if(data.code == 200){
-        //         $('#addSub').attr('disabled','true');
-        //         $('#goodsAlbum').val(data.id);
-        //         $('#goodsAttrId').val(data.id);
-        //         alert('保存成功，点击下一步');
-        //     }else {
-        //
-        //         return false;
-        //     }
-        // }
         $(function () {
             ////////////////////////////////////////////////图片上传//////////////////////////////////////////////
             //声明变量
@@ -505,24 +462,11 @@
                             }
                         },
                         error:function (e) {
+
                             layer.alert(e.responseText,{icon:2});
                         }
                     })
-
                 }
-                {{--layer.alert(fileList.length);--}}
-                {{--return;--}}
-                {{--//选择要上传的所有文件--}}
-                {{--$.post("{{ route('shop.storeAlbum') }}",{id:1,_token:'{{csrf_token()}}'},function (data) {--}}
-                    {{--var form = document.getElementById('imageSubForm');--}}
-                    {{--form.submit();--}}
-                    {{--// if(data == 1){--}}
-                    {{--//     layer.alert("ok",{icon:1})--}}
-                    {{--// }else{--}}
-                    {{--//     layer.alert("no",{icon:2})--}}
-                    {{--// }--}}
-                    {{--console.log(data);--}}
-                {{--});--}}
             })
 
         })

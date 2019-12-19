@@ -40,7 +40,7 @@
                             <tr>
                                 <td>{{$item->id}}</td>
                                 <td>{{$item->name}}</td>
-                                <td>{{$item->goodsCate->name}}</td>
+                                <td>{{$item->goodsCate['name']}}</td>
                                 <td><img src="{{ env('IMAGE_PATH_PREFIX')}}{{$item->img}}" alt="" style="width: 50px;height: 50px;"></td>
                                 <td>{{$item->desc}}</td>
                                 <td>
@@ -101,7 +101,7 @@
                                             <a href="{{route('shop.setStatus',['field'=>'is_bargain','is_bargain'=>0,'id'=>$item->id])}}"><button class="btn btn-warning btn-xs" type="button"><i class="fa fa-warning"></i>非特价</button></a>
                                         @endif
 
-                                        <a href="{{route('shop.update',$item->id)}}">
+                                        <a href="{{route('shop.update')}}?id={{$item->id}}">
                                             <button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 修改</button>
                                         </a>
                                         <a href="{{route('shop.destroy',$item->id)}}"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o"></i> 删除</button></a>

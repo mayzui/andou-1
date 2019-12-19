@@ -15,114 +15,63 @@
     <div class="row">
         <div class="col-sm-12">
             <div class="ibox-title">
-                <h5>属性列表</h5>
+                <h5>参数详情列表</h5>
             </div>
             <div class="ibox-content">
-                <table class="table table-striped table-bordered table-hover m-t-md">
+                <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>
+                <form class="form-horizontal m-t-md" action="{{ route('shop.storeComplateAttrs') }}" method="post" accept-charset="UTF-8" enctype="multipart/form-data">
+                    {!! csrf_field() !!}
+                    <input type="hidden" name="goods_id" value="{{ $goods_id or ''}}" />
+                    <table class="table table-striped table-bordered table-hover m-t-md">
                     <thead>
                     <tr>
-                        <th>属性名称</th>
-                        <th>属性值</th>
-                        <th>库存</th>
-                        <th>价格</th>
+                        <th>ID</th>
+                        @foreach($dataname as $v)
+                            <th><input type="text" value="{{ $v }}" name="attr name[]" readonly style="border: 0px;width: 90px;"  /></th>
+                        @endforeach
+                        <th style="width: 300px">库存</th>
+                        <th style="width: 300px">价格</th>
+                        <th>操作</th>
                     </tr>
                     </thead>
                     <tbody>
                     @foreach($data as $k=>$item)
-                        @foreach($item['value'] as $v)
-                        <tr>
-                                <th>{{ $item['name'] }}</th>
-                                <th>{{ $v }}</th>
-                                <th><input type="text" /></th>
-                                <th><input type="text" /></th>
+                        <tr class="remove">
+                            <td>{{ $k+1 }}</td>
+                            @foreach($item as $v)
+                                <td><input type="text" value="{{ $v }}" name="value_{{ $k+1 }}[]" readonly style="border: 0px;width: 90px;"  /></td>
+                            @endforeach
+                            <td><input type="text" name="num[]" class="form-control" required style="border: 1px solid gray" /></td>
+                            <td><input type="text" name="price[]" class="form-control" required style="border: 1px solid gray" /></td>
+                            <td>
+                                <a class="del" ><button class="btn btn-danger btn-xs" type="button" onclick="del(this)"><i class="fa fa-trash-o"></i> 删除</button></a>
+                            </td>
                         </tr>
-                        @endforeach
                     @endforeach
+                    <tr>
+                        <td colspan="{{ count($dataname)+1 }}">
+                            <div class="form-group">
+                                <div class="col-sm-12 col-sm-offset-2">
+                                    <button class="btn btn-primary" type="submit" ><i class="fa fa-check"></i>&nbsp;保 存</button>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
                     </tbody>
+
                 </table>
+                </form>
             </div>
         </div>
         <div class="clearfix"></div>
     </div>
     </div>
     </div>
+    <script src="{{loadEdition('/js/jquery.min.js')}}"></script>
+    <script type="text/javascript">
+        function del(obj) {
+            var table=obj.parentNode.parentNode.parentNode.parentNode;
+            table.removeChild(obj.parentNode.parentNode.parentNode);
+        }
+    </script>
 @endsection
-
-<div class="modal  fade" id="myModal" tabindex="-1" role="dialog"  aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                <h3 class="modal-title">属性管理</h3>
-            </div>
-            <form class="form-horizontal"  id="saveAttrValue" method="post" action="{{route('shop.saveAttrValue')}}">
-                {!! csrf_field() !!}
-                <div class="ibox-content">
-                    <div class="hr-line-dashed"></div>
-                    <input type="hidden" value="0" id="attrId" name="id">
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label">属性名称</label>
-                        <div class="col-sm-8">
-                            <input type="text" name="attrName" id="attrName"  class="form-control" value="" disabled/>
-                        </div>
-                    </div>
-                    <div class="hr-line-dashed"></div>
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label">值列表(双击删除) </label>
-                        <span class="btn btn-info btn-sm" onclick="addinput()"><i class="fa fa-plus-circle"></i></span>
-                        <div class="col-sm-8" id="attrValues">
-{{--                            <input type="text" ondblclick="remevethis(this)" name="attr_value[]"  class="form-control value-num" value=""/>--}}
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> 保存</button>
-                    <button type="button" class="btn btn-danger" data-dismiss="modal" ><i class="fa fa-close"></i> 关闭</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<script>
-
-    // 设置id
-    function  setAttrId (id)
-    {
-        document.getElementById('attrId').value = id;
-        getAttrData(id)
-    }
-
-    function remevethis(obj) {
-        return  $(obj).remove();
-    }
-    // 获取id对应的属性1数据
-    function getAttrData (id) {
-        $('#attrValues').html('');
-        $.ajax({
-            type: "POST",
-            url: "/admin/shop/getAttr",
-            data: {id : id },
-            headers:{'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-            dataType:"JSON",
-            success: function(res){
-                if (res.code == 200) {
-                    if (res.data && res.data.attr_value.length >0) {
-                        console.log(res.data.attr_value);
-                        for (i in  res.data.attr_value) {
-                            var val = res.data.attr_value[i];
-                            $('#attrValues').append("<input type=\"text\" ondblclick=\"remevethis(this)\" name=\"attr_value["+val.id+"]\"  class=\"form-control value-num\" value=\""+val.value+"\"/>");
-                        }
-                    } else {
-
-                    }
-                    $('#attrName').val(res.data.name)
-                }
-            }
-        });
-    }
-    function addinput() {
-        $('#attrValues').append("<input type=\"text\" ondblclick=\"remevethis(this)\" name=\"attr_value[]\"  class=\"form-control value-num\" value=\"\"/>");
-    }
-
-</script>

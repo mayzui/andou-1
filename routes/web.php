@@ -81,7 +81,7 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('shop/goodsAttr','ShopController@goodsAttr')->name('shop.goodsAttr');
         Route::post('shop/saveAttrValue','ShopController@saveAttrValue')->name('shop.saveAttrValue');
         Route::post('shop/storeAlbum','ShopController@storeAlbum')->name('shop.storeAlbum');
-        Route::post('shop/storeComplateAttrs','ShopController@storeComplateAttrs')->name('shop.storeComplateAttrs');
+        Route::match(['get','post'],'shop/storeComplateAttrs','ShopController@storeComplateAttrs')->name('shop.storeComplateAttrs');
 
 
         // 分类管理
@@ -122,7 +122,6 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
 
         // 统计
         Route::get('shop/statics','ShopController@statics')->name('shop.statics');
-        Route::get('shop/staticsDel','ShopController@staticsDel')->name('shop.staticsDel');
 
         Route::get('shop/ordersAdd','ShopController@ordersAdd')->name('shop.ordersAdd');//添加订单测试数据
         Route::any('shop/ordersAdds','ShopController@ordersAdds')->name('shop.ordersAdds');//订单测试
@@ -144,11 +143,10 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('coupon/update','CouponController@update')->name('coupon.update');
         Route::get('coupon/delete','CouponController@delete')->name('coupon.delete');
         Route::get('coupon/useLog','CouponController@useLog')->name('coupon.useLog');
+        Route::get('coupon/getLog','CouponController@getLog')->name('coupon.getLog');
         Route::get('coupon/uselogAdd','CouponController@uselogAdd')->name('coupon.uselogAdd');
         Route::any('coupon/uselogAdds','CouponController@uselogAdds')->name('coupon.uselogAdds');
         Route::get('coupon/useLogDel','CouponController@useLogDel')->name('coupon.useLogDel');
-        Route::get('coupon/getLog','CouponController@getLog')->name('coupon.getLog');
-
         Route::get('coupon/getLogDel','CouponController@getLogDel')->name('coupon.getLogDel');
 
         // 财务中心

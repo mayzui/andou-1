@@ -5,15 +5,14 @@ namespace App\Http\Controllers\Admin;
 use App\Models\District;
 use App\Models\ExpressAttr;
 use App\Models\ExpressModel;
+use App\Models\Orders;
 use App\Models\Statics;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Input;
 use App\Handlers\Tree;
 use App\Models\GoodBrands;
 use App\Models\Goods;
-use App\Models\Orders;
 use App\Models\GoodsAttr;
 use App\Models\GoodsAttrValue;
 use App\Models\GoodsCate;
@@ -42,28 +41,88 @@ class ShopController extends BaseController
         }
         return viewError('已修改或者修改失败');
     }
+
     // 商品参数
     public function storeComplateAttrs(){
         // 获得提交的数据
         $all = \request() -> all();
-        foreach ($all['attrname'] as $item) {
-            // 通过该id 在商品参数中去找值
-            $name = DB::table('goods_attr') -> where('id',$item)-> select(['name']) -> first();
-            if(!empty($all['attrvalue_'.$item.''])){
-                $data[] =[
-                    'name' => json_decode(json_encode($name),true)['name'],
-                    'value' => $all['attrvalue_'.$item.'']
+        if(\request() -> isMethod("get")){
+            foreach ($all['attrname'] as $item) {
+                // 通过该id 在商品参数中去找值
+                $name = DB::table('goods_attr') -> where('id',$item)-> select(['name']) -> first();
+                if(!empty($all['attrvalue_'.$item.''])){
+                    $data[] =[
+                        'name' => json_decode(json_encode($name),true)['name'],
+                        'value' => $all['attrvalue_'.$item.'']
+                    ];
+                }
+            }
+            foreach ($data as $k=>$v){
+                foreach ($v['value'] as $kk =>$item) {
+                    $a[$k][$kk] = $item;
+                }
+            }
+            // 笛卡尔积拼接数组
+            $arr1 = [];
+            $result = array_shift($a);
+            while($arr2 = array_shift($a)){
+                $arr1 = $result;
+                $result = [];
+                foreach ($arr1 as $v){
+                    foreach ($arr2 as $v2){
+                        if(!is_array($v))$v = array($v);
+                        if(!is_array($v2))$v2 = array($v2);
+                        $result[] = array_merge_recursive($v,$v2);
+                    }
+                }
+            }
+            // 取出属性名称
+            foreach ($data as $v){
+                $dataname[] = $v['name'];
+            }
+            return $this->view('',['data'=>$result,'dataname'=>$dataname,'goods_id'=>$all['goods_id']]);
+        }else{
+            // 属性名称
+            $attr_name = $all['attr_name'];
+            // 库存
+            $num = $all['num'];
+            // 价格
+            $price = $all['price'];
+            for($i = 1;$i<=count($all)-5;$i++){
+                $value[] = [
+                    'name' => $attr_name,
+                    'value' => $all['value_'.$i.'']
                 ];
+                $values[] = json_encode($value,JSON_UNESCAPED_UNICODE);
+                $value = [];
+            }
+            DB::beginTransaction();
+            try{
+                foreach ($values as $k =>$v){
+                    $data = [
+                        'goods_id' => $all['goods_id'],
+                        'attr_value' => $values[$k],
+                        'price' => $price[$k],
+                        'store_num' => $num[$k]
+                    ];
+                    $i = DB::table('goods_sku') -> insert($data);
+                }
+                if($i){
+                    flash('新增成功') -> success();
+                    return redirect()->route('shop.goods');
+                    DB::commit();
+                }else{
+                    flash('新增失败') -> error();
+                    return redirect()->route('shop.goods');
+                    DB::rollBack();
+                }
+            }catch (\Exception $e){
+                DB::rollBack();
             }
         }
-        foreach ($data as $k=>$v){
-            foreach ($v['value'] as $kk =>$item) {
-                $a[$k][$kk] = $item;
-            }
-        }
-        return dd($a);
-        return $this->view('',['data'=>$data]);
+
     }
+
     // 活动管理
     public function activity(){
         $id = Auth::id();
@@ -385,12 +444,7 @@ class ShopController extends BaseController
 
     public function statics (Request $request)
     {
-        $data = DB::table('Statics')
-            -> join('users','Statics.user_id','=','users.id')
-            -> where('Statics.is_del',0)
-            -> select(['Statics.id','Statics.price','Statics.describe','Statics.state','Statics.create_time','Statics.type_id','users.name'])
-            -> paginate(10);
-//        var_dump($data);die;
+        $data =  Statics::orderBy('id','desc')->where('is_del',0)->paginate($request->input('limit'));
         return $this->view('',['data'=> $data]);
     }
 
@@ -522,7 +576,13 @@ class ShopController extends BaseController
                 }
             }
         }
+        // 获取上传的id
+        $goods_id = $request -> input('goods_id');
         $img_array = json_encode($img_array);
+        $data = [
+            'album' => $img_array
+        ];
+        DB::table('goods') -> where('id',$goods_id) -> update($data);
         // 上传成功
         return 1;
 
@@ -540,6 +600,7 @@ class ShopController extends BaseController
 //                $res->where('user_id',$admin->id);
             })
             ->paginate($request->input('limit'));
+//        return dd($list);
         return $this->view('goods',['list'=>$list]);
     }
 
@@ -559,9 +620,53 @@ class ShopController extends BaseController
             'goodsCate'=>$goodsCate,
             'goodBrands'=>$goodBrands,
             'attrData'=>$attrData,
-            'attrvalueData'=>$a
+            'attrvalueData'=>$a,
+            'goodsdata' =>(object)[
+                'goods_brand_id'=>'',
+                'is_hot'=>'',
+                'is_bargain'=>'',
+                'is_team_buy'=>'',
+                'is_recommend'=>''
+            ]
         ];
         return $this->view('addGoods',$arr);
+    }
+
+    public function update(){
+        $all = \request() -> all();
+        //根据id 查询商品详情
+        $goodsdata = DB::table('goods') -> where('id',$all['id']) -> first();
+        // 根据获取的id 查询商品参数表
+        $goodssku = DB::table('goods_sku') -> where('goods_id',$all['id']) -> get();
+        foreach ($goodssku as $k =>$v){
+            $a = json_decode($goodssku,true)[$k]['attr_value'];
+            $goodssku_value[] = json_decode($a,true);
+        }
+        // 将三维数组转换成二维数组
+        foreach ($goodssku_value as $v){
+            $new_arr[] = $v[0]['value'];
+        }
+//        return dd(array_merge($new_arr));
+//        return dd($new_arr);
+        $goodsCate = GoodsCate::with(['children'=>function($res){
+            $res->with('children');
+        }])->where('pid','=',0)
+            ->get();
+        $goodBrands = GoodBrands::select('id','name')->orderBy('id','asc')->get();
+        // 查询商品参数
+        $attrData = DB::table('goods_attr') -> get();
+        $a = DB::table('goods_attr_value') -> get();
+        $arr = [
+            'goodsCate'=>$goodsCate,
+            'goodBrands'=>$goodBrands,
+            'attrData'=>$attrData,
+            'attrvalueData'=>$a,
+            'goodsdata'=>$goodsdata,
+            'goods_id'=>$all['id'],
+            'goodssku'=> $new_arr
+        ];
+        return $this->view('addGoods',$arr);
+
     }
 
     public function getCateChildren (Request $request)
@@ -706,12 +811,6 @@ class ShopController extends BaseController
         }
     }
 
-
-    public function update(Request $request,$id)
-    {
-        return $this->view('update',['data'=>[]]);
-    }
-
     public function store (Request $request)
     {
         $validate = Validator::make($request->all(),[
@@ -726,7 +825,6 @@ class ShopController extends BaseController
             'is_bargain' => 'required',
             'is_team_buy' => 'required',
         ],[
-            'goods_cate_id.required'=>'缺少分类',
             'goods_brand_id.required'=>'缺少品牌',
             'name.required'=>'缺少名称',
             'desc.required'=>'缺少描述',
@@ -738,31 +836,99 @@ class ShopController extends BaseController
             flash($validate->errors()->first())->error()->important();
             return redirect()->route('shop.create');
         }
+        if($request -> input('goods_id')){
+            $all = \request() -> all();
+            // 获取提交的数据
+            $data = [
+                'goods_brand_id' => $all['goods_brand_id'],
+                'goods_cate_id' => $request->input('goods_cate_id').','.$request->input('goods_cate_id1').','.$request->input('goods_cate_id2'),
+                'name' => $all['name'],
+                'img' => $all['img'],
+                'price' => $all['price'],
+                'desc' => $all['desc'],
+                'is_hot' => $all['is_hot'],
+                'is_bargain' => $all['is_bargain'],
+                'is_recommend' => $all['is_recommend'],
+                'is_team_buy' => $all['is_team_buy'],
+            ];
+            // 链接数据库，修改内容
+            $i = DB::table('goods') -> where('id',$all['goods_id']) -> update($data);
+            $goodsdata = DB::table('goods') -> where('id',$all['goods_id']) -> first();
+            if($i){
+                $goodsCate = GoodsCate::with(['children'=>function($res){
+                    $res->with('children');
+                }])->where('pid','=',0)
+                    ->get();
 
-        $model = new Goods();
+                $level1 = GoodsCate::where('pid','=',0)->get();
+                $goodBrands = GoodBrands::select('id','name')->orderBy('id','asc')->get();
+                // 查询商品参数
+                $attrData = DB::table('goods_attr') -> get();
+                $a = DB::table('goods_attr_value') -> get();
+                $arr = [
+                    'goodsCate'=>$goodsCate,
+                    'goodsdata'=>$goodsdata,
+                    'goodBrands'=>$goodBrands,
+                    'attrData'=>$attrData,
+                    'attrvalueData'=>$a,
+                    'goods_id'=>$all['goods_id']
+                ];
+                flash('修改成功') -> success();
+                return $this->view('addGoods',$arr);
+            }
+        }else{
+            $model = new Goods();
 
-        if ($request->input('id')) {
-            $model = Goods::find($request->input('id'));
+            if ($request->input('id')) {
+                $model = Goods::find($request->input('id'));
+            }
+
+            $model->goods_cate_id = $request->input('goods_cate_id').','.$request->input('goods_cate_id1').','.$request->input('goods_cate_id2');
+
+            $model->goods_brand_id = $request->input('goods_brand_id');
+            $model->name = $request->input('name');
+            $model->img = $request->input('img');
+            $model->desc = $request->input('desc');
+            $model->price = $request->input('price');
+
+            $model->is_hot = $request->input('is_hot',0);
+            $model->is_recommend = $request->input('is_recommend',0);
+            $model->is_bargain = $request->input('is_bargain',0);
+            $model->is_team_buy = $request->input('is_team_buy',0);
+            try {
+                $model->save();
+//            return $this->status('保存成功',['id'=>$model->id],200);
+                $goodsCate = GoodsCate::with(['children'=>function($res){
+                    $res->with('children');
+                }])->where('pid','=',0)
+                    ->get();
+
+                $level1 = GoodsCate::where('pid','=',0)->get();
+                $goodBrands = GoodBrands::select('id','name')->orderBy('id','asc')->get();
+                // 查询商品参数
+                $attrData = DB::table('goods_attr') -> get();
+                $a = DB::table('goods_attr_value') -> get();
+                $arr = [
+                    'goodsCate'=>$goodsCate,
+                    'goodBrands'=>$goodBrands,
+                    'attrData'=>$attrData,
+                    'attrvalueData'=>$a,
+                    'goods_id'=>$model->id,
+                    'goodsdata' =>(object)[
+                        'goods_brand_id'=>'',
+                        'is_hot'=>'',
+                        'is_bargain'=>'',
+                        'is_team_buy'=>'',
+                        'is_recommend'=>''
+                    ]
+                ];
+                flash('新增成功') -> success();
+                return $this->view('addGoods',$arr);
+            } catch (\Exception $e){
+                return $this->failed($e->getMessage());
+            }
         }
 
-        $model->goods_cate_id = $request->input('goods_cate_id1').','.$request->input('goods_cate_id2').','.$request->input('goods_cate_id3');
-
-        $model->goods_brand_id = $request->input('goods_brand_id');
-        $model->name = $request->input('name');
-        $model->img = $request->input('img');
-        $model->desc = $request->input('desc');
-        $model->price = $request->input('price');
-
-        $model->is_hot = $request->input('is_hot',0);
-        $model->is_recommend = $request->input('is_recommend',0);
-        $model->is_bargain = $request->input('is_bargain',0);
-        $model->is_team_buy = $request->input('is_team_buy',0);
-        try {
-            $model->save();
-            return $this->status('保存成功',['id'=>$model->id],200);
-        } catch (\Exception $e) {
-            return $this->failed($e->getMessage());
-        }
     }
 
     public function addAlbum (Request $request)
