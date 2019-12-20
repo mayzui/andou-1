@@ -462,10 +462,10 @@ class ShopController extends BaseController
             * */
     public function orders(Request $request)
     {
-        $list = DB::table('Orders')
-            -> join('users','Orders.user_id','=','users.id')
-            -> where('Orders.is_del',0)
-            -> select(['Orders.id','Orders.order_sn','Orders.pay_way','Orders.pay_money','Orders.order_money','Orders.pay_discount','Orders.status','Orders.shipping_free','Orders.remark','Orders.auto_receipt','Orders.pay_time','users.name'])
+        $list = DB::table('orders')
+            -> join('users','orders.user_id','=','users.id')
+            -> where('orders.is_del',0)
+            -> select(['orders.id','orders.order_sn','orders.pay_way','orders.pay_money','orders.order_money','orders.pay_discount','orders.status','orders.shipping_free','orders.remark','orders.auto_receipt','orders.pay_time','users.name'])
             -> paginate(10);
         return $this->view('orders',['list'=>$list]);
 
