@@ -26,7 +26,10 @@ class MerchantController extends Controller
                     {
                         "id": "商户id",
                         "created_at": "创建时间",
-                        "stars_all": "星级"
+                        "stars_all": "星级",
+                        "praise_num":"点赞数量"
+                        "logo_img":"商家图片",
+                        "name":"商家名字"
                     }
                 ],
                 "merchant_type": [
@@ -94,7 +97,7 @@ class MerchantController extends Controller
         }
         $data['merchants']=Db::table('merchants')
         ->where($where)
-        ->select('id','created_at','address','tel','stars_all')
+        ->select('id','created_at','address','tel','stars_all','praise_num','logo_img','name')
         ->orderBy($orderBy,"DESC")
         ->offset($start)
         ->limit(10)

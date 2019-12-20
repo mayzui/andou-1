@@ -44,11 +44,20 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('Usersaddress/address_edit','UsersaddressController@addressEdit');
      Route::post('Usersaddress/address_del','UsersaddressController@addressDel');
      
+     Route::post('users/merchant_record', 'UsersController@merchantRecord');
+     Route::post('users/fabulous', 'UsersController@fabulous');
 
      Route::post('cart/index', 'CartController@index');
      Route::post('cart/delcar', 'CartController@delcar');
      Route::post('cart/update_num', 'CartController@update_num');
-    
+     Route::post('cart/addcar', 'CartController@addcar');
+
+     Route::post('order/add_order', 'OrderController@addOrder');
+     Route::post('order/add_order_car', 'OrderController@addOrderCar');
+     Route::post('order/settlement', 'OrderController@settlement');
+     Route::post('order/index', 'OrderController@index');
+     Route::post('order/wx_pay', 'OrderController@wxPay');
+
      Route::post('login/login', 'LoginController@login');
      Route::post('login/send', 'LoginController@send');
      Route::post('login/cache', 'LoginController@cache');

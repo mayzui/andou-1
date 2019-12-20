@@ -113,11 +113,15 @@ class GoodsController extends Controller
         ->where('id',$all['id'])
         ->first();
         if(isset($all['uid'])){//添加浏览记录
-            $this->seemerchant($all['uid'],$all['id'],1);
+            $pv=$this->seemerchant($all['uid'],$all['id'],1);
+            if ($pv) {
+                $re=DB::table('goods')->where('id',$all['id'])->increment('pv');
+            }
             $collection=DB::table('collection')
             ->select('id')
             ->where(['user_id'=>$all['uid'],'pid'=>$all['id'],'type'=>1])
             ->first();
+            // var_dump($data);exit();
             if(empty($collection)){
                 $data->is_collection=0;
             }else{
@@ -172,7 +176,7 @@ class GoodsController extends Controller
             $pages=0;
         }
         if (isset($all['cate_id'])) {
-            $where[]=['goods_cate_id', 'like', '%-'.$all['cate_id'].'-%'];
+            $where[]=['goods_cate_id', 'like', '%,'.$all['cate_id'].',%'];
         }
         if (isset($all['keyword'])) {
             $where[]=['name', 'like', '%'.$all['keyword'].'%'];
