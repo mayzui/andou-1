@@ -58,7 +58,7 @@
 
 </style>
 @section('content')
-    <section class="main-content-wrapper">
+    <section>
         <section id="main-content">
             <div class="row">
                 <div class="col-md-12">
@@ -200,6 +200,27 @@
                                             </div>
                                             <div class="hr-line-dashed"></div>
                                             <div class="form-group">
+                                                <label class="col-sm-2 control-label">重量 ：</label>
+                                                <div class="input-group col-sm-2">
+                                                    <input type="text" class="form-control" name="weight" value="{{ $goodsdata ->weight or '' }}" required data-msg-required="请输入商品重量" >
+                                                </div>
+                                            </div>
+                                            <div class="hr-line-dashed"></div>
+                                            <div class="form-group">
+                                                <label class="col-sm-2 control-label">邮费：</label>
+                                                <div class="input-group col-sm-2">
+                                                    <div class="radio i-checks">
+                                                        <select name="dilivery">
+                                                            <option value="0" @if($goodsdata -> dilivery == 0) selected @endif>包邮</option>
+                                                            @foreach($express_modeldata as $v)
+                                                                <option value="{{ $v -> id }}" @if($v -> id == $goodsdata -> dilivery) selected @endif >{{ $v -> name }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="hr-line-dashed"></div>
+                                            <div class="form-group">
                                                 <label class="col-sm-2 control-label">详情：</label>
                                                 <div class="col-sm-6">
                                                     <textarea type="text" rows="5" name="desc" id="desc" placeholder="商品详情" class="form-control" required data-msg-required="请输入跳转链接">{{ $goodsdata ->desc or '' }}</textarea>
@@ -274,7 +295,17 @@
                                                         <input type="file" name="choose-file[]" id="choose-file" multiple="multiple"/>
                                                     </p>
                                                     <p>
-                                                        <ul class="file-list image_ul "></ul>
+                                                    @if(!empty($goodsdata->album))
+                                                        <ul class="file-list image_ul " style="display: block;">
+                                                                @foreach($goods_album as $v)
+                                                                    <li style="border:1px gray solid; margin:5px 5px;" class="file-item">
+                                                                        <img src="{{ $v }}" alt="" height="70"><span class="file-del">删除</span>
+                                                                    </li>
+                                                                @endforeach
+                                                        </ul>
+                                                        @else
+                                                        <ul class="file-list image_ul " style="display: block;"></ul>
+                                                    @endif
                                                     </p>
                                                 </div>
                                             </div>
@@ -307,8 +338,8 @@
                                                         <div class="radio i-checks checkbox">
                                                             @foreach($attrvalueData as $m)
                                                                 @if($v -> id == $m -> goods_attr_id)
-                                                                    {{--@if(in_array($m -> value,$goodssku)) checked @endif--}}
-                                                                    <label><input type="checkbox" name="attrvalue_{{ $v -> id }}[]" value="{{$m -> value}}" />{{$m -> value}} </label>
+
+                                                                    <label><input type="checkbox" name="attrvalue_{{ $v -> id }}[]" value="{{$m -> value}}" @if(in_array($m -> value,$goodssku)) checked @endif />{{$m -> value}} </label>
                                                                 @endif
                                                             @endforeach
                                                         </div>

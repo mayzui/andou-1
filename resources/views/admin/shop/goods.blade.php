@@ -39,8 +39,8 @@
                         @foreach($list as $k => $item)
                             <tr>
                                 <td>{{$item->id}}</td>
-                                <td>{{$item->name}}</td>
-                                <td>{{$item->goodsCate['name']}}</td>
+                                <td>{{$item->merchant_name}}</td>
+                                <td>{{$item->goods_cate_id}}</td>
                                 <td><img src="{{ env('IMAGE_PATH_PREFIX')}}{{$item->img}}" alt="" style="width: 50px;height: 50px;"></td>
                                 <td>{{$item->desc}}</td>
                                 <td>
@@ -104,7 +104,7 @@
                                         <a href="{{route('shop.update')}}?id={{$item->id}}">
                                             <button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 修改</button>
                                         </a>
-                                        <a href="{{route('shop.destroy',$item->id)}}"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o"></i> 删除</button></a>
+                                        <a onclick="del({{$item->id}})"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o"></i> 删除</button></a>
                                     </div>
                                 </td>
                             </tr>
@@ -117,4 +117,13 @@
         </div>
         <div class="clearfix"></div>
     </div>
+    <script type="text/javascript">
+        function del(e) {
+            var id = e;
+            layer.alert("是否删除该数据？",{icon:3},function (index) {
+                location.href="{{route('shop.goodsDel')}}?id="+id;
+                layer.close(index);
+            });
+        }
+    </script>
 @endsection

@@ -26,7 +26,8 @@ class ShopController extends BaseController
     //订单修改
     public function ordersUpd()
     {
-        $id = input::get('id');
+        $all = \request()-> all();
+        $id = $all['id'];
         $data = Orders::where('id',$id)->select(['status'])->get();
         return $this->view('ordersUpd',['data'=>$data,'id'=>$id]);
     }
@@ -88,37 +89,86 @@ class ShopController extends BaseController
             $num = $all['num'];
             // 价格
             $price = $all['price'];
-            for($i = 1;$i<=count($all)-5;$i++){
-                $value[] = [
-                    'name' => $attr_name,
-                    'value' => $all['value_'.$i.'']
-                ];
-                $values[] = json_encode($value,JSON_UNESCAPED_UNICODE);
-                $value = [];
-            }
-            DB::beginTransaction();
-            try{
-                foreach ($values as $k =>$v){
-                    $data = [
-                        'goods_id' => $all['goods_id'],
-                        'attr_value' => $values[$k],
-                        'price' => $price[$k],
-                        'store_num' => $num[$k]
+            // 通过传入的id，查询数据库中是否存在该id，如果存在，执行修改操作，如果不存在，执行新增操作
+            $s = DB::table('goods_sku') -> where('goods_id',$all['goods_id']) -> first();
+            if(empty($s)){
+                // 不存在该id,执行新增
+                for($i = 1;$i<=count($all)-5;$i++){
+                    $value[] = [
+                        'name' => $attr_name,
+                        'value' => $all['value_'.$i.'']
                     ];
-                    $i = DB::table('goods_sku') -> insert($data);
+                    $values[] = json_encode($value,JSON_UNESCAPED_UNICODE);
+                    $value = [];
                 }
-                if($i){
-                    flash('新增成功') -> success();
-                    return redirect()->route('shop.goods');
-                    DB::commit();
-                }else{
-                    flash('新增失败') -> error();
-                    return redirect()->route('shop.goods');
+                DB::beginTransaction();
+                try{
+                    foreach ($values as $k =>$v){
+                        $data = [
+                            'goods_id' => $all['goods_id'],
+                            'attr_value' => $values[$k],
+                            'price' => $price[$k],
+                            'store_num' => $num[$k]
+                        ];
+                        $i = DB::table('goods_sku') -> insert($data);
+                    }
+                    if($i){
+                        flash('保存成功') -> success();
+                        return redirect()->route('shop.goods');
+                        DB::commit();
+                    }else{
+                        flash('保存失败') -> error();
+                        return redirect()->route('shop.goods');
+                        DB::rollBack();
+                    }
+                }catch (\Exception $e){
                     DB::rollBack();
                 }
-            }catch (\Exception $e){
-                DB::rollBack();
+            }else{
+                // 存在该id，执行修改
+                // 将该表中存在该id的所有数据删除，再重新新增
+                DB::beginTransaction();
+                    try{
+                        // 删除表中，用该商品id的所有数据
+                        DB::table('goods_sku') -> where('goods_id',$all['goods_id']) -> delete();
+                        // 执行新增
+                        for($i = 1;$i<=count($all)-5;$i++){
+                            $value[] = [
+                                'name' => $attr_name,
+                                'value' => $all['value_'.$i.'']
+                            ];
+                            $values[] = json_encode($value,JSON_UNESCAPED_UNICODE);
+                            $value = [];
+                        }
+                        try{
+                            foreach ($values as $k =>$v){
+                                $data = [
+                                    'goods_id' => $all['goods_id'],
+                                    'attr_value' => $values[$k],
+                                    'price' => $price[$k],
+                                    'store_num' => $num[$k]
+                                ];
+                                $i = DB::table('goods_sku') -> insert($data);
+                            }
+                            if($i){
+                                flash('修改成功') -> success();
+                                return redirect()->route('shop.goods');
+                                DB::commit();
+                            }else{
+                                flash('修改失败') -> error();
+                                return redirect()->route('shop.goods');
+                                DB::rollBack();
+                            }
+                        }catch (\Exception $e){
+                            DB::rollBack();
+                        }
+
+                    }catch (\Exception $e){
+                        DB::rollBack();
+                    }
+
             }
+
         }
 
     }
@@ -168,7 +218,6 @@ class ShopController extends BaseController
                 $one = json_decode(json_encode($activitydata),true);
                 // 提取商品id
                 $activityid = array_column(json_decode($one['goods']),'id');
-//                return dd();
                 $arr = [
                     'goodsdata'=>$goodsdata,
                     'activitydata'=>$activitydata,
@@ -215,7 +264,7 @@ class ShopController extends BaseController
                     return redirect()->route('shop.activity');
                 }
             }else{
-                // 跳转修改界面
+                // 执行修改操作
                 $goodsid = $all['goods'];
                 // 根据当前获得的id，查询数据库中，商品的id
                 foreach ($goodsid as $v){
@@ -462,10 +511,10 @@ class ShopController extends BaseController
             * */
     public function orders(Request $request)
     {
-        $list = DB::table('Orders')
-            -> join('users','Orders.user_id','=','users.id')
-            -> where('Orders.is_del',0)
-            -> select(['Orders.id','Orders.order_sn','Orders.pay_way','Orders.pay_money','Orders.order_money','Orders.pay_discount','Orders.status','Orders.shipping_free','Orders.remark','Orders.auto_receipt','Orders.pay_time','users.name'])
+        $list = DB::table('orders')
+            -> join('users','orders.user_id','=','users.id')
+            -> where('orders.is_del',0)
+            -> select(['orders.id','orders.order_sn','orders.pay_way','orders.pay_money','orders.order_money','orders.status','orders.shipping_free','orders.remark','orders.auto_receipt','orders.pay_time','users.name'])
             -> paginate(10);
         return $this->view('orders',['list'=>$list]);
 
@@ -492,7 +541,6 @@ class ShopController extends BaseController
             'order_money'=>$input['order_money'],
             'pay_way'=>$input['pay_way'],
             'pay_money'=>$input['pay_money'],
-            'pay_discount'=>$input['pay_discount'],
             'shipping_free'=>$input['shipping_free'],
             'remark'=>$input['remark'],
             'pay_time'=> date('Y-m-d h:i:s',time()),
@@ -591,19 +639,30 @@ class ShopController extends BaseController
     use ApiResponse;
     protected $merchant_type_id = 2;
 
+    // 跳转商品界面
     public function goods(Request $request ,Auth $auth)
     {
         $admin = Auth::guard('admin')->user();
-        $list = Goods::with(['goodsCate','goodBrands'])
-            ->orderBy('created_at','desc')
-            ->where(function($res) use ($admin){
-//                $res->where('user_id',$admin->id);
-            })
-            ->paginate($request->input('limit'));
-//        return dd($list);
-        return $this->view('goods',['list'=>$list]);
+
+        $goods = DB::table('goods')
+            -> join('merchants','goods.merchant_id','=','merchants.id')
+            -> select(['merchants.name as merchant_name','goods.id','goods.pv','goods.created_at','goods.updated_at','goods.goods_cate_id','goods.img','goods.desc','goods.is_hot','goods.is_recommend','goods.is_sale','goods.is_bargain','goods.dilivery'])
+            -> orderBy('goods.id','desc')
+            -> paginate(10);
+        foreach ($goods as $k => $v){
+            $goods_cate_id  = explode(',',$v->goods_cate_id);
+            unset($goods_cate_id[0]);
+            array_pop($goods_cate_id);
+            $name=[];
+            foreach ($goods_cate_id as $item) {
+                $name[]=Db::table('goods_cate')->select('name')->where('id',$item)->first()->name ?? '';
+            }
+            $goods[$k]->goods_cate_id=implode(',',$name);
+        }
+        return $this->view('goods',['list'=>$goods]);
     }
 
+    // 跳转商品新增界面
     public function create (Request $request)
     {
         $goodsCate = GoodsCate::with(['children'=>function($res){
@@ -615,44 +674,81 @@ class ShopController extends BaseController
         $goodBrands = GoodBrands::select('id','name')->orderBy('id','asc')->get();
         // 查询商品参数
         $attrData = DB::table('goods_attr') -> get();
+        // 查询运费模板表
+        $express_modeldata = DB::table('express_model') -> get();
         $a = DB::table('goods_attr_value') -> get();
         $arr = [
             'goodsCate'=>$goodsCate,
             'goodBrands'=>$goodBrands,
             'attrData'=>$attrData,
             'attrvalueData'=>$a,
+            'express_modeldata'=>$express_modeldata,
+            'goodssku'=>[],
             'goodsdata' =>(object)[
                 'goods_brand_id'=>'',
                 'is_hot'=>'',
                 'is_bargain'=>'',
                 'is_team_buy'=>'',
-                'is_recommend'=>''
+                'is_recommend'=>'',
+                'dilivery'=>'',
             ]
         ];
         return $this->view('addGoods',$arr);
     }
+    // 删除商品
+    public function goodsDel(){
+        // 获取传入的id
+        $all = \request() -> all();
+        // 根据当前id 删除表中数据
+        $data = [
+            'is_del' => 1
+        ];
+        // 链接数据库，执行删除操作
+        $i = DB::table('goods') -> where('id',$all['id']) -> update($data);
+        if ($i){
+            flash('修改成功') -> success();
+            return redirect()->route('shop.goods');
+        }else{
+            flash('修改成功') -> error();
+            return redirect()->route('shop.goods');
+        }
+    }
 
+    // 跳转修改商品界面
     public function update(){
         $all = \request() -> all();
         //根据id 查询商品详情
         $goodsdata = DB::table('goods') -> where('id',$all['id']) -> first();
         // 根据获取的id 查询商品参数表
         $goodssku = DB::table('goods_sku') -> where('goods_id',$all['id']) -> get();
-        foreach ($goodssku as $k =>$v){
-            $a = json_decode($goodssku,true)[$k]['attr_value'];
-            $goodssku_value[] = json_decode($a,true);
+        if(count($goodssku) != 0){
+            foreach ($goodssku as $k =>$v){
+                $a = json_decode($goodssku,true)[$k]['attr_value'];
+                $goodssku_value[] = json_decode($a,true);
+            }
+            // 将三维数组转换成二维数组
+            foreach ($goodssku_value as $v){
+                $new_arr[] = $v[0]['value'];
+            }
+            // 将二维数组转换成一维数组
+            $newarray = [];
+            foreach($new_arr as $key=>$val){
+                foreach ($val as $k=>$v){
+                    $newarray[$key]=$v;
+                }
+            }
+            $old_arr = call_user_func_array('array_merge',$new_arr);
+        }else{
+            $old_arr = [];
         }
-        // 将三维数组转换成二维数组
-        foreach ($goodssku_value as $v){
-            $new_arr[] = $v[0]['value'];
-        }
-//        return dd(array_merge($new_arr));
-//        return dd($new_arr);
+
         $goodsCate = GoodsCate::with(['children'=>function($res){
             $res->with('children');
         }])->where('pid','=',0)
             ->get();
         $goodBrands = GoodBrands::select('id','name')->orderBy('id','asc')->get();
+        // 查询运费模板表
+        $express_modeldata = DB::table('express_model') -> get();
         // 查询商品参数
         $attrData = DB::table('goods_attr') -> get();
         $a = DB::table('goods_attr_value') -> get();
@@ -662,8 +758,10 @@ class ShopController extends BaseController
             'attrData'=>$attrData,
             'attrvalueData'=>$a,
             'goodsdata'=>$goodsdata,
+            'goods_album'=>json_decode($goodsdata->album),
+            'express_modeldata'=>$express_modeldata,
             'goods_id'=>$all['id'],
-            'goodssku'=> $new_arr
+            'goodssku'=> $old_arr      // 将二维数组，转换成一维数组
         ];
         return $this->view('addGoods',$arr);
 
@@ -811,6 +909,7 @@ class ShopController extends BaseController
         }
     }
 
+    // 商品信息新增 and 修改
     public function store (Request $request)
     {
         $validate = Validator::make($request->all(),[
@@ -837,14 +936,17 @@ class ShopController extends BaseController
             return redirect()->route('shop.create');
         }
         if($request -> input('goods_id')){
+            // 商品详情修改
             $all = \request() -> all();
             // 获取提交的数据
             $data = [
                 'goods_brand_id' => $all['goods_brand_id'],
-                'goods_cate_id' => $request->input('goods_cate_id').','.$request->input('goods_cate_id1').','.$request->input('goods_cate_id2'),
+                'goods_cate_id' => ','.$request->input('goods_cate_id').','.$request->input('goods_cate_id1').','.$request->input('goods_cate_id2').',',
                 'name' => $all['name'],
                 'img' => $all['img'],
                 'price' => $all['price'],
+                'weight' => $all['weight'],
+                'dilivery' => $all['dilivery'],
                 'desc' => $all['desc'],
                 'is_hot' => $all['is_hot'],
                 'is_bargain' => $all['is_bargain'],
@@ -853,6 +955,28 @@ class ShopController extends BaseController
             ];
             // 链接数据库，修改内容
             $i = DB::table('goods') -> where('id',$all['goods_id']) -> update($data);
+            // 根据获取的id 查询商品参数表
+            $goodssku = DB::table('goods_sku') -> where('goods_id',$all['goods_id']) -> get();
+            if(count($goodssku) != 0){
+                foreach ($goodssku as $k =>$v){
+                    $a = json_decode($goodssku,true)[$k]['attr_value'];
+                    $goodssku_value[] = json_decode($a,true);
+                }
+                // 将三维数组转换成二维数组
+                foreach ($goodssku_value as $v){
+                    $new_arr[] = $v[0]['value'];
+                }
+                // 将二维数组转换成一维数组
+                $newarray = [];
+                foreach($new_arr as $key=>$val){
+                    foreach ($val as $k=>$v){
+                        $newarray[$key]=$v;
+                    }
+                }
+                $old_arr = call_user_func_array('array_merge',$new_arr);
+            }else{
+                $old_arr = [];
+            }
             $goodsdata = DB::table('goods') -> where('id',$all['goods_id']) -> first();
             if($i){
                 $goodsCate = GoodsCate::with(['children'=>function($res){
@@ -860,7 +984,8 @@ class ShopController extends BaseController
                 }])->where('pid','=',0)
                     ->get();
 
-                $level1 = GoodsCate::where('pid','=',0)->get();
+                // 查询运费模板表
+                $express_modeldata = DB::table('express_model') -> get();
                 $goodBrands = GoodBrands::select('id','name')->orderBy('id','asc')->get();
                 // 查询商品参数
                 $attrData = DB::table('goods_attr') -> get();
@@ -869,21 +994,24 @@ class ShopController extends BaseController
                     'goodsCate'=>$goodsCate,
                     'goodsdata'=>$goodsdata,
                     'goodBrands'=>$goodBrands,
+                    'express_modeldata'=>$express_modeldata,
                     'attrData'=>$attrData,
                     'attrvalueData'=>$a,
-                    'goods_id'=>$all['goods_id']
+                    'goods_id'=>$all['goods_id'],
+                    'goodssku'=> $old_arr
                 ];
                 flash('修改成功') -> success();
                 return $this->view('addGoods',$arr);
             }
         }else{
+            // 新增
             $model = new Goods();
 
             if ($request->input('id')) {
                 $model = Goods::find($request->input('id'));
             }
 
-            $model->goods_cate_id = $request->input('goods_cate_id').','.$request->input('goods_cate_id1').','.$request->input('goods_cate_id2');
+            $model->goods_cate_id = ','.$request->input('goods_cate_id').','.$request->input('goods_cate_id1').','.$request->input('goods_cate_id2').',';
 
             $model->goods_brand_id = $request->input('goods_brand_id');
             $model->name = $request->input('name');
@@ -891,10 +1019,14 @@ class ShopController extends BaseController
             $model->desc = $request->input('desc');
             $model->price = $request->input('price');
 
+            $model->dilivery = $request->input('dilivery');
+            $model->weight = $request->input('weight');
+
             $model->is_hot = $request->input('is_hot',0);
             $model->is_recommend = $request->input('is_recommend',0);
             $model->is_bargain = $request->input('is_bargain',0);
             $model->is_team_buy = $request->input('is_team_buy',0);
+            $model->merchant_id = Auth::id();
             try {
                 $model->save();
 //            return $this->status('保存成功',['id'=>$model->id],200);

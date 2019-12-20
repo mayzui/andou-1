@@ -80,7 +80,6 @@
                             <select name="caculate_method" class="form-control">
                                 <option value="1">重量</option>
                                 <option value="2">件数</option>
-                                <option value="3">里程</option>
                                 <option value="4">固定运费(只计算基础运费)</option>
                             </select>
                         </div>
