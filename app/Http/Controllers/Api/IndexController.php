@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 class IndexController extends Controller
-{   
+{
     /**
      * @api {post} /api/index/index 首页
      * @apiName index
