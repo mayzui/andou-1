@@ -36,7 +36,7 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('goods/good_list', 'GoodsController@goodList');
      Route::post('goods/specslist', 'GoodsController@specslist');
      
-     Route::post('Usersaddress/districts', 'UsersaddressController@districts');
+     Route::post('Usersaddress/district', 'UsersaddressController@district');
      Route::post('Usersaddress/address_add', 'UsersaddressController@addressAdd');
      Route::post('Usersaddress/address','UsersaddressController@address');
      Route::post('Usersaddress/defualt','UsersaddressController@defualt');

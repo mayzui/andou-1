@@ -53,13 +53,13 @@ class UsersaddressController extends Controller
      *       "msg":"查询成功"
      *     }
      */
-    public function districts(){
+    public function district(){
         $data=Redis::get('districts');
         if ($data) {
             $data=json_decode($data,1);
         }else{
             $data=$this->districts();
-            Redis::set('districts',json_encode($data['districts'],1));
+            Redis::set('districts',json_encode($data,1));
         }
         return $this->rejson(200,'查询成功',$data);
     }
@@ -85,7 +85,7 @@ class UsersaddressController extends Controller
      */
     public function addressAdd(){
         $all=request()->all();
-        if (!isset($all['name']) || !isset($all['mobile']) || !isset($all['address']) || !isset($all['area_id']) || !isset($all['city_id']) || !isset($all['province_id'] || !isset($all['is_defualt'])) {
+        if (!isset($all['name']) || !isset($all['mobile']) || !isset($all['address']) || !isset($all['area_id']) || !isset($all['city_id']) || !isset($all['province_id']) || !isset($all['is_defualt'])) {
             return $this->rejson(201,'缺少参数');
         }
         $data['name']=$all['name'];

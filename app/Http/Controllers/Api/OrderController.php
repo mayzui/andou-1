@@ -347,9 +347,9 @@ class OrderController extends Controller
             $string = md5($string);
             $order['sign'] = strtoupper($string);
             $order['timestamp'] = $time;
-            return  json_encode(array('code' =>200,'data'=>$order,'msg'=>"获取支付信息成功！"),true);
+            return  $this->rejson(200,'获取支付信息成功！',$order);
         }else{
-            return  json_encode(array('code' =>201,'data'=>'','msg'=>"获取支付信息失败！"),true);
+            return  $this->rejson(201,'获取支付信息失败！');
         }
     }
 }
