@@ -93,18 +93,4 @@ class UsersController extends Controller
             return $this->rejson(201,'不能重复点赞');
         }   
     }
-    /**
-     * @api {post} /api/users/fabulous 给商家点赞
-     * @apiName fabulous
-     * @apiGroup users
-     * @apiParam {string} uid 用户id
-     * @apiParam {string} token 验证登陆
-     * @apiParam {string} id 商家id
-     * @apiSuccessExample 参数返回:
-     *     {
-     *       "code": "200",
-     *       "data": "",
-     *       "msg":"查询成功"
-     *     }
-     */
 }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>后台管理中心 - @yield('title', config('app.name', 'Laravel'))</title>
+    <title>后台管理中心</title>
     <meta name="keywords" content="{{ config('app.name', 'Laravel') }}">
     <meta name="description" content="{{ config('app.name', 'Laravel') }}">
     <!-- CSRF Token -->

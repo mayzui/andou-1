@@ -18,9 +18,12 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 /**
- * 接口路由
+ *      接口路由
  */
 Route::group(['namespace' => 'Api'], function () {
     //提示信息
-    Route::post('users/information', 'UsersController@information');
+    Route::post('index/information', 'IndexController@information');
+    // 钱包
+    Route::post('wallet/index', 'WalletController@index');
+
 });

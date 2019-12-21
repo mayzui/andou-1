@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="renderer" content="webkit">
     <meta http-equiv="Cache-Control" content="no-siteapp" />
-    <title>安抖后台中心 - @yield('title', config('app.name', 'Laravel'))</title>
+    <title>安抖后台管理系统</title>
     <meta name="keywords" content="{{ config('app.name', 'Laravel') }}">
     <meta name="description" content="{{ config('app.name', 'Laravel') }}">
 
