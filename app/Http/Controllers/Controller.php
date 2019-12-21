@@ -75,6 +75,30 @@ class Controller extends BaseController
         }
         return $provinceArray;
     }
+    /**生成随机字符串
+     * [suiji description]
+     * @param  boolean $bool [description]
+     * @return [type]        [description]
+     */
+    function suiji($bool=false){
+        $suiji = "";
+        if($bool){
+            $c= "123456789";
+            for($i = 0;$i<12;$i++){
+                $c = str_shuffle($c);
+                $suiji .= substr($c, 0,1);
+            }
+        }else{
+            $c= "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz123456789";
+            $suiji .= date("Ymd");
+            for($i = 0;$i<6;$i++){
+                $c = str_shuffle($c);
+                $suiji .= substr($c, 0,1);
+            }
+            $suiji .= date("His");
+        }
+        return $suiji;
+    }
     /**随机生成token
      * [token description]
      * @param  [type] $id [description]
@@ -85,7 +109,7 @@ class Controller extends BaseController
         $max = strlen($charts);
         $noncestr = "";
         for($i = 0; $i < 16; $i++){
-            $noncestr .= $charts[mt_rand(0, $max)];
+            $noncestr .= substr($charts,mt_rand(0, $max),1);
         }
         $token['token'] = md5('andou'.$id.$noncestr);
         $token['noncestr'] = $noncestr;
@@ -128,5 +152,6 @@ class Controller extends BaseController
             }
         }
         DB::table('see_log')->insert($data);
+        return 1;
     }
 }
