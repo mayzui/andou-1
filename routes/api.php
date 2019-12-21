@@ -55,4 +55,12 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('login/login_p', 'LoginController@loginP');
      Route::post('login/reg_p', 'LoginController@regP');
      Route::post('login/forget', 'LoginController@forget');
+
+
+     //商品管理
+     Route::post('goods/manage','ManageController@index');
+     Route::post('goods/manageDel','ManageController@manageDel');
+     Route::post('goods/putaway','ManageController@putaway');
+     Route::post('goods/soldOut','ManageController@soldOut');
+     Route::post('goods/manageUpd','ManageController@manageUpd');
 });
