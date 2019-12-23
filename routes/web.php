@@ -63,6 +63,7 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::resource('shop','ShopController',['only'=>['index','orders']]);
         Route::get('shop/setStatus/{field}/{status}/{id}','ShopController@setStatus')->name('shop.setStatus');
         Route::get('shop/goods','ShopController@goods')->name('shop.goods');
+        Route::get('shop/goodsDel','ShopController@goodsDel')->name('shop.goodsDel');
         Route::get('shop/create','ShopController@create')->name('shop.create');
         Route::post('shop/store','ShopController@store')->name('shop.store');
         Route::get('shop/update','ShopController@update')->name('shop.update');

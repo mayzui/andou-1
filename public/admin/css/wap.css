@@ -1,0 +1,37 @@
+.andou_left {
+    width: auto;
+    overflow-y: auto;
+    background: #4dcec0;
+    height: 100%;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+	right: 0;
+}
+.ad-right {
+    position: absolute;
+    left: 256px;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    background: #f7f7f7;
+    width: calc(100% - 256px);
+}
+.ad-wrapper {
+    position: absolute;
+    width: calc(100% - 256px);
+    bottom: 0;
+    right: 0;
+    top: 80px;
+}
+.ad-user {
+    width: 256px;
+}
+.sign a{
+	padding-right: 0;
+}
+.member-user{
+	padding: 0 !important;
+}
+

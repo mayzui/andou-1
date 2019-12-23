@@ -5,6 +5,7 @@
 <link href="{{loadEdition('/admin/css/base.css')}}" rel="stylesheet">
 <link href="{{loadEdition('/admin/css/layui.css')}}" rel="stylesheet">
 <link href="{{loadEdition('/admin/css/style.css')}}" rel="stylesheet">
+<link rel="stylesheet" type="text/css" media="(max-width:750px)" href="{{loadEdition('/admin/css/wap.css')}}"/>
 <div class="member">
   <!-- 会员统计 start -->
   <div class="title"><h2>会员统计</h2></div>

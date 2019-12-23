@@ -21,7 +21,7 @@
                 <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>
                 <form class="form-horizontal m-t-md" action="{{ route('shop.storeComplateAttrs') }}" method="post" accept-charset="UTF-8" enctype="multipart/form-data">
                     {!! csrf_field() !!}
-                    <input type="hidden" name="goods_id" value="{{ $goods_id or ''}}" />
+                    <input type="hidden" name="goods_id" value="{{ $goods_id or '21'}}" />
                     <table class="table table-striped table-bordered table-hover m-t-md">
                     <thead>
                     <tr>

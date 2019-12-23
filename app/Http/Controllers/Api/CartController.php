@@ -51,7 +51,7 @@ class CartController extends Controller
         ->join("goods_sku as s","c.goods_sku_id","=","s.id")
         ->join("merchants as m","c.merchant_id","=","m.id")
         ->select('c.id','c.goods_id','c.goods_sku_id','c.merchant_id','c.num','g.name as goods_name','g.img','s.price','m.name as merchant_name','m.logo_img')
-        ->where('c.user_id',$all['uid'])
+        ->where(['c.user_id'=>$all['uid'],'c.type'=>1])
         ->orderBy('c.created_at','DESC')
         ->get();
         return $this->rejson(200,'查询成功',$data);
@@ -80,6 +80,41 @@ class CartController extends Controller
             return $this->rejson(200,'删除成功');
         }else{
             return $this->rejson(201,'删除失败');
+        }
+    }
+    /**
+     * @api {post} /api/cart/addcar 添加购物车 
+     * @apiName addcar
+     * @apiGroup cart
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} token 验证登陆
+     * @apiParam {array} goods_id 商品id
+     * @apiParam {array} merchant_id 商户id
+     * @apiParam {array} goods_sku_id 规格id
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": "",
+     *       "msg":"添加成功"
+     *     }
+     */
+    public function addcar(){
+        $all=request()->all();
+        if (empty($all['goods_id'])||empty($all['merchant_id'])||empty($all['goods_sku_id'])) {
+            return $this->rejson(201,'缺少参数');
+        }
+        $data['goods_id']=$all['goods_id'];
+        $data['merchant_id']=$all['merchant_id'];
+        $data['goods_sku_id']=$all['goods_sku_id'];
+        $data['num']=1;
+        $data['user_id']=$all['uid'];
+        $data['type']=1;
+        $data['created_at']=date('Y-m-d H:i:s',time());
+        $re=DB::table('cart')->insert($data);
+        if ($re) {
+            return $this->rejson(200,'添加成功');
+        }else{
+            return $this->rejson(201,'添加失败');
         }
     }
     /**

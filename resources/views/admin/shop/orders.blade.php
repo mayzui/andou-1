@@ -36,7 +36,6 @@
                             <th>支付方式</th>
                             <th>支付金额</th>
                             <th>总计金额</th>
-                            <th>抵扣金额</th>
                             <th>邮费</th>
                             <th>订单备注</th>
                             <th>发票信息</th>
@@ -63,7 +62,6 @@
                                 </td>
                                 <td>{{$item->pay_money}}</td>
                                 <td>{{$item->order_money}}</td>
-                                <td>{{$item->pay_discount}}</td>
                                 <td>{{$item->shipping_free}}</td>
                                 <td>{{$item->remark}}</td>
                                 <td>
