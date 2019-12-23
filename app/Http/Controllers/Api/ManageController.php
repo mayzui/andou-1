@@ -23,7 +23,7 @@ class ManageController extends Controller
      * @api {post} /api/goods/manage 商品管理
      * @apiName manage
      * @apiGroup goods
-     * @apiParam {string} uid 用户id
+     * @apiParam {string} uid 商户id
      * @apiParam {string} token 验证登陆
      * @apiSuccessExample 参数返回:
      *     {
@@ -67,6 +67,7 @@ class ManageController extends Controller
      * @api {post} /api/goods/manageDel 删除商品
      * @apiName manageDel
      * @apiGroup goods
+     * @apiParam {string} uid 商户id
      * @apiParam {string} id 商品id
      * @apiParam {string} token 验证登陆
      * @apiSuccessExample 参数返回:
@@ -92,6 +93,7 @@ class ManageController extends Controller
      * @api {post} /api/goods/putaway 商品上架
      * @apiName putaway
      * @apiGroup goods
+     * @apiParam {string} uid 商户id
      * @apiParam {string} id 商品id
      * @apiParam {string} token 验证登陆
      * @apiSuccessExample 参数返回:
@@ -118,6 +120,7 @@ class ManageController extends Controller
      * @api {post} /api/goods/soldOut 商品下架
      * @apiName soldOut
      * @apiGroup goods
+     * @apiParam {string} uid 商户id
      * @apiParam {string} id 商品id
      * @apiParam {string} token 验证登陆
      * @apiSuccessExample 参数返回:
@@ -139,7 +142,6 @@ class ManageController extends Controller
             return $this->rejson('200','商品上架完成');
         }
     }
-
 
     /**
      * @api {post} /api/goods/soldOut 商品修改
@@ -167,17 +169,44 @@ class ManageController extends Controller
     }
 
     /**
-     * @api {post} /api/goods/classifyAdd 分类添加
-     * @apiName classifyAdd
+     * @api {post} /api/goods/orders  订单已取消
+     * @apiName orders
      * @apiGroup goods
-     * @apiParam {string} id 商品id
+     * @apiParam {string} id 商户id
      * @apiParam {string} token 验证登陆
      * @apiSuccessExample 参数返回:
      *     {
      *       "code": "200",
-     *       "data": "",
+     *       "data": [
+                        {
+                        "id": "订单id",
+                        "order_sn": "订单号",
+                        "name": "商品名称",
+                        "img": "商品封面图",
+                        "pay_money": "订单支付金额",
+                        "num": "商品数量",
+                        "status": "商品状态",
+                        }
+                    ],
      *       "msg":"获取成功"
      *     }
      */
+
+    public function ordersCancel()
+    {
+        $all = request()->all();
+        $data = DB::table('order_goods')
+            ->join('goods','goods.id','=','order_goods.goods_id')
+            ->join('orders','order_goods.order_id','=','orders.id')
+            ->where('order_goods.merchant_id',$all['id'])
+            ->where('orders.status',0)
+            ->select(['order_goods.id','orders.order_sn','goods.name','goods.img','order_goods.num','orders.pay_money','orders.status'])
+            ->get();
+        if($data){
+            return $this->rejson('200','查询成功',$data);
+        }else{
+            return $this->rejson('201','参数有误');
+        }
+    }
 
 }
