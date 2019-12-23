@@ -24,8 +24,7 @@
                             <th width="15">ID</th>
                             <th>名称</th>
                             <th>添加用户</th>
-                            <th>发货地址</th>
-                            <th>免运费</th>
+                            <th>运费方式</th>
                             <th>操作</th>
                         </tr>
                         </thead>
@@ -35,8 +34,15 @@
                                 <td>{{$item->id}}</td>
                                 <td>{{$item->name}}</td>
                                 <td>{{$item->merchant->name}}</td>
-                                <td>{{$item->ship_address}}</td>
-                                <td>{{$item->is_free}}</td>
+                                <td>
+                                    @if($item->caculate_method == 1)
+                                        按照件数
+                                        @elseif($item->caculate_method == 2)
+                                        按照重量
+                                        @elseif($item->caculate_method == 4)
+                                        一口价
+                                    @endif
+                                </td>
                                 <td>
                                     <a href="{{route('shop.addExpressAttrs',$item->id)}}">
                                         <button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i>添加运费详细</button>

@@ -173,7 +173,7 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('banner/positionIndex','BannerController@position')->name('banner.position');
         Route::get('banner/positionAdd','BannerController@positionAdd')->name('banner.positionAdd');
         Route::post('banner/positionStore','BannerController@positionStore')->name('banner.positionStore');
-        Route::get('banner/positionEdit/{id}','BannerController@positionEdit')->name('banner.positionEdit');
+        Route::match(['get','post'],'banner/positionEdit','BannerController@positionEdit')->name('banner.positionEdit');
         Route::get('banner/positionDel','BannerController@positionDel')->name('banner.positionDel');
         Route::get('banner/status/{status}/{id}','BannerController@status')->name('banner.status');
 

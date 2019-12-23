@@ -8,7 +8,7 @@
             <div class="ibox-content">
                 <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>
 
-                <button type="button" class="btn btn-primary btn-outline pull-right" data-toggle="modal" data-target="#myModal">添加运费</button>
+                <button type="button" class="btn btn-primary btn-outline pull-right" data-toggle="modal" data-target="#myModal">添加城市</button>
 
                 <form method="post" action="{{route('shop.expressAttr')}}" name="form">
                     <style>
@@ -20,10 +20,7 @@
                         <thead>
                         <tr>
                             <th width="15">ID</th>
-                            <th>名称</th>
-                            <th>计费运费</th>
-                            <th>基础运费</th>
-                            <th>运费单价</th>
+                            <th>城市名称</th>
                             <th>操作</th>
                         </tr>
                         </thead>
@@ -34,9 +31,6 @@
                             <tr>
                                 <td>{{$item->id}}</td>
                                 <td>{{$item->city->name}}</td>
-                                <td>{{$item->caculate_method}}</td>
-                                <td>{{$item->basic_price}}</td>
-                                <td>{{$item->unit_price}}</td>
                                 <td>
                                     <a href="{{route('shop.deleteExpressAttr',$item->id)}}"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o"></i> 删除</button></a>
                                 </td>
@@ -68,9 +62,7 @@
                         <label class="col-sm-3 control-label">选择城市</label>
                         <div class="col-sm-8">
                                 @foreach($city as $c)
-                                    <lable>
-                                        <input type="checkbox" name="ids[]"  @if (in_array($c->id,$ids)) checked @endif value="{{$c->id}}"/> {{$c->name}}
-                                    </lable>
+                                    <lable><input type="checkbox" name="ids[]"  @if (in_array($c->id,$ids)) checked @endif value="{{$c->id}}"/> {{$c->name}}</lable>
                                 @endforeach
                         </div>
                     </div>
@@ -78,25 +70,31 @@
                         <label class="col-sm-3 control-label">计费方式</label>
                         <div class="col-sm-8">
                             <select name="caculate_method" class="form-control">
-                                <option value="1">重量</option>
-                                <option value="2">件数</option>
-                                <option value="4">固定运费(只计算基础运费)</option>
+                                <option value="1" @if($express_modeldData -> caculate_method == 1) selected @endif>重量</option>
+                                <option value="2" @if($express_modeldData -> caculate_method == 2) selected @endif>件数</option>
+                                <option value="4" @if($express_modeldData -> caculate_method == 3) selected @endif>固定运费(只计算基础运费)</option>
                             </select>
+                        </div>
+                    </div>
+                    <div class="hr-line-dashed"></div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label">基础件数/基础重量</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="num"  placeholder="基础件数(件)/基础重量(kg)" value="{{ $express_modeldData -> num or '' }}" class="form-control"/>
                         </div>
                     </div>
                     <div class="hr-line-dashed"></div>
                     <div class="form-group">
                         <label class="col-sm-3 control-label">基础运费</label>
                         <div class="col-sm-8">
-                            <input type="text" name="basic_price"  placeholder="基础运费" class="form-control"/>
+                            <input type="text" name="basic_price" value="{{ $express_modeldData -> basic_price or '' }}"  placeholder="基础运费" class="form-control"/>
                         </div>
                     </div>
-
                     <div class="hr-line-dashed"></div>
                     <div class="form-group">
-                        <label class="col-sm-3 control-label">单价</label>
+                        <label class="col-sm-3 control-label">超出收费单价</label>
                         <div class="col-sm-8">
-                            <input type="text" name="unit_price"  placeholder="基础运费" class="form-control"/>
+                            <input type="text" name="unit_price" value="{{ $express_modeldData -> unit_price or '' }}"v  placeholder="超出收费单价" class="form-control"/>
                         </div>
                     </div>
                 </div>

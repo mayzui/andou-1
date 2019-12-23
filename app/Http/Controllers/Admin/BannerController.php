@@ -49,7 +49,7 @@ class BannerController extends BaseController
 
     public function position (Request $request)
     {
-        $list = BannerPosition::paginate($request->input('size'));
+        $list = \DB::table('banner_position') -> where('is_del',0) -> paginate(10);
         if ($list) {
             return $this->view('position',['list'=>$list]);
         }
@@ -86,10 +86,59 @@ class BannerController extends BaseController
         return  viewError('操作失败','banner.positionAdd');
 
     }
-    public function positionEdit (Request $request,$id)
+    // 修改广告
+    public function positionEdit (Request $request)
     {
-        $position = BannerPosition::find($id);
-        return $this->view('positionEdit',['position'=>$position]);
+        $all = $request -> all();
+        if($request -> isMethod("get")){
+            // 跳转修改界面
+            // 根据获取的id，查询数据库内容
+            $data = \DB::table('banner_position') -> where('id',$all['id']) -> first();
+            return $this->view('',['data'=>$data]);
+        }else{
+            // 执行修改操作
+            // 获取提交的值
+            $data = [
+                'name' => $all['name']
+            ];
+            // 根据id 修改当前的值
+            $i = \DB::table('banner_position') -> where('id',$all['id']) -> update($data);
+            if($i){
+                flash("修改成功！") -> success();
+                return redirect()->route('banner.position');
+            }else{
+                flash("修改失败，未修改任何内容") -> error();
+                return redirect()->route('banner.position');
+            }
+        }
+    }
+    // 删除广告
+    public function positionDel(){
+        // 获取传入的id
+        $all = \request() -> all();
+        // 通过提交的id 查询数据库的值
+        $status = \DB::table('banner_position') -> where('id',$all['id']) -> select(['status']) -> first();
+
+        // 判断该数据是否启用
+        if($status -> status == 1){
+            $data = [
+                'status' => 0
+            ];
+        }else{
+
+            $data = [
+                'status' => 1
+            ];
+        }
+        // 执行修改状态操作
+        $i = \DB::table('banner_position') -> where('id',$all['id']) -> update($data);
+        if($i){
+            flash("状态更新成功！") -> success();
+            return redirect()->route('banner.position');
+        }else{
+            flash("状态更改失败！请重试") -> error();
+            return redirect()->route('banner.position');
+        }
     }
 
     public function store (Request $request)

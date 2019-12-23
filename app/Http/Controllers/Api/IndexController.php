@@ -75,6 +75,7 @@ class IndexController extends Controller
      * @apiName information
      * @apiGroup index
      * @apiParam {string} id 通知信息的id
+     * @apiParam {string} uid 用户的id，非必传
      * @apiSuccessExample 参数返回:
      *     {
      *       "code": "200",
@@ -95,9 +96,64 @@ class IndexController extends Controller
         // 链接数据库根据id查询
         $data = DB::table('notice')
             -> where('id',$all['id'])
-            -> select(['id','title','content','created_at'])
+            -> where('status',1)
+            -> select(['id','title','content','created_at','message'])
             ->first();
+        $message = json_decode($data -> message);
+        if(!empty($all['uid'])){
+            $message = json_decode($data -> message);
+            if(!in_array($all['uid'],$message)){
+                $message[] =$all['uid'];
+            }
+            $messages = json_encode($message);
+            $datas = [
+                'message' => $messages
+            ];
+            DB::table('notice') -> where('id',$all['id']) -> update($datas);
+        }
+
         if(!empty($data)){
+            return $this->rejson(200,'查询成功',$data);
+        }else{
+            return $this->rejson(201,'未查询到该id');
+        }
+    }
+    /**
+     * @api {post} /api/index/notification_center 通知中心
+     * @apiName notification_center
+     * @apiGroup index
+     * @apiParam {string} id 通知信息的id
+     * @apiParam {string} uid 用户的id，非必填
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": {
+                 "id": "标题id",
+                "title": "公告标题",
+                "message": "已读消息用户id",
+                "messageStatus": "公告状态 1已读 0未读",
+                "created_at": "发布时间"
+     *          },
+     *       "msg":"查询成功"
+     *     }
+     */
+    public function notification_center(){
+        $all = \request() -> all();
+        if (empty($all['id'])) {
+            return $this->rejson(201,'请输入id');
+        }
+        // 链接数据库根据id查询
+        $data = DB::table('notice')
+            -> where('id',$all['id'])
+            -> select(['id','title','created_at','message','messageStatus'])
+            -> first();
+        if(!empty($data)){
+            $message = json_decode($data -> message);
+            if(in_array($all['uid'],$message)){
+                $data -> messageStatus = 1;
+            }else{
+                $data -> messageStatus = 0;
+            }
             return $this->rejson(200,'查询成功',$data);
         }else{
             return $this->rejson(201,'未查询到该id');

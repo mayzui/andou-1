@@ -50,14 +50,18 @@
                                 <td>{{$item->order_sn}}</td>
                                 <td>{{$item->name}}</td>
                                 <td>
-                                    @if($item->pay_way == 0)
+                                    @if($item->pay_way == 1)
                                         微信支付
-                                    @elseif($item->pay_way == 1)
-                                        支付宝支付
                                     @elseif($item->pay_way == 2)
+                                        支付宝支付
+                                    @elseif($item->pay_way == 4)
                                         平台余额支付
                                     @elseif($item->pay_way == 3)
                                         银联支付
+                                    @elseif($item->pay_way == 0)
+                                        未选择支付方式
+                                        @else
+                                        其他方式
                                     @endif
                                 </td>
                                 <td>{{$item->pay_money}}</td>

@@ -207,7 +207,14 @@ class ShopController extends BaseController
                 // 跳转新增界面
                 // 查询数据库，获取商品数据
                 $goodsdata = DB::table('goods') -> get();
-                return $this->view('',['goodsdata'=>$goodsdata]);
+                $arr = [
+                    'goodsdata'=>$goodsdata,
+                    'activityid' => [],
+                    'activitydata' => (object)[
+                        'status' => ''
+                    ]
+                ];
+                return $this->view('',$arr);
             }else{
                 // 跳转修改界面
                 // 查询数据库，获取商品数据
@@ -998,7 +1005,8 @@ class ShopController extends BaseController
                     'attrData'=>$attrData,
                     'attrvalueData'=>$a,
                     'goods_id'=>$all['goods_id'],
-                    'goodssku'=> $old_arr
+                    'goodssku'=> $old_arr,
+                    'goods_album'=> []
                 ];
                 flash('修改成功') -> success();
                 return $this->view('addGoods',$arr);
@@ -1266,7 +1274,9 @@ class ShopController extends BaseController
     public function express (Request $request)
     {
         $admin = Auth::guard('admin')->user();
-        $list = ExpressModel::with('merchant')->where('merchant_user_id',$admin->id)->paginate();
+        $id = $admin->id;
+        $list = ExpressModel::with('merchant')->where('merchant_user_id',$id)->paginate();
+
         return $this->view('express',['list'=>$list]);
     }
 
@@ -1299,8 +1309,6 @@ class ShopController extends BaseController
         }
     }
 
-
-
     // 渲染列表
     public function addExpressAttrs (Request $request,$id)
     {
@@ -1312,8 +1320,9 @@ class ShopController extends BaseController
 
         $data   = ExpressModel::find($id);
         $city   = District::select('id','name','deep')->where('deep',0)->get();
+        $express_modeldData = DB::table('express_model') -> where('id',$id) -> first();
 
-        return $this->view('expressAttr',['list'=>$list,'data'=>$data,'city'=>$city,'ids'=>$ids]);
+        return $this->view('expressAttr',['list'=>$list,'data'=>$data,'city'=>$city,'ids'=>$ids,'express_modeldData'=>$express_modeldData]);
     }
 
     // 存储信息
@@ -1333,31 +1342,37 @@ class ShopController extends BaseController
             flash($validate->errors()->first())->error()->important();
             return redirect()->route('shop.createExpress');
         }
-
+//        return dd(\request() -> all());
+        $all = \request() -> all();
         $ids = $request->input('ids');
-
-        try {
-
-            // 先删除 不在里面的
-            foreach ($ids as $v=>$id) {
-                $model = ExpressAttr::where('city_id',$id)
-                    ->where('express_model_id',$request->input('express_id'))
-                    ->first();
-                if (!$model) {
-                    $model = new ExpressAttr();
-                }
-                $model->express_model_id = $request->input('express_id');
-                if ($request->filled('caculate_method')) $model->caculate_method = $request->input('caculate_method');
-                if ($request->filled('basic_price')) $model->basic_price = $request->input('basic_price');
-                if ($request->filled('unit_price')) $model->unit_price = $request->input('unit_price');
-                $model->city_id = $id;
-                $model->save();
+        DB::beginTransaction();
+        // 操作副表 先把副表中有此ID的数据删除，再向副表中添加内容
+        try{
+            // 删除附表中存在该id的数据
+            DB::table('express_detail') -> where('express_model_id',$all['express_id']) -> delete();
+                // 删除成功之后 向副表新增数据
+            foreach ($all['ids'] as $v){
+                $addDetailData = [
+                    'express_model_id' => $all['express_id'],
+                    'city_id' => $v
+                   ];
+                $i = DB::table('express_detail') -> insert($addDetailData);
             }
-            // 删除不在ids 中的行
-            $res =  ExpressAttr::where('express_model_id',$request->input('express_id'))->whereNotIn('city_id',$ids)->delete();
+            $data = [
+                'merchant_user_id' => Auth::id(),
+                'caculate_method' => $all['caculate_method'],
+                'num' => $all['num'],
+                'basic_price' => $all['basic_price'],
+                'unit_price' => $all['unit_price'],
+            ];
+            $m = DB::table('express_model') -> where('id',$all['express_id']) -> update($data);
+            if($m){
+                flash("修改成功")-> success();
+                DB::commit();
+            }
 
-        } catch (\Exception $e) {
-            flash($e->getMessage())->error()->important();
+        }catch (\Exception $e){
+
         }
         return redirect()->route('shop.addExpressAttrs',['id'=>$request->input('express_id')]);
     }
@@ -1379,12 +1394,8 @@ class ShopController extends BaseController
     {
         $validate = Validator::make($request->all(),[
             'name' => 'required',
-            'ship_address' => 'required',
-            'is_free' => 'required',
         ],[
             'name.required'=>'名称必须',
-            'ship_address.required'=>'宝贝地址必须',
-            'is_free.required'=>'名称是否包邮',
         ]);
 
         if ($validate->fails()) {
@@ -1400,8 +1411,6 @@ class ShopController extends BaseController
         $admin = Auth::guard('admin')->user();
         $model->merchant_user_id = $admin->id;
         $model->name = $request->input('name');
-        $model->ship_address = $request->input('ship_address');
-        $model->is_free = $request->input('is_free');
 
         try {
             $model->save();
