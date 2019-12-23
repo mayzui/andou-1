@@ -93,4 +93,71 @@ class UsersController extends Controller
             return $this->rejson(201,'不能重复点赞');
         }   
     }
+    /**
+     * @api {post} /api/users/envelopes 红包金额查询
+     * @apiName envelopes
+     * @apiGroup users
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} token 验证登陆
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": {
+     *               "value":"领取金额"
+     *        },     
+     *       "msg":"查询成功"
+     *     }
+     */
+    public function envelopes(){
+        $all=request()->all();
+        $re=Db::table('user_logs')->where(['user_id'=>$all['uid'],'type_id'=>'4'])->first();
+        if (!empty($re)) {
+            return $this->rejson(201,'该用户已经领取过新用户红包');
+        }
+        $data=Db::table('config')->select('value')->where('key','envelopes')->first();
+        return $this->rejson(200,'获取成功',$data);
+    }
+    /**
+     * @api {post} /api/users/envelopes_add 新用户领取红包
+     * @apiName envelopes_add
+     * @apiGroup users
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} token 验证登陆
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": "",     
+     *       "msg":"领取成功"
+     *     }
+     */
+    public function envelopesAdd(){
+        $all=request()->all();
+        $re=Db::table('user_logs')->where(['user_id'=>$all['uid'],'type_id'=>'4'])->first();
+        if (!empty($re)) {
+            return $this->rejson(201,'该用户已经领取过新用户红包');
+        }
+        $data['price']=Db::table('config')->where('key','envelopes')
+        ->select('value')
+        ->first()
+        ->value ?? '';
+        if ($data['price'] == '') {
+            return $this->rejson(201,'系统错误');
+        }
+        $data['user_id']=$all['uid'];
+        $data['describe']='新用户红包领取';
+        $data['create_time']=date('Y-m-d H:i:s',time());
+        $data['type_id']=4;
+        $data['state']=1;
+        $data['is_del']=0;
+        DB::beginTransaction(); //开启事务
+        $re=DB::table('user_logs')->insert($data);
+        $res=DB::table('users')->where('id',$all['uid'])->increment('money',$data['price']);
+        if ($res&&$re) {
+            DB::commit();
+            return $this->rejson(200,'领取成功');
+        }else{
+            DB::rollback();
+            return $this->rejson(201,'领取失败');
+        }
+    }
 }

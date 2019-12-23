@@ -35,7 +35,9 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('goods/goods_cate', 'GoodsController@goodsCate');
      Route::post('goods/good_list', 'GoodsController@goodList');
      Route::post('goods/specslist', 'GoodsController@specslist');
+     Route::post('goods/hotsearch', 'GoodsController@hotsearch');
      
+
      Route::post('Usersaddress/district', 'UsersaddressController@district');
      Route::post('Usersaddress/address_add', 'UsersaddressController@addressAdd');
      Route::post('Usersaddress/address','UsersaddressController@address');
@@ -46,6 +48,10 @@ Route::group(['namespace' => 'Api'], function () {
      
      Route::post('users/merchant_record', 'UsersController@merchantRecord');
      Route::post('users/fabulous', 'UsersController@fabulous');
+     Route::post('users/envelopes', 'UsersController@envelopes');
+     Route::post('users/envelopes_add', 'UsersController@envelopesAdd');
+
+     Route::post('common/pay_ways', 'CommonController@payWays');
 
      Route::post('cart/index', 'CartController@index');
      Route::post('cart/delcar', 'CartController@delcar');
@@ -57,7 +63,8 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('order/settlement', 'OrderController@settlement');
      Route::post('order/index', 'OrderController@index');
      Route::post('order/wx_pay', 'OrderController@wxPay');
-
+     Route::post('order/pay', 'OrderController@pay');
+     
      Route::post('login/login', 'LoginController@login');
      Route::post('login/send', 'LoginController@send');
      Route::post('login/cache', 'LoginController@cache');
