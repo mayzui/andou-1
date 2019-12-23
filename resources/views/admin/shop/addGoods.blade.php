@@ -200,14 +200,14 @@
                                             </div>
                                             <div class="hr-line-dashed"></div>
                                             <div class="form-group">
-                                                <label class="col-sm-2 control-label">重量 ：</label>
+                                                <label class="col-sm-2 control-label">重量（kg）：</label>
                                                 <div class="input-group col-sm-2">
                                                     <input type="text" class="form-control" name="weight" value="{{ $goodsdata ->weight or '' }}" required data-msg-required="请输入商品重量" >
                                                 </div>
                                             </div>
                                             <div class="hr-line-dashed"></div>
                                             <div class="form-group">
-                                                <label class="col-sm-2 control-label">邮费：</label>
+                                                <label class="col-sm-2 control-label">邮费（￥）：</label>
                                                 <div class="input-group col-sm-2">
                                                     <div class="radio i-checks">
                                                         <select name="dilivery">

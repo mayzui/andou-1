@@ -111,8 +111,8 @@ class Controller extends BaseController
         for($i = 0; $i < 16; $i++){
             $noncestr .= substr($charts,mt_rand(0, $max),1);
         }
-        $token['token'] = md5('andou'.$id.$noncestr);
-        $token['noncestr'] = $noncestr;
+        $token['token'] = md5('andou'.$id.md5($noncestr));
+        $token['noncestr'] = md5($noncestr);
         return $token;
     }
     /**验证toten
@@ -153,5 +153,33 @@ class Controller extends BaseController
         }
         DB::table('see_log')->insert($data);
         return 1;
+    }
+    /**
+     * [freight description]
+     * @param  [type] $freight  [商品重量]
+     * @param  [type] $num  [购买的重量或者件数]
+     * @param  [type] $express_id [计费模板id]
+     * @return [type]       [description]
+     */
+    public function freight($freight,$num,$express_id){
+        $res=Db::table('express_model')->where('id',$express_id)->first();
+        if (empty($res)) {
+            return 0;
+        }
+        if($res->caculate_method==2){
+            if ($num <= $res->num) {
+                return $res->basic_price;
+            }else{
+                return $res->basic_price+($num-$res->num)*$res->unit_price;
+            }
+        }else if($res->caculate_method==1){
+            if ($freight <= $res->num) {
+                return $res->basic_price;
+            }else{
+                return $res->basic_price+($freight-$res->num)*$res->unit_price;
+            }
+        }else{
+            return $res->basic_price;
+        }
     }
 }

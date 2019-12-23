@@ -8,9 +8,9 @@
             <div class="ibox-content">
                 <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>
 
-                <a href="{{route('shop.commnetsAdd')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
-                        <i class="fa fa-plus-circle"></i>新增评论</button>
-                </a>
+                {{--<a href="{{route('shop.commnetsAdd')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">--}}
+                        {{--<i class="fa fa-plus-circle"></i>新增评论</button>--}}
+                {{--</a>--}}
 
                 <form method="post" action="{{route('shop.express')}}" name="form">
                     <style>

@@ -23,7 +23,14 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::group(['namespace' => 'Api'], function () {
     //提示信息
     Route::post('index/information', 'IndexController@information');
+    // 消息中心
+    Route::post('index/notification_center', 'IndexController@notification_center');
     // 钱包
-    Route::post('wallet/index', 'WalletController@index');
+    Route::post('wallet/index', 'WalletController@index');      // 余额明细
+    Route::post('wallet/cash', 'WalletController@cash');      // 提现明细
+    Route::post('wallet/cash_withdrawal', 'WalletController@cash_withdrawal');      // 余额提现
+    Route::post('wallet/integral', 'WalletController@integral');      // 积分明细
+
+
 
 });

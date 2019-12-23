@@ -9,10 +9,10 @@
                 <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>&nbsp;
                 {{--判断用户是否是超级管理员，超级管理员不能新增菜品--}}
                 {{--@if($id)--}}
-                    <a href="{{route('finance.cashOutChange')}}" link-url="javascript:void(0)">
-                        <button class="btn btn-primary btn-sm" type="button">
-                                <i class="fa fa-plus-circle"></i> 新增管理明细</button>
-                    </a>
+                    {{--<a href="{{route('finance.cashOutChange')}}" link-url="javascript:void(0)">--}}
+                        {{--<button class="btn btn-primary btn-sm" type="button">--}}
+                                {{--<i class="fa fa-plus-circle"></i> 新增管理明细</button>--}}
+                    {{--</a>--}}
                 {{--@endif--}}
                     <style>
                         th ,td{
@@ -26,7 +26,7 @@
                             <th>用户名称</th>
                             <th>提现金额</th>
                             <th>提现时间</th>
-                            <th>线上/线下</th>
+                            <th>审核状态</th>
                             <th>操作</th>
                         </tr>
                         </thead>

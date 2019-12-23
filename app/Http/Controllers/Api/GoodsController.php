@@ -109,9 +109,18 @@ class GoodsController extends Controller
             return $this->rejson(201,'缺少参数'); 
         }
         $data=DB::table('goods')
-        ->select('name','merchant_id','img','album','price','dilivery','volume')
+        ->select('name','merchant_id','weight','img','album','price','dilivery','volume')
         ->where('id',$all['id'])
         ->first();
+        if ($data->album) {
+            $data->album=json_decode($data->album,1);
+        }else{
+            $data->album='';
+        }
+        // echo $data->weight;exit();
+        if ($data->dilivery > 0) {
+            $data->dilivery=$this->freight($data->weight,1,$data->dilivery);
+        }
         if(isset($all['uid'])){//添加浏览记录
             $pv=$this->seemerchant($all['uid'],$all['id'],1);
             if ($pv) {
@@ -401,6 +410,29 @@ class GoodsController extends Controller
             ->where('pid',$value->id)
             ->get();
         }
+        return $this->rejson(200,'查询成功',$data);
+    }
+    /**
+     * @api {post} /api/goods/hotsearch 热门搜索
+     * @apiName hotsearch
+     * @apiGroup goods
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": [
+     *          {
+                    "id": "关键词id",
+                    "name": "搜索关键词"
+                }
+     *       ],
+     *       "msg":"查询成功"
+     *     }
+     */
+    public function hotsearch(){
+        $data=DB::table('hotsearch')
+        ->select('id','name')
+        ->where('status',1)
+        ->get();
         return $this->rejson(200,'查询成功',$data);
     }
 }

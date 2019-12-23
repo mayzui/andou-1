@@ -19,6 +19,7 @@
                         <tr>
                             <th width="100">ID</th>
                             <th>位置名称</th>
+                            <th>启用状态</th>
                             <th>操作</th>
                         </tr>
                         </thead>
@@ -27,9 +28,13 @@
                             <tr>
                                 <td>{{$item->id}}</td>
                                 <td>{{$item->name}}</td>
+                                <td style="color: blue">{{$item->status == 0 ? "未启用" : "启用中"}}</td>
                                 <td class="text-center">
                                     <div class="btn-group">
-                                        <a href="{{route('banner.positionEdit',$item->id)}}">
+                                        <a onclick="del({{$item->id}})">
+                                            <button class="btn btn-group btn-xs" type="button"><i class="fa fa-warning"></i> {{$item->status == 0 ? "启用" : "禁用"}}</button>
+                                        </a>
+                                        <a href="{{route('banner.positionEdit')}}?id={{$item->id}}">
                                             <button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 修改</button>
                                         </a>
                                     </div>
@@ -44,4 +49,13 @@
         </div>
         <div class="clearfix"></div>
     </div>
+    <script type="text/javascript">
+        function del(e) {
+            var id = e;
+            layer.alert("是否修改该数据的状态？",{icon:3},function (index) {
+                location.href="{{route('banner.positionDel')}}?id="+id;
+                layer.close(index);
+            });
+        }
+    </script>
 @endsection

@@ -19,25 +19,6 @@
                                 <input type="text" class="form-control" name="name" value="{{old('name')}}" required data-msg-required="运费名称">
                         </div>
                     </div>
-
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label">发货地址：</label>
-                        <div class="input-group col-sm-2">
-                                <input type="text" class="form-control" name="ship_address" value="{{old('ship_address')}}" required data-msg-required="发货地址">
-                        </div>
-                    </div>
-                    <div class="hr-line-dashed m-t-sm m-b-sm"></div>
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label">包邮：</label>
-                        <div class="input-group col-sm-2">
-                            <div class="radio i-checks">
-                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                <input type="radio" name='is_free' value="1" checked="checked"/>开启&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                <input type="radio" name='is_free' value="0" />关闭
-                            </div>
-                        </div>
-                    </div>
-
                     <div class="hr-line-dashed m-t-sm m-b-sm"></div>
                     <div class="form-group">
                         <div class="col-sm-12 col-sm-offset-2">

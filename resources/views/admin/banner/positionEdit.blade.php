@@ -5,19 +5,18 @@
     <div class="row">
         <div class="col-sm-12">
             <div class="ibox-title">
-                <h5>修改运费模板</h5>
+                <h5>添加广告位</h5>
             </div>
             <div class="ibox-content">
                 <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>
-                <a href="{{route('shop.express')}}"><button class="btn btn-primary btn-sm" type="button"><i class="fa fa-plus-circle"></i> 运费管理</button></a>
                 <div class="hr-line-dashed m-t-sm m-b-sm"></div>
-                <form class="form-horizontal m-t-md" action="{{ route('shop.storeExpress') }}" method="post" accept-charset="UTF-8" enctype="multipart/form-data">
+                <form class="form-horizontal m-t-md" action="{{ route('banner.positionEdit') }}" method="post" accept-charset="UTF-8" enctype="multipart/form-data">
                     {!! csrf_field() !!}
-                    <input type="hidden" name="id" value="{{$data->id}}">
                     <div class="form-group">
-                        <label class="col-sm-2 control-label">运费名称：</label>
+                        <input type="hidden" name="id" value="{{ $data -> id }}" />
+                        <label class="col-sm-2 control-label">广告位：</label>
                         <div class="input-group col-sm-2">
-                            <input type="text" class="form-control" name="name" value="{{$data->name}}" required data-msg-required="运费名称">
+                            <input type="text" name="name" value="{{ $data->name }}" class="form-control" placeholder="请输入广告位名称">
                         </div>
                     </div>
                     <div class="hr-line-dashed m-t-sm m-b-sm"></div>

@@ -129,7 +129,13 @@ class OrderController extends Controller
         $alldata['user_id']=$data['user_id']=$all['uid'];
         $alldata['order_sn']=$data['order_id']=$this->suiji();
         $alldata['created_at'] = $alldata['updated_at']=$data['created_at'] = $data['updated_at'] =date('Y-m-d H:i:s',time());
-        $alldata['shipping_free']=$data['shipping_free']=0;
+        $dilivery=Db::table('goods')->select('dilivery','weight')->where('id',$all['goods_id'])->first();
+        if ($dilivery->dilivery > 0) {
+            $alldata['shipping_free']=$data['shipping_free']=$this->freight($dilivery->weight*$all['num'],$all['num'],$dilivery->dilivery);
+        }else{
+            $alldata['shipping_free']=$data['shipping_free']=0;
+        }
+        
         $datas=Db::table('goods_sku')->where('id',$all['goods_sku_id'])->where('store_num','>',0)->first();
         if (empty($data)) {
             return $this->rejson(201,'商品库存不足');
@@ -182,7 +188,7 @@ class OrderController extends Controller
             $alldata['remark']=$all['remark']??'';
             $alldata['order_sn']=$data['order_id']=$this->suiji();
             $alldata['user_id']=$data['user_id']=$all['uid'];
-            $alldata['shipping_free']=$data['shipping_free']=0;
+            $alldata['shipping_free']=0;
             $alldata['created_at'] = $alldata['updated_at']=$data['created_at'] = $data['updated_at'] =date('Y-m-d H:i:s',time());
             $alldata['auto_receipt']=$all['auto_receipt']??0;
         }
@@ -194,6 +200,13 @@ class OrderController extends Controller
             if (empty($car)) {
                 DB::rollback();
                 return $this->rejson(201,'购物车id不存在');
+            }
+            $dilivery=Db::table('goods')->select('dilivery','weight')->where('id',$car->goods_id)->first();
+            if ($dilivery->dilivery > 0) {
+                $data['shipping_free']=$this->freight($dilivery->weight*$all['num'],$all['num'],$dilivery->dilivery);
+                $alldata['shipping_free']+=$data['shipping_free'];
+            }else{
+                $data['shipping_free']=0;
             }
             $datas=Db::table('goods_sku')->where('id',$car->goods_sku_id)->where('store_num','>',0)->first();
             if (empty($datas)) {
@@ -298,19 +311,79 @@ class OrderController extends Controller
         return $this->rejson(200,'查询成功',$data);
     }
      /**
-     * @api {post} /api/order/wx_pay 微信支付
-     * @apiName wx_pay
+     * @api {post} /api/order/pay 订单支付
+     * @apiName pay
      * @apiGroup order
      * @apiParam {string} uid 用户id
      * @apiParam {string} token 验证登陆
      * @apiParam {string} sNo 订单号
+     * @apiParam {string} pay_id 支付方式id
      * @apiSuccessExample 参数返回:
      *     {
      *       "code": "200",
      *       "data": "",     
      *       "msg":"查询成功"
      *     }
-     */   
+     */
+     public function pay(){
+        $all=request()->all();
+        if ($all['pay_id']==1) {//微信支付
+            $this->wxpay();
+        }else if($all['pay_id']==2){//支付宝支付
+            return $this->rejson(201,'暂未开通');
+        }else if($all['pay_id']==3){//银联支付
+            return $this->rejson(201,'暂未开通');
+        }else if($all['pay_id']==4){//余额支付
+            $this->balancePay();
+        }else if($all['pay_id']==5){//其他支付
+            return $this->rejson(201,'暂未开通');
+        }else{
+            return $this->rejson(201,'暂未开通');
+        }
+     }
+     public function balancePay(){
+        $all=request()->all();
+        if (empty($all['sNo'])) {
+            return $this->rejson(201,'参数错误');
+        }
+        $sNo=$all['sNo'];
+        $users=Db::table('users')
+        ->select('money')
+        ->where('id',$all['uid'])
+        ->first();
+        $orders = Db::table('orders')
+        ->where(['order_sn'=>$sNo,'status'=>10,'user_id'=>$all['uid']])
+        ->first();
+        if (empty($orders)) {
+            return $this->rejson(201,'订单不存在');
+        }
+        if($users->money < $orders->order_money){
+            return $this->rejson(201,'余额不足');
+        }
+        $data['user_id']=$all['uid'];
+        $data['describe']='订单：'.$sNo.'消费';
+        $data['create_time']=date('Y-m-d H:i:s',time());
+        $data['type_id']=2;
+        $data['price']=$orders->order_money;
+        $data['state']=2;
+        $data['is_del']=0;
+        $status['status']=20;
+        $status['pay_money']=$orders->order_money;
+        $status['pay_way']=$all['pay_id'];
+        $status['pay_time']=date('Y-m-d H:i:s',time());
+        DB::beginTransaction(); //开启事务
+        $re=DB::table('user_logs')->insert($data);
+        $ress=DB::table('orders')->where('order_sn',$sNo)->update($status);
+        $res=DB::table('users')->where('id',$all['uid'])->decrement('money',$orders->order_money);
+        if ($res&&$re&&$ress) {
+            DB::commit();
+            return $this->rejson(200,'支付成功');
+        }else{
+            DB::rollback();
+            return $this->rejson(201,'领取失败');
+        }
+
+     }   
      public function wxPay(){
         require_once base_path()."/wxpay/lib/WxPay.Api.php";
         require_once base_path()."/wxpay/example/WxPay.NativePay.php";
