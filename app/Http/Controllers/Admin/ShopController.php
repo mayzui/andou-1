@@ -498,9 +498,12 @@ class ShopController extends BaseController
         }
     }
 
-    public function statics (Request $request)
+    public function statics ()
     {
-        $data =  Statics::orderBy('id','desc')->where('is_del',0)->paginate($request->input('limit'));
+        $data =  DB::table('statics')
+            -> join('users','statics.user_id','=','users.id')
+            -> select(['statics.id','statics.price','statics.describe','statics.state','statics.create_time','statics.type_id','users.name'])
+            -> paginate(10);
         return $this->view('',['data'=> $data]);
     }
 
