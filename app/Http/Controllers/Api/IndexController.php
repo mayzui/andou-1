@@ -159,5 +159,36 @@ class IndexController extends Controller
             return $this->rejson(201,'未查询到该id');
         }
     }
+    /**
+     * @api {post} /api/index/about 关于我们
+     * @apiName about
+     * @apiGroup index
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": {
+                "image": "图片",
+                "title": "标题",
+                "content": "内容",
+                "value": "版本",
+                "copyright": "版权"
+     *          },
+     *       "msg":"查询成功"
+     *     }
+     */
+    public function about(){
+        $all = \request() -> all();
+        // 链接数据库根据id查询
+        $data = \DB::table('about')
+            -> join('config','about.config_id','=','config.id')
+            -> where('about.id',1)
+            -> select(['about.image','about.title','about.content','config.value','about.copyright'])
+            -> first();
+        if(!empty($data)){
+            return $this->rejson(200,'查询成功',$data);
+        }else{
+            return $this->rejson(201,'未查询到该id');
+        }
+    }
 //W83tVnay3ZPCsMA
 }

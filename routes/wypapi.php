@@ -25,11 +25,22 @@ Route::group(['namespace' => 'Api'], function () {
     Route::post('index/information', 'IndexController@information');
     // 消息中心
     Route::post('index/notification_center', 'IndexController@notification_center');
+    // 关于我们
+    Route::post('index/about', 'IndexController@about');
     // 钱包
     Route::post('wallet/index', 'WalletController@index');      // 余额明细
     Route::post('wallet/cash', 'WalletController@cash');      // 提现明细
     Route::post('wallet/cash_withdrawal', 'WalletController@cash_withdrawal');      // 余额提现
     Route::post('wallet/integral', 'WalletController@integral');      // 积分明细
+    // 个人中心
+    Route::post('wallet/personal', 'WalletController@personal');      // 积分明细
+    // 意见反馈
+    Route::post('opinion/index', 'OpinionController@index');      // 反馈意见
+    Route::post('opinion/set', 'OpinionController@set');      // 设置
+    // 检测新版本
+    Route::post('edition/new_edition', 'EditionController@new_edition');      // 检测新版本
+    // 发表评论
+    Route::post('goods/addcomment', 'GoodsController@addcomment');
 
 
 

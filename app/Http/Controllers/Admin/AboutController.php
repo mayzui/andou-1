@@ -13,9 +13,8 @@ class AboutController extends BaseController
         $data = \DB::table('about')
             -> join('config','about.config_id','=','config.id')
             -> where('about.id',1)
-            -> where('config.id',9)
             -> select(['about.id','config.value','about.image','about.title','about.content','about.copyright'])
-            -> first(10);
+            -> first();
         return $this -> view('',['data' => $data]);
     }
 

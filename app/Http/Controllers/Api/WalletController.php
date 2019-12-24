@@ -197,6 +197,7 @@ class WalletController extends Controller
      *       "data": {
                 "mobile":'用户联系方式',
                 "money":'用户余额',
+                "name":'用户名称',
               }
      */
     public function cash_withdrawal(){
@@ -208,7 +209,41 @@ class WalletController extends Controller
         // 根据提交的id，查询用户表的内容
         $data = DB::table('users')
             -> where('id',$all['uid'])
-            -> select(['mobile','money'])
+            -> select(['mobile','money','name'])
+            -> first();
+        if(!empty($data)){
+            return $this->rejson(200,'查询成功',$data);
+        }else{
+            return $this->rejson(201,'未查询到该id');
+        }
+    }
+    /**
+     * @api {post} /api/wallet/personal 个人中心
+     * @apiName personal
+     * @apiGroup wallet
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} token 验证登陆
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "msg":"查询成功",
+     *       "data": {
+        "id":'用户id',
+        "name":'用户名称',
+        "avator":'用户头像',
+        "grade":'用户vip等级',
+     }
+     */
+    public function personal(){
+        $all = \request() -> all();
+        // 根据获取的id
+        if(empty($all['uid'])){
+            return $this->rejson(201,'请输入用户id');
+        }
+        $data = DB::table('users')
+            -> join('vip','users.id','=','vip.user_id')
+            -> where('users.id',$all['uid'])
+            -> select(['users.id','users.name','users.avator','vip.grade'])
             -> first();
         if(!empty($data)){
             return $this->rejson(200,'查询成功',$data);

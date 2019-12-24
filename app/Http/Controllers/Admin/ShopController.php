@@ -1080,6 +1080,31 @@ class ShopController extends BaseController
                 ];
                 flash('修改成功') -> success();
                 return $this->view('addGoods',$arr);
+            }else{
+                $goodsCate = GoodsCate::with(['children'=>function($res){
+                    $res->with('children');
+                }])->where('pid','=',0)
+                    ->get();
+
+                // 查询运费模板表
+                $express_modeldata = DB::table('express_model') -> get();
+                $goodBrands = GoodBrands::select('id','name')->orderBy('id','asc')->get();
+                // 查询商品参数
+                $attrData = DB::table('goods_attr') -> get();
+                $a = DB::table('goods_attr_value') -> get();
+                $arr = [
+                    'goodsCate'=>$goodsCate,
+                    'goodsdata'=>$goodsdata,
+                    'goodBrands'=>$goodBrands,
+                    'express_modeldata'=>$express_modeldata,
+                    'attrData'=>$attrData,
+                    'attrvalueData'=>$a,
+                    'goods_id'=>$all['goods_id'],
+                    'goodssku'=> $old_arr,
+                    'goods_album'=> []
+                ];
+                flash('未修改任何内容') -> success();
+                return $this->view('addGoods',$arr);
             }
         }else{
             // 新增
