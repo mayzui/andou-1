@@ -251,6 +251,7 @@ class OrderController extends Controller
                 "id": 订单id,
                 "order_sn": "订单号",
                 "address_id": "收货地址id",
+                "integral":"使用积分",
                 "userinfo": {
                     "name": "收货人",
                     "address": "收货详细地址",
@@ -285,11 +286,13 @@ class OrderController extends Controller
         }
         $data=DB::table('orders')
         ->where(['order_sn'=>$all['order_sn'],'user_id'=>$all['uid'],'type'=>1,'is_del'=>0])
-        ->select('order_money','id','order_sn','address_id')
+        ->select('order_money','id','shipping_free','order_sn','address_id')
         ->first();
         if (empty($data)) {
             return $this->rejson(201,'无效的订单号');
         }
+        $integral=DB::table('config')->where('key','integral')->first()->value;
+        $data->integral=floor(($data->order_money-$data->shipping_free)*$integral);
         $address=Db::table('user_address')
         ->where('id',$data->address_id)
         ->first();
@@ -390,6 +393,9 @@ class OrderController extends Controller
         $all=request()->all();
         if (empty($all['sNo'])) {
             return $this->rejson(201,'参数错误');
+        }
+        if($all['is_integral']){
+
         }
         $sNo=$all['sNo'];
         

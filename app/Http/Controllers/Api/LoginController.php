@@ -154,14 +154,14 @@ class LoginController extends Controller
      * @apiGroup login
      * @apiParam {string} phone 手机号码
      * @apiParam {string} verify 验证码
-     * @apiParam {string} new_password 验证码
+     * @apiParam {string} new_password 新密码
      * @apiSuccessExample 参数返回:
      *     {
      *       "code": "200",
      *       "data": {
      *            "password":"新密码"
      *       },
-     *       "msg":"登陆成功"
+     *       "msg":"修改成功"
      *     }
      */
     public function forget(){

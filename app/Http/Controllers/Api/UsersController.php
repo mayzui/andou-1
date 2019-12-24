@@ -160,4 +160,33 @@ class UsersController extends Controller
             return $this->rejson(201,'领取失败');
         }
     }
+
+    /**
+     * @api {post} /api/users/upmodel 修改手机号
+     * @apiName upmodel
+     * @apiGroup users
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} token 验证登陆
+     * @apiParam {string} phone 手机号码
+     * @apiParam {string} verify 验证码
+     * 
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": "",
+     *       "msg":"修改成功"
+     *     }
+     */
+    public function upmodel(){
+       $all=request()->all();
+       if (empty($all['phone']) || empty($all['verify']) ||empty($all['uid'])) {
+            return $this->rejson(201,'参数错误');
+       }
+       $data['mobile']=$all['phone'];
+       if ($all['verify'] != Redis::get($all['phone'])) {
+                return $this->rejson(201,'验证码错误');
+        }
+       $re=Db::table('users')->where('id',$all['uid'])->update($data);
+       return $this->rejson('200',"修改手机号成功");
+    }
 }

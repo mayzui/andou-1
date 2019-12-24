@@ -158,6 +158,8 @@ class GoodsController extends Controller
      * @apiGroup goods
      * @apiParam {string} keyword 关键字查询(非必传)
      * @apiParam {string} cate_id 分类id查询(非必传)
+     * @apiParam {string} is_recommend 查询推荐产品传1(非必传)
+     * @apiParam {string} is_bargain 查询特价产品传1(非必传)
      * @apiParam {string} price_sort 价格排序(非必传1为倒序,0为正序)
      * @apiParam {string} volume_sort 销量排序(非必传1为倒序,0为正序)
      * @apiSuccessExample 参数返回:
@@ -183,6 +185,12 @@ class GoodsController extends Controller
             $pages=($all['page']-1)*$num;
         }else{
             $pages=0;
+        }
+        if (!empty($all['is_recommend'])) {//推荐
+           $where[]=['is_recommend',1];
+        }
+        if (!empty($all['is_bargain'])) {//特价
+           $where[]=['is_bargain',1];
         }
         if (isset($all['cate_id'])) {
             $where[]=['goods_cate_id', 'like', '%,'.$all['cate_id'].',%'];
