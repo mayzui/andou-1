@@ -96,7 +96,9 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('banner/notice','BannerController@notice')->name('banner.notice'); 
         Route::get('banner/noticedel','BannerController@noticedel')->name('banner.noticedel');
         Route::match(['get','post'],'banner/noticeedit','BannerController@noticeedit')->name('banner.noticeedit');
-        Route::get('shop/hotkeywords','ShopController@noticeedit')->name('shop.hotkeywords');  
+        Route::get('shop/hotkeywords','ShopController@hotkeywords')->name('shop.hotkeywords');
+        Route::get('shop/hotkeywordsdel','ShopController@hotkeywordsdel')->name('shop.hotkeywordsdel');
+        Route::match(['get','post'],'shop/hotkeywordsedit','ShopController@hotkeywordsedit')->name('shop.hotkeywordsedit');  
     });
 });
 ?>

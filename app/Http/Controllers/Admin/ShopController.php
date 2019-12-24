@@ -1524,4 +1524,50 @@ class ShopController extends BaseController
         }
 
     }
+    public function hotkeywords(){
+        $data=Db::table('hotsearch')->paginate(10);
+        return $this->view('',['data'=>$data]);
+    }
+    public function hotkeywordsedit(){
+        $all = request()->all();
+        if (request()->isMethod('post')) {
+            $save['name']=$all['name'];
+            if (empty($all['id'])) {
+                $save['status']=0;
+                $save['created_at']=date('Y-m-d H:i:s',time());
+                $re=Db::table('hotsearch')->insert($save);
+            }else{
+                $re=Db::table('hotsearch')->where('id',$all['id'])->update($save);
+            }
+            if ($re) {
+                flash('修改成功')->success();
+                return redirect()->route('shop.hotkeywords');
+            }else{
+                flash('修改失败')->error();
+                return redirect()->route('shop.hotkeywords');
+            }
+        }else{
+            if (empty($all['id'])) {
+                $data = (object)[];
+                
+            }else{
+                $data=Db::table('hotsearch')->where('id',$all['id'])->first();
+            }
+            return $this->view('',['data'=>$data]);
+        }
+    }
+    public function hotkeywordsdel(){
+         // 获取传入的id
+        $all = request() -> all();
+        // 根据id删除表中数据
+        $data['status'] = $all['status'];
+        $i = DB::table("hotsearch") ->where('id',$all['id']) ->update($data);
+        if($i){
+            flash('删除成功') -> success();
+            return redirect()->route('shop.hotkeywords');
+        }else{
+            flash('删除失败') -> error();
+            return redirect()->route('shop.hotkeywords');
+        }
+    }
 }
