@@ -95,8 +95,8 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('finance/cashLogsDel','FinanceController@cashLogsDel')->name('finance.cashLogsDel'); // 删除
         Route::get('banner/notice','BannerController@notice')->name('banner.notice'); 
         Route::get('banner/noticedel','BannerController@noticedel')->name('banner.noticedel');
-        Route::match(['get','post'],'banner/noticeedit','BannerController@noticeedit')->name('banner.noticeedit');  
-
+        Route::match(['get','post'],'banner/noticeedit','BannerController@noticeedit')->name('banner.noticeedit');
+        Route::get('shop/hotkeywords','ShopController@noticeedit')->name('shop.hotkeywords');  
     });
 });
 ?>
