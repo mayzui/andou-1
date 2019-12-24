@@ -93,6 +93,7 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
 
         // 平台流水
         Route::get('finance/cashLogsDel','FinanceController@cashLogsDel')->name('finance.cashLogsDel'); // 删除
+        Route::get('banner/notice','BannerController@cashLogsDel')->name('banner.notice'); // 删除
 
     });
 });
