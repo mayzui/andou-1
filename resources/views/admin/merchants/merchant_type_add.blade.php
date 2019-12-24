@@ -20,7 +20,44 @@
                             <input type="text" class="form-control" name="type_name" value="{{$data->type_name or ''}}" required data-msg-required="分类名字">
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">分类图片：</label>
+                        <div class="input-group col-sm-2">
+                            <input type="file" class="form-control" name="img">
+                            <div class="gallery" id="show">
+                                @if($data->img)
+                                <img class="img" src="/{{$data->img}}">
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                    <style type="text/css">
+                        .gallery .img-item {
+                            margin-right: 10px;
+                            position: relative;
+                        }
+                         
+                        .gallery .img-item .delete {
+                            position: absolute;
+                            display: block;
+                            width: 15px;
+                            height: 15px;
+                            color: #fff;
+                            background: rgba(0, 0, 0, 0.7);
+                            line-height: 15px;
+                            text-align: center;
+                            border-radius: 50%;
+                            right: 0px;
+                            cursor: pointer;
+                        }
+                         
+                        .img {
+                            width: 100px;
+                            height: 100px;
+                            /*margin: 20px;*/
+                        }
 
+                        </style>
                     
                     <div class="form-group">
                         <label class="col-sm-2 control-label">角色选择：</label>

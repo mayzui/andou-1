@@ -20,6 +20,7 @@
                         <tr>
                             <th width="100">ID</th>
                             <th>分类名字</th>
+                            <th>分类图片</th>
                             <th>是否允许创建子商户</th>
                             <th>操作</th>
                         </tr>
@@ -29,7 +30,7 @@
                             <tr>
                                 <td>{{$item->id}}</td>
                                 <td>{{$item->type_name}}</td>
-                                
+                                <td><img src="/{{$item->img}}"></td>
                                 <td>@if($item->has_children==1)
                                         允许
                                     @else
