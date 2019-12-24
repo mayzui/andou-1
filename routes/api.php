@@ -50,6 +50,8 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('users/fabulous', 'UsersController@fabulous');
      Route::post('users/envelopes', 'UsersController@envelopes');
      Route::post('users/envelopes_add', 'UsersController@envelopesAdd');
+     Route::post('users/upmodel', 'UsersController@upmodel');
+     
 
      Route::post('common/pay_ways', 'CommonController@payWays');
 

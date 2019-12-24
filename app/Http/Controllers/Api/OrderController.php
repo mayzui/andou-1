@@ -251,6 +251,7 @@ class OrderController extends Controller
                 "id": 订单id,
                 "order_sn": "订单号",
                 "address_id": "收货地址id",
+                "integral":"使用积分",
                 "userinfo": {
                     "name": "收货人",
                     "address": "收货详细地址",
@@ -285,11 +286,13 @@ class OrderController extends Controller
         }
         $data=DB::table('orders')
         ->where(['order_sn'=>$all['order_sn'],'user_id'=>$all['uid'],'type'=>1,'is_del'=>0])
-        ->select('order_money','id','order_sn','address_id')
+        ->select('order_money','id','shipping_free','order_sn','address_id')
         ->first();
         if (empty($data)) {
             return $this->rejson(201,'无效的订单号');
         }
+        $integral=DB::table('config')->where('key','integral')->first()->value;
+        $data->integral=floor(($data->order_money-$data->shipping_free)*$integral);
         $address=Db::table('user_address')
         ->where('id',$data->address_id)
         ->first();
@@ -348,7 +351,7 @@ class OrderController extends Controller
         }
         $sNo=$all['sNo'];
         $users=Db::table('users')
-        ->select('money')
+        ->select('money','integral')
         ->where('id',$all['uid'])
         ->first();
         $orders = Db::table('orders')
@@ -360,27 +363,46 @@ class OrderController extends Controller
         if($users->money < $orders->order_money){
             return $this->rejson(201,'余额不足');
         }
+        if($all['is_integral']==1){
+            $integrals=DB::table('config')->where('key','integral')->first()->value;
+            $integral=floor(($orders->order_money-$orders->shipping_free)*$integrals);
+            if ($users->integral<$integral) {
+                return $this->rejson(201,'积分不足');
+            }else{
+                $dataintegral['integral']=$integral;
+                Db('orders')->where('order_sn',$sNo)->update($dataintegral);
+            }
+        }else{
+            $integral=0;
+        }
         $data['user_id']=$all['uid'];
         $data['describe']='订单：'.$sNo.'消费';
         $data['create_time']=date('Y-m-d H:i:s',time());
         $data['type_id']=2;
-        $data['price']=$orders->order_money;
+        $data['price']=$orders->order_money-$integral;
         $data['state']=2;
         $data['is_del']=0;
         $status['status']=20;
-        $status['pay_money']=$orders->order_money;
+        $status['pay_money']=$orders->order_money-$integral;
         $status['pay_way']=$all['pay_id'];
         $status['pay_time']=date('Y-m-d H:i:s',time());
         DB::beginTransaction(); //开启事务
         $re=DB::table('user_logs')->insert($data);
         $ress=DB::table('orders')->where('order_sn',$sNo)->update($status);
         $res=DB::table('users')->where('id',$all['uid'])->decrement('money',$orders->order_money);
+        if ($integral>0) {
+            $addintegral=$data;
+            $addintegral['price']=$integral;
+            $addintegral['type_id']=1;
+            $rei=DB::table('user_logs')->insert($addintegral);
+            $resi=DB::table('users')->where('id',$all['uid'])->decrement('integral',$integral);
+        }
         if ($res&&$re&&$ress) {
             DB::commit();
             return $this->rejson(200,'支付成功');
         }else{
             DB::rollback();
-            return $this->rejson(201,'领取失败');
+            return $this->rejson(201,'支付失败');
         }
 
      }   
@@ -391,16 +413,29 @@ class OrderController extends Controller
         if (empty($all['sNo'])) {
             return $this->rejson(201,'参数错误');
         }
+
         $sNo=$all['sNo'];
         
         $orders = Db::table('orders')
         ->where('order_sn',$sNo)
         ->first();
-        
         if (empty($orders)) {
             return $this->rejson(201,'订单不存在');
         }
-        $pay_money = 100*$orders->order_money;
+        if($all['is_integral']==1){
+            $allintegral=DB::table('users')->where('id',$all['uid'])->first()->integral;
+            $integrals=DB::table('config')->where('key','integral')->first()->value;
+            $integral=floor(($orders->order_money-$orders->shipping_free)*$integrals);
+            if ($allintegral<$integral) {
+                return $this->rejson(201,'积分不足');
+            }else{
+                $dataintegral['integral']=$integral;
+                Db('orders')->where('order_sn',$sNo)->update($dataintegral);
+            }
+        }else{
+            $integral=0;
+        }
+        $pay_money = 100*($orders->order_money-$integral);
         
         $input = new \WxPayUnifiedOrder();
         

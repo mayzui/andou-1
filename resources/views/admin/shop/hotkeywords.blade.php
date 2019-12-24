@@ -9,7 +9,7 @@
                 
                 
                 <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>&nbsp;
-                <a href="{{route('merchants.merchant_type_add')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button"><i class="fa fa-plus-circle"></i> 新增分类</button></a>
+                <a href="{{route('shop.hotkeywordsedit')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button"><i class="fa fa-plus-circle"></i> 新增公告</button></a>
                     <style>
                         th ,td{
                             text-align: center;
@@ -19,9 +19,8 @@
                         <thead>
                         <tr>
                             <th width="100">ID</th>
-                            <th>分类名字</th>
-                            <th>分类图片</th>
-                            <th>是否允许创建子商户</th>
+                            <th>搜索词</th>
+                            <th>状态</th>
                             <th>操作</th>
                         </tr>
                         </thead>
@@ -29,19 +28,22 @@
                         @foreach($data as $k => $item)
                             <tr>
                                 <td>{{$item->id}}</td>
-                                <td>{{$item->type_name}}</td>
-                                <td><img src="/{{$item->img}}"></td>
-                                <td>@if($item->has_children==1)
-                                        允许
+                                <td>{{$item->name}}</td>
+                                <td>@if($item->status==1)
+                                        已发布
                                     @else
-                                        不允许
+                                        未发布
                                     @endif
                                 </td>
                                 
                                 <td class="text-center">
                                     <div class="btn-group">
-                                    <a href="{{route('merchants.merchant_type_add')}}?id={{$item->id}}"><button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 修改</button></a>
-                                    <a href="{{route('merchants.del')}}?id={{$item->id}}"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o"></i> 删除</button></a>   
+                                    <a href="{{route('shop.hotkeywordsedit')}}?id={{$item->id}}"><button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 修改</button></a>
+                                    @if($item->status==1)
+                                    <a href="{{route('shop.hotkeywordsdel')}}?id={{$item->id}}&status=0"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o"></i> 取消发布</button></a>
+                                    @else
+                                    <a href="{{route('shop.hotkeywordsdel')}}?id={{$item->id}}&status=1"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o"></i> 发布</button></a>
+                                    @endif   
                                     </div>
                                 </td>
                             </tr>

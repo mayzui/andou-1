@@ -120,6 +120,10 @@ class MerchantsController extends BaseController
             $save['type_name']=$all['type_name'];
             $save['has_children']=$all['has_children'];
             $save['role_id']=$all['role_id'];
+            if(!empty(request()->file('img'))){
+                $file[0]=request()->file('img');
+                $save['img']=$this->uploads($file);
+            }
             if (empty($all['id'])) {
                 $re=Db::table('merchant_type')->insert($save);
             }else{
@@ -137,6 +141,7 @@ class MerchantsController extends BaseController
                 $data = (object)[];
                 $data->type_name='';
                 $data->has_children=0;
+                $data->img='';
                 $data->role_id=0;
             }else{
                 $data=Db::table('merchant_type')->where('id',$all['id'])->first();

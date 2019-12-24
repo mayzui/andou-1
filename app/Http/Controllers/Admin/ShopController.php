@@ -500,10 +500,26 @@ class ShopController extends BaseController
 
     public function statics ()
     {
-        $data =  DB::table('statics')
-            -> join('users','statics.user_id','=','users.id')
-            -> select(['statics.id','statics.price','statics.describe','statics.state','statics.create_time','statics.type_id','users.name'])
-            -> paginate(10);
+        $id = Auth::id();     // 当前登录用户的id
+        // 判断当前用户是否是商家
+        $i = DB::table('merchants')
+            -> where('user_id',$id)
+            -> where('is_reg',1)
+            -> first();
+        // 如果当前用户是商家，则查询当前商户的商品
+        if($i){
+            $data =  DB::table('statics')
+                -> join('users','statics.user_id','=','users.id')
+                -> join('merchants','statics.merchant_id','=','merchants.id')
+                -> where('merchants.user_id',$id)
+                -> select(['statics.id','statics.price','statics.describe','statics.state','statics.create_time','statics.type_id','users.name'])
+                -> paginate(10);
+        }else{
+            $data =  DB::table('statics')
+                -> join('users','statics.user_id','=','users.id')
+                -> select(['statics.id','statics.price','statics.describe','statics.state','statics.create_time','statics.type_id','users.name'])
+                -> paginate(10);
+        }
         return $this->view('',['data'=> $data]);
     }
 
@@ -521,11 +537,27 @@ class ShopController extends BaseController
             * */
     public function orders(Request $request)
     {
-        $list = DB::table('orders')
-            -> join('users','orders.user_id','=','users.id')
-            -> where('orders.is_del',0)
-            -> select(['orders.id','orders.order_sn','orders.pay_way','orders.pay_money','orders.order_money','orders.status','orders.shipping_free','orders.remark','orders.auto_receipt','orders.pay_time','users.name'])
-            -> paginate(10);
+        $id = Auth::id();     // 当前登录用户的id
+        // 判断当前用户是否是商家
+        $i = DB::table('merchants')
+            -> where('user_id',$id)
+            -> where('is_reg',1)
+            -> first();
+        // 如果当前用户是商家，则查询当前商户的商品
+        if($i){
+            $list = DB::table('orders')
+                -> join('users','orders.user_id','=','users.id')
+                -> where('orders.is_del',0)
+                -> where('orders.user_id',$id)
+                -> select(['orders.id','orders.order_sn','orders.pay_way','orders.pay_money','orders.order_money','orders.status','orders.shipping_free','orders.remark','orders.auto_receipt','orders.pay_time','users.name'])
+                -> paginate(10);
+        }else{
+            $list = DB::table('orders')
+                -> join('users','orders.user_id','=','users.id')
+                -> where('orders.is_del',0)
+                -> select(['orders.id','orders.order_sn','orders.pay_way','orders.pay_money','orders.order_money','orders.status','orders.shipping_free','orders.remark','orders.auto_receipt','orders.pay_time','users.name'])
+                -> paginate(10);
+        }
         return $this->view('orders',['list'=>$list]);
 
     }
@@ -652,22 +684,48 @@ class ShopController extends BaseController
     // 跳转商品界面
     public function goods(Request $request ,Auth $auth)
     {
-        $admin = Auth::guard('admin')->user();
-
-        $goods = DB::table('goods')
-            -> join('merchants','goods.merchant_id','=','merchants.id')
-            -> select(['merchants.name as merchant_name','goods.id','goods.pv','goods.created_at','goods.updated_at','goods.goods_cate_id','goods.img','goods.desc','goods.is_hot','goods.is_recommend','goods.is_sale','goods.is_bargain','goods.dilivery'])
-            -> orderBy('goods.id','desc')
-            -> paginate(10);
-        foreach ($goods as $k => $v){
-            $goods_cate_id  = explode(',',$v->goods_cate_id);
-            unset($goods_cate_id[0]);
-            array_pop($goods_cate_id);
-            $name=[];
-            foreach ($goods_cate_id as $item) {
-                $name[]=Db::table('goods_cate')->select('name')->where('id',$item)->first()->name ?? '';
+        $id = Auth::id();     // 当前登录用户的id
+        // 判断当前用户是否是商家
+        $i = DB::table('merchants')
+            -> where('user_id',$id)
+            -> where('is_reg',1)
+            -> first();
+        // 如果当前用户是商家，则查询当前商户的商品
+        if($i){
+            $goods = DB::table('goods')
+                -> join('merchants','goods.merchant_id','=','merchants.id')
+                -> where('merchants.user_id',$id)
+                -> where('is_del',0)
+                -> select(['merchants.name as merchant_name','goods.id','goods.pv','goods.created_at','goods.updated_at','goods.goods_cate_id','goods.img','goods.desc','goods.is_hot','goods.is_recommend','goods.is_sale','goods.is_bargain','goods.dilivery'])
+                -> orderBy('goods.id','desc')
+                -> paginate(10);
+            foreach ($goods as $k => $v){
+                $goods_cate_id  = explode(',',$v->goods_cate_id);
+                unset($goods_cate_id[0]);
+                array_pop($goods_cate_id);
+                $name=[];
+                foreach ($goods_cate_id as $item) {
+                    $name[]=Db::table('goods_cate')->select('name')->where('id',$item)->first()->name ?? '';
+                }
+                $goods[$k]->goods_cate_id=implode(',',$name);
             }
-            $goods[$k]->goods_cate_id=implode(',',$name);
+        }else{
+            $goods = DB::table('goods')
+                -> join('merchants','goods.merchant_id','=','merchants.id')
+                -> where('is_del',0)
+                -> select(['merchants.name as merchant_name','goods.id','goods.pv','goods.created_at','goods.updated_at','goods.goods_cate_id','goods.img','goods.desc','goods.is_hot','goods.is_recommend','goods.is_sale','goods.is_bargain','goods.dilivery'])
+                -> orderBy('goods.id','desc')
+                -> paginate(10);
+            foreach ($goods as $k => $v){
+                $goods_cate_id  = explode(',',$v->goods_cate_id);
+                unset($goods_cate_id[0]);
+                array_pop($goods_cate_id);
+                $name=[];
+                foreach ($goods_cate_id as $item) {
+                    $name[]=Db::table('goods_cate')->select('name')->where('id',$item)->first()->name ?? '';
+                }
+                $goods[$k]->goods_cate_id=implode(',',$name);
+            }
         }
         return $this->view('goods',['list'=>$goods]);
     }
@@ -789,10 +847,25 @@ class ShopController extends BaseController
 
     public function goodsAttr (Request $request)
     {
-        $admin = Auth::guard('admin')->user();
-        $list = GoodsAttr::orderBy('id','desc')
-            ->where('user_id','=',$admin->id)
-            ->paginate($request->input('limit'));
+        $id = Auth::id();     // 当前登录用户的id
+        // 判断当前用户是否是商家
+        $i = DB::table('merchants')
+            -> where('user_id',$id)
+            -> where('is_reg',1)
+            -> first();
+        // 如果当前用户是商家，则查询当前商户的商品
+        if($i){
+            $list = DB::table('goods_attr')
+                -> join('merchants','goods_attr.merchant_id','=','merchants.id')
+                -> where('merchants.user_id',$id)
+                -> select(['goods_attr.id','goods_attr.name','goods_attr.is_sale_attr'])
+                -> paginate(10);
+        }else{
+            $list = DB::table('goods_attr')
+                -> join('merchants','goods_attr.merchant_id','=','merchants.id')
+                -> select(['goods_attr.id','goods_attr.name','goods_attr.is_sale_attr'])
+                -> paginate(10);
+        }
         return $this->view('goodsAttr',['list'=>$list]);
     }
 
@@ -880,19 +953,13 @@ class ShopController extends BaseController
 
 
         $admin = Auth::guard('admin')->user();
-        $model->user_id = $admin->id;
 
         $merchant =  Merchant::where('user_id','=',$admin->id)
             ->where('merchant_type_id',$this->merchant_type_id)
             ->first();
 
         // 判断是哪个商户或者修改  上线后可以删除判断
-
-        $model->merchant_id = 0;
-        if ($merchant) {
-            $model->merchant_id = $merchant->id;
-        }
-
+        $model->merchant_id = Auth::id();
         $model->name = $request->input('name');
         $model->is_sale_attr = $request->input('is_sale_attr');
 
@@ -1217,7 +1284,23 @@ class ShopController extends BaseController
 
     public function goodsBrand (Request $request)
     {
-        $list = GoodBrands::orderBy('id','desc')->paginate($request->input('limit'));
+        $id = Auth::id();     // 当前登录用户的id
+        // 判断当前用户是否是商家
+        $i = DB::table('merchants')
+            -> where('user_id',$id)
+            -> where('is_reg',1)
+            -> first();
+        // 如果当前用户是商家，则查询当前商户的商品
+        if($i){
+            $list = DB::table('goods_brands')
+                -> join('merchants','goods_brands.merchant_id','=','merchants.id')
+                -> where('merchants.user_id',$id)
+                -> select(['goods_brands.id','goods_brands.name'])
+                -> paginate($request->input('limit'));
+        }else{
+            $list = GoodBrands::orderBy('id','desc')->paginate($request->input('limit'));
+        }
+
         return $this->view('goodsBrand',['list'=>$list]);
     }
 
@@ -1257,6 +1340,7 @@ class ShopController extends BaseController
         }
         $model->name = $request->input('name');
         $model->img = $request->input('img');
+        $model->merchant_id = Auth::id();
 
         if ($model->save()) {
             return   redirect()->route('shop.goodsBrand');
@@ -1276,10 +1360,25 @@ class ShopController extends BaseController
 
     public function express (Request $request)
     {
-        $admin = Auth::guard('admin')->user();
-        $id = $admin->id;
-        $list = ExpressModel::with('merchant')->where('merchant_user_id',$id)->paginate();
-
+        $id = Auth::id();     // 当前登录用户的id
+        // 判断当前用户是否是商家
+        $i = DB::table('merchants')
+            -> where('user_id',$id)
+            -> where('is_reg',1)
+            -> first();
+        // 如果当前用户是商家，则查询当前商户的商品
+        if($i){
+            $list = DB::table('express_model')
+                -> join('merchants','express_model.merchant_id','=','merchants.id')
+                -> where('merchants.user_id',$id)
+                -> select(['express_model.id','express_model.name as exname','express_model.caculate_method','merchants.name as mename'])
+                -> paginate(10);
+        }else{
+            $list = DB::table('express_model')
+                -> join('merchants','express_model.merchant_id','=','merchants.id')
+                -> select(['express_model.id','express_model.name as exname','express_model.caculate_method','merchants.name as mename'])
+                -> paginate(10);
+        }
         return $this->view('express',['list'=>$list]);
     }
 
@@ -1362,7 +1461,7 @@ class ShopController extends BaseController
                 $i = DB::table('express_detail') -> insert($addDetailData);
             }
             $data = [
-                'merchant_user_id' => Auth::id(),
+                'merchant_id' => Auth::id(),
                 'caculate_method' => $all['caculate_method'],
                 'num' => $all['num'],
                 'basic_price' => $all['basic_price'],
@@ -1412,16 +1511,63 @@ class ShopController extends BaseController
         }
 
         $admin = Auth::guard('admin')->user();
-        $model->merchant_user_id = $admin->id;
+        $model->merchant_id = $admin->id;
         $model->name = $request->input('name');
 
         try {
             $model->save();
+            flash("修改成功") -> success();
             return redirect()->route('shop.express');
         } catch ( \Exception $e) {
             flash($validate->errors()->first())->error()->important();
             return redirect()->route('shop.createExpress');
         }
 
+    }
+    public function hotkeywords(){
+        $data=Db::table('hotsearch')->paginate(10);
+        return $this->view('',['data'=>$data]);
+    }
+    public function hotkeywordsedit(){
+        $all = request()->all();
+        if (request()->isMethod('post')) {
+            $save['name']=$all['name'];
+            if (empty($all['id'])) {
+                $save['status']=0;
+                $save['created_at']=date('Y-m-d H:i:s',time());
+                $re=Db::table('hotsearch')->insert($save);
+            }else{
+                $re=Db::table('hotsearch')->where('id',$all['id'])->update($save);
+            }
+            if ($re) {
+                flash('修改成功')->success();
+                return redirect()->route('shop.hotkeywords');
+            }else{
+                flash('修改失败')->error();
+                return redirect()->route('shop.hotkeywords');
+            }
+        }else{
+            if (empty($all['id'])) {
+                $data = (object)[];
+                
+            }else{
+                $data=Db::table('hotsearch')->where('id',$all['id'])->first();
+            }
+            return $this->view('',['data'=>$data]);
+        }
+    }
+    public function hotkeywordsdel(){
+         // 获取传入的id
+        $all = request() -> all();
+        // 根据id删除表中数据
+        $data['status'] = $all['status'];
+        $i = DB::table("hotsearch") ->where('id',$all['id']) ->update($data);
+        if($i){
+            flash('删除成功') -> success();
+            return redirect()->route('shop.hotkeywords');
+        }else{
+            flash('删除失败') -> error();
+            return redirect()->route('shop.hotkeywords');
+        }
     }
 }

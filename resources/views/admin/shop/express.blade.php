@@ -23,7 +23,7 @@
                         <tr>
                             <th width="15">ID</th>
                             <th>名称</th>
-                            <th>添加用户</th>
+                            <th>商户名称</th>
                             <th>运费方式</th>
                             <th>操作</th>
                         </tr>
@@ -32,8 +32,8 @@
                         @foreach($list as $k => $item)
                             <tr>
                                 <td>{{$item->id}}</td>
-                                <td>{{$item->name}}</td>
-                                <td>{{$item->merchant->name}}</td>
+                                <td>{{$item->exname}}</td>
+                                <td>{{$item->mename}}</td>
                                 <td>
                                     @if($item->caculate_method == 1)
                                         按照件数
