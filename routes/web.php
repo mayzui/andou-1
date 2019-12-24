@@ -191,8 +191,11 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
 
         // 意见反馈
         Route::get('feedback/index','FeedbackController@index')->name('feedback.index');
+        Route::get('feedback/indexDel','FeedbackController@indexDel')->name('feedback.indexDel');
 
-
+        //关于我们
+        Route::get('about/index','AboutController@index')->name('about.index');
+        Route::match(['get','post'],'about/indexChange','AboutController@indexChange')->name('about.indexChange');
     });
 
     // 图片上传
