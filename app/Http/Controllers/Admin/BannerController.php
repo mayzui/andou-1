@@ -6,7 +6,8 @@ use App\Models\Banner;
 use App\Models\BannerPosition;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-
+use Illuminate\Support\Facades\DB;
+use Auth;
 
 class BannerController extends BaseController
 {
@@ -201,6 +202,57 @@ class BannerController extends BaseController
         $model->status = $status;
         $model->save();
         return  redirect()->route('banner.index');
+    }
+
+    public function notice(){
+        $data=Db::table('notice')->paginate(10);
+        return $this->view('',['data'=>$data]);
+    }
+    public function noticeedit(){
+        $all = request()->all();
+        if (request()->isMethod('post')) {
+            $save['title']=$all['title'];
+            $save['content']=$all['content'];
+            if (empty($all['id'])) {
+                $save['status']=0;
+                $save['auther']=Auth::id();
+                $save['created_at']=$save['updated_at']=date('Y-m-d H:i:s',time());
+                $re=Db::table('notice')->insert($save);
+            }else{
+                $save['updated_at']=date('Y-m-d H:i:s',time());
+                $save['auther']=Auth::id();
+                $re=Db::table('notice')->where('id',$all['id'])->update($save);
+            }
+            if ($re) {
+                flash('修改成功')->success();
+                return redirect()->route('banner.notice');
+            }else{
+                flash('修改失败')->error();
+                return redirect()->route('banner.notice');
+            }
+        }else{
+            if (empty($all['id'])) {
+                $data = (object)[];
+                
+            }else{
+                $data=Db::table('notice')->where('id',$all['id'])->first();
+            }
+            return $this->view('',['data'=>$data]);
+        }
+    }
+    public function noticedel(){
+         // 获取传入的id
+        $all = request() -> all();
+        // 根据id删除表中数据
+        $data['status'] = $all['status'];
+        $i = DB::table("notice") ->where('id',$all['id']) ->update($data);
+        if($i){
+            flash('删除成功') -> success();
+            return redirect()->route('banner.notice');
+        }else{
+            flash('删除失败') -> error();
+            return redirect()->route('banner.notice');
+        }
     }
 
 }
