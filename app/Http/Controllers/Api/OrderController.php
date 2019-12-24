@@ -321,6 +321,7 @@ class OrderController extends Controller
      * @apiParam {string} token 验证登陆
      * @apiParam {string} sNo 订单号
      * @apiParam {string} pay_id 支付方式id
+     * @apiParam {string} is_integral 是否使用积分 1使用 0不使用
      * @apiSuccessExample 参数返回:
      *     {
      *       "code": "200",
@@ -360,9 +361,7 @@ class OrderController extends Controller
         if (empty($orders)) {
             return $this->rejson(201,'订单不存在');
         }
-        if($users->money < $orders->order_money){
-            return $this->rejson(201,'余额不足');
-        }
+        
         if($all['is_integral']==1){
             $integrals=DB::table('config')->where('key','integral')->first()->value;
             $integral=floor(($orders->order_money-$orders->shipping_free)*$integrals);
@@ -374,6 +373,9 @@ class OrderController extends Controller
             }
         }else{
             $integral=0;
+        }
+        if($users->money < $orders->order_money-$integral){
+            return $this->rejson(201,'余额不足');
         }
         $data['user_id']=$all['uid'];
         $data['describe']='订单：'.$sNo.'消费';
