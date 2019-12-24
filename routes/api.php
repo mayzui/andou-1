@@ -82,5 +82,6 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('goods/ordersCancel','ManageController@ordersCancel');
      Route::post('goods/ordersDetails','ManageController@ordersDetails');
      Route::post('goods/audit','ManageController@audit');
-     Route::post('goods/finish','ManageController@finish');
+     Route::post('goods/centre','ManageController@centre');
+     Route::post('goods/affirm','ManageController@affirm');
 });
