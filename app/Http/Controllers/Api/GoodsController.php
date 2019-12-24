@@ -64,13 +64,13 @@ class GoodsController extends Controller
         ->get();
         $data['recommend_goods']=Db::table('goods')
         ->select('id','img','name','price')
-        ->where(['is_recommend'=>1,'is_sale'=>1])
+        ->where(['is_recommend'=>1,'is_sale'=>1,'is_del'=>0])
         ->orderBy('created_at','DESC')
         ->limit(4)
         ->get();
         $data['bargain_goods']=Db::table('goods')
         ->select('id','img','name','price')
-        ->where(['is_bargain'=>1,'is_sale'=>1])
+        ->where(['is_bargain'=>1,'is_sale'=>1,'is_del'=>0])
         ->orderBy('created_at','DESC')
         ->limit(4)
         ->get();
@@ -180,7 +180,7 @@ class GoodsController extends Controller
         $all=request()->all();
         $num=10;
         $where[]=['is_sale',1];
-
+        $where[]=['is_del',0];
         if (isset($all['page'])) {
             $pages=($all['page']-1)*$num;
         }else{

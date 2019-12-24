@@ -110,6 +110,16 @@ class CartController extends Controller
         $data['user_id']=$all['uid'];
         $data['type']=1;
         $data['created_at']=date('Y-m-d H:i:s',time());
+        $where[]=['goods_id',$data['goods_id']];
+        $where[]=['merchant_id',$data['merchant_id']];
+        $where[]=['goods_sku_id',$data['goods_sku_id']];
+        $where[]=['user_id',$data['user_id']];
+        $where[]=['type',$data['type']];
+        $res=DB::table('cart')->where($where)->first();
+        if (!empty($res)) {
+            $re=DB::table('cart')->where($where)->increment('num');
+            return $this->rejson(200,'添加成功');
+        }
         $re=DB::table('cart')->insert($data);
         if ($re) {
             return $this->rejson(200,'添加成功');
