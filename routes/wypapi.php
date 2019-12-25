@@ -31,6 +31,7 @@ Route::group(['namespace' => 'Api'], function () {
     Route::post('wallet/index', 'WalletController@index');      // 余额明细
     Route::post('wallet/cash', 'WalletController@cash');      // 提现明细
     Route::post('wallet/cash_withdrawal', 'WalletController@cash_withdrawal');      // 余额提现
+    Route::post('wallet/recharge', 'WalletController@recharge');      // 余额充值
     Route::post('wallet/integral', 'WalletController@integral');      // 积分明细
     // 个人中心
     Route::post('wallet/personal', 'WalletController@personal');      // 积分明细
