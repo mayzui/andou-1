@@ -188,17 +188,16 @@ class WalletController extends Controller
      * @api {post} /api/wallet/cash_withdrawal 余额提现
      * @apiName cash_withdrawal
      * @apiGroup wallet
-     * @apiParam {string} uid 用户id
-     * @apiParam {string} token 验证登陆
+     * @apiParam {string} uid 用户id （必填）
+     * @apiParam {string} token 验证登陆 （必填）
+     * @apiParam {string} money 提现金额 （必填）
+     * @apiParam {string} phone 联系方式
+     * @apiParam {string} num 提现账号
      * @apiSuccessExample 参数返回:
      *     {
      *       "code": "200",
      *       "msg":"查询成功",
-     *       "data": {
-                "mobile":'用户联系方式',
-                "money":'用户余额',
-                "name":'用户名称',
-              }
+     *       "data": ""
      */
     public function cash_withdrawal(){
         $all = \request() -> all();
@@ -206,16 +205,90 @@ class WalletController extends Controller
         if(empty($all['uid'])){
             return $this->rejson(201,'请输入用户id');
         }
-        // 根据提交的id，查询用户表的内容
         $data = DB::table('users')
             -> where('id',$all['uid'])
-            -> select(['mobile','money','name'])
+            -> select('money')
             -> first();
-        if(!empty($data)){
-            return $this->rejson(200,'查询成功',$data);
-        }else{
-            return $this->rejson(201,'未查询到该id');
+        $yue = $data -> money - $all['money'];
+        DB::beginTransaction();
+        try{
+            // 当前用户减少金额
+            DB::table('users') -> where('id',$all['uid']) -> update(['money'=>$yue]);
+            // 提现成功，添加提现明细
+            $add = [
+                'user_id' => $all['uid'],
+                'price' => $all['money'],
+                'describe' => "用户提现",
+                'create_time' => date('Y-m-d H:i:s'),
+                'type_id' => 3,
+                'state' => 2,
+            ];
+            $i = DB::table('user_logs') -> insert($add);
+
+            if($i){
+                DB::commit();
+                return $this->rejson(200,'提现成功');
+            }else{
+                DB::rollBack();
+                return $this->rejson(201,'未查询到该id');
+            }
+        }catch (\Exception $e){
+            DB::rollBack();
         }
+
+    }
+    /**
+     * @api {post} /api/wallet/recharge 余额充值
+     * @apiName recharge
+     * @apiGroup wallet
+     * @apiParam {string} uid 用户id（必填）
+     * @apiParam {string} token 验证登陆 （必填）
+     * @apiParam {string} money 充值金额 （必填）
+     * @apiParam {string} phone 联系方式
+     * @apiParam {string} num 输入账号
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "msg":"查询成功",
+     *       "data": ""
+     */
+    public function recharge(){
+        $all = \request() -> all();
+        // 根据获取的id
+        if(empty($all['uid'])){
+            return $this->rejson(201,'请输入用户id');
+        }
+        $data = DB::table('users')
+            -> where('id',$all['uid'])
+            -> select('money')
+            -> first();
+        DB::beginTransaction();
+        try{
+            $yue = $data -> money + $all['money'];
+            // 当前用户减少金额
+            DB::table('users') -> where('id',$all['uid']) -> update(['money'=>$yue]);
+            // 提现成功，添加提现明细
+            $add = [
+                'user_id' => $all['uid'],
+                'price' => $all['money'],
+                'describe' => "用户充值",
+                'create_time' => date('Y-m-d H:i:s'),
+                'type_id' => 2,
+                'state' => 1,
+            ];
+            $i = DB::table('user_logs') -> insert($add);
+
+            if($i){
+                DB::commit();
+                return $this->rejson(200,'充值成功');
+            }else{
+                DB::rollBack();
+                return $this->rejson(201,'未查询到该id');
+            }
+        }catch (\Exception $e){
+            DB::rollBack();
+        }
+
     }
     /**
      * @api {post} /api/wallet/personal 个人中心
@@ -251,5 +324,5 @@ class WalletController extends Controller
             return $this->rejson(201,'未查询到该id');
         }
     }
-// W83tVnay3ZPCsMA
+    // W83tVnay3ZPCsMA
 }
