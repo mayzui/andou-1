@@ -38,12 +38,12 @@ class ManageController extends Controller
                         "is_sale": "是否上下架0是下架1是上架",
                         "store_num": "商品数量",
                         "attr_value": [
-                        "4G+32G",
-                        "纸包装",
-                        "白"
-                        ]
-                        },
-                        ],
+                                    "4G+32G",
+                                    "纸包装",
+                                    "白"
+                                ]
+                            },
+                         ],
      *       "msg":"查询成功"
      *     }
      */
@@ -144,185 +144,6 @@ class ManageController extends Controller
     }
 
     /**
-     * @api {post} /api/goods/ordersCancel  已取消订单
-     * @apiName ordersCancel
-     * @apiGroup menage
-     * @apiParam {string} uid 商户id
-     * @apiParam {string} token 验证登陆
-     * @apiSuccessExample 参数返回:
-     *     {
-     *       "code": "200",
-     *       "data": [
-                        {
-                        "id": "订单id",
-                        "order_sn": "订单号",
-                        "name": "商品名称",
-                        "img": "商品封面图",
-                        "pay_money": "订单支付金额",
-                        "num": "商品数量",
-                        "status": "商品状态 0已取消",
-                        }
-                    ],
-     *       "msg":"获取成功"
-     *     }
-     */
-
-    public function ordersCancel()
-    {
-        $all = request()->all();
-        $data = DB::table('order_goods')
-            ->join('goods','goods.id','=','order_goods.goods_id')
-            ->join('orders','order_goods.order_id','=','orders.id')
-            ->join('order_returns','order_returns.order_id','=','orders.id')
-            ->where('order_goods.merchant_id',$all['uid'])
-            ->where('orders.status',0)
-            ->where('order_returns.is_reg',1)
-            ->select(['order_goods.id','orders.order_sn','goods.name','goods.img','order_goods.num','orders.pay_money','orders.status'])
-            ->get();
-        if($data){
-            return $this->rejson('200','查询成功',$data);
-        }else{
-            return $this->rejson('201','参数有误');
-        }
-    }
-
-    /**
-     * @api {post} /api/goods/ordersDetails  订单详情
-     * @apiName ordersDetails
-     * @apiGroup menage
-     * @apiParam {string} id 订单id
-     * @apiParam {string} uid 商户id
-     * @apiParam {string} token 验证登陆
-     * @apiSuccessExample 参数返回:
-     *     {
-     *       "code": "200",
-     *       "data": [
-                        {
-                        "goods": [
-                                     {
-                                        "id": "订单id",
-                                        "order_sn": "订单号",
-                                        "created_at"  "下单时间"
-                                        "name": "商品名称",
-                                        "img": "商品封面图",
-                                        "order_money": "订单金额",
-                                        "num": "商品数量",
-                                        "pay_discount": "折扣金额",
-                                        "pay_money": "支付金额",
-                                     }
-                          ]
-
-                        "returns": [
-                                        {
-                                        "created_at": "订单创建时间",
-                                        "consignee_realname": "收货人",
-                                        "consignee_telphone": "联系电话",
-                                        "returns_no": "退款编号",
-                                        "created_time": "退款时间",
-                                        "express_company": "退款原因",
-                                        "returns_amount": "退款金额",
-                                    }
-                                ]
-                            }
-                        ],
-     *       "msg":"获取成功"
-     *     }
-     */
-
-    public function ordersDetails()
-    {
-        $all = request()->all();
-        $data['goods'] = DB::table('order_goods')
-            ->join('goods','goods.id','=','order_goods.goods_id')
-            ->join('orders','order_goods.order_id','=','orders.id')
-            ->where('order_goods.merchant_id',$all['id'])
-            ->where('orders.status',0)
-            ->select(['orders.order_sn','orders.created_at','goods.name','goods.img','order_goods.num','order_goods.pay_discount','orders.total','orders.pay_money','orders.pay_way'.'orders.status'])
-            ->get();
-        $data['returns'] = DB::table('order_returns as o')
-            ->join('orders','o.order_id','=','orders.id')
-            ->where('o.merchant_id',$all['id'])
-            ->where('orders.status',0)
-            ->select(['orders.created_at','o.consignee_realname','o.consignee_telphone','o.returns_no','o.created_time','o.express_company','o.returns_amount'])
-            ->get();
-        if($data){
-            return $this->rejson('200','查询成功',$data);
-        }else{
-            return $this->rejson('201','参数有误');
-        }
-    }
-
-    /**
-     * @api {post} /api/goods/audit  未审核订单
-     * @apiName audit
-     * @apiGroup menage
-     * @apiParam {string} uid 商户id
-     * @apiParam {string} token 验证登陆
-     * @apiSuccessExample 参数返回:
-     *     {
-     *       "code": "200",
-     *       "data": [
-                        {
-                        "id": "订单id",
-                        "order_sn": "订单号",
-                        "name": "商品名称",
-                        "img": "商品封面图",
-                        "pay_money": "订单支付金额",
-                        "num": "商品数量",
-                        "is_reg": "是否审核 0 待审核 1已审核",
-                        }
-                    ],
-     *       "msg":"获取成功"
-     *     }
-     */
-
-    public function audit()
-    {
-        $all = request()->all();
-        $data = DB::table('order_goods')
-            ->join('goods','goods.id','=','order_goods.goods_id')
-            ->join('orders','order_goods.order_id','=','orders.id')
-            ->join('order_returns','order_returns.order_id','=','orders.id')
-            ->where('order_goods.merchant_id',$all['uid'])
-            ->where('orders.status',0)
-            ->where('order_returns.is_reg',0)
-            ->select(['order_goods.id','orders.order_sn','goods.name','goods.img','order_goods.num','orders.pay_money','order_returns.is_reg'])
-            ->get();
-        if($data){
-            return $this->rejson('200','查询成功',$data);
-        }else{
-            return $this->rejson('201','参数有误');
-        }
-    }
-
-    /**
-     * @api {post} /api/goods/affirm  确认取消
-     * @apiName affirm
-     * @apiGroup menage
-     * @apiParam {string} uid 商户id
-     * @apiParam {string} id 订单id
-     * @apiParam {string} token 验证登陆
-     * @apiSuccessExample 参数返回:
-     *     {
-     *       "code": "200",
-     *       "data": "",
-     *       "msg":"审核完成"
-     *     }
-     */
-
-    public function affirm()
-    {
-        $all = request()->all();
-        $arr = [ 'is_reg'=>1];
-        $data = DB::table('order_returns')->where('order_id',$all['id'])->update($arr);
-        if($data){
-            return $this->rejson('200','审核完成');
-        }else{
-            return $this->rejson('201','参数有误');
-        }
-    }
-
-    /**
      * @api {post} /api/goods/centre  商家个人中心
      * @apiName centre
      * @apiGroup menage
@@ -340,10 +161,10 @@ class ManageController extends Controller
                         "cancel": "退款订单",
                         "manage": "商品管理",
                         "balance": [
-                        {
-                        "money": "账户余额"
-                        }
-                        ]
+                                    {
+                                        "money": "账户余额"
+                                    }
+                                ]
                         }
                     ],
      *       "msg":"获取成功"
@@ -393,4 +214,190 @@ class ManageController extends Controller
         return $this->rejson('200','获取成功',$data);
     }
 
+    /**
+     * @api {post} /api/goods/ordersCancel  已退款
+     * @apiName ordersCancel
+     * @apiGroup menage
+     * @apiParam {string} uid 商户id
+     * @apiParam {string} token 验证登陆
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": [
+                        {
+                        "id": "订单id",
+                        "order_sn": "订单号",
+                        "name": "商品名称",
+                        "desc": "商品描述",
+                        "img": "商品封面图",
+                        "pay_money": "订单支付金额",
+                        "num": "商品数量",
+                        "status": "商品状态  0 已退款",
+                        }
+                    ],
+     *       "msg":"获取成功"
+     *     }
+     */
+
+    public function ordersCancel()
+    {
+        $all = request()->all();
+        $data = DB::table('order_goods')
+            ->join('goods','goods.id','=','order_goods.goods_id')
+            ->join('orders','order_goods.order_id','=','orders.id')
+            ->join('order_returns','order_returns.order_id','=','orders.id')
+            ->where('order_goods.merchant_id',$all['uid'])
+            ->where('orders.status',0)
+            ->where('order_returns.is_reg',1)
+            ->select(['order_goods.id','orders.order_sn','goods.name','goods.desc','goods.img','order_goods.num','orders.pay_money','orders.status'])
+            ->get();
+        if($data){
+            return $this->rejson('200','查询成功',$data);
+        }else{
+            return $this->rejson('201','参数有误');
+        }
+    }
+
+    /**
+     * @api {post} /api/goods/ordersDetails  订单详情
+     * @apiName ordersDetails
+     * @apiGroup menage
+     * @apiParam {string} id 订单id
+     * @apiParam {string} uid 商户id
+     * @apiParam {string} token 验证登陆
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": [
+                        {
+                            "id": "订单id",
+                            "order_sn": "订单号",
+                            "name": "商品名称",
+                            "desc": "商品描述",
+                            "img": "商品封面图",
+                            "order_money": "订单金额",
+                            "num": "商品数量",
+                            "content": "退款原因",
+                            "pay_money": "支付金额",
+                            }
+                        ],
+     *       "msg":"获取成功"
+     *     }
+     */
+
+    public function ordersDetails()
+    {
+        $all = request()->all();
+        $data = DB::table('order_goods')
+            ->join('goods','goods.id','=','order_goods.goods_id')
+            ->join('orders','order_goods.order_id','=','orders.id')
+            ->join('order_returns','order_goods.order_id','=','order_returns.order_id')
+            ->where('order_goods.merchant_id',$all['uid'])
+            ->where('order_returns.is_reg',1)
+            ->where('orders.status',0)
+            ->select(['orders.id','orders.order_sn','goods.name','goods.desc','goods.img','order_goods.num','orders.order_money','order_returns.content','orders.pay_money'])
+            ->get();
+        if($data){
+            return $this->rejson('200','查询成功',$data);
+        }else{
+            return $this->rejson('201','参数有误');
+        }
+    }
+
+    /**
+     * @api {post} /api/goods/audit  待审核订单
+     * @apiName audit
+     * @apiGroup menage
+     * @apiParam {string} uid 商户id
+     * @apiParam {string} token 验证登陆
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": [
+                        {
+                        "id": "订单id",
+                        "order_sn": "订单号",
+                        "name": "商品名称",
+                        "desc": "商品描述",
+                        "img": "商品封面图",
+                        "pay_money": "订单支付金额",
+                        "num": "商品数量",
+                        "status": "商品状态  0 已退款",
+                        }
+                    ],
+     *       "msg":"获取成功"
+     *     }
+     */
+
+    public function audit()
+    {
+        $all = request()->all();
+        $data = DB::table('order_goods')
+            ->join('goods','goods.id','=','order_goods.goods_id')
+            ->join('orders','order_goods.order_id','=','orders.id')
+            ->join('order_returns','order_goods.order_id','=','order_returns.order_id')
+            ->where('order_goods.merchant_id',$all['uid'])
+            ->where('order_returns.is_reg',0)
+            ->where('orders.status',0)
+            ->select(['orders.id','orders.order_sn','goods.name','goods.desc','goods.img','order_goods.num','orders.order_money','order_returns.express_company','orders.pay_money'])
+            ->get();
+        if($data){
+            return $this->rejson('200','查询成功',$data);
+        }else{
+            return $this->rejson('201','参数有误');
+        }
+    }
+
+    /**
+     * @api {post} /api/goods/affirm  同意退货退款
+     * @apiName affirm
+     * @apiGroup menage
+     * @apiParam {string} uid 商户id
+     * @apiParam {string} id 订单id
+     * @apiParam {string} token 验证登陆
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": "",
+     *       "msg":"审核完成"
+     *     }
+     */
+
+    public function affirm()
+    {
+        $all = request()->all();
+        $arr = [ 'is_reg'=>1];
+        $data = DB::table('order_returns')->where('order_id',$all['id'])->update($arr);
+        if($data){
+            return $this->rejson('200','审核完成');
+        }else{
+            return $this->rejson('201','参数有误');
+        }
+    }
+
+    /**
+     * @api {post} /api/goods/wallet  我的钱包
+     * @apiName wallet
+     * @apiGroup menage
+     * @apiParam {string} uid 商户id
+     * @apiParam {string} token 验证登陆
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": "",
+     *       "msg":"审核完成"
+     *     }
+     */
+
+    public function wallet()
+    {
+            $all = request()->all();
+            $data = DB::table('user_logs')
+                ->join('users','users.id','=','user_logs.user_id')
+                ->where('users.id',$all['uid'])
+                ->where('user_logs.type_id',2)
+                ->select(['users.money','user_logs.price'])
+                ->get();
+            return $data;
+    }
 }
