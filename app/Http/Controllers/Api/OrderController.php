@@ -227,7 +227,7 @@ class OrderController extends Controller
             }
         }
         $res=DB::table('orders')->insert($alldata);
-        $red=Db::table('cart')->whereIn(['id'=>$all['id']],['user_id'=>$all['uid']])->delete();
+        $red=Db::table('cart')->where('user_id',$all['uid'])->whereIn('id',$all['id'])->delete();
         if ($res&&$red) {
             DB::commit();
             return $this->rejson(200,'下单成功',array('order_sn'=>$data['order_id']));
@@ -462,4 +462,67 @@ class OrderController extends Controller
             return  $this->rejson(201,'获取支付信息失败！');
         }
     }
+
+    /**
+     * @api {post} /api/order/addcomment 添加商品评论
+     * @apiName addcomment
+     * @apiGroup order
+     * @apiParam {string} uid 用户id（必填）
+     * @apiParam {string} token 用户验证（必填）
+     * @apiParam {string} goods_id 商品id（必填）
+     * @apiParam {string} order_id 订单号（必填）
+     * @apiParam {string} merchants_id 商户id（必填）
+     * @apiParam {string} content 评价内容（非必填）
+     * @apiParam {string} stars 评价星级（必填）
+     * @apiParam {string} image 商品图片（非必填）
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "msg":"查询成功",
+     *       "data": "",
+     *     }
+     */
+    public function addcomment(){
+        $all=request()->all();
+        if (!isset($all['uid']) ||
+            !isset($all['token']) ||
+            !isset($all['stars']) ||
+            !isset($all['goods_id']) ||
+            !isset($all['order_id']) ||
+            !isset($all['merchants_id']) ){
+            return $this->rejson(201,'缺少参数');
+        }
+        $check=$this->checktoten($all['uid'],$all['token']);
+        if ($check['code']==201) {
+            return $this->rejson($check['code'],$check['msg']);
+        }
+        if(!empty($all['image'])){
+            $image = json_encode($all['image']);
+        }else{
+            $image = '';
+        }
+        if(!empty($all['content'])){
+            $content = $all['content'];
+        }else{
+            $content = '此用户没有评论任何内容';
+        }
+        $data = [
+            'user_id' => $all['uid'],
+            'order_id' => $all['order_id'],
+            'goods_id' => $all['goods_id'],
+            'merchants_id' => $all['merchants_id'],
+            'content' => $content,
+            'stars' => $all['stars'],
+            'image' => $image,
+            'created_at' => date('Y-m-d H:i:s'),
+            'type' => 2,
+        ];
+        $i = DB::table('order_commnets') -> insert($data);
+        if($i){
+            return $this->rejson(200,'添加成功');
+        }else{
+            return $this->rejson(201,'添加失败');
+        }
+    }
+    // W83tVnay3ZPCsMA
 }

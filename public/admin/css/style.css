@@ -1,5 +1,5 @@
-.andou_left{width: 256px;overflow-y: auto;background: #4dcec0;height: 100%;position: fixed;left: 0;top: 0;bottom: 0;}
-.andou_left .logo{height: 80px;width: 100%;position: relative;background: #37b8aa;}
+.andou_left{width: 256px;overflow-y: auto;background: #495b6c;height: 100%;position: fixed;left: 0;top: 0;bottom: 0;}
+.andou_left .logo{height: 80px;width: 100%;position: relative;background: #2b333c;}
 .andou_left .logo img{width: 189px;height: 50px;position: absolute;left: 50%;top: 50%;}
 .ad-user{margin-top: 30px;text-align: center;}
 .ad-user img{width: 88px;height: 88px;}
@@ -56,6 +56,9 @@
 .info1{background: #fd7e2a;}
 .info2{background: #007DDB;}
 .info3{background: #4dcec0;}
+/*ul .layui-nav-tree .layui-nav-item a:hover{*/
+    /*background-color: #415160;*/
+/*}*/
 
 
 

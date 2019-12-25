@@ -72,10 +72,11 @@ class CartController extends Controller
      */
     public function delcar(){
         $all=request()->all();
+        $all['id']=explode(',',$all['id']);
         if (empty($all['id'])) {
             return $this->rejson(201,'请选择需要删除的数据');
         }
-        $re=Db::table('cart')->whereIn(['id'=>$all['id']],['user_id'=>$all['uid']])->delete();
+        $re=Db::table('cart')->where('user_id',$all['uid'])->whereIn('id',$all['id'])->delete();
         if($re){
             return $this->rejson(200,'删除成功');
         }else{
@@ -88,9 +89,9 @@ class CartController extends Controller
      * @apiGroup cart
      * @apiParam {string} uid 用户id
      * @apiParam {string} token 验证登陆
-     * @apiParam {array} goods_id 商品id
-     * @apiParam {array} merchant_id 商户id
-     * @apiParam {array} goods_sku_id 规格id
+     * @apiParam {string} goods_id 商品id
+     * @apiParam {string} merchant_id 商户id
+     * @apiParam {string} goods_sku_id 规格id
      * @apiSuccessExample 参数返回:
      *     {
      *       "code": "200",
@@ -133,7 +134,7 @@ class CartController extends Controller
      * @apiGroup cart
      * @apiParam {string} uid 用户id
      * @apiParam {string} token 验证登陆
-     * @apiParam {array} id 购物车id
+     * @apiParam {string} id 购物车id
      * @apiParam {string} type 修改的方式(1自动加1 0自动减1)
      * @apiSuccessExample 参数返回:
      *     {

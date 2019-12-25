@@ -9,9 +9,10 @@
         <div class="andou_left navbar-default">
             <div class="logo"><img class="transform" src="{{loadEdition('/admin/images/logo.png')}}" ></div>
             <div class="ad-user">
-                <img src="{{loadEdition('/admin/images/userIcon.png')}}" >
+                <img src="{{$admin->avator}}" >
                 <p>{{$admin->name}}</p>
             </div>
+
             <ul class="layui-nav layui-nav-tree layui-inline" lay-filter="demo" id="side-menu">
             @foreach(Auth::guard('admin')->user()->getMenus() as $key => $rule)
                 @if($rule['route'] == 'index.index')

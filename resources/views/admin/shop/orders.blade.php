@@ -19,10 +19,9 @@
                         <span class="input-group-btn">
                            <a type="button" class="btn btn-primary" @click="search"><i class="fa fa-search"></i> 搜索</a>
                     </span>&nbsp;&nbsp;&nbsp;
-                        <span class="input-group-btn">
-                           <a  href="{{url('/admin/shop/ordersAdd')}}" type="button" class="btn btn-primary"><i class="fa fa-plus-circle"></i>添加</a>
-                    </span>
-
+                        {{--<span class="input-group-btn">--}}
+                           {{--<a  href="{{url('/admin/shop/ordersAdd')}}" type="button" class="btn btn-primary"><i class="fa fa-plus-circle"></i>添加</a>--}}
+                    {{--</span>--}}
                     </div>
                 </div>
                 <div class="hr-line-dashed"></div>
