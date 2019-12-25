@@ -148,6 +148,8 @@ class GoodsController extends Controller
         ->sum('store_num');
         if($store_num){
             $data->store_num=$store_num;
+        }else{
+            $data->store_num=0;
         }
 
         return $this->rejson(200,'查询成功',$data); 

@@ -25,6 +25,8 @@ class MerchantController extends Controller
      *          "merchants": [
                     {
                         "id": "商户id",
+                        "address": "商家详细地址",
+                        "tel": "电话号码",
                         "created_at": "创建时间",
                         "stars_all": "星级",
                         "praise_num":"点赞数量"

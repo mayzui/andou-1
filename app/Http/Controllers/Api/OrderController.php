@@ -227,7 +227,7 @@ class OrderController extends Controller
             }
         }
         $res=DB::table('orders')->insert($alldata);
-        $red=Db::table('cart')->whereIn(['id'=>$all['id']],['user_id'=>$all['uid']])->delete();
+        $red=Db::table('cart')->where('user_id',$all['uid'])->whereIn('id',$all['id'])->delete();
         if ($res&&$red) {
             DB::commit();
             return $this->rejson(200,'下单成功',array('order_sn'=>$data['order_id']));
