@@ -196,6 +196,11 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         //关于我们
         Route::get('about/index','AboutController@index')->name('about.index');
         Route::match(['get','post'],'about/indexChange','AboutController@indexChange')->name('about.indexChange');
+
+        // 退款原因 Refund reason
+        Route::get('refund/index','RefundController@index')->name('refund.index');
+        Route::match(['get','post'],'refund/indexChange','RefundController@indexChange')->name('refund.indexChange');
+        Route::get('refund/indexDel','RefundController@indexDel')->name('refund.indexDel');
     });
 
     // 图片上传
