@@ -40,7 +40,7 @@ Route::group(['namespace' => 'Api'], function () {
     // 检测新版本
     Route::post('edition/new_edition', 'EditionController@new_edition');      // 检测新版本
     // 发表评论
-    Route::post('goods/addcomment', 'GoodsController@addcomment');
+    Route::post('order/addcomment', 'OrderController@addcomment');
 
 
 

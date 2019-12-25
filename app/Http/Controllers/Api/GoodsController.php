@@ -443,36 +443,4 @@ class GoodsController extends Controller
         ->get();
         return $this->rejson(200,'查询成功',$data);
     }
-    /**
-     * @api {post} /api/goods/addcomment 添加商品评论
-     * @apiName addcomment
-     * @apiGroup goods
-     * @apiParam {string} order_id 订单id
-     * @apiParam {string} uid 用户id
-     * @apiParam {string} goods_id 商品id
-     * @apiParam {string} merchants_id 商户id
-     * @apiSuccessExample 参数返回:
-     *     {
-     *       "code": "200",
-     *       "data": [
-     *          {
-    "id": "关键词id",
-    "name": "搜索关键词"
-    }
-     *       ],
-     *       "msg":"查询成功"
-     *     }
-     */
-    public function addcomment(){
-        $all=request()->all();
-        if (empty($all['uid'])||empty($all['token'])) {
-            return $this->rejson(201,'登陆失效');
-        }
-        $check=$this->checktoten($all['uid'],$all['token']);
-        if ($check['code']==201) {
-            return $this->rejson($check['code'],$check['msg']);
-        }
-
-        return $this->rejson(200,'查询成功');
-    }
 }
