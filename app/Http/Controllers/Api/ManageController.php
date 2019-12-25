@@ -398,6 +398,6 @@ class ManageController extends Controller
                 ->where('user_logs.type_id',2)
                 ->select(['users.money','user_logs.price'])
                 ->get();
-            return $data;
+            return $this->rejson('200','查询成功',$data);
     }
 }
