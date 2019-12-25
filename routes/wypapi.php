@@ -41,6 +41,10 @@ Route::group(['namespace' => 'Api'], function () {
     Route::post('edition/new_edition', 'EditionController@new_edition');      // 检测新版本
     // 发表评论
     Route::post('order/addcomment', 'OrderController@addcomment');
+    // 退款
+    Route::post('refund/reason', 'RefundController@reason');    // 退款原因
+    Route::post('refund/apply', 'RefundController@apply');    // 申请退款
+
 
 
 
