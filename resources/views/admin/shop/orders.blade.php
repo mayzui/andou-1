@@ -1,4 +1,4 @@
-@extends('admin.layouts.layout')
+﻿@extends('admin.layouts.layout')
 <style>
     th ,td{
         text-align: center;
@@ -105,7 +105,7 @@
                         @endforeach
                         <tbody>
                     </table>
-
+                    
                 </form>
             </div>
         </div>
