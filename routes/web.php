@@ -201,6 +201,10 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('refund/index','RefundController@index')->name('refund.index');
         Route::match(['get','post'],'refund/indexChange','RefundController@indexChange')->name('refund.indexChange');
         Route::get('refund/indexDel','RefundController@indexDel')->name('refund.indexDel');
+
+        // 售后服务
+        Route::get('refund/aftermarket','RefundController@aftermarket')->name('refund.aftermarket');
+        Route::match(['get','post'],'refund/aftermarketChange','RefundController@aftermarketChange')->name('refund.aftermarketChange');
     });
 
     // 图片上传

@@ -53,16 +53,18 @@ class RefundController extends Controller
      * @api {post} /api/refund/apply 申请退款
      * @apiName apply
      * @apiGroup refund
-     * @apiParam {string} uid 用户id （必填）
-     * @apiParam {string} token 验证 （必填）
-     * @apiParam {string} order_id 订单id （必填）
+     * @apiParam {string} uid       用户id     （必填）
+     * @apiParam {string} token     验证       （必填）
+     * @apiParam {string} order_id  订单id     （必填）
+     * @apiParam {string} reason_id 退款原因id （必填）
+     * @apiParam {string} money     退款总金额 （必填）
+     * @apiParam {string} content   退款说明   （选填）
+     * @apiParam {string} image     图片       （选填）
      * @apiSuccessExample 参数返回:
      *     {
      *       "code": "200",
-     *       "msg":"查询成功",
-     *       "data": {
-        "name":"退货理由"
-     *      }
+     *       "msg":"提交成功",
+     *       "data": ""
      */
     public function apply(){
         $all = \request() -> all();
@@ -70,27 +72,30 @@ class RefundController extends Controller
         if ($check['code']==201) {
             return $this->rejson($check['code'],$check['msg']);
         }
-        // 查询商品名称、商品图片、商品价格、商品数量
-        $data = DB::table('order_goods')
-            -> join('goods_sku','order_goods.goods_sku_id','=','goods_sku.id')
-            -> join('goods','order_goods.goods_id','=','goods.id')
-            -> select(['goods.name as goods_name','goods.img as goods_img','goods_sku.price as goods_price','order_goods.num'])
-            -> where('order_goods.order_id',$all['order_id'])
-            -> get();
-        // 查询商品规格
-        $attr_value = DB::table('order_goods')
-            -> join('goods_sku','order_goods.goods_sku_id','=','goods_sku.id')
-            -> select(['goods_sku.attr_value'])
-            -> where('order_goods.order_id',$all['order_id'])
-            -> get();
-        foreach ($attr_value as $v){
-            $datas[] = implode(json_decode($v -> attr_value)[0] -> value,',');
+        if (empty($all['order_id']) || empty($all['reason_id']) || empty($all['money']) ) {
+            return $this->rejson(201,'缺少必要参数');
         }
-        // 将商品规格添加到data中
-        foreach ($datas as $k => $v){
-            $data[$k] -> attr_value = $v;
+        $image[] = $all['image'];
+        // 获取提交的数据
+        $data = [
+            'order_id' => $all['order_id'],
+            'returns_amount' => $all['money'],
+            'reason_id' => $all['reason_id'],
+            'status' => 2,
+            'content' => $all['content'] ? $all['content'] : '',
+            'image' => json_encode($image),
+            'created_time' => date("Y-m-d H:i:s"),
+            'is_reg' => 0,
+            'returns_type' => 0,
+        ];
+        // 链接数据库，新增数据库
+        $i = DB::table('order_returns') -> insert($data);
+        if($i){
+            return $this->rejson(200,'退款申请提交成功');
+        }else{
+            return $this->rejson(200,'退款申请提交失败，请重试');
         }
-        return $this->rejson(200,'查询成功',$data);
+
     }
 // W83tVnay3ZPCsMA
 }

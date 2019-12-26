@@ -202,14 +202,17 @@ class WalletController extends Controller
     public function cash_withdrawal(){
         $all = \request() -> all();
         // 根据获取的id
-        if(empty($all['uid'])){
-            return $this->rejson(201,'请输入用户id');
+        if (empty($all['money']) || empty($all['phone']) ||empty($all['num'])) {
+            return $this->rejson(201,'缺少必填项');
         }
         $data = DB::table('users')
             -> where('id',$all['uid'])
             -> select('money')
             -> first();
         $yue = $data -> money - $all['money'];
+        if($yue < 0){
+            return $this->rejson(201,'当前余额不足');
+        }
         DB::beginTransaction();
         try{
             // 当前用户减少金额
@@ -236,6 +239,7 @@ class WalletController extends Controller
             }
         }catch (\Exception $e){
             DB::rollBack();
+            return $this->rejson(201,'提现失败');
         }
 
     }
@@ -258,8 +262,8 @@ class WalletController extends Controller
     public function recharge(){
         $all = \request() -> all();
         // 根据获取的id
-        if(empty($all['uid'])){
-            return $this->rejson(201,'请输入用户id');
+        if (empty($all['money']) || empty($all['phone']) || empty($all['method']) ||empty($all['num'])) {
+            return $this->rejson(201,'缺少必填项');
         }
         $data = DB::table('users')
             -> where('id',$all['uid'])
@@ -293,6 +297,7 @@ class WalletController extends Controller
             }
         }catch (\Exception $e){
             DB::rollBack();
+            return $this->rejson(201,'充值失败');
         }
 
     }
