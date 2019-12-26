@@ -54,6 +54,10 @@ Route::group(['namespace' => 'Api'], function () {
      
 
      Route::post('common/pay_ways', 'CommonController@payWays');
+     Route::post('common/merchant_type', 'CommonController@merchantType');
+     Route::any('common/wxnotify', 'CommonController@wxnotify');
+     Route::any('common/district', 'CommonController@district');
+     Route::post('order/details', 'OrderController@details');
 
      Route::post('cart/index', 'CartController@index');
      Route::post('cart/delcar', 'CartController@delcar');
@@ -69,7 +73,7 @@ Route::group(['namespace' => 'Api'], function () {
      
      Route::post('login/login', 'LoginController@login');
      Route::post('login/send', 'LoginController@send');
-     Route::post('login/cache', 'LoginController@cache');
+     Route::post('login/caches', 'LoginController@caches');
      Route::post('login/login_p', 'LoginController@loginP');
      Route::post('login/reg_p', 'LoginController@regP');
      Route::post('login/forget', 'LoginController@forget');

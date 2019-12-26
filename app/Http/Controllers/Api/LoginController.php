@@ -188,8 +188,15 @@ class LoginController extends Controller
      * @api {post} /api/login/cache 获取短信测试
      * @apiName get_cache
      * @apiGroup login
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": "验证码",
+     *       "msg":"修改成功"
+     *     }
      */
-    public function cache(){
-        echo $a=Redis::get('18883562091');
+    public function caches(){
+       return $a=Redis::get('18883562091');
+       exit(); 
     }
 }

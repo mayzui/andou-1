@@ -29,6 +29,8 @@ class MerchantController extends Controller
                         "tel": "电话号码",
                         "created_at": "创建时间",
                         "stars_all": "星级",
+                        "merchant_type_id":"商户类型id",
+                        "price":"最低价格",
                         "praise_num":"点赞数量"
                         "logo_img":"商家图片",
                         "name":"商家名字"
@@ -97,13 +99,22 @@ class MerchantController extends Controller
         }else{
             $orderBy="created_at";
         }
+
         $data['merchants']=Db::table('merchants')
         ->where($where)
-        ->select('id','created_at','address','tel','stars_all','praise_num','logo_img','name')
+        ->whereIn('merchant_type_id',[2,3])
+        ->select('id','created_at','merchant_type_id','address','tel','stars_all','praise_num','logo_img','name')
         ->orderBy($orderBy,"DESC")
         ->offset($start)
         ->limit(10)
         ->get();
+        foreach ($data['merchants'] as $key => $value) {
+            if ($value->merchant_type_id==2) {
+                $data['merchants'][$key]->price=Db::table('goods')->where('merchant_id',$value->id)->orderBy('price')->first()->price ?? 0;
+            }elseif ($value->merchant_type_id==3) {
+                $data['merchants'][$key]->price=Db::table('hotel_room')->where('merchant_id',$value->id)->orderBy('price')->first()->price ?? 0;
+            }
+        }
         $data['merchant_type']=Db::table('merchant_type')
         ->select('id','type_name')
         ->where('status',1)

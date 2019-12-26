@@ -5,7 +5,7 @@ namespace PHPSTORM_META {
 
    /**
     * PhpStorm Meta file, to provide autocomplete information for PhpStorm
-    * Generated on 2019-11-29 08:39:30.
+    * Generated on 2019-12-25 17:29:59.
     *
     * @author Barry vd. Heuvel <barryvdh@gmail.com>
     * @see https://github.com/barryvdh/laravel-ide-helper
@@ -140,6 +140,7 @@ namespace PHPSTORM_META {
         'swift.transport' => \Illuminate\Mail\TransportManager::class,
         'translation.loader' => \Illuminate\Translation\FileLoader::class,
         'translator' => \Illuminate\Translation\Translator::class,
+        'ueditor.storage' => \Overtrue\LaravelUEditor\StorageManager::class,
         'url' => \Illuminate\Routing\UrlGenerator::class,
         'validation.presence' => \Illuminate\Validation\DatabasePresenceVerifier::class,
         'view' => \Illuminate\View\Factory::class,
@@ -276,6 +277,7 @@ namespace PHPSTORM_META {
         'swift.transport' => \Illuminate\Mail\TransportManager::class,
         'translation.loader' => \Illuminate\Translation\FileLoader::class,
         'translator' => \Illuminate\Translation\Translator::class,
+        'ueditor.storage' => \Overtrue\LaravelUEditor\StorageManager::class,
         'url' => \Illuminate\Routing\UrlGenerator::class,
         'validation.presence' => \Illuminate\Validation\DatabasePresenceVerifier::class,
         'view' => \Illuminate\View\Factory::class,
@@ -412,6 +414,7 @@ namespace PHPSTORM_META {
         'swift.transport' => \Illuminate\Mail\TransportManager::class,
         'translation.loader' => \Illuminate\Translation\FileLoader::class,
         'translator' => \Illuminate\Translation\Translator::class,
+        'ueditor.storage' => \Overtrue\LaravelUEditor\StorageManager::class,
         'url' => \Illuminate\Routing\UrlGenerator::class,
         'validation.presence' => \Illuminate\Validation\DatabasePresenceVerifier::class,
         'view' => \Illuminate\View\Factory::class,
@@ -548,6 +551,7 @@ namespace PHPSTORM_META {
         'swift.transport' => \Illuminate\Mail\TransportManager::class,
         'translation.loader' => \Illuminate\Translation\FileLoader::class,
         'translator' => \Illuminate\Translation\Translator::class,
+        'ueditor.storage' => \Overtrue\LaravelUEditor\StorageManager::class,
         'url' => \Illuminate\Routing\UrlGenerator::class,
         'validation.presence' => \Illuminate\Validation\DatabasePresenceVerifier::class,
         'view' => \Illuminate\View\Factory::class,
@@ -684,6 +688,7 @@ namespace PHPSTORM_META {
         'swift.transport' => \Illuminate\Mail\TransportManager::class,
         'translation.loader' => \Illuminate\Translation\FileLoader::class,
         'translator' => \Illuminate\Translation\Translator::class,
+        'ueditor.storage' => \Overtrue\LaravelUEditor\StorageManager::class,
         'url' => \Illuminate\Routing\UrlGenerator::class,
         'validation.presence' => \Illuminate\Validation\DatabasePresenceVerifier::class,
         'view' => \Illuminate\View\Factory::class,
@@ -820,6 +825,7 @@ namespace PHPSTORM_META {
         'swift.transport' => \Illuminate\Mail\TransportManager::class,
         'translation.loader' => \Illuminate\Translation\FileLoader::class,
         'translator' => \Illuminate\Translation\Translator::class,
+        'ueditor.storage' => \Overtrue\LaravelUEditor\StorageManager::class,
         'url' => \Illuminate\Routing\UrlGenerator::class,
         'validation.presence' => \Illuminate\Validation\DatabasePresenceVerifier::class,
         'view' => \Illuminate\View\Factory::class,
@@ -956,6 +962,7 @@ namespace PHPSTORM_META {
         'swift.transport' => \Illuminate\Mail\TransportManager::class,
         'translation.loader' => \Illuminate\Translation\FileLoader::class,
         'translator' => \Illuminate\Translation\Translator::class,
+        'ueditor.storage' => \Overtrue\LaravelUEditor\StorageManager::class,
         'url' => \Illuminate\Routing\UrlGenerator::class,
         'validation.presence' => \Illuminate\Validation\DatabasePresenceVerifier::class,
         'view' => \Illuminate\View\Factory::class,
@@ -1092,12 +1099,14 @@ namespace PHPSTORM_META {
         'swift.transport' => \Illuminate\Mail\TransportManager::class,
         'translation.loader' => \Illuminate\Translation\FileLoader::class,
         'translator' => \Illuminate\Translation\Translator::class,
+        'ueditor.storage' => \Overtrue\LaravelUEditor\StorageManager::class,
         'url' => \Illuminate\Routing\UrlGenerator::class,
         'validation.presence' => \Illuminate\Validation\DatabasePresenceVerifier::class,
         'view' => \Illuminate\View\Factory::class,
         'view.engine.resolver' => \Illuminate\View\Engines\EngineResolver::class,
         'view.finder' => \Illuminate\View\FileViewFinder::class,
     ]));
+
 
     override(\Illuminate\Support\Arr::add(0), type(0));
     override(\Illuminate\Support\Arr::except(0), type(0));

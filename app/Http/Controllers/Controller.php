@@ -21,7 +21,9 @@ class Controller extends BaseController
             'msg' => $msg,
             'data' => $data
         ];
-        exit(json_encode($response));
+        $res=json_encode($response);
+        exit(str_replace('null', '""', $res));
+        // exit();
     }
     /**发送短信验证
      * [sendmessage description]

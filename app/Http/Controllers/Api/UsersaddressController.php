@@ -21,49 +21,6 @@ class UsersaddressController extends Controller
     }
 
     /**
-     * @api {post} /api/Usersaddress/districts 获取所有地址列表
-     * @apiName districts
-     * @apiGroup Usersaddress 
-     * @apiParam {string} uid 用户id
-     * @apiParam {string} token 验证登陆
-     * @apiSuccessExample 参数返回:
-     *     {
-     *       "code": "200",
-     *       "data":[
-                    {
-                        "name": "北京",
-                        "id": 11,
-                        "pid": 0,
-                        "cities": [
-                            {
-                                "name": "北京",
-                                "id": 1101,
-                                "pid": 11,
-                                "areas": [
-                                    {
-                                        "name": "东城",
-                                        "id": 110101,
-                                        "pid": 1101
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ],
-     *       "msg":"查询成功"
-     *     }
-     */
-    public function district(){
-        $data=Redis::get('districts');
-        if ($data) {
-            $data=json_decode($data,1);
-        }else{
-            $data=$this->districts();
-            Redis::set('districts',json_encode($data,1));
-        }
-        return $this->rejson(200,'查询成功',$data);
-    }
-    /**
      * @api {post} /api/Usersaddress/address_add 添加收货地址 
      * @apiName address_add
      * @apiGroup Usersaddress

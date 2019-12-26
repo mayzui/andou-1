@@ -155,7 +155,7 @@ class GoodsController extends Controller
         return $this->rejson(200,'查询成功',$data); 
     }
     /**
-     * @api {post} /api/goods/good_list 商户详情
+     * @api {post} /api/goods/good_list 产品列表
      * @apiName good_list
      * @apiGroup goods
      * @apiParam {string} keyword 关键字查询(非必传)

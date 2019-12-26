@@ -1,6 +1,5 @@
 @extends('admin.layouts.layout')
-
-
+@include('vendor.ueditor.assets')
 <link rel="stylesheet" href="{{loadEdition('/assets/plugins/bootstrap/css/bootstrap.min.css')}}">
 <link rel="stylesheet" href="{{loadEdition('/assets/css/font-awesome.min.css')}}">
 <link rel="stylesheet" href="{{loadEdition('/assets/css/animate.css')}}">
@@ -220,10 +219,10 @@
                                                 </div>
                                             </div>
                                             <div class="hr-line-dashed"></div>
-                                            <div class="form-group">
+                                            <div class="form-group" style="height:400px;">
                                                 <label class="col-sm-2 control-label">详情：</label>
                                                 <div class="col-sm-6">
-                                                    <textarea type="text" rows="5" name="desc" id="desc" placeholder="商品详情" class="form-control" required data-msg-required="请输入跳转链接">{{ $goodsdata ->desc or '' }}</textarea>
+                                                    <script id="container" name="desc" type="text/plain">{!!$goodsdata ->desc or ''!!}</script>
                                                 </div>
                                             </div>
                                             <div class="hr-line-dashed"></div>
@@ -365,6 +364,25 @@
             </div>
         </section>
     </section>
+    <style>
+    .edui-default{
+        height:250px;
+    }
+    </style>
+    <script type="text/javascript">
+                    var ue = UE.getEditor('container',{
+                      initialFrameWidth:null ,//宽度随浏览器自适应
+                      wordCount: false, //关闭字数统计
+                      elementPathEnabled : false,//隐藏元素路径
+                      autoHeightEnabled: false,//是否自动长高
+                      autoFloatEnabled: false//是否保持toolbar的位置不动
+                    });
+
+                    ue.ready(function() {
+                    ue.setHeight(250);
+                    ue.execCommand('serverparam', '_token', '{{ csrf_token() }}'); // 设置 CSRF token.
+           });
+     </script>
 
     <script>
 
