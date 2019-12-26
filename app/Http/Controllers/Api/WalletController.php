@@ -191,8 +191,8 @@ class WalletController extends Controller
      * @apiParam {string} uid 用户id （必填）
      * @apiParam {string} token 验证登陆 （必填）
      * @apiParam {string} money 提现金额 （必填）
-     * @apiParam {string} phone 联系方式
-     * @apiParam {string} num 提现账号
+     * @apiParam {string} phone 联系方式 （必填）
+     * @apiParam {string} num 提现账号 （必填）
      * @apiSuccessExample 参数返回:
      *     {
      *       "code": "200",
@@ -222,6 +222,8 @@ class WalletController extends Controller
                 'create_time' => date('Y-m-d H:i:s'),
                 'type_id' => 3,
                 'state' => 2,
+                'phone' => $all['phone'],
+                'card' => $all['num']
             ];
             $i = DB::table('user_logs') -> insert($add);
 
@@ -244,8 +246,9 @@ class WalletController extends Controller
      * @apiParam {string} uid 用户id（必填）
      * @apiParam {string} token 验证登陆 （必填）
      * @apiParam {string} money 充值金额 （必填）
-     * @apiParam {string} phone 联系方式
-     * @apiParam {string} num 输入账号
+     * @apiParam {string} phone 联系方式 （必填）
+     * @apiParam {string} method 充值的方式 0银联 1微信 2支付宝 （必填）
+     * @apiParam {string} num 充值账号账号（必填）
      * @apiSuccessExample 参数返回:
      *     {
      *       "code": "200",
@@ -275,6 +278,9 @@ class WalletController extends Controller
                 'create_time' => date('Y-m-d H:i:s'),
                 'type_id' => 2,
                 'state' => 1,
+                'phone' => $all['phone'],
+                'card' => $all['num'],
+                'method' => $all['method'],
             ];
             $i = DB::table('user_logs') -> insert($add);
 
