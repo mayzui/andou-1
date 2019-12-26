@@ -270,17 +270,17 @@ class ManageController extends Controller
      *       "code": "200",
      *       "data": [
                         {
-                            "id": "订单id",
-                            "order_sn": "订单号",
-                            "name": "商品名称",
-                            "desc": "商品描述",
-                            "img": "商品封面图",
-                            "order_money": "订单金额",
-                            "num": "商品数量",
-                            "content": "退款原因",
-                            "pay_money": "支付金额",
-                            }
-                        ],
+                        "id": "订单id",
+                        "order_sn": "订单号",
+                        "name": "商品名称",
+                        "desc": "商品描述",
+                        "img": "商品封面图",
+                        "order_money": "订单金额",
+                        "num": "商品数量",
+                        "content": "退款原因",
+                        "pay_money": "支付金额",
+                        }
+                    ],
      *       "msg":"获取成功"
      *     }
      */
@@ -290,7 +290,7 @@ class ManageController extends Controller
         $all = request()->all();
         $data = DB::table('order_goods')
             ->join('goods','goods.id','=','order_goods.goods_id')
-            ->join('orders','order_goods.order_id','=','orders.id')
+            ->join('orders','order_goods.order_id','=','orders.order_sn')
             ->join('order_returns','order_goods.order_id','=','order_returns.order_id')
             ->where('order_goods.merchant_id',$all['uid'])
             ->where('order_returns.is_reg',1)
@@ -348,6 +348,7 @@ class ManageController extends Controller
         }
     }
 
+
     /**
      * @api {post} /api/goods/affirm  同意退货退款
      * @apiName affirm
@@ -376,28 +377,41 @@ class ManageController extends Controller
     }
 
     /**
-     * @api {post} /api/goods/wallet  我的钱包
-     * @apiName wallet
+     * @api {post} /api/goods/affirm  店铺管理
+     * @apiName affirm
      * @apiGroup menage
      * @apiParam {string} uid 商户id
      * @apiParam {string} token 验证登陆
      * @apiSuccessExample 参数返回:
      *     {
      *       "code": "200",
-     *       "data": "",
+     *       "data": [
+                        {
+                        "name": "商铺名称",
+                        "tel": "联系电话",
+                        "desc": "商家公告",
+                        "address": "地址",
+                        "banner_img": "店铺形象图",
+                        }
+                    ],
      *       "msg":"审核完成"
      *     }
      */
 
-    public function wallet()
+    public function store()
     {
-            $all = request()->all();
-            $data = DB::table('user_logs')
-                ->join('users','users.id','=','user_logs.user_id')
-                ->where('users.id',$all['uid'])
-                ->where('user_logs.type_id',2)
-                ->select(['users.money','user_logs.price'])
-                ->get();
+        $all = request()->all();
+        $data = DB::table('merchants')
+            ->join('users','users.id','=','merchants.user_id')
+            ->where('user_id',$all['uid'])
+            ->select(['merchants.name','merchants.tel','users.mobile','merchants.banner_img','merchants.desc','merchants.address'])
+            ->get();
+        if($data){
             return $this->rejson('200','查询成功',$data);
+        }else{
+            return $this->rejson('201','参数有误');
+        }
     }
+
+
 }

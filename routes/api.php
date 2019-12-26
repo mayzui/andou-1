@@ -87,8 +87,8 @@ Route::group(['namespace' => 'Api'], function () {
      //订单管理
      Route::post('goods/ordersCancel','ManageController@ordersCancel');
      Route::post('goods/ordersDetails','ManageController@ordersDetails');
-//     Route::post('goods/audit','ManageController@audit');
-//     Route::post('goods/centre','ManageController@centre');
+     Route::post('goods/audit','ManageController@audit');
+     Route::post('goods/centre','ManageController@centre');
      Route::post('goods/affirm','ManageController@affirm');
      Route::post('goods/lists','ManageController@lists');
      //店铺管理
