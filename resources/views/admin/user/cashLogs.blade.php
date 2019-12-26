@@ -47,9 +47,9 @@
                                         <th>{{ $v -> create_time }}</th>
                                         <th>
                                             @if($v -> type_id == 1)
-                                                感恩币流水
+                                                <p style="color: green;">感恩币流水</p>
                                                 @elseif($v -> type_id == 2)
-                                                充值流水
+                                                <p style="color: blue">余额流水</p>
                                                 @elseif($v -> type_id == 3)
                                                 提现流水
                                             @endif

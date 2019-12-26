@@ -45,6 +45,7 @@ Route::group(['namespace' => 'Api'], function () {
     // 退款
     Route::post('refund/reason', 'RefundController@reason');    // 退款原因
     Route::post('refund/apply', 'RefundController@apply');    // 申请退款
+    Route::post('refund/return_goods', 'RefundController@return_goods');    // 申请退货
 
 
 

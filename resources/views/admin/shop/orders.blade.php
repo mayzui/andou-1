@@ -15,15 +15,20 @@
             <div class="ibox-content">
                 <div class="col-sm-3" style="padding-left: 0px;">
                     <div class="input-group">
-                        <input type="text" class="form-control" v-model="key" placeholder="输入需查询的关键字" />
-                        <span class="input-group-btn">
-                           <a type="button" class="btn btn-primary" @click="search"><i class="fa fa-search"></i> 搜索</a>
-                    </span>&nbsp;&nbsp;&nbsp;
+                        {{--<input type="text" class="form-control" v-model="key" placeholder="输入需查询的关键字" />--}}
+                        {{--<span class="input-group-btn">--}}
+                           {{--<a type="button" class="btn btn-primary" @click="search"><i class="fa fa-search"></i> 搜索</a>--}}
+                        {{--</span>&nbsp;&nbsp;&nbsp;--}}
                         {{--<span class="input-group-btn">--}}
                            {{--<a  href="{{url('/admin/shop/ordersAdd')}}" type="button" class="btn btn-primary"><i class="fa fa-plus-circle"></i>添加</a>--}}
                     {{--</span>--}}
                     </div>
                 </div>
+                <style>
+                    th ,td{
+                        text-align: center;
+                    }
+                </style>
                 <div class="hr-line-dashed"></div>
                 <form method="post" action="{{route('shop.index')}}" name="form">
                     <table class="table table-striped table-bordered table-hover m-t-md">

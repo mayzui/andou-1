@@ -45,7 +45,7 @@
                                             @if($v -> type_id == 1)
                                                 感恩币流水
                                                 @elseif($v -> type_id == 2)
-                                                充值流水
+                                                余额流水
                                                 @elseif($v -> type_id == 3)
                                                 提现流水
                                             @endif

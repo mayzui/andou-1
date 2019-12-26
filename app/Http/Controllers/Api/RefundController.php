@@ -82,7 +82,7 @@ class RefundController extends Controller
             'returns_amount' => $all['money'],
             'reason_id' => $all['reason_id'],
             'status' => 2,
-            'content' => $all['content'] ? $all['content'] : '',
+            'content' => $all['content'] ? $all['content'] : '该用户没有填写退款说明',
             'image' => json_encode($image),
             'created_time' => date("Y-m-d H:i:s"),
             'is_reg' => 0,
@@ -96,6 +96,44 @@ class RefundController extends Controller
             return $this->rejson(200,'退款申请提交失败，请重试');
         }
 
+    }
+    /**
+     * @api {post} /api/refund/return_goods 申请退货
+     * @apiName return_goods
+     * @apiGroup refund
+     * @apiParam {string} uid       用户id     （必填）
+     * @apiParam {string} token     验证       （必填）
+     * @apiParam {string} order_id  订单id     （必填）
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "msg":"查询成功",
+     *       "data": {
+        "created_time":"申请时间",
+        "consignee_realname":"收货人",
+        "consignee_telphone":"联系电话",
+        "return_address":"退货地址"
+        "reason_name":"退货原因"
+     * }
+     */
+    public function return_goods(){
+        $all = \request() -> all();
+        $check=$this->checktoten($all['uid'],$all['token']);
+        if ($check['code']==201) {
+            return $this->rejson($check['code'],$check['msg']);
+        }
+        if (empty($all['order_id'])) {
+            return $this->rejson(201,'缺少必要参数');
+        }
+        // 链接数据库，查询退货表
+        $data = DB::table('order_returns')
+            -> join('refund_reason','order_returns.reason_id','=','refund_reason.id')
+            -> join('merchants','order_returns.merchant_id','=','merchants.id')
+            -> join('order_goods','order_returns.order_id','=','order_goods.order_id')
+            -> where('order_returns.order_id',$all['order_id'])
+            -> select('created_time','consignee_realname','consignee_telphone','merchants.return_address','refund_reason.name as reason_name')
+            -> first();
+        return $this->rejson(200,'查询成功',$data);
     }
 // W83tVnay3ZPCsMA
 }

@@ -370,15 +370,14 @@
     }
     </style>
     <script type="text/javascript">
-                    var ue = UE.getEditor('container',{
+               var ue = UE.getEditor('container',{
                       initialFrameWidth:null ,//宽度随浏览器自适应
                       wordCount: false, //关闭字数统计
                       elementPathEnabled : false,//隐藏元素路径
                       autoHeightEnabled: false,//是否自动长高
                       autoFloatEnabled: false//是否保持toolbar的位置不动
                     });
-
-                    ue.ready(function() {
+             ue.ready(function() {
                     ue.setHeight(250);
                     ue.execCommand('serverparam', '_token', '{{ csrf_token() }}'); // 设置 CSRF token.
            });
