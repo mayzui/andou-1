@@ -30,26 +30,28 @@ class OrderController extends Controller
      *     {
      *       "code": "200",
      *       "data": [
-                {
-                    "order_money": "总金额",
-                    "id": "总订单id",
-                    "order_sn": "订单编号",
-                    "status":"10-未支付 20-已支付 40-已发货  50-交易成功（确认收货） 60-交易关闭（已评论）"
-                    "details": [
-                        {
-                            "img": "商品图",
-                            "name": "商品名字",
-                            "num": "购买数量",
-                            "shipping_free": "商品运费",
-                            "price": "价格",
-                            "attr_value": [
-                                "4G+32G",
-                                "纸包装",
-                                "白"
-                            ]
-                        }
-                    ]
-                }
+                    {
+                        "img": "商品图",
+                        "name": "商品名字",
+                        "goods_id": "商品id",
+                        "merchant_id": "商户id",
+                        "order_id": "订单号",
+                        "status": "状态 10-未支付 20-已支付 40-已发货  50-交易成功（确认收货） 60-交易关闭（已评论）",
+                        "mname": "商家名字",
+                        "logo_img": "商家图",
+                        "num": "数量",
+                        "id": "订单id",
+                        "express_id":"快递公司id",
+                        "courier_num":"快递单号",
+                        "shipping_free": "运费",
+                        "price": "单价",
+                        "pay_money": "总价",
+                        "attr_value": [
+                            "4G+32G",
+                            "纸包装",
+                            "白"
+                        ]
+                    }
             ],
      *       "msg":"添加成功"
      *     }
@@ -65,30 +67,23 @@ class OrderController extends Controller
         if (empty($all['type'])) {
             
         }else{
-            $where[]=['status',$all['type']];
+            $where[]=['o.status',$all['type']];
         }
         
-        $where[]=['user_id',$all['uid']];
-        $where[]=['type',1];
-        $where[]=['is_del',0];
-        $data=DB::table('orders')
+        $where[]=['o.user_id',$all['uid']];
+        
+        
+        $data=DB::table('order_goods as o')
+        ->join('goods as g','g.id','=','o.goods_id')
+        ->join('merchants as m','m.id','=','o.merchant_id')
+        ->join('goods_sku as s','s.id','=','o.goods_sku_id')
         ->where($where)
-        ->select('order_money','status','id','order_sn')
+        ->select('g.img','g.name','o.goods_id','o.merchant_id','o.order_id','o.status','m.name as mname','m.logo_img','o.num','o.id','shipping_free','o.express_id','o.courier_num','s.price','pay_money','s.attr_value')
         ->get();
-        if (empty($data[0])) {
-            return $this->rejson(201,'暂无订单');
+        foreach ($data as $k => $v) {
+        $data[$k]->attr_value=json_decode($v->attr_value,1)[0]['value'];
         }
-        foreach ($data as $key => $value) {
-            $data[$key]->details=DB::table('order_goods as o')
-            ->join('goods as g','g.id','=','o.goods_id')
-            ->join('goods_sku as s','s.id','=','o.goods_sku_id')
-            ->where('o.order_id',$value->order_sn)
-            ->select('g.img','g.name','o.num','shipping_free','s.price','s.attr_value')
-            ->get();
-            foreach ($data[$key]->details as $k => $v) {
-            $data[$key]->details[$k]->attr_value=json_decode($v->attr_value,1)[0]['value'];
-            }
-        }
+        
         return $this->rejson(200,'查询成功',$data);
     }
     /**
@@ -106,21 +101,20 @@ class OrderController extends Controller
      *       "msg":"添加成功"
      *     }
      */
-    public function express($post) {
+    public function express() {
 
         $customer = "E9C982534CECCAF4A0CF245E82488F27";
 
         $key = 'qibOlrGo1156';
 
         $url = 'http://poll.kuaidi100.com/poll/query.do';
-
+        $all=request()->all();
         $express_id=$all['express_id'];
         $courier_num=$all['courier_num'];
 
-
         if (!empty($express_id) && !empty($courier_num)) {
 
-                $r01 = Db::table('express')->where()->first('id',$express_id);
+                $r01 = Db::table('express')->where('id',$express_id)->first();
                 $type = $r01->com; //快递公司代码
 
                 $kuaidi_name = $r01->name;
@@ -168,10 +162,9 @@ class OrderController extends Controller
 
                 $data['courier_num'] = $courier_num;
 
-                return array('code' => 200, 'data' => $data, 'msg' => '获取信息成功！');
+                return $this->rejson( 200, '获取信息成功！',$data);
         } else {
-
-            return array('code' => 201, 'data' => '', 'msg' => '未查询到物流信息！');
+            return $this->rejson( 201, '未查询到物流信息！');
         }
         
     }
@@ -447,7 +440,7 @@ class OrderController extends Controller
      */
     public function details(){
         $all=request()->all();
-        if (empty($all['order_sn'])) {
+        if (empty($all['id'])) {
             return $this->rejson(201,'缺少参数');
         }
         $data=DB::table('orders')

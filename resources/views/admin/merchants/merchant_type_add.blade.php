@@ -21,6 +21,12 @@
                         </div>
                     </div>
                     <div class="form-group">
+                        <label class="col-sm-2 control-label">分类简介：</label>
+                        <div class="input-group col-sm-2">
+                            <input type="text" class="form-control" name="remak" value="{{$data->remak or ''}}" required data-msg-required="分类名字">
+                        </div>
+                    </div>
+                    <div class="form-group">
                         <label class="col-sm-2 control-label">分类图片：</label>
                         <div class="input-group col-sm-2">
                             <input type="file" class="form-control" name="img">

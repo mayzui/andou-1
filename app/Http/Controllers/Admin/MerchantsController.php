@@ -119,6 +119,7 @@ class MerchantsController extends BaseController
         if (request()->isMethod('post')) {
             $save['type_name']=$all['type_name'];
             $save['has_children']=$all['has_children'];
+            $save['remak']=$all['remak'];
             $save['role_id']=$all['role_id'];
             if(!empty(request()->file('img'))){
                 $file[0]=request()->file('img');

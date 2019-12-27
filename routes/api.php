@@ -26,6 +26,8 @@ Route::group(['namespace' => 'Api'], function () {
 
      Route::post('merchant/merchants', 'MerchantController@merchants');
      Route::post('merchant/merchant_goods', 'MerchantController@merchantGoods');
+     Route::post('merchant/merchants_two', 'MerchantController@merchantsTwo');
+     
 
      Route::post('goods/index', 'GoodsController@index');
      Route::post('goods/goods', 'GoodsController@goods');
@@ -71,7 +73,7 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('order/wx_pay', 'OrderController@wxPay');
      Route::post('order/pay', 'OrderController@pay');
      Route::post('order/express', 'OrderController@express');
-     
+
      Route::post('login/login', 'LoginController@login');
      Route::post('login/send', 'LoginController@send');
      Route::post('login/caches', 'LoginController@caches');

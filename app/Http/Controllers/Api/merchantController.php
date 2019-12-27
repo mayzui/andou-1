@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Redis;
 class MerchantController extends Controller
 { 
     /**
-     * @api {post} /api/merchant/merchants 商家列表
+     * @api {post} /api/merchant/merchants 商家列表第一次请求
      * @apiName merchants
      * @apiGroup merchant
      * @apiParam {string} merchant_type_id 商户分类id(不是必传)
@@ -22,7 +22,8 @@ class MerchantController extends Controller
      *     {
      *       "code": "200",
      *       "data": {
-     *          "merchants": [
+     *       
+               "merchants": [
                     {
                         "id": "商户id",
                         "address": "商家详细地址",
@@ -99,7 +100,6 @@ class MerchantController extends Controller
         }else{
             $orderBy="created_at";
         }
-
         $data['merchants']=Db::table('merchants')
         ->where($where)
         ->whereIn('merchant_type_id',[2,3])
@@ -126,6 +126,88 @@ class MerchantController extends Controller
         }else{
             $data['districts']=$this->districts();
             Redis::set('districts',json_encode($data['districts'],1));
+        }
+        return $this->rejson(200,'查询成功',$data);
+    }
+    /**
+     * @api {post} /api/merchant/merchants_two 商家列表条件查询
+     * @apiName merchants_two
+     * @apiGroup merchant
+     * @apiParam {string} merchant_type_id 商户分类id(不是必传)
+     * @apiParam {string} province_id 省id(不是必传)
+     * @apiParam {string} city_id 市id(不是必传)
+     * @apiParam {string} area_id 区id(不是必传)
+     * @apiParam {string} type 排序方式(不是必传 1按评分查询,2按点赞数查询)
+     * @apiParam {string} page 查询页码(不是必传 
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": {
+     *          "merchants": [
+                    {
+                        "id": "商户id",
+                        "address": "商家详细地址",
+                        "tel": "电话号码",
+                        "created_at": "创建时间",
+                        "stars_all": "星级",
+                        "merchant_type_id":"商户类型id",
+                        "price":"最低价格",
+                        "praise_num":"点赞数量"
+                        "logo_img":"商家图片",
+                        "name":"商家名字"
+                    }
+                ]  
+     *       },
+     *       "msg":"查询成功"
+     *     }
+     */
+    public function merchantsTwo(){
+        $all=request()->all();
+        $num=10;
+        $start=0;
+        if (!empty($all['page'])) {
+            $page=$all['page'];
+            $start=$num*($page-1);
+        }
+        $where[]=['is_reg',1];
+        if (!empty($all['merchant_type_id'])) {
+            $where[]=['merchant_type_id',$all['merchant_type_id']];
+        }
+        if (!empty($all['province_id'])) {
+            $where[]=['province_id',$all['province_id']];
+        }
+        if (!empty($all['city_id'])) {
+            $where[]=['city_id',$all['city_id']];
+        }
+        if (!empty($all['area_id'])) {
+            $where[]=['area_id',$all['area_id']];
+        }
+        if (!empty($all['type'])) {
+            if ($all['type']==1) {
+                $orderBy="stars_all";
+            }elseif ($all['type']==2) {
+                $orderBy="praise_num";
+            }else{
+                $orderBy="created_at";
+            }
+        }else{
+            $orderBy="created_at";
+        }
+
+        $data['merchants']=Db::table('merchants')
+        ->where($where)
+        ->whereIn('merchant_type_id',[2,3])
+        ->select('id','created_at','merchant_type_id','address','tel','stars_all','praise_num','logo_img','name')
+        ->orderBy($orderBy,"DESC")
+        ->offset($start)
+        ->limit(10)
+        ->get();
+        foreach ($data['merchants'] as $key => $value) {
+            if ($value->merchant_type_id==2) {
+                $data['merchants'][$key]->price=Db::table('goods')->where('merchant_id',$value->id)->orderBy('price')->first()->price ?? 0;
+            }elseif ($value->merchant_type_id==3) {
+                $data['merchants'][$key]->price=Db::table('hotel_room')->where('merchant_id',$value->id)->orderBy('price')->first()->price ?? 0;
+            }
         }
         return $this->rejson(200,'查询成功',$data);
     }
@@ -192,7 +274,7 @@ class MerchantController extends Controller
         if (isset($all['price_sort'])) {
             if ($all['price_sort']==1) {
                $orderBy='price'; 
-            }else{
+            }elseif($all['price_sort']==2){
                $orderBy='price';
                $sort='ASC'; 
             }
@@ -200,7 +282,7 @@ class MerchantController extends Controller
         if (isset($all['volume_sort'])) {
             if ($all['volume_sort']==1) {
                $orderBy='volume'; 
-            }else{
+            }elseif($all['volume_sort']==2){
                $orderBy='volume';
                $sort='ASC';  
             }
@@ -215,7 +297,7 @@ class MerchantController extends Controller
         ->limit($num)
         ->get();
         $data->type=Db::table('merchants_goods_type')->select('name','id')->where(['merchant_id'=>$id,'is_del'=>1])->get();
-        return $this->rejson('200','查询成功',$data);
+        return $this->rejson(200,'查询成功',$data);
 
     }
 }
