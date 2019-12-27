@@ -33,7 +33,6 @@
                             <th>饭店名称</th>
                             <th>菜品分类</th>
                             <th>饭店地址</th>
-                            {{--<th>操作</th>--}}
                         </tr>
                         </thead>
                         <tbody>
@@ -45,25 +44,16 @@
                                         <th>{{$v->name2}}</th>
                                         <th>{{$v->name}}</th>
                                         <th>{{$v->address}}</th>
-                                        <td class="text-center">
-                                            <div class="btn-group">
-                                                {{--<button class="btn btn-primary btn-xs" type="button">详情</button>--}}
-                                            </div>
-                                        </td>
                                     </tr>
                                 @endforeach
-                                <tr style="height: 35px">
-                                    <td  colspan="7" style="text-align: center">{{$data}}</td>
-                                </tr>
                                 @else
                                 <tr>
-                                    <th colspan="7">暂时还没有数据</th>
+                                    <th colspan="6">暂时还没有数据</th>
                                 </tr>
                             @endif
                         </tbody>
-
                     </table>
-
+                {{$data}}
             </div>
         </div>
         <div class="clearfix"></div>
