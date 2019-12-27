@@ -377,8 +377,8 @@ class ManageController extends Controller
     }
 
     /**
-     * @api {post} /api/goods/affirm  店铺管理
-     * @apiName affirm
+     * @api {post} /api/goods/store  店铺管理
+     * @apiName store
      * @apiGroup menage
      * @apiParam {string} uid 商户id
      * @apiParam {string} token 验证登陆
@@ -388,13 +388,16 @@ class ManageController extends Controller
      *       "data": [
                         {
                         "name": "商铺名称",
-                        "tel": "联系电话",
+                        "mobile": "联系方式",
                         "desc": "商家公告",
                         "address": "地址",
                         "banner_img": "店铺形象图",
+                        "nickname": "收货人",
+                        "tel": "联系电话",
+                        "return_address": "退货地址",
                         }
                     ],
-     *       "msg":"审核完成"
+     *       "msg":"查询成功"
      *     }
      */
 
@@ -404,7 +407,7 @@ class ManageController extends Controller
         $data = DB::table('merchants')
             ->join('users','users.id','=','merchants.user_id')
             ->where('user_id',$all['uid'])
-            ->select(['merchants.name','merchants.tel','users.mobile','merchants.banner_img','merchants.desc','merchants.address'])
+            ->select(['merchants.name','users.name as nickname','merchants.tel','users.mobile','merchants.banner_img','merchants.desc','merchants.address','merchants.return_address'])
             ->get();
         if($data){
             return $this->rejson('200','查询成功',$data);
@@ -413,5 +416,178 @@ class ManageController extends Controller
         }
     }
 
+    /**
+     * @api {post} /api/goods/saveStore  保存店铺管理
+     * @apiName saveStore
+     * @apiGroup menage
+     * @apiParam {string} uid 商户id
+     * @apiParam {string} token 验证登陆
+     * @apiParam {string} name 商铺名称
+     * @apiParam {string} mobile 联系方式
+     * @apiParam {string} desc 商家公告
+     * @apiParam {string} address 地址
+     * @apiParam {string} banner_img 店铺形象图
+     * @apiParam {string} nickname 收货人
+     * @apiParam {string} tel 联系电话
+     * @apiParam {string} return_address 退货地址
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": "",
+     *       "msg":"修改成功"
+     *     }
+     */
+
+    public function saveStore()
+    {
+        $all = request()->all();
+        $arr = [
+            'name'=>$all['nickname'],
+            'mobile'=>$all['mobile'],
+        ];
+        $re = [
+            'desc'=>$all['desc'],
+            'address'=>$all['address'],
+            'name'=>$all['name'],
+            'tel'=>$all['tel'],
+            'return_address'=>$all['return_address'],
+        ];
+        DB::beginTransaction();//开启事物
+        $data = DB::table('users')->where('id',$all['id'])->update($arr);
+        $res = DB::table('merchants')->where('user_id',$all['id'])->update($re);
+        if($data&&$res){
+            DB::commit();//t提交
+            return $this->rejson('200','修改成功');
+        }else{
+            DB::rollback();//回滚
+            return $this->rejson(201,'修改失败');
+        }
+    }
+
+    /**
+     * @api {post} /api/goods/classify  分类添加
+     * @apiName classify
+     * @apiGroup menage
+     * @apiParam {string} uid 商户id
+     * @apiParam {string} token 验证登陆
+     * @apiParam {string} name 分类名称
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": "",
+     *       "msg":"添加完成"
+     *     }
+     */
+
+    public function classify()
+    {
+        $all = request()->all();
+        $data = [
+            'name'=>$all['name'],
+        ];
+        $res = DB::table('goods_cate')->insert($data);
+        if($res){
+            return $this->rejson('200','添加完成');
+        }else{
+            return $this->rejson('201','参数有误');
+        }
+    }
+
+    /**
+     * @api {post} /api/goods/classify  分类添加
+     * @apiName classify
+     * @apiGroup menage
+     * @apiParam {string} uid 商户id
+     * @apiParam {string} token 验证登陆
+     * @apiParam {string} name 商品名称
+     * @apiParam {string} merchants_goods_type_id 商品分类id
+     * @apiParam {string} price 商品价格
+     * @apiParam {string} store_num 库存
+     * @apiParam {string} dilivery 是否包邮
+     * @apiParam {string} attr_value 商品属性
+     * @apiParam {string} img 商品主图
+     * @apiParam {string} album 商品详细图
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": "",
+     *       "msg":"添加完成"
+     *     }
+     */
+
+    public function upload()
+    {
+        $all = request()->all();
+        $data = [];
+    }
+
+    /**
+     * @api {post} /api/goods/lists 订单列表
+     * @apiName lists
+     * @apiGroup menage
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} token 验证登陆
+     * @apiParam {string} type 状态(非比传 10-未支付 20-已支付 40-已发货  50-交易成功（确认收货） 60-交易关闭（已评论）)
+     * @apiParam {string} page 查询页码
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": [
+                        {
+                            "img": "商品图",
+                            "name": "商品名字",
+                            "goods_id": "商品id",
+                            "merchant_id": "商户id",
+                            "order_id": "订单号",
+                            "status": "状态 10-未支付 20-已支付 40-已发货  50-交易成功（确认收货） 60-交易关闭（已评论）",
+                            "mname": "商家名字",
+                            "logo_img": "商家图",
+                            "num": "数量",
+                            "id": "订单id",
+                            "express_id":"快递公司id",
+                            "courier_num":"快递单号",
+                            "shipping_free": "运费",
+                            "price": "单价",
+                            "pay_money": "总价",
+                            "attr_value": [
+                            "4G+32G",
+                            "纸包装",
+                            "白"
+                            ]
+                        }
+                    ],
+     *       "msg":"查询成功"
+     *     }
+     */
+    public function lists(){
+        $all=request()->all();
+        $num=10;
+        if (isset($all['page'])) {
+            $pages=($all['page']-1)*$num;
+        }else{
+            $pages=0;
+        }
+        if (empty($all['type'])) {
+
+        }else{
+            $where[]=['o.status',$all['type']];
+        }
+
+        $where[]=['o.user_id',$all['uid']];
+
+
+        $data=DB::table('order_goods as o')
+            ->join('goods as g','g.id','=','o.goods_id')
+            ->join('merchants as m','m.id','=','o.merchant_id')
+            ->join('goods_sku as s','s.id','=','o.goods_sku_id')
+            ->where($where)
+            ->select('g.img','g.name','o.goods_id','o.merchant_id','o.order_id','o.status','m.name as mname','m.logo_img','o.num','o.id','shipping_free','o.express_id','o.courier_num','s.price','pay_money','s.attr_value')
+            ->get();
+        foreach ($data as $k => $v) {
+            $data[$k]->attr_value=json_decode($v->attr_value,1)[0]['value'];
+        }
+
+        return $this->rejson(200,'查询成功',$data);
+    }
 
 }

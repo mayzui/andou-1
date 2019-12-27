@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 use Illuminate\Http\Request;
 
@@ -96,5 +96,5 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('goods/lists','ManageController@lists');
      //店铺管理
      Route::post('goods/store','ManageController@store');
-     Route::post('goods/wallet','ManageController@wallet');
+     Route::post('goods/saveStore','ManageController@saveStore');
 });
