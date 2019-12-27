@@ -48,9 +48,6 @@
                                         </td>
                                     </tr>
                                 @endforeach
-                                <tr style="height: 35px">
-                                    <td  colspan="4" style="text-align: center;">{{$data}}</td>
-                                </tr>
                                 @else
                                 <tr>
                                     <th colspan="4">暂时还没有数据</th>
@@ -58,7 +55,7 @@
                             @endif
                         </tbody>
                     </table>
-
+                {{$data}}
             </div>
         </div>
         <div class="clearfix"></div>
