@@ -92,6 +92,91 @@ class OrderController extends Controller
         return $this->rejson(200,'查询成功',$data);
     }
     /**
+     * @api {post} /api/order/express 快递查询 
+     * @apiName express
+     * @apiGroup order
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} token 验证登陆
+     * @apiParam {string} express_id 快递公司id
+     * @apiParam {string} courier_num 快递单号
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": "",
+     *       "msg":"添加成功"
+     *     }
+     */
+    public function express($post) {
+
+        $customer = "E9C982534CECCAF4A0CF245E82488F27";
+
+        $key = 'qibOlrGo1156';
+
+        $url = 'http://poll.kuaidi100.com/poll/query.do';
+
+        $express_id=$all['express_id'];
+        $courier_num=$all['courier_num'];
+
+
+        if (!empty($express_id) && !empty($courier_num)) {
+
+                $r01 = Db::table('express')->where()->first('id',$express_id);
+                $type = $r01->com; //快递公司代码
+
+                $kuaidi_name = $r01->name;
+
+                $post_data["customer"] = $customer;
+
+                $post_data["param"] = '{"com":"' . $type . '","num":"' . $courier_num . '"}';
+
+                $post_data["sign"] = md5($post_data["param"] . $key . $post_data["customer"]);
+
+                $post_data["sign"] = strtoupper($post_data["sign"]);
+
+                $o = "";
+
+                foreach ($post_data as $k => $v) {
+
+                    $o.= "$k=" . urlencode($v) . "&";  //默认UTF-8编码格式
+                }
+
+                $post_data = substr($o, 0, -1);
+
+                //发起CURL请求
+
+                $ch = curl_init();
+
+                curl_setopt($ch, CURLOPT_POST, 1);
+
+                curl_setopt($ch, CURLOPT_HEADER, 0);
+
+                curl_setopt($ch, CURLOPT_URL, $url);
+
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
+
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+                $result = curl_exec($ch);
+
+                $da = str_replace("\"", '"', $result);
+
+                $res_1 = json_decode($da, true);
+
+                $data['wuliu_msg'] = $res_1;
+
+                $data['name'] = $kuaidi_name;
+
+                $data['courier_num'] = $courier_num;
+
+                return array('code' => 200, 'data' => $data, 'msg' => '获取信息成功！');
+        } else {
+
+            return array('code' => 201, 'data' => '', 'msg' => '未查询到物流信息！');
+        }
+        
+    }
+
+    /**
      * @api {post} /api/order/add_order 立即购买 
      * @apiName add_order
      * @apiGroup order

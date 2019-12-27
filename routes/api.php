@@ -70,6 +70,7 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('order/index', 'OrderController@index');
      Route::post('order/wx_pay', 'OrderController@wxPay');
      Route::post('order/pay', 'OrderController@pay');
+     Route::post('order/express', 'OrderController@express');
      
      Route::post('login/login', 'LoginController@login');
      Route::post('login/send', 'LoginController@send');

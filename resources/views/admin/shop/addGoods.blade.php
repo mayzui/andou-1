@@ -364,11 +364,7 @@
             </div>
         </section>
     </section>
-    <style>
-    .edui-default{
-        height:250px;
-    }
-    </style>
+
     <script type="text/javascript">
                var ue = UE.getEditor('container',{
                       initialFrameWidth:null ,//宽度随浏览器自适应
