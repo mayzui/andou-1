@@ -132,6 +132,16 @@
                                             </div>
 
                                             <div class="form-group">
+                                                <label class="col-sm-2 control-label">商品分类：</label>
+                                                <div class="col-sm-2">
+                                                    <select class="form-control pull-left" name="merchants_goods_type">
+                                                        @foreach($merchants_goods_type as $item)
+                                                            <option value="{{$item->id}}" @if($item->id == $goodsdata->merchants_goods_type_id) selected @endif > {{$item->name}}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
                                                 <label class="col-sm-2 control-label">名称：</label>
                                                 <div class="col-sm-6">
                                                     <input type="text"  name="name" value="{{ $goodsdata ->name or "" }}" class="form-control">

@@ -135,5 +135,74 @@ class RefundController extends Controller
             -> first();
         return $this->rejson(200,'查询成功',$data);
     }
+    /**
+     * @api {post} /api/refund/company 物流公司
+     * @apiName company
+     * @apiGroup refund
+     * @apiParam {string} page 分页
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "msg":"查询成功",
+     *       "data": {
+        "name":"公司名称",
+        "com":" 公司编码",
+     * }
+     */
+    public function company(){
+        $all = \request() -> all();
+        $num = 5;
+        if (isset($all['page'])) {
+            $pages=($all['page']-1)*$num;
+            $data = DB::table('express')
+                -> where('is_del',0)
+                -> select('name','com')
+                -> offset($pages)
+                -> limit($num)
+                -> get();
+        }else{
+            $data = DB::table('express')
+                -> where('is_del',0)
+                -> select('name','com')
+                -> get();
+        }
+        return $this->rejson(200,'查询成功',$data);
+    }
+    /**
+     * @api {post} /api/refund/waybill 填写运单号
+     * @apiName waybill
+     * @apiGroup refund
+     * @apiParam {string} uid       用户id     （必填）
+     * @apiParam {string} token     验证       （必填）
+     * @apiParam {string} order_id  订单id     （必填）
+     * @apiParam {string} express_id 快递公司id（必填）
+     * @apiParam {string} num 快递单号         （必填）
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "msg":"提交成功",
+     *       "data": ""
+     */
+    public function waybill(){
+        $all = \request() -> all();
+        $check=$this->checktoten($all['uid'],$all['token']);
+        if ($check['code']==201) {
+            return $this->rejson($check['code'],$check['msg']);
+        }
+        if (empty($all['express_id']) || empty($all['num'])) {
+            return $this->rejson(201,'缺少必要参数');
+        }
+        $data = [
+            'express_id' => $all['express_id'],
+            'express_no' => $all['num']
+        ];
+        $i = DB::table('order_returns') -> where('order_id',$all['order_id']) -> update($data);
+        if($i){
+            return $this->rejson(200,'提交成功');
+        }else{
+            return $this->rejson(201 ,'提交失败');
+        }
+
+    }
 // W83tVnay3ZPCsMA
 }

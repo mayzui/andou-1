@@ -733,6 +733,7 @@ class ShopController extends BaseController
     // 跳转商品新增界面
     public function create (Request $request)
     {
+        $id = Auth::id();
         $goodsCate = GoodsCate::with(['children'=>function($res){
             $res->with('children');
         }])->where('pid','=',0)
@@ -744,6 +745,13 @@ class ShopController extends BaseController
         $attrData = DB::table('goods_attr') -> get();
         // 查询运费模板表
         $express_modeldata = DB::table('express_model') -> get();
+        // 查询商品分类
+        $merchants_goods_type = DB::table('merchants_goods_type')
+            -> where('is_del',1)
+            -> where('merchant_id',$id)
+            -> select('id','name')
+            -> get();
+
         $a = DB::table('goods_attr_value') -> get();
         $arr = [
             'goodsCate'=>$goodsCate,
@@ -751,6 +759,7 @@ class ShopController extends BaseController
             'attrData'=>$attrData,
             'attrvalueData'=>$a,
             'express_modeldata'=>$express_modeldata,
+            'merchants_goods_type'=>$merchants_goods_type,
             'goodssku'=>[],
             'goodsdata' =>(object)[
                 'goods_brand_id'=>'',
@@ -759,6 +768,7 @@ class ShopController extends BaseController
                 'is_team_buy'=>'',
                 'is_recommend'=>'',
                 'dilivery'=>'',
+                'merchants_goods_type_id'=>'',
             ]
         ];
         return $this->view('addGoods',$arr);
@@ -819,6 +829,11 @@ class ShopController extends BaseController
         $express_modeldata = DB::table('express_model') -> get();
         // 查询商品参数
         $attrData = DB::table('goods_attr') -> get();
+        // 查询商品分类
+        $merchants_goods_type = DB::table('merchants_goods_type')
+            -> where('is_del',1)
+            -> select('id','name')
+            -> get();
         $a = DB::table('goods_attr_value') -> get();
         $arr = [
             'goodsCate'=>$goodsCate,
@@ -826,6 +841,7 @@ class ShopController extends BaseController
             'attrData'=>$attrData,
             'attrvalueData'=>$a,
             'goodsdata'=>$goodsdata,
+            'merchants_goods_type'=>$merchants_goods_type,
             'goods_album'=>json_decode($goodsdata->album),
             'express_modeldata'=>$express_modeldata,
             'goods_id'=>$all['id'],
@@ -1029,6 +1045,7 @@ class ShopController extends BaseController
                 'is_bargain' => $all['is_bargain'],
                 'is_recommend' => $all['is_recommend'],
                 'is_team_buy' => $all['is_team_buy'],
+                'merchants_goods_type_id' => $all['merchants_goods_type'],
             ];
             // 链接数据库，修改内容
             $i = DB::table('goods') -> where('id',$all['goods_id']) -> update($data);
@@ -1066,6 +1083,12 @@ class ShopController extends BaseController
                 $goodBrands = GoodBrands::select('id','name')->orderBy('id','asc')->get();
                 // 查询商品参数
                 $attrData = DB::table('goods_attr') -> get();
+                // 查询商品分类
+                $merchants_goods_type = DB::table('merchants_goods_type')
+                    -> where('is_del',1)
+                    -> where('merchant_id',Auth::id())
+                    -> select('id','name')
+                    -> get();
                 $a = DB::table('goods_attr_value') -> get();
                 $arr = [
                     'goodsCate'=>$goodsCate,
@@ -1073,6 +1096,7 @@ class ShopController extends BaseController
                     'goodBrands'=>$goodBrands,
                     'express_modeldata'=>$express_modeldata,
                     'attrData'=>$attrData,
+                    'merchants_goods_type'=>$merchants_goods_type,
                     'attrvalueData'=>$a,
                     'goods_id'=>$all['goods_id'],
                     'goodssku'=> $old_arr,
@@ -1091,12 +1115,19 @@ class ShopController extends BaseController
                 $goodBrands = GoodBrands::select('id','name')->orderBy('id','asc')->get();
                 // 查询商品参数
                 $attrData = DB::table('goods_attr') -> get();
+                // 查询商品分类
+                $merchants_goods_type = DB::table('merchants_goods_type')
+                    -> where('is_del',1)
+                    -> where('merchant_id',Auth::id())
+                    -> select('id','name')
+                    -> get();
                 $a = DB::table('goods_attr_value') -> get();
                 $arr = [
                     'goodsCate'=>$goodsCate,
                     'goodsdata'=>$goodsdata,
                     'goodBrands'=>$goodBrands,
                     'express_modeldata'=>$express_modeldata,
+                    'merchants_goods_type'=>$merchants_goods_type,
                     'attrData'=>$attrData,
                     'attrvalueData'=>$a,
                     'goods_id'=>$all['goods_id'],
@@ -1121,6 +1152,7 @@ class ShopController extends BaseController
             $model->img = $request->input('img');
             $model->desc = $request->input('desc');
             $model->price = $request->input('price');
+            $model->merchants_goods_type_id = $request->input('merchants_goods_type');
 
             $model->dilivery = $request->input('dilivery');
             $model->weight = $request->input('weight');
@@ -1142,11 +1174,18 @@ class ShopController extends BaseController
                 $goodBrands = GoodBrands::select('id','name')->orderBy('id','asc')->get();
                 // 查询商品参数
                 $attrData = DB::table('goods_attr') -> get();
+                // 查询商品分类
+                $merchants_goods_type = DB::table('merchants_goods_type')
+                    -> where('is_del',1)
+                    -> where('merchant_id',Auth::id())
+                    -> select('id','name')
+                    -> get();
                 $a = DB::table('goods_attr_value') -> get();
                 $arr = [
                     'goodsCate'=>$goodsCate,
                     'goodBrands'=>$goodBrands,
                     'attrData'=>$attrData,
+                    'merchants_goods_type'=>$merchants_goods_type,
                     'attrvalueData'=>$a,
                     'goods_id'=>$model->id,
                     'goodsdata' =>(object)[
@@ -1154,6 +1193,7 @@ class ShopController extends BaseController
                         'is_hot'=>'',
                         'is_bargain'=>'',
                         'is_team_buy'=>'',
+                        'merchants_goods_type_id'=>'',
                         'is_recommend'=>''
                     ]
                 ];
@@ -1320,12 +1360,14 @@ class ShopController extends BaseController
             $list = DB::table('goods_brands')
                 -> join('merchants','goods_brands.merchant_id','=','merchants.id')
                 -> where('merchants.user_id',$id)
-                -> select(['goods_brands.id','goods_brands.name'])
-                -> paginate($request->input('limit'));
+                -> select(['goods_brands.id','goods_brands.name','goods_brands.img'])
+                -> paginate(5);
         }else{
-            $list = GoodBrands::orderBy('id','desc')->paginate($request->input('limit'));
+            $list = DB::table('goods_brands')
+                -> join('merchants','goods_brands.merchant_id','=','merchants.id')
+                -> select(['goods_brands.id','goods_brands.name','goods_brands.img'])
+                -> paginate(5);
         }
-
         return $this->view('goodsBrand',['list'=>$list]);
     }
 

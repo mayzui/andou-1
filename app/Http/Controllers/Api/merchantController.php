@@ -300,4 +300,153 @@ class MerchantController extends Controller
         return $this->rejson(200,'查询成功',$data);
 
     }
+    /**
+     * @api {post} /api/merchant/entry 商家入驻
+     * @apiName entry
+     * @apiGroup merchant
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} token 登录验证
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "msg":"查询成功",
+     *       "data": {
+    "id":"商户类型id",
+    "type_name":"分类名称",
+    "remak":"商户简介",
+    "img":"图片"
+     * }
+     *     }
+     */
+    public function entry(){
+        $all = \request() -> all();
+        $check=$this->checktoten($all['uid'],$all['token']);
+        if ($check['code']==201) {
+            return $this->rejson($check['code'],$check['msg']);
+        }
+        $data = DB::table('merchant_type')
+            -> select('id','type_name','remak','img')
+            -> get();
+        return $this->rejson('200','查询成功',$data);
+
+    }
+    /**
+     * @api {post} /api/merchant/information 商家填写资料入驻
+     * @apiName information
+     * @apiGroup merchant
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} token 登录验证
+     * @apiParam {string} type_id 入驻商家类型id（必填）
+     * @apiParam {string} name 商家名称（必填）
+     * @apiParam {string} user_name 联系人名称（必填）
+     * @apiParam {string} tel 联系人电话（必填）
+     * @apiParam {string} province_id 店铺地址：省（必填）
+     * @apiParam {string} city_id 店铺地址：市（必填）
+     * @apiParam {string} area_id 店铺地址：区（必填）
+     * @apiParam {string} address 详细地址（必填）
+     * @apiParam {string} desc 商家简介（必填）
+     * @apiParam {string} banner_img 商家海报图（必填）
+     * @apiParam {string} logo_img 商家Logo图（必填）
+     * @apiParam {string} management_img 营业执照（必填）
+     * @apiParam {string} door_img 商家门头图（商城商家：不填）
+     * @apiParam {string} goods_img 食品经营许可证（酒店商家：不填）
+     * @apiParam {string} management_type 经营品种（饭店商家：必填）
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "msg":"申请成功",
+     *       "data": ""
+     *     }
+     */
+    public function information(){
+        $all = \request() -> all();
+        if(empty($all['name']) ||
+            empty($all['user_name']) ||
+            empty($all['type_id']) ||
+            empty($all['tel']) ||
+            empty($all['address']) ||
+            empty($all['desc']) ||
+            empty($all['banner_img']) ||
+            empty($all['management_img']) ||
+            empty($all['goods_img']) ||
+            empty($all['province_id']) ||
+            empty($all['city_id']) ||
+            empty($all['area_id'])){
+            return $this->rejson(201,'请输入用户id');
+        }
+        $check=$this->checktoten($all['uid'],$all['token']);
+        if ($check['code']==201) {
+            return $this->rejson($check['code'],$check['msg']);
+        }
+        // 判断用户入驻什么商家
+        // 商城商家
+
+        //      时间
+
+        if($all['type_id'] == 2){
+            $data = [
+                'user_id' => $all['uid'],
+                'name' => $all['name'],
+                'banner_img' => $all['banner_img'],
+                'logo_img' => $all['logo_img'],
+                'management_img' => $all['management_img'],
+                'goods_img' => $all['goods_img'],
+
+                'desc' => $all['desc'],
+                'province_id' => $all['province_id'],
+                'city_id' => $all['city_id'],
+                'area_id' => $all['area_id'],
+                'merchant_type_id' => 2,
+                'address' => $all['address'],
+                'tel' => $all['tel'],
+                'user_name' => $all['user_name'],
+            ];
+        }else if($all['type_id'] ==  3){  // 入驻酒店商家
+            $data = [
+                'user_id' => $all['uid'],
+                'name' => $all['name'],
+                'banner_img' => $all['banner_img'],
+                'logo_img' => $all['logo_img'],
+                'management_img' => $all['management_img'],
+                'door_img' => $all['door_img'],
+
+                'desc' => $all['desc'],
+                'province_id' => $all['province_id'],
+                'city_id' => $all['city_id'],
+                'area_id' => $all['area_id'],
+                'merchant_type_id' => 2,
+                'address' => $all['address'],
+                'tel' => $all['tel'],
+                'user_name' => $all['user_name'],
+            ];
+        }else if($all['type_id' == 4]){   // 入驻饭店商家
+            $data = [
+                'user_id' => $all['uid'],
+                'name' => $all['name'],
+                'banner_img' => $all['banner_img'],
+                'logo_img' => $all['logo_img'],
+                'management_img' => $all['management_img'],
+                'door_img' => $all['door_img'],
+                'goods_img' => $all['goods_img'],
+
+                'desc' => $all['desc'],
+                'province_id' => $all['province_id'],
+                'city_id' => $all['city_id'],
+                'area_id' => $all['area_id'],
+                'merchant_type_id' => 2,
+                'address' => $all['address'],
+                'tel' => $all['tel'],
+                'user_name' => $all['user_name'],
+                'management_type' => $all['management_type'],
+            ];
+        }
+        $i = DB::table('merchants') -> insert($data);
+        if($i){
+            return $this->rejson('200','已提交入驻申请');
+        }else{
+            return $this->rejson('200','当前入驻人数较多，请稍后再试');
+        }
+
+    }
+    // W83tVnay3ZPCsMA
 }

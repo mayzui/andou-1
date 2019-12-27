@@ -743,8 +743,11 @@ class FoodsController extends BaseController
             // 如果开店，则能够看到自己的菜品规格
             // 查询数据库数据
             $data = DB::table("foods_spec")
+                -> join('merchants','foods_spec.merchant_id','=','merchants.id')
                 -> where($where)
-                -> where('merchant_id',$id) -> paginate(5);
+                -> where('merchants.id',$id)
+                -> select(['foods_spec.id','foods_spec.name as spec_name','merchants.name as merchants_name'])
+                -> paginate(5);
         }else{
             // 如果开店，则为超级管理员，能够看见所有的数据
             // 查询数据库数据

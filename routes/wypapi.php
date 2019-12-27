@@ -46,6 +46,14 @@ Route::group(['namespace' => 'Api'], function () {
     Route::post('refund/reason', 'RefundController@reason');    // 退款原因
     Route::post('refund/apply', 'RefundController@apply');    // 申请退款
     Route::post('refund/return_goods', 'RefundController@return_goods');    // 申请退货
+    // 查询快递公司
+    Route::post('refund/company', 'RefundController@company');    // 快递公司
+    Route::post('refund/waybill ', 'RefundController@waybill');    // 运单号
+
+    // 商家入驻
+    Route::post('merchant/entry ', 'MerchantController@entry');    // 商家入驻
+    Route::post('merchant/information ', 'MerchantController@information');    // 商家填写信息
+
 
 
 
