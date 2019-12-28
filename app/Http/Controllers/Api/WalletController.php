@@ -12,10 +12,10 @@ class WalletController extends Controller
     {
         $all=request()->all();
         if (empty($all['uid'])||empty($all['token'])) {
-            return $this->rejson(201,'登陆失效');
+            return $this->rejson(202,'登陆失效');
         }
         $check=$this->checktoten($all['uid'],$all['token']);
-        if ($check['code']==201) {
+        if ($check['code']==202) {
             return $this->rejson($check['code'],$check['msg']);
         }
     }
@@ -335,5 +335,5 @@ class WalletController extends Controller
             return $this->rejson(201,'未查询到该id');
         }
     }
-    // W83tVnay3ZPCsMA
+    // 8fcc685decce987fbfdb713d7514928f
 }

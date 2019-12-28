@@ -381,6 +381,11 @@ class FoodsController extends BaseController
         return $this -> view('',['data'=>$data,'name'=>$name]);
     }
 
+    // 修改饭店状态
+    public function administrationStatus(){
+        return \request() -> all();
+    }
+
 
     /*
      *      饭店审核

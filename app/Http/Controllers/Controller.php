@@ -125,10 +125,10 @@ class Controller extends BaseController
         $tokens=md5('andou'.$id.$token);
         $user=Db::table('users')->select('token')->where('id',$id)->first();
         if(empty($user->token)){
-            return array('code'=>201,'msg'=>'登陆失效');
+            return array('code'=>202,'msg'=>'登陆失效');
         }
         if ($tokens!=$user->token) {
-            return array('code'=>201,'msg'=>'登陆失效');
+            return array('code'=>202,'msg'=>'登陆失效');
         }
     }
     /**添加浏览记录

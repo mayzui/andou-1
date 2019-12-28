@@ -7,17 +7,17 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 class ManageController extends Controller
 {
-//    public function __construct()
-//    {
-//        $all = request()->all();
-//        if (empty($all['uid']) || empty($all['token'])) {
-//            return $this->rejson(201, '登陆失效');
-//        }
-//        $check = $this->checktoten($all['uid'], $all['token']);
-//        if ($check['code'] == 201) {
-//            return $this->rejson($check['code'], $check['msg']);
-//        }
-//    }
+    public function __construct()
+    {
+        $all = request()->all();
+        if (empty($all['uid']) || empty($all['token'])) {
+            return $this->rejson(202, '登陆失效');
+        }
+        $check = $this->checktoten($all['uid'], $all['token']);
+        if ($check['code'] == 202) {
+            return $this->rejson($check['code'], $check['msg']);
+        }
+    }
 
     /**
      * @api {post} /api/goods/manage 商品管理

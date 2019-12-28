@@ -11,10 +11,10 @@ class OrderController extends Controller
     {
         $all=request()->all();
         if (empty($all['uid'])||empty($all['token'])) {
-           return $this->rejson(201,'登陆失效');
+           return $this->rejson(202,'登陆失效');
         }
         $check=$this->checktoten($all['uid'],$all['token']);
-        if ($check['code']==201) {
+        if ($check['code']==202) {
            return $this->rejson($check['code'],$check['msg']);
         }
     }
@@ -379,11 +379,11 @@ class OrderController extends Controller
         $area=DB::table('districts')->where('id',$address->area_id)->first()->name ?? '';
         $data->userinfo=array('name'=>$address->name,'address'=>$address->address,'mobile'=>$address->mobile,'province'=>$province,'city'=>$city,'area'=>$area);
         $data->details=DB::table('order_goods as o')
-        ->join('goods as g','g.id','=','o.goods_id')
-        ->join('goods_sku as s','s.id','=','o.goods_sku_id')
-        ->where('o.order_id',$all['order_sn'])
-        ->select('g.img','g.name','o.num','shipping_free','s.price','s.attr_value')
-        ->get();
+            ->join('goods as g','g.id','=','o.goods_id')
+            ->join('goods_sku as s','s.id','=','o.goods_sku_id')
+            ->where('o.order_id',$all['order_sn'])
+            ->select('g.img','g.name','o.num','shipping_free','s.price','s.attr_value')
+            ->get();
         $data->shipping_free=0;
         foreach ($data->details as $key => $value) {
             $data->details[$key]->attr_value=json_decode($value->attr_value,1)[0]['value'];

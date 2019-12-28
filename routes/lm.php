@@ -12,6 +12,7 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('merchants/industry','MerchantsController@industry')->name('merchants.industry');
         Route::match(['get','post'],'merchants/industry_add','MerchantsController@industryAdd')->name('merchants.industry_add');
         Route::get('merchants/industry_del','MerchantsController@industryDel')->name('merchants.industry_del');
+        Route::match(['get','post'],'merchants/information','MerchantsController@information')->name('merchants.information');
         //酒店管理
         Route::match(['get','post'],'hotel/index','HotelController@index')->name('hotel.index');
         Route::get('hotel/faci','HotelController@faci')->name('hotel.faci');
@@ -36,6 +37,7 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         //饭店模块
         // 饭店商家管理
         Route::match(['get','post'],'foods/administration','FoodsController@administration')->name('foods.administration');
+        Route::get('foods/administrationStatus','FoodsController@administrationStatus')->name('foods.administrationStatus'); // 删除
         // 饭店商家审核
         Route::match(['get','post'],'foods/examine','FoodsController@examine')->name('foods.examine');
         Route::get('foods/examinepass','FoodsController@examinepass')->name('foods.examinepass'); // 删除

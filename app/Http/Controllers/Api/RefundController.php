@@ -68,8 +68,11 @@ class RefundController extends Controller
      */
     public function apply(){
         $all = \request() -> all();
+        if (empty($all['uid'])||empty($all['token'])) {
+            return $this->rejson(202,'登陆失效');
+        }
         $check=$this->checktoten($all['uid'],$all['token']);
-        if ($check['code']==201) {
+        if ($check['code']==202) {
             return $this->rejson($check['code'],$check['msg']);
         }
         if (empty($all['order_id']) || empty($all['reason_id']) || empty($all['money']) ) {

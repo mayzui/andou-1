@@ -21,39 +21,154 @@ class MerchantsController extends BaseController
     public function index()
     {
         $all = request()->all();
-        $where[]=['id','>','0'];
-        if (!empty($all['merchant_type_id'])) {
-           $where[]=['merchant_type_id',$all['merchant_type_id']];
-           $screen['merchant_type_id'] = $all['merchant_type_id'];
-        }else{
-           $screen['merchant_type_id']='';
-        }
-        if (!empty($all['name'])) {
-           $where[]=['name', 'like', '%'.$all['name'].'%'];
-           $screen['name']=$all['name']; 
-        }else{
-           $screen['name']=''; 
-        }
-        $data=DB::table('merchants')->where($where)->paginate(10);
-
-        foreach ($data as $key => $value) {
-            $merchant_type=Db::table('merchant_type')->where('id',$value->merchant_type_id)->pluck('type_name');
-            if (!empty($merchant_type[0])) {
-                $data[$key]->merchant_type_id=$merchant_type[0];
+        $id = \Auth::id();
+        // 判断该用户，是否开店 并且已经认证通过
+        $i = DB::table('merchants') -> where("user_id",$id) -> where("is_reg",1) -> first();
+        if(!empty($i)) {
+            // 如果开店，则查询当前商户的信息
+            $where[]=['id','>','0'];
+            if (!empty($all['merchant_type_id'])) {
+                $where[]=['merchant_type_id',$all['merchant_type_id']];
+                $screen['merchant_type_id'] = $all['merchant_type_id'];
             }else{
-                $data[$key]->merchant_type_id='';
+                $screen['merchant_type_id']='';
             }
-            $username=Db::table('users')->where('id',$value->user_id)->pluck('name');
-            if (!empty($username[0])) {
-                $data[$key]->username=$username[0];
+            if (!empty($all['name'])) {
+                $where[]=['name', 'like', '%'.$all['name'].'%'];
+                $screen['name']=$all['name'];
             }else{
-                $data[$key]->username='';
+                $screen['name']='';
             }
+            $data=DB::table('merchants')
+                -> where('user_id',$id)
+                -> where($where)
+                -> paginate(10);
+            foreach ($data as $key => $value) {
+                $merchant_type=Db::table('merchant_type')->where('id',$value->merchant_type_id)->pluck('type_name');
+                if (!empty($merchant_type[0])) {
+                    $data[$key]->merchant_type_id=$merchant_type[0];
+                }else{
+                    $data[$key]->merchant_type_id='';
+                }
+                $username=Db::table('users')->where('id',$value->user_id)->pluck('name');
+                if (!empty($username[0])) {
+                    $data[$key]->username=$username[0];
+                }else{
+                    $data[$key]->username='';
+                }
+            }
+            $wheres['type']=DB::table('merchant_type')->get();
+            $wheres['where']=$screen;
+        }else{
+            $where[]=['id','>','0'];
+            if (!empty($all['merchant_type_id'])) {
+                $where[]=['merchant_type_id',$all['merchant_type_id']];
+                $screen['merchant_type_id'] = $all['merchant_type_id'];
+            }else{
+                $screen['merchant_type_id']='';
+            }
+            if (!empty($all['name'])) {
+                $where[]=['name', 'like', '%'.$all['name'].'%'];
+                $screen['name']=$all['name'];
+            }else{
+                $screen['name']='';
+            }
+            $data=DB::table('merchants')
+                ->where($where)
+                ->paginate(10);
+            foreach ($data as $key => $value) {
+                $merchant_type=Db::table('merchant_type')->where('id',$value->merchant_type_id)->pluck('type_name');
+                if (!empty($merchant_type[0])) {
+                    $data[$key]->merchant_type_id=$merchant_type[0];
+                }else{
+                    $data[$key]->merchant_type_id='';
+                }
+                $username=Db::table('users')->where('id',$value->user_id)->pluck('name');
+                if (!empty($username[0])) {
+                    $data[$key]->username=$username[0];
+                }else{
+                    $data[$key]->username='';
+                }
+            }
+            $wheres['type']=DB::table('merchant_type')->get();
+            $wheres['where']=$screen;
         }
-        $wheres['type']=DB::table('merchant_type')->get();
-        $wheres['where']=$screen;
-        return $this->view('',['data'=>$data],['wheres'=>$wheres]);
+        return $this->view('',['data'=>$data,'i'=>$i],['wheres'=>$wheres]);
     }
+
+    // 查看详情
+    public function information(){
+        $all = \request() -> all();
+        if(\request() -> isMethod("get")){
+            // 通过传入的id 查询商户信息
+            $data = DB::table('merchants')
+                -> join('merchant_type','merchants.merchant_type_id','=','merchant_type.id')
+                -> where('merchants.id',$all['id'])
+                -> select(['merchant_type.type_name','merchants.id',
+                    'merchants.name','merchants.desc',
+                    'merchants.province_id','merchants.city_id',
+                    'merchants.area_id','merchants.address',
+                    'merchants.tel','merchants.user_name',
+                    'merchants.management_type','merchants.management_type',
+                    'merchants.banner_img','merchants.logo_img',
+                    'merchants.door_img','merchants.management_img',
+                    'merchants.goods_img','merchants.merchant_type_id'])
+                -> first();
+//            return dd($data);
+            return $this->view('',['data'=>$data]);
+        }else{
+            if(!empty($all['management_type'])){
+                // 获得提交的内容
+                $data = [
+                    'name' => $all['name'],
+                    'user_name' => $all['user_name'],
+                    'tel' => $all['tel'],
+                    'province_id' => $all['province_id'],
+                    'city_id' => $all['city_id'],
+                    'area_id' => $all['area_id'],
+                    'address' => $all['address'],
+                    'return_address' => $all['return_address'],
+                    'desc' => $all['desc'],
+                    'banner_img' => $all['banner_img'],
+                    'logo_img' => $all['logo_img'],
+                    'door_img' => $all['door_img'],
+                    'management_img' => $all['management_img'],
+                    'goods_img' => $all['goods_img'],
+                    'management_type' => $all['management_type'],
+                    'updated_at' => date("Y-m-d H:i:s")
+                ];
+            }else{
+                // 获得提交的内容
+                $data = [
+                    'name' => $all['name'],
+                    'user_name' => $all['user_name'],
+                    'tel' => $all['tel'],
+                    'province_id' => $all['province_id'],
+                    'city_id' => $all['city_id'],
+                    'area_id' => $all['area_id'],
+                    'address' => $all['address'],
+                    'return_address' => $all['return_address'],
+                    'desc' => $all['desc'],
+                    'banner_img' => $all['banner_img'],
+                    'logo_img' => $all['logo_img'],
+                    'door_img' => $all['door_img'],
+                    'management_img' => $all['management_img'],
+                    'goods_img' => $all['goods_img'],
+                    'updated_at' => date("Y-m-d H:i:s")
+                ];
+            }
+            // 根据传入的id 修改商户信息
+            $i = DB::table('merchants') -> where('id',$all['id']) -> update($data);
+            if($i){
+                flash("商户信息修改成功") -> success();
+                return redirect()->route('merchants.index');
+            }else{
+                flash("更新失败，请稍后重试") -> error();
+                return redirect()->route('merchants.index');
+            }
+        }
+    }
+
     /**修改商户状态
      * [reg description]
      * @return [type] [description]

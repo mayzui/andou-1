@@ -45,25 +45,27 @@
                                 <td>{{$item->id}}</td>
                                 <td>{{$item->name}}</td>
                                 <th>{{$item->username}}</th>
-                                <td><img src="/{{$item->logo_img}}" alt="" style="width: 50px;height: 50px;"></td>
+                                <td><img src="{{$item->logo_img}}" alt="" style="width: 50px;height: 50px;"></td>
                                 <td>{{$item->address}}</td>
                                 <td>{{$item->merchant_type_id}}</td>
                                 <td>@if($item->is_reg==1)
-                                        已认证
+                                        <p style="color: green">已认证</p>
                                     @else
-                                        未认证
+                                        <p style="color: blue">未认证</p>
                                     @endif
                                 </td>
                                 <td>{{$item->created_at}}</td>
                                 <td>{{$item->updated_at}}</td>
                                 <td class="text-center">
                                     <div class="btn-group">
-                                    @if($item->is_reg==1)
-                                        <a href="{{route('merchants.reg')}}?id={{$item->id}}&is_reg=0"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o"></i> 禁用</button></a>
-                                    @else
-                                        <a href="{{route('merchants.reg')}}?id={{$item->id}}&is_reg=1"><button class="btn btn-group btn-xs" type="button">通过审核</button></a>
-                                    @endif
-                                         
+                                        <a href="{{route('merchants.information')}}?id={{$item->id}}"><button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 详情</button></a>
+                                        @if(empty($i))
+                                        @if($item->is_reg==1)
+                                            <a href="{{route('merchants.reg')}}?id={{$item->id}}&is_reg=0"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o"></i> 禁用</button></a>
+                                        @else
+                                            <a href="{{route('merchants.reg')}}?id={{$item->id}}&is_reg=1"><button class="btn btn-group btn-xs" type="button"><i class="fa fa-adn"></i>通过审核</button></a>
+                                        @endif
+                                        @endif
                                     </div>
                                 </td>
                             </tr>

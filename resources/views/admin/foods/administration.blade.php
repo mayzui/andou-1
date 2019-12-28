@@ -33,6 +33,7 @@
                             <th>饭店名称</th>
                             <th>菜品分类</th>
                             <th>饭店地址</th>
+                            <th>操作</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -44,11 +45,16 @@
                                         <th>{{$v->name2}}</th>
                                         <th>{{$v->name}}</th>
                                         <th>{{$v->address}}</th>
+                                        <td class="text-center">
+                                            <div class="btn-group">
+                                                <a onclick="del({{$v->id}})"><button class="btn btn-primary btn-xs" type="button"><i class="fa fa-check"></i> 认证通过</button></a>
+                                            </div>
+                                        </td>
                                     </tr>
                                 @endforeach
                                 @else
                                 <tr>
-                                    <th colspan="6">暂时还没有数据</th>
+                                    <th colspan="7">暂时还没有数据</th>
                                 </tr>
                             @endif
                         </tbody>
@@ -62,7 +68,7 @@
     <script type="text/javascript">
         function del(e) {
             var id = e;
-            layer.alert("是否删除该数据？",{icon:3},function (index) {
+            layer.alert("是否更新状态？",{icon:3},function (index) {
                 location.href="{{route('foods.del')}}?id="+id;
                 layer.close(index);
             });
