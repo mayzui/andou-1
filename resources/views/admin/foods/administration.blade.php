@@ -33,6 +33,7 @@
                             <th>饭店名称</th>
                             <th>菜品分类</th>
                             <th>饭店地址</th>
+                            <th>状态</th>
                             <th>操作</th>
                         </tr>
                         </thead>
@@ -45,9 +46,22 @@
                                         <th>{{$v->name2}}</th>
                                         <th>{{$v->name}}</th>
                                         <th>{{$v->address}}</th>
+                                        <th>
+                                            @if($v->foods_status == 1)
+                                                <p style="color: green">启用中</p>
+                                                @else
+                                                <p style="color: blue">未启用</p>
+                                            @endif
+                                        </th>
                                         <td class="text-center">
                                             <div class="btn-group">
-                                                <a onclick="del({{$v->id}})"><button class="btn btn-primary btn-xs" type="button"><i class="fa fa-check"></i> 认证通过</button></a>
+                                                @if(empty($i))
+                                                    @if($v->foods_status==1)
+                                                        <a href="{{route('foods.administrationStatus')}}?id={{$v->foods_id}}&is_reg=1"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o"></i> 禁用</button></a>
+                                                    @else
+                                                        <a href="{{route('foods.administrationStatus')}}?id={{$v->foods_id}}&is_reg=0"><button class="btn btn-group btn-xs" type="button"><i class="fa fa-adn"></i>启用</button></a>
+                                                    @endif
+                                                @endif
                                             </div>
                                         </td>
                                     </tr>

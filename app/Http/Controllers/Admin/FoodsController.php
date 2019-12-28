@@ -364,7 +364,7 @@ class FoodsController extends BaseController
                 -> where("user_id",$id)
                 -> where("is_reg",1)
                 -> where($where)
-                -> select(['merchants.id','merchants.user_id','merchant_type.type_name','foods_classification.name','merchants.name as name2' ,'merchants.address'])
+                -> select(['merchants.id','merchants.is_reg','merchants.user_id','merchant_type.type_name','foods_classification.name','merchants.name as name2' ,'merchants.address'])
                 -> paginate(10);
         }else{
             // 反之则为。管理员
@@ -374,7 +374,7 @@ class FoodsController extends BaseController
                 -> where("role_id",5)
                 -> where("is_reg",1)
                 -> where($where)
-                -> select(['merchants.id','merchants.user_id','merchant_type.type_name','foods_classification.name','merchants.name as name2' ,'merchants.address'])
+                -> select(['merchants.id','merchants.is_reg','merchants.user_id','merchant_type.type_name','foods_classification.status as foods_status','foods_classification.id as foods_id','foods_classification.name','merchants.name as name2' ,'merchants.address'])
                 -> paginate(10);
         }
         // 跳转饭店管理模块
@@ -383,7 +383,21 @@ class FoodsController extends BaseController
 
     // 修改饭店状态
     public function administrationStatus(){
-        return \request() -> all();
+        $all = \request() -> all();
+        if($all['is_reg'] ==  0){
+            $data = ['status'=>1];
+        }else{
+            $data = ['status'=>0];
+        }
+        // 链接数据库，修改商家状态
+        $i = DB::table('foods_classification') -> where('id',$all['id']) -> update($data);
+        if($i){
+            flash("状态更新成功") -> success();
+            return redirect()->route('foods.administration');
+        }else{
+            flash("状态更新失败") -> error();
+            return redirect()->route('foods.administration');
+        }
     }
 
 
