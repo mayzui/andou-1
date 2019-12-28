@@ -400,6 +400,7 @@ class MerchantController extends Controller
                 'address' => $all['address'],
                 'tel' => $all['tel'],
                 'user_name' => $all['user_name'],
+                'created_at' => date("Y-m-d H:i:s"),
             ];
         }else if($all['type_id'] ==  3){  // 入驻酒店商家
             $data = [
@@ -418,6 +419,7 @@ class MerchantController extends Controller
                 'address' => $all['address'],
                 'tel' => $all['tel'],
                 'user_name' => $all['user_name'],
+                'created_at' => date("Y-m-d H:i:s"),
             ];
         }else if($all['type_id' == 4]){   // 入驻饭店商家
             $data = [
@@ -438,6 +440,7 @@ class MerchantController extends Controller
                 'tel' => $all['tel'],
                 'user_name' => $all['user_name'],
                 'management_type' => $all['management_type'],
+                'created_at' => date("Y-m-d H:i:s"),
             ];
         }
         $i = DB::table('merchants') -> insert($data);
