@@ -589,5 +589,105 @@ class ManageController extends Controller
 
         return $this->rejson(200,'查询成功',$data);
     }
+    /**
+     * @api {post} /api/goods/awaitUpdate 修改价格
+     * @apiName awaitUpdate
+     * @apiGroup menage
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} token 验证登陆
+     * @apiParam {string} order_id 订单id
+     * @apiParam {string} pay_money 修改后的价钱
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": "",
+     *       "msg":"修改完成"
+     *     }
+     */
+
+    public function awaitUpdate()
+    {
+        $all = request()->all();
+        $res = [
+            'pay_money'=>$all['pay_money'],
+        ];
+        $data = DB::table('orders')
+            ->where('id',$all['order_id'])
+            ->update($res);
+        if($data){
+            return $this->rejson(200,'修改完成');
+        }else{
+            return $this->rejson(201,'参数有误');
+        }
+    }
+
+    /**
+     * @api {post} /api/goods/observer 评论
+     * @apiName observer
+     * @apiGroup menage
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} token 验证登陆
+     * @apiParam {string} order_id 订单id
+     * @apiParam {string} type 类型 1商店 2商城 3饭店
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": [
+                        {
+                        "id"   "评论id",
+                        "name": "用户名",
+                        "created_at": "评论时间",
+                        "goods_id": "评星",
+                        "stars": "评论内容",
+                        "image": "评论图片",
+                        }
+                    ],
+     *       "msg":"修改完成"
+     *     }
+     */
+
+    public function observer()
+    {
+        $all = request()->all();
+        $data = DB::table('order_commnets as o')
+            ->join('users','o.user_id','=','users.id')
+            ->where('o.type',$all['type'])
+            ->where('o.order_id',$all['roder_id'])
+            ->select(['users.name','o.created_at','o.stars','o.content','o.image'])
+            ->first();
+        if($data)
+        {
+            return $this->rejson(200,'查询成功',$data);
+        }else{
+            return $this->rejson(201,'参数有误');
+        }
+    }
+
+    /**
+     * @api {post} /api/goods/delete 评论删除
+     * @apiName delete
+     * @apiGroup menage
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} token 验证登陆
+     * @apiParam {string} id 评论id
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": "",
+     *       "msg":"删除成功"
+     *     }
+     */
+
+    public function delete()
+    {
+        $all = request()->all();
+        $res = ['is_del'=>1];
+        $data = DB::table('order_commnets')->where('id',$all['id'])->update($res);
+        if($data){
+            return $this->rejson('200','删除成功');
+        }else{
+            return $this->rejson('201','参数有误');
+        }
+    }
 
 }

@@ -94,6 +94,9 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('goods/centre','ManageController@centre');
      Route::post('goods/affirm','ManageController@affirm');
      Route::post('goods/lists','ManageController@lists');
+     Route::post('goods/awaitUpdate','ManageController@awaitUpdate');
+     Route::post('goods/observer','ManageController@observer');
+    Route::post('goods/delete','ManageController@delete');
      //店铺管理
      Route::post('goods/store','ManageController@store');
      Route::post('goods/saveStore','ManageController@saveStore');
