@@ -51,10 +51,18 @@ sub { vertical-align: text-bottom }
 .yollew{color: #fd7e2a;}
 .blue{color: #4da1ff;}
 .green{color: #4dcec0;}
+.w60{width: 60% !important;}
+.w37{width: 37% !important;}
+.mt60{margin-top: 60px !important;}
+.bg-gray{background: #f7f7f7 !important;}
 .font12{font-size: 12px !important;}
 .font16{font-size: 16px !important;}
+.mr20{margin-bottom: 20px !important;}
+.p30{padding: 36px 30px !important;}
+.pt0{padding-top: 0 !important;}
+.h500{height: 500px !important;}
 .box-shadow{-moz-box-shadow:0px px 12px #DDDDDD; -webkit-box-shadow:0px 0px 12px #DDDDDD; box-shadow:0px 0px 12px #DDDDDD;}
-
+.transformX{transform: translateX(-50%); -ms-transform: :translateX(-50%) ;-moz-transform: :translateX(-50%) ;-webkit-transform: :translateX(-50%) ;-o-transform: :translateX(-50%) ;}
 .transform{transform: translateX(-50%) translateY(-50%); -ms-transform: :translateX(-50%) translateY(-50%) ;-moz-transform: : translateX(-50%) translateY(-50%) ;-webkit-transform: :translateX(-50%) translateY(-50%) ;-o-transform: :translateX(-50%) translateY(-50%) ;}
 
 

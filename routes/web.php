@@ -20,7 +20,8 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::resource('index', 'IndexsController', ['only' => ['index']]);  //首页
 
         Route::get('index/main', 'IndexsController@main')->name('index.main'); //首页数据分析
-        Route::get('index/round', 'IndexsController@round')->name('index.round'); //首页数据分析
+        Route::get('index/round', 'IndexsController@round')->name('index.round'); //右下角数据分析
+        Route::get('index/census', 'IndexsController@census')->name('index.census'); //右侧左边数据分析
 
         Route::get('admins/status/{statis}/{admin}','AdminsController@status')->name('admins.status');
         Route::get('admins/allow/{allow_in}/{admin}','AdminsController@allow')->name('admins.allow');

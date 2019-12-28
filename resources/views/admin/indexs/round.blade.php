@@ -1,4 +1,3 @@
-
 @extends('admin.layouts.layout')
 
 @section('title', '首页')
@@ -7,21 +6,34 @@
 <link href="{{loadEdition('/admin/css/style.css')}}" rel="stylesheet">
 <div class="round">
     <div id="container" style="height: 100%"></div>
-    <div class="round-info">
-        <div class="info clearfix clear">
+    <div class="round-info clearfix">
+        <div class="info fl">
             <span class="icon info1 "></span>
-            <span class="fl">商城商家</span>
-            <span class="fr font12"><span class="yollew font16">152400</span> 元</span>
+            <span class="">商城</span>
         </div>
-        <div class="info clearfix clear">
+        <div class="info fl">
             <span class="icon info2 "></span>
-            <span class="fl">酒店商家</span>
-            <span class="fr font12"><span class="blue font16">35465</span> 元</span>
+            <span class="">酒店</span>
         </div>
-        <div class="info clearfix clear">
+        <div class="info fl">
             <span class="icon info3 "></span>
-            <span class="fl">饭店商家</span>
-            <span class="fr font12"><span class="green font16">92584</span> 元</span>
+            <span class="">饭店</span>
+        </div>
+        <div class="info fl">
+            <span class="icon info4 "></span>
+            <span class="">外卖</span>
+        </div>
+        <div class="info fl">
+            <span class="icon info5 "></span>
+            <span class="">农家乐</span>
+        </div>
+        <div class="info fl">
+            <span class="icon info6 "></span>
+            <span class="">民宿</span>
+        </div>
+        <div class="info fl">
+            <span class="icon info7 "></span>
+            <span class="">旅游</span>
         </div>
     </div>
 </div>
@@ -39,7 +51,7 @@
             subtext: '',
             x:'center'
         },
-        color:['#ffa45a', '#4baef9','#14bdac'],
+        color:['#ffa45a', '#4baef9','#14bdac','#7d83fe','#65d4db','#f8a67d','#fec66e'],
 
         tooltip : {
             trigger: 'item',
@@ -61,6 +73,10 @@
                     {value:152400, name:'152400'},
                     {value:35465, name:'35465'},
                     {value:92584, name:'92584'},
+                    {value:152400, name:'15240'},
+                    {value:35465, name:'30546'},
+                    {value:92584, name:'52584'},
+                    {value:92584, name:'41584'},
                 ],
                 itemStyle: {
                     emphasis: {

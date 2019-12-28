@@ -442,7 +442,6 @@ class ShopController extends BaseController
                 -> where('order_commnets.is_del',0)
                 -> select(['order_commnets.id','users.name as username','goods.name as goodsname','stars','order_commnets.content','order_commnets.created_at'])
                 -> paginate(10);
-
         }
         return $this->view('',['data' => $data]);
 

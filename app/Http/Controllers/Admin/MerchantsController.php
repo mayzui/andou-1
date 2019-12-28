@@ -19,7 +19,7 @@ class MerchantsController extends BaseController
      * @return [type] [description]
      */
     public function index()
-    {   
+    {
         $all = request()->all();
         $where[]=['id','>','0'];
         if (!empty($all['merchant_type_id'])) {

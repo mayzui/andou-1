@@ -9,13 +9,29 @@ class RefundController extends BaseController
 {
     // 跳转售后服务界面
     public function aftermarket(){
-        // 查询数据库内容
-        $data = \DB::table('orders')
-            -> join('order_returns','orders.order_sn','=','order_returns.order_id')
-            -> join('users','orders.user_id','=','users.id')
-            -> join('refund_reason','order_returns.reason_id','=','refund_reason.id')
-            -> select(['order_returns.id as id','order_returns.order_id as order_id','users.name as user_name','order_returns.is_reg','order_returns.status','order_returns.content','refund_reason.name as retun_name'])
-            -> paginate(10);
+        $id = \Auth::id();
+        // 判断该用户，是否开店 并且已经认证通过
+        $i = \DB::table('merchants') -> where("user_id",$id) -> where("is_reg",1) -> first();
+        if(!empty($i)) {
+            // 如果开店，则查询当前商户的信息
+            // 查询数据库内容
+            $data = \DB::table('orders')
+                -> join('order_returns','orders.order_sn','=','order_returns.order_id')
+                -> join('users','orders.user_id','=','users.id')
+                -> join('refund_reason','order_returns.reason_id','=','refund_reason.id')
+                -> where('merchant_id',$id)
+                -> select(['order_returns.id as id','order_returns.order_id as order_id','users.name as user_name','order_returns.is_reg','order_returns.status','order_returns.content','refund_reason.name as retun_name'])
+                -> paginate(10);
+        }else{
+            // 查询数据库内容
+            $data = \DB::table('orders')
+                -> join('order_returns','orders.order_sn','=','order_returns.order_id')
+                -> join('users','orders.user_id','=','users.id')
+                -> join('refund_reason','order_returns.reason_id','=','refund_reason.id')
+                -> select(['order_returns.id as id','order_returns.order_id as order_id','users.name as user_name','order_returns.is_reg','order_returns.status','order_returns.content','refund_reason.name as retun_name'])
+                -> paginate(10);
+        }
+
         return $this->view('',['data'=>$data]);
     }
     // 修改审核状态
