@@ -7,17 +7,17 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 class ManageController extends Controller
 {
-    public function __construct()
-    {
-        $all = request()->all();
-        if (empty($all['uid']) || empty($all['token'])) {
-            return $this->rejson(202, '登陆失效');
-        }
-        $check = $this->checktoten($all['uid'], $all['token']);
-        if ($check['code'] == 202) {
-            return $this->rejson($check['code'], $check['msg']);
-        }
-    }
+//    public function __construct()
+//    {
+//        $all = request()->all();
+//        if (empty($all['uid']) || empty($all['token'])) {
+//            return $this->rejson(202, '登陆失效');
+//        }
+//        $check = $this->checktoten($all['uid'], $all['token']);
+//        if ($check['code'] == 202) {
+//            return $this->rejson($check['code'], $check['msg']);
+//        }
+//    }
 
     /**
      * @api {post} /api/goods/manage 商品管理
@@ -174,40 +174,45 @@ class ManageController extends Controller
     public function centre()
     {
         $all = request()->all();
+        $res = DB::table('users')
+            ->join('merchants','users.id','=','merchants.user_id')
+            ->where('users.id',$all['uid'])
+            ->select(['merchants.id'])
+            ->first();
         $data['payment'] = DB::table('order_goods')
             ->join('merchants','merchants.id','=','order_goods.merchant_id')
             ->join('goods','goods.id','=','order_goods.goods_id')
-            ->join('orders','orders.id','=','order_goods.order_id')
-            ->where('order_goods.merchant_id',$all['uid'])
+            ->join('orders','orders.order_sn','=','order_goods.order_id')
+            ->where('order_goods.merchant_id',$res['id'])
             ->where('orders.status',10)->count();
         $data['deliver'] = DB::table('order_goods')
             ->join('merchants','merchants.id','=','order_goods.merchant_id')
             ->join('goods','goods.id','=','order_goods.goods_id')
-            ->join('orders','orders.id','=','order_goods.order_id')
-            ->where('order_goods.merchant_id',$all['uid'])
+            ->join('orders','orders.order_sn','=','order_goods.order_id')
+            ->where('order_goods.merchant_id',$res['id'])
             ->where('orders.status',20)->count();
         $data['shipments'] = DB::table('order_goods')
             ->join('merchants','merchants.id','=','order_goods.merchant_id')
             ->join('goods','goods.id','=','order_goods.goods_id')
-            ->join('orders','orders.id','=','order_goods.order_id')
-            ->where('order_goods.merchant_id',$all['uid'])
+            ->join('orders','orders.order_sn','=','order_goods.order_id')
+            ->where('order_goods.merchant_id',$res['id'])
             ->where('orders.status',40)->count();
         $data['affirm'] = DB::table('order_goods')
             ->join('merchants','merchants.id','=','order_goods.merchant_id')
             ->join('goods','goods.id','=','order_goods.goods_id')
-            ->join('orders','orders.id','=','order_goods.order_id')
-            ->where('order_goods.merchant_id',$all['uid'])
+            ->join('orders','orders.order_sn','=','order_goods.order_id')
+            ->where('order_goods.merchant_id',$res['id'])
             ->where('orders.status',50)->count();
         $data['cancel'] = DB::table('order_goods')
             ->join('merchants','merchants.id','=','order_goods.merchant_id')
             ->join('goods','goods.id','=','order_goods.goods_id')
-            ->join('orders','orders.id','=','order_goods.order_id')
-            ->where('order_goods.merchant_id',$all['uid'])
+            ->join('orders','orders.order_sn','=','order_goods.order_id')
+            ->where('order_goods.merchant_id',$res['id'])
             ->where('orders.status',0)->count();
-        $data['manage'] = DB::table('goods')->where('merchant_id',$all['uid'])->count();
+        $data['manage'] = DB::table('goods')->where('merchant_id',$res['id'])->count();
         $data['balance'] = DB::table('merchants')
             ->join('users','merchants.user_id','=','users.id')
-            ->where('merchants.id',$all['uid'])
+            ->where('merchants.id',$res['id'])
             ->select(['users.money'])
             ->get();
 //        $data = array_map('get_object_vars', $data);
@@ -242,11 +247,20 @@ class ManageController extends Controller
     public function ordersCancel()
     {
         $all = request()->all();
+        $res = DB::table('users')
+            ->join('merchants','users.id','=','merchants.user_id')
+            ->where('users.id',$all['uid'])
+            ->select(['merchants.id'])
+            ->first();
+        if(!$res){
+            return $this->rejson('201','参数有误');
+        }
         $data = DB::table('order_goods')
             ->join('goods','goods.id','=','order_goods.goods_id')
-            ->join('orders','order_goods.order_id','=','orders.id')
+            ->join('orders','order_goods.order_id','=','orders.order_sn')
             ->join('order_returns','order_returns.order_id','=','orders.id')
-            ->where('order_goods.merchant_id',$all['uid'])
+            ->where('order_goods.merchant_id',$res->id)
+            ->where('type',1)
             ->where('orders.status',0)
             ->where('order_returns.is_reg',1)
             ->select(['order_goods.id','orders.order_sn','goods.name','goods.desc','goods.img','order_goods.num','orders.pay_money','orders.status'])
@@ -288,11 +302,16 @@ class ManageController extends Controller
     public function ordersDetails()
     {
         $all = request()->all();
+        $res = DB::table('users')
+            ->join('merchants','users.id','=','merchants.user_id')
+            ->where('users.id',$all['uid'])
+            ->select(['merchants.id'])
+            ->first();
         $data = DB::table('order_goods')
             ->join('goods','goods.id','=','order_goods.goods_id')
             ->join('orders','order_goods.order_id','=','orders.order_sn')
             ->join('order_returns','order_goods.order_id','=','order_returns.order_id')
-            ->where('order_goods.merchant_id',$all['uid'])
+            ->where('order_goods.merchant_id',$res->id)
             ->where('order_returns.is_reg',1)
             ->where('orders.status',0)
             ->select(['orders.id','orders.order_sn','goods.name','goods.desc','goods.img','order_goods.num','orders.order_money','order_returns.content','orders.pay_money'])
@@ -332,14 +351,19 @@ class ManageController extends Controller
     public function audit()
     {
         $all = request()->all();
+        $res = DB::table('users')
+            ->join('merchants','users.id','=','merchants.user_id')
+            ->where('users.id',$all['uid'])
+            ->select(['merchants.id'])
+            ->first();
         $data = DB::table('order_goods')
             ->join('goods','goods.id','=','order_goods.goods_id')
             ->join('orders','order_goods.order_id','=','orders.id')
             ->join('order_returns','order_goods.order_id','=','order_returns.order_id')
-            ->where('order_goods.merchant_id',$all['uid'])
+            ->where('order_goods.merchant_id',$res['id'])
             ->where('order_returns.is_reg',0)
             ->where('orders.status',0)
-            ->select(['orders.id','orders.order_sn','goods.name','goods.desc','goods.img','order_goods.num','orders.order_money','order_returns.express_company','orders.pay_money'])
+            ->select(['orders.id','orders.order_sn','goods.name','goods.desc','goods.img','order_goods.num','orders.order_money','orders.pay_money'])
             ->get();
         if($data){
             return $this->rejson('200','查询成功',$data);
@@ -370,6 +394,7 @@ class ManageController extends Controller
         $arr = [ 'is_reg'=>1];
         $data = DB::table('order_returns')->where('order_id',$all['id'])->update($arr);
         if($data){
+
             return $this->rejson('200','审核完成');
         }else{
             return $this->rejson('201','参数有误');
@@ -448,6 +473,7 @@ class ManageController extends Controller
         $re = [
             'desc'=>$all['desc'],
             'address'=>$all['address'],
+            'banner_img'=>$all['banner_img'],
             'name'=>$all['name'],
             'tel'=>$all['tel'],
             'return_address'=>$all['return_address'],
@@ -494,8 +520,8 @@ class ManageController extends Controller
     }
 
     /**
-     * @api {post} /api/goods/classify  分类添加
-     * @apiName classify
+     * @api {post} /api/goods/classify  上传新商品
+     * @apiName upload
      * @apiGroup menage
      * @apiParam {string} uid 商户id
      * @apiParam {string} token 验证登陆
@@ -518,7 +544,17 @@ class ManageController extends Controller
     public function upload()
     {
         $all = request()->all();
-        $data = [];
+        $data = [
+            'merchants_goods_type_id'=>$all['merchants_goods_type_id'],
+            'name'=>$all['name'],
+            'price'=>$all['price'],
+            'store_num'=>$all['store_num'],
+            'dilivery'=>$all['dilivery'],
+            'attr_value'=>all['attr_value'],
+            'img'=>$all['img'],
+            'album'=>$all['album'],
+            'created_at'=>date('Y-m-d H:i:s',time()),
+        ];
     }
 
     /**
@@ -567,15 +603,17 @@ class ManageController extends Controller
         }else{
             $pages=0;
         }
-        if (empty($all['type'])) {
+        if(empty($all['type'])){
 
         }else{
             $where[]=['o.status',$all['type']];
         }
-
-        $where[]=['o.user_id',$all['uid']];
-
-
+        $res = DB::table('users')
+            ->join('merchants','users.id','=','merchants.user_id')
+            ->where('users.id',$all['uid'])
+            ->select(['merchants.id'])
+            ->first();
+        $where[]=['o.user_id',$res['id']];
         $data=DB::table('order_goods as o')
             ->join('goods as g','g.id','=','o.goods_id')
             ->join('merchants as m','m.id','=','o.merchant_id')
@@ -583,9 +621,6 @@ class ManageController extends Controller
             ->where($where)
             ->select('g.img','g.name','o.goods_id','o.merchant_id','o.order_id','o.status','m.name as mname','m.logo_img','o.num','o.id','shipping_free','o.express_id','o.courier_num','s.price','pay_money','s.attr_value')
             ->get();
-        foreach ($data as $k => $v) {
-            $data[$k]->attr_value=json_decode($v->attr_value,1)[0]['value'];
-        }
 
         return $this->rejson(200,'查询成功',$data);
     }
@@ -688,6 +723,42 @@ class ManageController extends Controller
         }else{
             return $this->rejson('201','参数有误');
         }
+    }
+
+    /**
+     * @api {post} /api/goods/enter 商家入驻
+     * @apiName enter
+     * @apiGroup menage
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} token 验证登陆
+     * @apiParam {string} name 商户名称
+     * @apiParam {string} nickname 联系人
+     * @apiParam {string} tel 联系电话
+     * @apiParam {string} address 详细地址
+     * @apiParam {string} desc 商家简介
+     * @apiParam {string} logo_img 商家logo
+     * @apiParam {string} avator 头像
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": "",
+     *       "msg":"删除成功"
+     *     }
+     */
+
+    public function enter()
+    {
+        $all = request()->all();
+        $data = [
+            'user_id'=>$all['uid'],
+            'name'=>$all['name'],
+            'nickname'=>$all['nickname'],
+            'tel'=>$all['tel'],
+            'address'=>$all['address'],
+            'desc'=>$all['desc'],
+            'logo_img'=>$all['logo_img'],
+            'avator'=>$all['avator'],
+        ];
     }
 
 }
