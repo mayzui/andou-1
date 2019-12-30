@@ -14,6 +14,20 @@ class Controller extends BaseController
     /**
      * 返回json数据
      */
+    public $star=[
+        ['id'=>1,'name'=>'经济型'],
+        ['id'=>3,'name'=>'舒适三星'],
+        ['id'=>4,'name'=>'高档四星'],
+        ['id'=>5,'name'=>'豪华五星']
+    ];
+    public $price_range=[
+        ['start'=>0,'end'=>100],
+        ['start'=>100,'end'=>200],
+        ['start'=>200,'end'=>300],
+        ['start'=>300,'end'=>400],
+        ['start'=>500,'end'=>600],
+        ['start'=>500,'end'=>''],
+    ];
     public function rejson($code = 0, $msg = '', $data = '')
     {
         $response = [

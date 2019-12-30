@@ -103,9 +103,9 @@ class OrderController extends Controller
      */
     public function express() {
 
-        $customer = "E9C982534CECCAF4A0CF245E82488F27";
+        $customer = "A85FFAADEF1E377FC67275CB15698F72";
 
-        $key = 'qibOlrGo1156';
+        $key = 'HZdwfXDv3190';
 
         $url = 'http://poll.kuaidi100.com/poll/query.do';
         $all=request()->all();
@@ -261,6 +261,7 @@ class OrderController extends Controller
             return $this->rejson(201,'请填写收货地址');
         }else{
             $alldata['address_id']=$address->id;
+            $alldata['status']=10;
             $alldata['order_money']=0;
             $alldata['type']=1;
             $alldata['remark']=$all['remark']??'';
@@ -292,6 +293,7 @@ class OrderController extends Controller
                 return $this->rejson(201,'商品库存不足');
             }
             $data['goods_id']=$car->goods_id;
+            $data['status']=10;
             $data['merchant_id']=$car->merchant_id;
             $data['goods_sku_id']=$car->goods_sku_id;
             $data['num']=$car->num;
@@ -605,17 +607,18 @@ class OrderController extends Controller
         
         $input->SetBody("安抖商城平台");
         $input->SetOut_trade_no($sNo);
-        $input->SetTotal_fee($pay_money);
-//        $input->SetTotal_fee(1);
-        $input->SetNotify_url("https://api.dajuhui68.com/public/index.php/index/Alipays/wx_notify");
+        // $input->SetTotal_fee($pay_money);
+        $input->SetTotal_fee(1);
+        $input->SetNotify_url("http://andou.zhuosongkj.com/api/common/wxnotify");
         $input->SetTrade_type("APP");
         $input->SetSpbill_create_ip($_SERVER['REMOTE_ADDR']);
 //        $input->SetAttach($uid);
         $config = new \WxPayConfig();
         $order = \WxPayApi::unifiedOrder($config, $input);
+         // var_dump($order);exit();
         if($order['return_code']=="SUCCESS"){
             $time = time();
-            $string = "appid=".$order['appid']."&noncestr=".$order['nonce_str']."&package="."Sign=WXPay"."&partnerid=".$order['mch_id']."&prepayid=".$order['prepay_id']."&timestamp=".$time."&key=qTYpBNvOTNyKEkGEI3wj80Wla6ZLIP7u";
+            $string = "appid=".$order['appid']."&noncestr=".$order['nonce_str']."&package="."Sign=WXPay"."&partnerid=".$order['mch_id']."&prepayid=".$order['prepay_id']."&timestamp=".$time."&key=AndoubendishenghuoXIdoukeji66888";
             $string = md5($string);
             $order['sign'] = strtoupper($string);
             $order['timestamp'] = $time;

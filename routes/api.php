@@ -39,6 +39,10 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('goods/specslist', 'GoodsController@specslist');
      Route::post('goods/hotsearch', 'GoodsController@hotsearch');
      
+     Route::post('hotel/cate', 'HotelController@cate');
+     Route::post('hotel/condition', 'HotelController@condition');
+     Route::post('hotel/hotellist', 'HotelController@hotellist');
+     Route::post('htorder/settlement', 'HtorderController@settlement');
 
      Route::post('Usersaddress/district', 'UsersaddressController@district');
      Route::post('Usersaddress/address_add', 'UsersaddressController@addressAdd');
@@ -96,7 +100,7 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('goods/lists','ManageController@lists');
      Route::post('goods/awaitUpdate','ManageController@awaitUpdate');
      Route::post('goods/observer','ManageController@observer');
-    Route::post('goods/delete','ManageController@delete');
+     Route::post('goods/delete','ManageController@delete');
      //店铺管理
      Route::post('goods/store','ManageController@store');
      Route::post('goods/saveStore','ManageController@saveStore');

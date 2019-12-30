@@ -116,7 +116,7 @@ class WxPayApi
 
 		$xml = $inputObj->ToXml();
 
-//               var_dump($xml);die;
+        // var_dump($xml);die;
 
 		
 

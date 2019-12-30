@@ -11,9 +11,9 @@ class AppPay{
     配置参数
     */
     private $config = array(
-        'appid' => "wxc888888888",    /*微信开放平台上的应用id*/
-        'mch_id' => "88888888",   /*微信申请成功之后邮件中的商户id*/
-        'api_key' => "5d82747060a5873e0d3de256b8485094",    /*在微信商户平台上自己设定的api密钥 32位*/
+        'appid' => "wxa2ea994d7f5b42e9",    /*微信开放平台上的应用id*/
+        'mch_id' => "1527302001",   /*微信申请成功之后邮件中的商户id*/
+        'api_key' => "47683ebf309851f7403989f3fe5e8310",    /*在微信商户平台上自己设定的api密钥 32位*/
         'notify_url' => 'http://gzsc.59156.cn/app/notify/order_wx' /*自定义的回调程序地址*/
     );
     
