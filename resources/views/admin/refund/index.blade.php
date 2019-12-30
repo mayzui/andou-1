@@ -22,6 +22,7 @@
                         <thead>
                         <tr>
                             <th width="100">ID</th>
+                            <th>商家名称</th>
                             <th>退款原因</th>
                             <th>状态</th>
                             <th>操作</th>
@@ -31,7 +32,8 @@
                         @foreach($data as $k => $item)
                             <tr>
                                 <td>{{$item->id}}</td>
-                                <td>{{$item->name}}</td>
+                                <td>{{$item->merchants_name}}</td>
+                                <td>{{$item->reason_name}}</td>
                                 <td>@if($item->is_del==1)
                                         <p style="color: red">已删除</p>
                                     @else

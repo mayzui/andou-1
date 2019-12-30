@@ -54,6 +54,9 @@ Route::group(['namespace' => 'Api'], function () {
     Route::post('merchant/entry ', 'MerchantController@entry');    // 商家入驻
     Route::post('merchant/information ', 'MerchantController@information');    // 商家填写信息
 
+    // 酒店商家
+    Route::post('hotel/order ', 'HotelController@order');    // 待入住订单
+
 
 
 

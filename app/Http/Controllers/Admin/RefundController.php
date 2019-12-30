@@ -112,8 +112,24 @@ class RefundController extends BaseController
     // 跳转退款原因界面
     public function index ()
     {
-    	// 查询意见反馈表中内容
-        $data = \DB::table('refund_reason') -> paginate(10);
+        $id = \Auth::id();
+        // 判断该用户，是否开店 并且已经认证通过
+        $i = \DB::table('merchants') -> where("user_id",$id) -> where("is_reg",1) -> first();
+        if(!empty($i)) {
+            // 如果开店，则查询当前商户的信息
+            // 查询退款原因表中内容
+            $data = \DB::table('refund_reason')
+                -> join('merchants','refund_reason.merchant_id','=','merchants.id')
+                -> where('merchants.user_id',$id)
+                -> select(['merchants.name as merchants_name','refund_reason.id','refund_reason.name as reason_name','refund_reason.is_del'])
+                -> paginate(10);
+        }else{
+            // 查询退款原因表中内容
+            $data = \DB::table('refund_reason')
+                -> join('merchants','refund_reason.merchant_id','=','merchants.id')
+                -> select(['merchants.name as merchants_name','refund_reason.id','refund_reason.name as reason_name','refund_reason.is_del'])
+                -> paginate(10);
+        }
         return $this -> view('',['data' => $data]);
     }
 
