@@ -94,6 +94,10 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::any('shop/cateDelete/{id}','ShopController@cateDelete')->name('shop.cateDelete');
         Route::post('shop/getCateChildren','ShopController@getCateChildren')->name('shop.getCateChildren');
 
+        // 商家管理
+        Route::get('shop/shopMerchant','ShopController@shopMerchant')->name('shop.shopMerchant');
+        Route::get('shop/shopDiscount','ShopController@shopDiscount')->name('shop.shopDiscount');   // 平台优惠
+
         // 商品分类
         Route::get('shop/merchants_goods_type','ShopController@merchants_goods_type')->name('shop.merchants_goods_type');
         Route::match(['get','post'],'shop/merchants_goods_typeChange','ShopController@merchants_goods_typeChange')->name('shop.merchants_goods_typeChange');

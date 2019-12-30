@@ -27,6 +27,7 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('hotel/commnets','HotelController@commnets')->name('hotel.commnets');
         Route::match(['get','post'],'hotel/commnetsAdd','HotelController@commnetsAdd')->name('hotel.commnetsAdd');
         Route::get('hotel/commnetsDel','HotelController@commnetsDel')->name('hotel.commnetsDel');
+        Route::get('hotel/classification','HotelController@classification')->name('hotel.classification');        // 酒店分类
 
         //个人中心
         Route::get('user/merchant','UserController@merchant')->name('user.merchant');

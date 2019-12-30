@@ -24,8 +24,8 @@
 						{{csrf_field()}}
 						<h1>登录</h1>
 
-						<input type="text" name="mobile" value="{{old('mobile')}}"  placeholder="手机号" required />
-						<input type="password" name="password"  placeholder="密码" required />
+						<input type="text" name="mobile" value="{{old('mobile')}}"  placeholder="请输入手机号/账号" required />
+						<input type="password" name="password"  placeholder="请输入密码" required />
 						<div style="width: 36px;margin-top: 10px">
 							{!! Geetest::render() !!}
 						</div>

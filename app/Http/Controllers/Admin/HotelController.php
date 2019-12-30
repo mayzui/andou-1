@@ -12,6 +12,23 @@ use Auth;
 class HotelController extends BaseController
 {
     /*
+     *      酒店分类
+     * */
+    public function classification(){
+        $id = Auth::id();
+        // 判断该用户，是否开店 并且已经认证通过
+        $i = DB::table('merchants') -> where("user_id",$id) -> where("is_reg",1) -> first();
+        if(!empty($i)) {
+            // 如果开店，则查询当前商户的信息
+        }else{
+            // 查询酒店分类表
+            $data = DB::table('hotel_category') -> get();
+        }
+        return "模块开发中";
+        return $this->view('',['data' => $data]);
+    }
+
+    /*
      *      酒店评论
      * */
     public function commnets(){

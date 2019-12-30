@@ -325,10 +325,19 @@ class WalletController extends Controller
             return $this->rejson(201,'请输入用户id');
         }
         $data = DB::table('users')
-            -> join('vip','users.id','=','vip.user_id')
-            -> where('users.id',$all['uid'])
-            -> select(['users.id','users.name','users.avator','vip.grade'])
+            -> where('id',$all['uid'])
+            -> select(['id','name','avator'])
             -> first();
+        $grade = DB::table('vip')
+            -> where('user_id',$all['uid'])
+            -> where('is_del',0)
+            -> select('grade')
+            -> first();
+        if(empty($grade)){
+            $data -> grade = "该用户还不是Vip用户";
+        }else{
+            $data -> grade = $grade -> grade;
+        }
         if(!empty($data)){
             return $this->rejson(200,'查询成功',$data);
         }else{

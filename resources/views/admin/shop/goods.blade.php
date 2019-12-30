@@ -23,7 +23,6 @@
                             <th>名称</th>
                             <th>分类</th>
                             <th>图片</th>
-                            <th style="width: 200px;">描述</th>
                             <th>热门</th>
                             <th>推荐</th>
                             <th>上架</th>
@@ -42,7 +41,6 @@
                                 <td>{{$item->merchant_name}}</td>
                                 <td>{{$item->goods_cate_id}}</td>
                                 <td><img src="{{ env('IMAGE_PATH_PREFIX')}}{{$item->img}}" alt="" style="width: 50px;height: 50px;"></td>
-                                <td><p style="width: 200px;overflow: hidden;white-space: nowrap;text-overflow: ellipsis;">{{$item->desc}}</p></td>
                                 <td>
                                     @if ($item->is_hot == 1)
                                         <span class="text-info">热卖</span>

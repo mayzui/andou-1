@@ -23,6 +23,15 @@ use Auth;
 
 class ShopController extends BaseController
 {
+    // 商城商家管理
+    public function shopMerchant(){
+        return "模块功能开发中";
+    }
+    // 平台优惠
+    public function shopDiscount(){
+        return "模块功能开发中";
+    }
+
     //订单修改
     public function ordersUpd()
     {
@@ -1193,7 +1202,8 @@ class ShopController extends BaseController
                         'is_bargain'=>'',
                         'is_team_buy'=>'',
                         'merchants_goods_type_id'=>'',
-                        'is_recommend'=>''
+                        'is_recommend'=>'',
+                        'dilivery'=>''
                     ]
                 ];
                 flash('新增成功') -> success();
