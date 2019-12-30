@@ -356,16 +356,13 @@ class GoodsController extends Controller
      *     }
      */
     public function collection(){
-        $all = \request() -> all();
-        if (empty($all['uid'])||empty($all['token'])) {
-            return $this->rejson(202,'登陆失效');
+        $all=request()->all();
+        if (!isset($all['id']) || !isset($all['uid']) || !isset($all['token']) || !isset($all['type'])) {
+           return $this->rejson(201,'缺少参数');  
         }
         $check=$this->checktoten($all['uid'],$all['token']);
         if ($check['code']==202) {
-            return $this->rejson($check['code'],$check['msg']);
-        }
-        if (empty($all['id']) || empty($all['type'])) {
-            return $this->rejson(201,'缺少必要参数');
+           return $this->rejson($check['code'],$check['msg']);
         }
         if ($all['type']==1) {
             $data['type']=1;
