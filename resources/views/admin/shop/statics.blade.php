@@ -52,6 +52,7 @@
                             @endforeach
                         </tbody>
                     </table>
+                {{$data}}
                 </form>
             </div>
         </div>

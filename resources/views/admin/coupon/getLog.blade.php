@@ -51,7 +51,7 @@
                     </tbody>
 
                 </table>
-
+                {{$data}}
             </div>
         </div>
         <div class="clearfix"></div>

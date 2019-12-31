@@ -120,9 +120,8 @@ class CouponController extends BaseController
 
     public function getLog ()
     {
-        $data = Getlog::all();
+        $data = DB::table('getlog')->paginate(10);
         return $this->view('getLog',['data'=>$data]);
-//        return $this->view('getLog');
     }
 
     public function getLogDel ()

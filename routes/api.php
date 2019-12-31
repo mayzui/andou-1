@@ -107,4 +107,5 @@ Route::group(['namespace' => 'Api'], function () {
      //店铺管理
      Route::post('goods/store','ManageController@store');
      Route::post('goods/saveStore','ManageController@saveStore');
+     Route::post('goods/merchants','ManageController@merchants');
 });
