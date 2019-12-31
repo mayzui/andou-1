@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 /**
  * 后台路由
@@ -97,6 +97,11 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         // 商家管理
         Route::get('shop/shopMerchant','ShopController@shopMerchant')->name('shop.shopMerchant');
         Route::get('shop/shopDiscount','ShopController@shopDiscount')->name('shop.shopDiscount');   // 平台优惠
+        Route::match(['get','post'],'shop/information','ShopController@information')->name('shop.information');   // 商家详情
+
+        // 物流信息
+        Route::get('logistics/indexs','LogisticsController@indexs') -> name('logistics.indexs');
+
 
         // 商品分类
         Route::get('shop/merchants_goods_type','ShopController@merchants_goods_type')->name('shop.merchants_goods_type');
