@@ -25,7 +25,80 @@ class ShopController extends BaseController
 {
     // 商城商家管理
     public function shopMerchant(){
-        return "模块功能开发中";
+        $all = request()->all();
+        $id = \Auth::id();
+        // 判断该用户，是否开店 并且已经认证通过
+        $i = DB::table('merchants') -> where("user_id",$id) -> where("is_reg",1) -> first();
+        if(!empty($i)) {
+            // 如果开店，则查询当前商户的信息
+            $where[]=['id','>','0'];
+            if (!empty($all['merchant_type_id'])) {
+                $where[]=['merchant_type_id',$all['merchant_type_id']];
+                $screen['merchant_type_id'] = $all['merchant_type_id'];
+            }else{
+                $screen['merchant_type_id']='';
+            }
+            if (!empty($all['name'])) {
+                $where[]=['name', 'like', '%'.$all['name'].'%'];
+                $screen['name']=$all['name'];
+            }else{
+                $screen['name']='';
+            }
+            $data=DB::table('merchants')
+                -> where('user_id',$id)
+                -> where($where)
+                -> paginate(10);
+            foreach ($data as $key => $value) {
+                $merchant_type=Db::table('merchant_type')->where('id',$value->merchant_type_id)->pluck('type_name');
+                if (!empty($merchant_type[0])) {
+                    $data[$key]->merchant_type_id=$merchant_type[0];
+                }else{
+                    $data[$key]->merchant_type_id='';
+                }
+                $username=Db::table('users')->where('id',$value->user_id)->pluck('name');
+                if (!empty($username[0])) {
+                    $data[$key]->username=$username[0];
+                }else{
+                    $data[$key]->username='';
+                }
+            }
+            $wheres['type']=DB::table('merchant_type')->get();
+            $wheres['where']=$screen;
+        }else{
+            $where[]=['id','>','0'];
+            if (!empty($all['merchant_type_id'])) {
+                $where[]=['merchant_type_id',$all['merchant_type_id']];
+                $screen['merchant_type_id'] = $all['merchant_type_id'];
+            }else{
+                $screen['merchant_type_id']='';
+            }
+            if (!empty($all['name'])) {
+                $where[]=['name', 'like', '%'.$all['name'].'%'];
+                $screen['name']=$all['name'];
+            }else{
+                $screen['name']='';
+            }
+            $data=DB::table('merchants')
+                ->where($where)
+                ->paginate(10);
+            foreach ($data as $key => $value) {
+                $merchant_type=Db::table('merchant_type')->where('id',$value->merchant_type_id)->pluck('type_name');
+                if (!empty($merchant_type[0])) {
+                    $data[$key]->merchant_type_id=$merchant_type[0];
+                }else{
+                    $data[$key]->merchant_type_id='';
+                }
+                $username=Db::table('users')->where('id',$value->user_id)->pluck('name');
+                if (!empty($username[0])) {
+                    $data[$key]->username=$username[0];
+                }else{
+                    $data[$key]->username='';
+                }
+            }
+            $wheres['type']=DB::table('merchant_type')->get();
+            $wheres['where']=$screen;
+        }
+        return $this->view('',['data'=>$data,'i'=>$i],['wheres'=>$wheres]);
     }
     // 平台优惠
     public function shopDiscount(){
@@ -1036,9 +1109,9 @@ class ShopController extends BaseController
             flash($validate->errors()->first())->error()->important();
             return redirect()->route('shop.create');
         }
+        // 商品详情修改
+        $all = \request() -> all();
         if($request -> input('goods_id')){
-            // 商品详情修改
-            $all = \request() -> all();
             // 获取提交的数据
             $data = [
                 'goods_brand_id' => $all['goods_brand_id'],
@@ -1177,7 +1250,30 @@ class ShopController extends BaseController
                     $res->with('children');
                 }])->where('pid','=',0)
                     ->get();
-
+                // 根据获取的id 查询商品参数表
+                $goodssku = DB::table('goods_sku') -> where('goods_id',$all['goods_id']) -> get();
+                if(count($goodssku) != 0){
+                    foreach ($goodssku as $k =>$v){
+                        $a = json_decode($goodssku,true)[$k]['attr_value'];
+                        $goodssku_value[] = json_decode($a,true);
+                    }
+                    // 将三维数组转换成二维数组
+                    foreach ($goodssku_value as $v){
+                        $new_arr[] = $v[0]['value'];
+                    }
+                    // 将二维数组转换成一维数组
+                    $newarray = [];
+                    foreach($new_arr as $key=>$val){
+                        foreach ($val as $k=>$v){
+                            $newarray[$key]=$v;
+                        }
+                    }
+                    $old_arr = call_user_func_array('array_merge',$new_arr);
+                }else{
+                    $old_arr = [];
+                }
+                // 查询运费模板表
+                $express_modeldata = DB::table('express_model') -> get();
                 $level1 = GoodsCate::where('pid','=',0)->get();
                 $goodBrands = GoodBrands::select('id','name')->orderBy('id','asc')->get();
                 // 查询商品参数
@@ -1195,7 +1291,9 @@ class ShopController extends BaseController
                     'attrData'=>$attrData,
                     'merchants_goods_type'=>$merchants_goods_type,
                     'attrvalueData'=>$a,
+                    'express_modeldata'=>$express_modeldata,
                     'goods_id'=>$model->id,
+                    'goodssku'=> $old_arr,
                     'goodsdata' =>(object)[
                         'goods_brand_id'=>'',
                         'is_hot'=>'',
@@ -1206,7 +1304,7 @@ class ShopController extends BaseController
                         'dilivery'=>''
                     ]
                 ];
-                flash('新增成功') -> success();
+                flash('新增成功,请继续下一步,上传相册') -> success();
                 return $this->view('addGoods',$arr);
             } catch (\Exception $e){
                 return $this->failed($e->getMessage());
