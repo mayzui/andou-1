@@ -1,5 +1,4 @@
-﻿<?php
-
+<?php
 namespace App\Http\Controllers\Admin;
 
 use Illuminate\Http\Request;
@@ -9,7 +8,7 @@ class LogisticsController extends BaseController
 {
     public function indexs()
     {
-    return "aa";
+    // return "aa";
 //    	 查询订单详情表中内容
         $data = \DB::table('order_goods')
             -> join('merchants','order_goods.merchant_id','=','merchants.id')
@@ -21,7 +20,7 @@ class LogisticsController extends BaseController
             -> paginate(5);
 //        return dd($data);
 //        return $this -> view('index',['list' => $data]);
-        return $this -> view('index');
+        return view('admin.logistics.indexs');
     }
 
 

@@ -123,8 +123,9 @@ class CommonController extends Controller
             $total=$values['total_fee']/100;
             $datas = array('status' => 20, 'pay_way' => 1, 'out_trade_no' => $trade_no,'pay_time'=>date('Y-m-d H:i:s',time()),'pay_money'=>$total);
             $out_trade_no = $values['out_trade_no'];
-
-            $ress=Db::table('orders')->where(['order_sn' => $out_trade_no, 'status' =>10])->first();
+            // echo $out_trade_no;
+            $ress=Db::table('orders')->where(['order_sn' =>$out_trade_no, 'status' =>10])->first();
+            // var_dump($ress);exit();
             if (!empty($ress)) {
                 $re = Db::table('orders')->where('order_sn', $out_trade_no)->update($datas);
                 $res = Db::table('order_goods')->where('order_id', $out_trade_no)->update($datas);
@@ -133,14 +134,14 @@ class CommonController extends Controller
                     return $str;
                     
                 } else {
-                    return 'fail';
+                    return 'fail1';
                 }
             }else{
-                 return 'fail';
+                 return 'fail2';
             }
             
         } else {
-            return 'fail';
+            return 'fail3';
         }
 
     }
