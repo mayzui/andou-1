@@ -43,7 +43,8 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('hotel/condition', 'HotelController@condition');
      Route::post('hotel/hotellist', 'HotelController@hotellist');
      Route::post('htorder/settlement', 'HtorderController@settlement');
-
+     Route::post('htorder/add_order', 'HtorderController@addOrder');
+     
      Route::post('Usersaddress/district', 'UsersaddressController@district');
      Route::post('Usersaddress/address_add', 'UsersaddressController@addressAdd');
      Route::post('Usersaddress/address','UsersaddressController@address');
@@ -63,6 +64,8 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('common/merchant_type', 'CommonController@merchantType');
      Route::any('common/wxnotify', 'CommonController@wxnotify');
      Route::any('common/district', 'CommonController@district');
+     Route::any('common/wxnotifyhotel', 'CommonController@wxnotifyhotel');
+     
      Route::post('order/details', 'OrderController@details');
 
      Route::post('cart/index', 'CartController@index');

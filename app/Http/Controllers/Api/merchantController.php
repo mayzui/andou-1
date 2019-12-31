@@ -320,6 +320,10 @@ class MerchantController extends Controller
      */
     public function entry(){
         $all = \request() -> all();
+        $token=request()->header('token')??'';
+        if ($token!='') {
+            $all['token']=$token;
+        }
         $check=$this->checktoten($all['uid'],$all['token']);
         if ($check['code']==201) {
             return $this->rejson($check['code'],$check['msg']);
@@ -373,6 +377,10 @@ class MerchantController extends Controller
             empty($all['city_id']) ||
             empty($all['area_id'])){
             return $this->rejson(201,'请输入用户id');
+        }
+        $token=request()->header('token')??'';
+        if ($token!='') {
+            $all['token']=$token;
         }
         $check=$this->checktoten($all['uid'],$all['token']);
         if ($check['code']==201) {

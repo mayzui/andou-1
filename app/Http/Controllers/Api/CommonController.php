@@ -95,7 +95,7 @@ class CommonController extends Controller
         return $this->rejson(200,'查询成功',$data);
     }
     /**
-     * @api {get} /api/common/wxnotify 微信支付回调
+     * @api {post} /api/common/wxnotify 微信商城支付回调
      * @apiName wxnotify
      * @apiGroup common 
      * @apiSuccessExample 参数返回:
@@ -105,26 +105,80 @@ class CommonController extends Controller
      *       "msg":"查询成功"
      *     }
      */
+    
     public function wxnotify() {
         
         $xml=file_get_contents('php://input');
         //$xml = PHP_VERSION <= 5.6 ? $GLOBALS['HTTP_RAW_POST_DATA']:file_get_contents('php://input');
         libxml_disable_entity_loader(true);
         $values = json_decode(json_encode(simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA)), true);
-        // $aa['event']=$values['out_trade_no'];
-        // Db('record')->insert($aa);
+        $aa['val']=$xml;
+        $values['trade_status']=$values['trade_status']??'';
+        $values['return_code']=$values['return_code']??'';
+        Db::table('record')->insert($aa);
+
         if ($values['trade_status'] == 'TRADE_SUCCESS' || $values['trade_status'] == 'TRADE_FINISHED' || $values['return_code']=='SUCCESS') {
             //这里根据项目需求来写你的操作 如更新订单状态等信息 更新成功返回'success'即可
             $trade_no = $values['transaction_id'];
-            $datas = array('status' => 20, 'pay_way' => 0, 'out_trade_no' => $trade_no,'pay_time'=>date('Y-m-d H:i:s'),time());
+            $total=$values['total_fee']/100;
+            $datas = array('status' => 20, 'pay_way' => 1, 'out_trade_no' => $trade_no,'pay_time'=>date('Y-m-d H:i:s',time()),'pay_money'=>$total);
             $out_trade_no = $values['out_trade_no'];
 
             $ress=Db::table('orders')->where(['order_sn' => $out_trade_no, 'status' =>10])->first();
-            if ($ress) {
-                $re = Db::table('order')->where('order_sn', $out_trade_no)->update($datas);
-                
+            if (!empty($ress)) {
+                $re = Db::table('orders')->where('order_sn', $out_trade_no)->update($datas);
+                $res = Db::table('order_goods')->where('order_id', $out_trade_no)->update($datas);
                 if ($re && $res) {
-                    exit('SUCCESS'); //成功处理后必须输出这个字符串给支付宝
+                    $str='<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>';  
+                    return $str;
+                    
+                } else {
+                    return 'fail';
+                }
+            }else{
+                 return 'fail';
+            }
+            
+        } else {
+            return 'fail';
+        }
+
+    }
+     /**
+     * @api {get} /api/common/wxnotifyhotel 微信支付酒店回调
+     * @apiName wxnotifyhotel
+     * @apiGroup common 
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data":"",
+     *       "msg":"查询成功"
+     *     }
+     */
+    public function wxnotifyhotel(){
+        $xml=file_get_contents('php://input');
+        //$xml = PHP_VERSION <= 5.6 ? $GLOBALS['HTTP_RAW_POST_DATA']:file_get_contents('php://input');
+        libxml_disable_entity_loader(true);
+        $values = json_decode(json_encode(simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA)), true);
+        $aa['val']=$values['out_trade_no'];
+        $values['trade_status']=$values['trade_status']??'';
+        $values['return_code']=$values['return_code']??'';
+        Db::table('record')->insert($aa);
+        if ($values['trade_status'] == 'TRADE_SUCCESS' || $values['trade_status'] == 'TRADE_FINISHED' || $values['return_code']=='SUCCESS') {
+            //这里根据项目需求来写你的操作 如更新订单状态等信息 更新成功返回'success'即可
+            $trade_no = $values['transaction_id'];
+            $total=$values['total_fee'];
+            $datas = array('status' => 20, 'pay_way' => 1, 'out_trade_no' => $trade_no,'pay_time'=>date('Y-m-d H:i:s',time()),'pay_money'=>$total);
+            $out_trade_no = $values['out_trade_no'];
+
+            $ress=Db::table('orders')->where(['order_sn' => $out_trade_no, 'status' =>10])->first();
+            if (!empty($ress)) {
+                $re = Db::table('order')->where('order_sn', $out_trade_no)->update($datas);
+                $res = Db::table('books')->where('book_sn', $out_trade_no)->update($datas);
+                if ($re && $res) {
+                    $str='<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>';  
+                    echo $str;
+                    
                 } else {
                     exit('fail');
                 }
@@ -133,6 +187,5 @@ class CommonController extends Controller
         } else {
             exit('fail');
         }
-
     }
 }

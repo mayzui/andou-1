@@ -11,6 +11,10 @@ class UsersaddressController extends Controller
     public function __construct()
     {
         $all=request()->all();
+        $token=request()->header('token')??'';
+        if ($token!='') {
+            $all['token']=$token;
+        }
         if (empty($all['uid'])||empty($all['token'])) {
            return $this->rejson(202,'登陆失效');
         }

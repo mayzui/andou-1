@@ -10,6 +10,10 @@ class OrderController extends Controller
     public function __construct()
     {
         $all=request()->all();
+        $token=request()->header('token')??'';
+        if (!empty($token)) {
+            $all['token']=$token;
+        }
         if (empty($all['uid'])||empty($all['token'])) {
            return $this->rejson(202,'登陆失效');
         }
@@ -79,6 +83,7 @@ class OrderController extends Controller
         ->join('goods_sku as s','s.id','=','o.goods_sku_id')
         ->where($where)
         ->select('g.img','g.name','o.goods_id','o.merchant_id','o.order_id','o.status','m.name as mname','m.logo_img','o.num','o.id','shipping_free','o.express_id','o.courier_num','s.price','pay_money','s.attr_value')
+        ->orderBy('o.created_at','DESC')
         ->get();
         foreach ($data as $k => $v) {
         $data[$k]->attr_value=json_decode($v->attr_value,1)[0]['value'];
@@ -200,6 +205,8 @@ class OrderController extends Controller
             $alldata['address_id']=$address->id;
         }
         $data['goods_id']=$all['goods_id'];
+        $alldata['status']=10;
+        $data['status']=10;
         $data['merchant_id']=$all['merchant_id'];
         $data['goods_sku_id']=$all['goods_sku_id'];
         $data['num']=$all['num'];
@@ -399,7 +406,7 @@ class OrderController extends Controller
      * @apiGroup order
      * @apiParam {string} uid 用户id
      * @apiParam {string} token 验证登陆
-     * @apiParam {array}  order_sn 订单号
+     * @apiParam {array}  order_sn 订单编号
      * @apiSuccessExample 参数返回:
      *     {
      *       "code": "200",
@@ -442,7 +449,7 @@ class OrderController extends Controller
      */
     public function details(){
         $all=request()->all();
-        if (empty($all['id'])) {
+        if (empty($all['order_sn'])) {
             return $this->rejson(201,'缺少参数');
         }
         $data=DB::table('orders')
@@ -555,7 +562,8 @@ class OrderController extends Controller
         DB::beginTransaction(); //开启事务
         $re=DB::table('user_logs')->insert($data);
         $ress=DB::table('orders')->where('order_sn',$sNo)->update($status);
-        $res=DB::table('users')->where('id',$all['uid'])->decrement('money',$orders->order_money);
+        $ress=DB::table('order_goods')->where('order_id',$sNo)->update(array('status'=>20));
+        $res=DB::table('users')->where('id',$all['uid'])->decrement('money',$data['price']);
         if ($integral>0) {
             $addintegral=$data;
             $addintegral['price']=$integral;

@@ -357,6 +357,10 @@ class GoodsController extends Controller
      */
     public function collection(){
         $all=request()->all();
+        $token=request()->header('token')??'';
+        if ($token!='') {
+            $all['token']=$token;
+        }
         if (!isset($all['id']) || !isset($all['uid']) || !isset($all['token']) || !isset($all['type'])) {
            return $this->rejson(201,'缺少参数');  
         }
