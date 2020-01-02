@@ -234,35 +234,20 @@ class ManageController extends Controller
             ->select(['name','logo_img','stars_all'])
             ->first();
         $data['payment'] = DB::table('order_goods')
-            ->join('merchants','merchants.id','=','order_goods.merchant_id')
-            ->join('goods','goods.id','=','order_goods.goods_id')
-            ->join('orders','orders.order_sn','=','order_goods.order_id')
-            ->where('order_goods.merchant_id',$all['id'])
-            ->where('orders.status',10)->count();
+            ->where('merchant_id',$all['id'])
+            ->where('status',10)->count();
         $data['deliver'] = DB::table('order_goods')
-            ->join('merchants','merchants.id','=','order_goods.merchant_id')
-            ->join('goods','goods.id','=','order_goods.goods_id')
-            ->join('orders','orders.order_sn','=','order_goods.order_id')
-            ->where('order_goods.merchant_id',$all['id'])
-            ->where('orders.status',20)->count();
+            ->where('merchant_id',$all['id'])
+            ->where('status',20)->count();
         $data['shipments'] = DB::table('order_goods')
-            ->join('merchants','merchants.id','=','order_goods.merchant_id')
-            ->join('goods','goods.id','=','order_goods.goods_id')
-            ->join('orders','orders.order_sn','=','order_goods.order_id')
-            ->where('order_goods.merchant_id',$all['id'])
-            ->where('orders.status',40)->count();
+            ->where('merchant_id',$all['id'])
+            ->where('status',40)->count();
         $data['affirm'] = DB::table('order_goods')
-            ->join('merchants','merchants.id','=','order_goods.merchant_id')
-            ->join('goods','goods.id','=','order_goods.goods_id')
-            ->join('orders','orders.order_sn','=','order_goods.order_id')
-            ->where('order_goods.merchant_id',$all['id'])
-            ->where('orders.status',50)->count();
+            ->where('merchant_id',$all['id'])
+            ->where('status',50)->count();
         $data['cancel'] = DB::table('order_goods')
-            ->join('merchants','merchants.id','=','order_goods.merchant_id')
-            ->join('goods','goods.id','=','order_goods.goods_id')
-            ->join('orders','orders.order_sn','=','order_goods.order_id')
-            ->where('order_goods.merchant_id',$all['id'])
-            ->where('orders.status',0)->count();
+            ->where('merchant_id',$all['id'])
+            ->where('status',0)->count();
         $data['manage'] = DB::table('goods')->where('merchant_id',$all['id'])->count();
         $data['balance'] = DB::table('merchants')
             ->join('users','merchants.user_id','=','users.id')
@@ -471,8 +456,9 @@ class ManageController extends Controller
      * @api {post} /api/goods/saveStore  保存店铺管理
      * @apiName saveStore
      * @apiGroup menage
-     * @apiParam {string} uid 商户id
+     * @apiParam {string} uid 用户id
      * @apiParam {string} token 验证登陆
+     * @apiParam {string} id 商家id
      * @apiParam {string} name 商铺名称
      * @apiParam {string} mobile 联系方式
      * @apiParam {string} desc 商家公告
@@ -520,8 +506,9 @@ class ManageController extends Controller
      * @api {post} /api/goods/classify  分类添加
      * @apiName classify
      * @apiGroup menage
-     * @apiParam {string} uid 商户id
+     * @apiParam {string} uid 用户id
      * @apiParam {string} token 验证登陆
+     * @apiParam {string} id 商家id
      * @apiParam {string} name 分类名称
      * @apiSuccessExample 参数返回:
      *     {
@@ -535,9 +522,10 @@ class ManageController extends Controller
     {
         $all = request()->all();
         $data = [
+            'merchant_id'=>$all['id'],
             'name'=>$all['name'],
         ];
-        $res = DB::table('goods_cate')->insert($data);
+        $res = DB::table('merchants_goods_type')->insert($data);
         if($res){
             return $this->rejson('200','添加完成');
         }else{
@@ -549,8 +537,9 @@ class ManageController extends Controller
      * @api {post} /api/goods/classify  上传新商品
      * @apiName upload
      * @apiGroup menage
-     * @apiParam {string} uid 商户id
+     * @apiParam {string} uid 用户id
      * @apiParam {string} token 验证登陆
+     * @apiParam {string} id 商家id
      * @apiParam {string} name 商品名称
      * @apiParam {string} merchants_goods_type_id 商品分类id
      * @apiParam {string} price 商品价格

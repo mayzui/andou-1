@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 use Illuminate\Http\Request;
 
@@ -108,4 +108,10 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('goods/store','ManageController@store');
      Route::post('goods/saveStore','ManageController@saveStore');
      Route::post('goods/merchants','ManageController@merchants');
+          //商家详情
+     Route::post('details/list','DetailsController@list');
+     //房间类型
+     Route::post('details/hotelSel','DetailsController@hotelSel');
+     //用户评论
+     Route::post('details/commnets','DetailsController@commnets');
 });
