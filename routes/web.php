@@ -72,6 +72,8 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('shop/commnets','ShopController@commnets')->name('shop.commnets');
         Route::match(['get','post'],'shop/commnetsAdd','ShopController@commnetsAdd')->name('shop.commnetsAdd');
         Route::get('shop/commnetsDel','ShopController@commnetsDel')->name('shop.commnetsDel');
+        Route::post('shop/deleteAll','ShopController@deleteAll')->name('shop.deleteAll');       // 批量删除数据
+
 
         // 商品属性
         Route::get('shop/addAttr','ShopController@addAttr')->name('shop.addAttr');
@@ -85,7 +87,6 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::post('shop/storeAlbum','ShopController@storeAlbum')->name('shop.storeAlbum');
         Route::match(['get','post'],'shop/storeComplateAttrs','ShopController@storeComplateAttrs')->name('shop.storeComplateAttrs');
 
-
         // 分类管理
         Route::get('shop/goodsCate','ShopController@goodsCate')->name('shop.goodsCate');
         Route::get('shop/cateAdd','ShopController@cateAdd')->name('shop.cateAdd');
@@ -96,11 +97,15 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
 
         // 商家管理
         Route::get('shop/shopMerchant','ShopController@shopMerchant')->name('shop.shopMerchant');
+        Route::get('shop/shopMerchantOrder','ShopController@shopMerchantOrder')->name('shop.shopMerchantOrder');    // 查询订单
+        Route::get('shop/shopMerchantMoney','ShopController@shopMerchantMoney')->name('shop.shopMerchantMoney');    // 查询资金流水
         Route::get('shop/shopDiscount','ShopController@shopDiscount')->name('shop.shopDiscount');   // 平台优惠
         Route::match(['get','post'],'shop/information','ShopController@information')->name('shop.information');   // 商家详情
 
         // 物流信息
         Route::get('logistics/indexs','LogisticsController@indexs') -> name('logistics.indexs');
+        Route::match(['get','post'],'logistics/goGoods','LogisticsController@goGoods') -> name('logistics.goGoods');     // 去发货
+        Route::match(['get','post'],'logistics/readLogistics','LogisticsController@readLogistics') -> name('logistics.readLogistics');     // 查看物流详情
 
 
         // 商品分类
@@ -215,10 +220,17 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         // 售后服务
         Route::get('refund/aftermarket','RefundController@aftermarket')->name('refund.aftermarket');
         Route::match(['get','post'],'refund/aftermarketChange','RefundController@aftermarketChange')->name('refund.aftermarketChange');
+
+
+
+
+        Route::match(['get','post'],'know/index','RefundController@aftermarketChange')->name('know.index');
     });
 
     // 图片上传
     Route::any('upload/uploadImage','UploadController@uploadImage');
+
+
 });
 
 

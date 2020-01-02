@@ -23,6 +23,25 @@ use Auth;
 
 class ShopController extends BaseController
 {
+    // 批量删除商品
+    public function deleteAll(){
+        $all = \request() -> all();
+        DB::beginTransaction();
+        try{
+            $data = [
+                'is_del' => 1
+            ];
+            // 循环删除数据
+            foreach ($all['ids'] as $id){
+                DB::table('goods') -> where('id',$id) -> update($data);
+            }
+            DB::commit();
+            return 1;
+        }catch (\Exception $e){
+            DB::rollBack();
+        }
+    }
+
     // 商城商家管理
     public function shopMerchant(){
         $all = request()->all();
@@ -79,7 +98,9 @@ class ShopController extends BaseController
                 $screen['name']='';
             }
             $data=DB::table('merchants')
+                ->where('merchant_type_id',2)
                 ->where($where)
+                -> orderBy('is_reg')
                 ->paginate(10);
             foreach ($data as $key => $value) {
                 $merchant_type=Db::table('merchant_type')->where('id',$value->merchant_type_id)->pluck('type_name');
@@ -100,6 +121,72 @@ class ShopController extends BaseController
         }
         return $this->view('',['data'=>$data,'i'=>$i],['wheres'=>$wheres]);
     }
+    // 跳转订单管理
+    public function shopMerchantOrder(){
+        $all = \request() -> all();
+        $list = DB::table('orders')
+            -> join('users','orders.user_id','=','users.id')
+            -> where('orders.is_del',0)
+            -> where('orders.user_id',$all['id'])
+            -> select(['orders.id','orders.order_sn','orders.pay_way','orders.pay_money','orders.order_money','orders.status','orders.shipping_free','orders.remark','orders.auto_receipt','orders.pay_time','users.name'])
+            -> paginate(10);
+        return $this->view('orders',['list'=>$list]);
+    }
+    // 跳转订单管理
+    public function shopMerchantMoney(){
+        $all = \request() -> all();
+        $data = DB::table('user_logs')
+            -> join("users","user_logs.user_id","=","users.id")
+            -> where('source',0)
+            -> where('merchant_id',$all['id'])
+            -> where('user_logs.is_del',0)
+            -> orderBy('type_id')
+            -> select(['user_logs.id','users.name','user_logs.price','user_logs.describe','user_logs.state','user_logs.type_id','user_logs.create_time'])
+            -> paginate(10);
+        return $this->view('',['data'=>$data]);
+    }
+    // 商家详情
+    public function information(){
+        $all = \request() -> all();
+        if(\request() -> isMethod("get")){
+            // 通过传入的id 查询商户信息
+            $data = DB::table('merchants')
+                -> join('merchant_type','merchants.merchant_type_id','=','merchant_type.id')
+                -> where('merchants.id',$all['id'])
+                -> select(['merchant_type.type_name','merchants.id',
+                    'merchants.name','merchants.desc',
+                    'merchants.province_id','merchants.city_id',
+                    'merchants.area_id','merchants.address',
+                    'merchants.tel','merchants.user_name',
+                    'merchants.management_type','merchants.management_type',
+                    'merchants.banner_img','merchants.logo_img',
+                    'merchants.door_img','merchants.management_img',
+                    'merchants.goods_img','merchants.merchant_type_id','merchants.is_reg'])
+                -> first();
+//            return dd($data);
+            return $this->view('',['data'=>$data]);
+        }else{
+            // 判断审核状态
+            if($all['is_reg'] == 0){
+                // 审核通过
+                $data = [
+                    'is_reg' => 1
+                ];
+            }else{
+                // 驳回
+                $data =[
+                    'is_reg' => 2
+                ];
+            }
+            $i = DB::table('merchants') -> where('id',$all['id']) -> update($data);
+            if($i){
+                return 1;
+            }else{
+                return "商家审核失败,请稍后重试";
+            }
+        }
+    }
+
     // 平台优惠
     public function shopDiscount(){
         return "模块功能开发中";
@@ -794,7 +881,7 @@ class ShopController extends BaseController
             $goods = DB::table('goods')
                 -> join('merchants','goods.merchant_id','=','merchants.id')
                 -> where('is_del',0)
-                -> select(['merchants.name as merchant_name','goods.id','goods.pv','goods.created_at','goods.updated_at','goods.goods_cate_id','goods.img','goods.desc','goods.is_hot','goods.is_recommend','goods.is_sale','goods.is_bargain','goods.dilivery'])
+                -> select(['merchants.name as merchant_name','goods.id','goods.name as goods_name','goods.pv','goods.created_at','goods.updated_at','goods.goods_cate_id','goods.img','goods.desc','goods.is_hot','goods.is_recommend','goods.is_sale','goods.is_bargain','goods.dilivery'])
                 -> orderBy('goods.id','desc')
                 -> paginate(10);
             foreach ($goods as $k => $v){

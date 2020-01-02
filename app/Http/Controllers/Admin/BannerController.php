@@ -113,7 +113,7 @@ class BannerController extends BaseController
             }
         }
     }
-    // 删除广告
+    // 删除广告d
     public function positionDel(){
         // 获取传入的id
         $all = \request() -> all();
@@ -182,7 +182,6 @@ class BannerController extends BaseController
         }
         return  viewError('操作失败','banner.add');
     }
-
     public function  status (Request $request ,$status , $id)
     {
 
