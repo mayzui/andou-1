@@ -44,6 +44,7 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('hotel/hotellist', 'HotelController@hotellist');
      Route::post('htorder/settlement', 'HtorderController@settlement');
      Route::post('htorder/add_order', 'HtorderController@addOrder');
+     Route::post('htorder/orderdatails', 'HtorderController@orderdatails');
      
      Route::post('Usersaddress/district', 'UsersaddressController@district');
      Route::post('Usersaddress/address_add', 'UsersaddressController@addressAdd');
@@ -80,6 +81,8 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('order/wx_pay', 'OrderController@wxPay');
      Route::post('order/pay', 'OrderController@pay');
      Route::post('order/express', 'OrderController@express');
+     Route::post('order/confirm', 'OrderController@confirm');
+     
 
      Route::post('login/login', 'LoginController@login');
      Route::post('login/send', 'LoginController@send');
@@ -114,4 +117,8 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('details/hotelSel','DetailsController@hotelSel');
      //用户评论
      Route::post('details/commnets','DetailsController@commnets');
+     //房间类型列表
+     Route::post('details/room_list','DetailsController@room_list');
+     //评论添加
+     Route::post('details/addcomment','DetailsController@addcomment');
 });

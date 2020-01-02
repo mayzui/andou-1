@@ -35,12 +35,12 @@
                                 <td>{{$item->exname}}</td>
                                 <td>{{$item->mename}}</td>
                                 <td>
-                                    @if($item->caculate_method == 1)
+                                    @if($item->caculate_method == 2)
                                         按照件数
-                                        @elseif($item->caculate_method == 2)
+                                        @elseif($item->caculate_method == 1)
                                         按照重量
                                         @elseif($item->caculate_method == 4)
-                                        一口价
+                                        固定运费
                                     @endif
                                 </td>
                                 <td>

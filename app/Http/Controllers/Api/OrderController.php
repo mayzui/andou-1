@@ -259,7 +259,8 @@ class OrderController extends Controller
      */
     public function addOrderCar(){
         $all=request()->all();
-        // $all['id']=array(1,2);
+        $all['id']=explode(',',$all['id']);
+        // $all['id']= '1,2';
         if (empty($all['id'])) {
             return $this->rejson(201,'缺少参数');
         }
@@ -287,9 +288,10 @@ class OrderController extends Controller
                 DB::rollback();
                 return $this->rejson(201,'购物车id不存在');
             }
+            $data['num']=$car->num ?? 0;
             $dilivery=Db::table('goods')->select('dilivery','weight')->where('id',$car->goods_id)->first();
             if ($dilivery->dilivery > 0) {
-                $data['shipping_free']=$this->freight($dilivery->weight*$all['num'],$all['num'],$dilivery->dilivery);
+                $data['shipping_free']=$this->freight($dilivery->weight*$data['num'],$data['num'],$dilivery->dilivery);
                 $alldata['shipping_free']+=$data['shipping_free'];
             }else{
                 $data['shipping_free']=0;
@@ -299,22 +301,28 @@ class OrderController extends Controller
                 DB::rollback();
                 return $this->rejson(201,'商品库存不足');
             }
+
             $data['goods_id']=$car->goods_id;
             $data['status']=10;
             $data['merchant_id']=$car->merchant_id;
             $data['goods_sku_id']=$car->goods_sku_id;
-            $data['num']=$car->num;
+           
             $data['pay_discount']=1;
             $alldata['order_money']+=$data['pay_money']=$datas->price*$data['num']*$data['pay_discount']+$data['shipping_free'];
             $data['total']=$datas->price*$data['num']+$data['shipping_free'];
+
             $re=DB::table('order_goods')->insert($data);
+
             if (!$re) {
                 DB::rollback();
                 return $this->rejson(201,'下单失败');
             }
         }
+
         $res=DB::table('orders')->insert($alldata);
+
         $red=Db::table('cart')->where('user_id',$all['uid'])->whereIn('id',$all['id'])->delete();
+
         if ($res&&$red) {
             DB::commit();
             return $this->rejson(200,'下单成功',array('order_sn'=>$data['order_id']));
@@ -532,7 +540,7 @@ class OrderController extends Controller
         if (empty($orders)) {
             return $this->rejson(201,'订单不存在');
         }
-        
+        $merchants_id=Db::table('order_goods')->where('order_sn',$sNo)->first()->merchants_id ?? '';
         if($all['is_integral']==1){
             $integrals=DB::table('config')->where('key','integral')->first()->value;
             $integral=floor(($orders->order_money-$orders->shipping_free)*$integrals);
@@ -560,6 +568,7 @@ class OrderController extends Controller
         $status['pay_way']=$all['pay_id'];
         $status['pay_time']=date('Y-m-d H:i:s',time());
         DB::beginTransaction(); //开启事务
+        $data['merchants_id']=$merchant_id;
         $re=DB::table('user_logs')->insert($data);
         $ress=DB::table('orders')->where('order_sn',$sNo)->update($status);
         $ress=DB::table('order_goods')->where('order_id',$sNo)->update(array('status'=>20));
@@ -568,6 +577,7 @@ class OrderController extends Controller
             $addintegral=$data;
             $addintegral['price']=$integral;
             $addintegral['type_id']=1;
+            $addintegral['merchants_id']=$merchant_id;
             $rei=DB::table('user_logs')->insert($addintegral);
             $resi=DB::table('users')->where('id',$all['uid'])->decrement('integral',$integral);
         }
@@ -697,5 +707,54 @@ class OrderController extends Controller
             return $this->rejson(201,'添加失败');
         }
     }
-    // W83tVnay3ZPCsMA
+     /**
+     * @api {post} /api/order/confirm 确认收货
+     * @apiName confirm
+     * @apiGroup order
+     * @apiParam {string} uid 用户id（必填）
+     * @apiParam {string} token 用户验证（必填）
+     * @apiParam {string} id 子订单id
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "msg":"收货成功",
+     *       "data": "",
+     *     }
+     */
+    public function confirm(){
+        $all=request()->all();
+        if (empty($all['id'])) {
+            return $this->rejson(201,'缺少参数');
+        }
+        $re=Db::table('order_goods')->where(['id'=>$all['id'],'status'=>40])->first();
+        if (empty($re)) {
+            return $this->rejson(201,'订单不存在');
+        }
+        $name=Db::table('goods')->where('id',$re->goods_id)->first()->name??'';
+        $log['price']=$re->total;
+        $order_sn=$re->order_id;
+        $log['msg']=$name.'出售成功,订单编号：'.$re->order_id;
+        $log['type']=2;
+        $log['status']=1;
+        $log['created']=date('Y-m-d H:i:s',time());
+        $log['user_id']=$re->user_id;
+        $log['merchant_id']=$re->merchant_id;
+        DB::beginTransaction(); //开启事务
+        $res=Db::table('merchant_log')->insert($log);
+        $ress=Db::table('merchants')->where('id',$re->merchant_id)->increment('money',$log['price']);
+        $ordre=Db::table('order_goods')->where('id',$all['id'])->update(array('status'=>50));
+        $re=Db::table('order_goods')->where(['id'=>$all['id'],'status'=>40])->first();
+        if (empty($re)) {
+            $ordres=Db::table('orders')->where('order_sn',$order_sn)->update(array('status'=>50));
+        }else{
+            $ordres=1;
+        } 
+        if ($res&&$ress&&$ordres&&$ordre) {
+            DB::commit();
+            return $this->rejson(200,'收货成功');
+        }else{
+            DB::rollback();
+            return $this->rejson(201,'收货失败');
+        }
+    }
 }

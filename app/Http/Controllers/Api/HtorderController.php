@@ -263,5 +263,58 @@ class HtorderController extends Controller
         }else{
             return  $this->rejson(201,'获取支付信息失败！');
         }
+    }
+    /**
+     * @api {post} /api/htorder/orderdatails 酒店预定详情
+     * @apiName orderdatails
+     * @apiGroup htorder
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} token 验证登陆
+     * @apiParam {array}  book_sn 订单编号
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": {
+     *              "book_sn": "订单编号",
+                    "created_at": "下单时间",
+                    "pay_way": "支付方式",
+                    "id": "房间id",
+                    "merchant_id": "商户id",
+                    "merchants_name": "商户名字",
+                    "status": "订单状态",（0-取消订单 10-未支付订单 20-已支付(待入住) 30 已入住 40-已完成(离店) 50-已评价）
+                    "img": "房间图片",
+                    "house_name": "房间名字",
+                    "price": "单价",
+                    "integral": "使用积分",
+                    "money": "订单总金额",
+                    "start_time": "入住时间",
+                    "end_time": "离开时间",
+                    "day_num": "入住天数",
+                    "real_name": "入住人",
+                    "mobile": "联系电话",
+                    "pay_money":"支付金额"
+     *       },
+     *       "msg":"预定成功"
+     *     }
+     */
+    public function orderdatails(){
+        $all=request()->all();
+        if (empty($all['book_sn'])) {
+            return $this->rejson(201,'缺少参数');
+        }
+        // 查询酒店订单
+        $data = DB::table('books')
+            -> join('merchants','books.merchant_id','=','merchants.id')
+            -> join('hotel_room','books.hotel_room_id','=','hotel_room.id')
+            -> where('books.book_sn',$all['book_sn'])
+            -> select(['books.book_sn','books.created_at','books.pay_way','hotel_room.id','hotel_room.merchant_id','merchants.name as merchants_name','books.status','hotel_room.img','hotel_room.house_name','hotel_room.price','books.integral','books.money','books.start_time','books.end_time','books.day_num','books.real_name','books.mobile'])
+            ->first();
+        if (!empty($data)) {
+            $data->pay_money=$data->money-$data->integral;
+            $data->pay_way=Db::table('pay_ways')->where('id',$data->pay_way)->first()->pay_way??'';
+            return $this->rejson(200,'查询成功',$data);
+        }else{
+            return $this->rejson(201,'订单编号错误');
+        }
     }   
 }

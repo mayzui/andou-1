@@ -3,6 +3,6 @@
   "version": "0.0.0", 
   "description": "安抖接口",
   "title": "安抖接口", 
-  "sampleUrl" : "http://andou.zhuosongkj.com",
-  "url" : "http://andou.zhuosongkj.com"
+  "sampleUrl" : "http://192.168.0.110/andou/public/index.php",
+  "url" : "http://192.168.0.110/andou/public/index.php"
 }
