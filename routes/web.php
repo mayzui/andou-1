@@ -219,6 +219,8 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
 
     // 图片上传
     Route::any('upload/uploadImage','UploadController@uploadImage');
+
+
 });
 
 

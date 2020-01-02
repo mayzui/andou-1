@@ -5,7 +5,7 @@
 <link href="{{loadEdition('/admin/css/layui.css')}}" rel="stylesheet">
 <link href="{{loadEdition('/admin/css/style.css')}}" rel="stylesheet">
 <body>
-	
+
 	<div class="round">
 		<div id="container" style="height: 100%"></div>
 	</div>
@@ -17,7 +17,7 @@
 	var myChart = echarts.init(dom);
 	var app = {};
 	option = null;
-	
+
 	option = {
 		title : {
 		    text: '',
@@ -51,7 +51,7 @@
 	        }
 	    ],
 	    series : [
-	        {	
+	        {
 				name:'会员充值',
 	            type:'bar',
 	            barWidth: '30%',
@@ -83,14 +83,14 @@
 				},
 	        }
 	    ],
-		
+
 	};
-	
+
 	if (option && typeof option === "object") {
 	    myChart.setOption(option, true);
 	}
 </script>
 
- 
+
 </body>
 </html>

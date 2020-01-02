@@ -101,7 +101,10 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::match(['get','post'],'banner/noticeedit','BannerController@noticeedit')->name('banner.noticeedit');
         Route::get('shop/hotkeywords','ShopController@hotkeywords')->name('shop.hotkeywords');
         Route::get('shop/hotkeywordsdel','ShopController@hotkeywordsdel')->name('shop.hotkeywordsdel');
-        Route::match(['get','post'],'shop/hotkeywordsedit','ShopController@hotkeywordsedit')->name('shop.hotkeywordsedit');  
+        Route::match(['get','post'],'shop/hotkeywordsedit','ShopController@hotkeywordsedit')->name('shop.hotkeywordsedit');
+        //入住需知
+        Route::any('know/index','KnowController@index')->name('know.index');
+        Route::post('know/www','KnowController@www')->name('know.add');
     });
 });
 ?>
