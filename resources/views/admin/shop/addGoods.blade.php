@@ -156,10 +156,10 @@
                                                     <div class="layui-upload-list">
                                                         @if(empty($goodsdata -> img))
                                                             <input type="hidden" name="img" id="img" value=""/>
-                                                            <img class="layui-upload-img" id="showImage">
+                                                            <img class="layui-upload-img" id="showImage" src="{{loadEdition('/admin/images/default_image.jpg')}}" style="width:300px;height:300px;">
                                                             @else
                                                             <input type="hidden" name="img" id="img" value="{{ $goodsdata -> img }}"/>
-                                                            <img class="layui-upload-img" src="{{ $goodsdata -> img }}" id="showImage">
+                                                            <img class="layui-upload-img" src="{{ $goodsdata -> img or loadEdition('/admin/images/default_image.jpg') }}" id="showImage" style="width:300px;height:300px;">
                                                         @endif
                                                         <p id="demoText"></p>
                                                     </div>

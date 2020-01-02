@@ -20,9 +20,6 @@
 .ad-right{position: absolute;left: 256px;top: 0;bottom: 0;right: 0;background: #f7f7f7;width: calc(100% - 256px);}
 .ad-wrapper{position: fixed;width: calc(100% - 256px);bottom: 0;right: 0;top:80px;}
 .sign{width: 100%;height: 80px;line-height: 80px;background: #e4ebea;position: relative;}
-.sign a{display: inline-block;float: right;padding-right: 100px;overflow: hidden;}
-.sign a .sign-out{display: inline-block;width: 20px;height: 20px;background: url(../images/signOut.png) no-repeat;background-size: 100%;float: left;margin-top: 30px;margin-right: 10px;}
-.sign a span{display: inline-block;float: left;}
 /* 会员统计 */
 .member{position: absolute;top: 0;left: 0;width: 100%;height: 100%;background: #f7f7f7;overflow: scroll;}
 .member .title{height: 70px;line-height: 70px;padding: 0 60px;}
@@ -99,12 +96,53 @@
 .z-member.fr{background: #FFFFFF;border-radius: 10px;}
 .z-member .capital-c h2{font-size: 18px;}
 .z-member .capital-c p{margin-top: 15px;font-size: 14px;color: #555555;}
+.sign .a img{width: 50px;height: 50px;float: left;margin-top: 15px;}
+.sign .a{display: inline-block;float: right;padding-right: 100px;position: relative;}
+.sign .a .sign-out{display: inline-block;width: 20px;height: 20px;background: url(../images/signOut.png) no-repeat;background-size: 100%;float: left;margin-top: 30px;margin-right: 10px;}
+.sign .a span{display: inline-block;float: left;}
+.ad-right .sign .a img{width: 50px;height: 50px;float: left;margin-top: 15px;margin-right: 10px;border-radius: 50%;}
+.ad-right .layui-nav .layui-nav-item .layui-nav-child a{padding: 0 20px;}
+.ad-right .layui-nav .layui-nav-item{line-height: 80px}
+.ad-right .layui-nav .layui-nav-item a{padding: 0 0 0 60px;color: #333;}
+.layui-nav .layui-this:after,
+.layui-nav-bar,
+.layui-nav-tree .layui-nav-itemed:after {
+    background-color: transparent !important;
+    transition: all .2s;
+    -webkit-transition: all .2s
+}
+.ad-right .layui-nav .layui-nav-more {
+    content: '';
+    width: 0;
+    height: 0;
+    border-style: solid dashed dashed;
+    border-color: #333 transparent transparent;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all .2s;
+    -webkit-transition: all .2s;
+    position: absolute;
+    top: 50%;
+    right: 80px;
+    margin-top: -3px;
+    border-width: 6px;
+    border-top-color: rgba(0, 0, 0, .7)
+}
+.ad-right .layui-nav .layui-nav-mored,
+.layui-nav-itemed>.ad-right a .layui-nav-more {
+    margin-top: -9px;
+    border-style: dashed dashed solid;
+    border-color: transparent transparent #333
+}
+.ad-right .layui-nav-child {
+    top: 70px;
+    border: 0 ;
 
-
-
-
-
-
-
-
-
+}
+.layui-nav-child dd{
+    height: 36px;
+    line-height: 36px;
+}
+.layui-nav-child{
+    padding: 0;
+}

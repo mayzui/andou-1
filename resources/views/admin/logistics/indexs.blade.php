@@ -3,17 +3,15 @@
     <div class="row">
         <div class="col-sm-12">
             <div class="ibox-title">
-                <h5>广告管理</h5>
+                <h5>物流信息</h5>
             </div>
             <div class="ibox-content">
                 <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>
-                {{--<a href="{{route('banner.add')}}" link-url="javascript:void(0)">--}}
-                    {{--<button class="btn btn-primary btn-sm" type="button"><i class="fa fa-plus-circle"></i> 新增广告</button>--}}
-                {{--</a>--}}
-                <form method="post" action="{{route('')}}" name="form">
+                <form method="post" action="" name="form">
 
                     <style>
                         th ,td{
+                            font-size: 14px;
                             text-align: center;
                         }
                     </style>
@@ -21,13 +19,14 @@
                         <thead>
                         <tr>
                             <th width="100">ID</th>
+                            <th width="230">订单编号</th>
                             <th>商户名称</th>
                             <th>用户名称</th>
                             <th>商品名称</th>
                             <th>商品数量</th>
                             <th>运费</th>
                             <th>总金额</th>
-                            <th>快递公司id</th>
+                            <th>快递公司</th>
                             <th>快递单号</th>
                             <th>操作</th>
                         </tr>
@@ -36,25 +35,54 @@
                         @foreach($list as $k => $item)
                             <tr>
                                 <td>{{$item->id}}</td>
+                                <td>{{$item->order_id}}</td>
                                 <td>{{$item->merchants_name}}</td>
                                 <td>{{$item->users_name}}</td>
                                 <td>{{$item->goods_name}}</td>
                                 <td>{{$item->num}}</td>
                                 <td>{{$item->shipping_free}}</td>
                                 <td>{{$item->total}}</td>
-                                <td>{{$item->express_id}}</td>
+                                <td>
+                                    @if($item->express_id == 1)
+                                        韵达快递
+                                        @elseif($item->express_id == 2)
+                                        申通快递
+                                        @elseif($item->express_id == 3)
+                                        圆通速递
+                                        @elseif($item->express_id == 4)
+                                        邮政快递包裹
+                                        @elseif($item->express_id == 5)
+                                        中通快递
+                                        @elseif($item->express_id == 6)
+                                        顺丰速运
+                                        @elseif($item->express_id == 7)
+                                        百世快递
+                                        @elseif($item->express_id == 8)
+                                        京东物流
+                                        @elseif($item->express_id == 9)
+                                        天天快递
+                                        @elseif($item->express_id == 10)
+                                        EMS
+                                        @elseif($item->express_id == 11)
+                                        德邦
+                                        @elseif($item->express_id == 12)
+                                        DHL-中国件
+                                        @elseif($item->express_id == 13)
+                                        优速快递
+                                    @endif
+                                </td>
                                 <td>{{$item->courier_num}}</td>
                                 <td class="text-center">
                                     <div class="btn-group">
-                                        @if($item->status == 0)
-                                            <a href="{{route('banner.status',['status'=>1,'id'=>$item->id])}}"><button class="btn btn-info btn-xs" type="button"><i class="fa fa-warning"></i> 发布</button></a>
-                                        @else
-                                            <a href="{{route('banner.status',['status'=>0,'id'=>$item->id])}}"><button class="btn btn-warning btn-xs" type="button"><i class="fa fa-warning"></i> 关闭</button></a>
+                                        @if(empty($item->express_id))
+                                            <a href="{{route('logistics.goGoods')}}?id={{$item->id}}">
+                                                <button class="btn btn-primary btn-xs" type="button"><i class="fa fa-check"></i> 去发货</button>
+                                            </a>
+                                            @else
+                                            <a href="{{route('logistics.readLogistics')}}?id={{$item->id}}&express_id={{ $item -> express_id }}&courier_num={{ $item ->courier_num }}">
+                                                <button class="btn btn-primary btn-xs" type="button"><i class="fa fa-check"></i> 查看物流信息</button>
+                                            </a>
                                         @endif
-                                        <a href="{{route('banner.update',$item->id)}}">
-                                            <button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 修改</button>
-                                        </a>
-                                        <a href="{{route('banner.delete',$item->id)}}"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o"></i> 删除</button></a>
                                     </div>
                                 </td>
                             </tr>
