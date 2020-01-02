@@ -109,7 +109,7 @@
                         @endforeach
                         <tbody>
                     </table>
-                    
+                    {{ $list }}
                 </form>
             </div>
         </div>

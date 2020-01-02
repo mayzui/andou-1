@@ -27,7 +27,7 @@ class CommonController extends Controller
      */
     public function payWays(){
         $data=Db::table('pay_ways')->select('id','pay_way','logo')->where('status',1)->get();
-        return $this->rejson(200,'查询成功',$data);
+        return $this->rejson(200,'查询成功',json_decode($data,JSON_UNESCAPED_UNICODE));
     }
     /**
      * @api {post} /api/common/merchant_type 商户类型配置

@@ -7,6 +7,7 @@
             </div>
             <div class="ibox-content">
                 <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>
+                <button type="button" class="btn btn-danger btn-sm mdels" title="批量删除" ><i class="fa fa-trash-o"></i> 批量删除</button>
                 <a href="{{route('shop.create')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
                         <i class="fa fa-plus-circle"></i> 新增商品</button>
                 </a>
@@ -19,8 +20,9 @@
                     <table class="table table-striped table-bordered table-hover m-t-md">
                         <thead>
                         <tr>
+                            <th><input type="checkbox" id="checkall" /></th>
                             <th width="100">ID</th>
-                            <th>名称</th>
+                            <th style="width:150px;">商品名称</th>
                             <th>分类</th>
                             <th>图片</th>
                             <th>热门</th>
@@ -29,16 +31,17 @@
                             <th>特价</th>
                             <th>邮费</th>
                             <th>点击量</th>
-                            <th>创建时间</th>
-                            <th>更新时间</th>
-                            <th>操作</th>
+                            <th width="150px">上架时间</th>
+                            {{--<th>更新时间</th>--}}
+                            <th width="400px">操作</th>
                         </tr>
                         </thead>
                         <tbody>
                         @foreach($list as $k => $item)
                             <tr>
+                                <td><input type="checkbox" name="ids" value="{{$item->id}}" /></td>
                                 <td>{{$item->id}}</td>
-                                <td>{{$item->merchant_name}}</td>
+                                <td><p style="width: 150px;overflow: hidden;white-space: nowrap;text-overflow: ellipsis;">{{$item->goods_name}}</p></td>
                                 <td>{{$item->goods_cate_id}}</td>
                                 <td><img src="{{ env('IMAGE_PATH_PREFIX')}}{{$item->img}}" alt="" style="width: 50px;height: 50px;"></td>
                                 <td>
@@ -72,7 +75,7 @@
                                 <td>{{$item->dilivery}}</td>
                                 <td>{{$item->pv}}</td>
                                 <td>{{$item->created_at}}</td>
-                                <td>{{$item->updated_at}}</td>
+                                {{--<td>{{$item->updated_at}}</td>--}}
                                 <td class="text-center">
                                     <div class="btn-group">
 
@@ -115,6 +118,7 @@
         </div>
         <div class="clearfix"></div>
     </div>
+    <script src="{{loadEdition('/js/jquery.min.js')}}"></script>
     <script type="text/javascript">
         function del(e) {
             var id = e;
@@ -123,5 +127,36 @@
                 layer.close(index);
             });
         }
+        //执行批量删除
+        $(".mdels").click(function () {
+            var obj = document.getElementsByName("ids");
+            var check_val = [];
+            for(k in obj){
+                if(obj[k].checked)
+                    check_val.push(obj[k].value);
+            }
+            if(check_val==""){
+                layer.alert("请选择你需要删除的选项",{icon:2});
+            }else {
+                layer.confirm("是否删除这 "+check_val.length+" 项数据？", {icon: 3}, function (index) {
+                    $.post("{{route('shop.deleteAll')}}", {ids: check_val, _token: "{{csrf_token()}}"}, function (data) {
+                        if (data = 1) {
+                            layer.alert("删除成功", {icon: 1}, function (index) {
+                                window.location.href = "{{route('shop.goods')}}";
+                            });
+                        }
+                    })
+
+                })
+            }
+        })
+        // 实现全选
+        $("#checkall").click(function () {
+            if(this.checked){
+                $("[name=ids]:checkbox").prop("checked",true);
+            }else{
+                $("[name=ids]:checkbox").prop("checked",false);
+            }
+        })
     </script>
 @endsection
