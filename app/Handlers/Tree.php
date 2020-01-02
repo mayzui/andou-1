@@ -101,7 +101,7 @@ final class Tree
             $str = "";
             if ($v['_level'] > 2) {
                 for ($i = 1; $i < $v['_level'] - 1; $i++) {
-                    $str .= "&emsp;│";
+                    $str .= "&emsp;&emsp;";
                 }
             }
             if ($v['_level'] != 1) {
@@ -109,7 +109,7 @@ final class Tree
                 if (isset($arr[$k + 1]) && $arr[$k + 1]['_level'] >= $arr[$k]['_level']) {
                     $arr[$k]['_name'] = $str . "&emsp;├─ " . $v['_html'] . $t;
                 } else {
-                    $arr[$k]['_name'] = $str . "&emsp;└─ " . $v['_html'] . $t;
+                    $arr[$k]['_name'] = $str . "&emsp;|─ " . $v['_html'] . $t;
                 }
             } else {
                 $arr[$k]['_name'] = $v[$title];
