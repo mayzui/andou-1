@@ -7,7 +7,24 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 class MerchantController extends Controller
-{ 
+{
+
+    public function __construct()
+    {
+        $all = request()->all();
+        $token=request()->header('token')??'';
+        if ($token!='') {
+            $all['token']=$token;
+        }
+        if (empty($all['uid']) || empty($all['token'])) {
+            return $this->rejson(202, '登陆失效');
+        }
+        $check = $this->checktoten($all['uid'], $all['token']);
+        if ($check['code'] == 202) {
+            return $this->rejson($check['code'], $check['msg']);
+        }
+    }
+
     /**
      * @api {post} /api/merchant/merchants 商家列表第一次请求
      * @apiName merchants
@@ -376,7 +393,7 @@ class MerchantController extends Controller
             empty($all['province_id']) ||
             empty($all['city_id']) ||
             empty($all['area_id'])){
-            return $this->rejson(201,'请输入用户id');
+            return $this->rejson(201,'参数不能为空');
         }
         $token=request()->header('token')??'';
         if ($token!='') {
@@ -395,10 +412,10 @@ class MerchantController extends Controller
             $data = [
                 'user_id' => $all['uid'],
                 'name' => $all['name'],
-                'banner_img' => $all['banner_img'],
-                'logo_img' => $all['logo_img'],
-                'management_img' => $all['management_img'],
-                'goods_img' => $all['goods_img'],
+                'banner_img' => $this->uploads($all['banner_img']),
+                'logo_img' => $this->uploads($all['logo_img']),
+                'management_img' => $this->uploads($all['management_img']),
+                'goods_img' => $this->uploads($all['goods_img']),
 
                 'desc' => $all['desc'],
                 'province_id' => $all['province_id'],
@@ -414,10 +431,10 @@ class MerchantController extends Controller
             $data = [
                 'user_id' => $all['uid'],
                 'name' => $all['name'],
-                'banner_img' => $all['banner_img'],
-                'logo_img' => $all['logo_img'],
-                'management_img' => $all['management_img'],
-                'door_img' => $all['door_img'],
+                'banner_img' => $this->uploads($all['banner_img']),
+                'logo_img' => $this->uploads($all['logo_img']),
+                'management_img' => $this->uploads($all['management_img']),
+                'goods_img' => $this->uploads($all['goods_img']),
 
                 'desc' => $all['desc'],
                 'province_id' => $all['province_id'],
@@ -433,11 +450,11 @@ class MerchantController extends Controller
             $data = [
                 'user_id' => $all['uid'],
                 'name' => $all['name'],
-                'banner_img' => $all['banner_img'],
-                'logo_img' => $all['logo_img'],
-                'management_img' => $all['management_img'],
-                'door_img' => $all['door_img'],
-                'goods_img' => $all['goods_img'],
+                'banner_img' => $this->uploads($all['banner_img']),
+                'logo_img' => $this->uploads($all['logo_img']),
+                'management_img' => $this->uploads($all['management_img']),
+                'door_img' => $this->uploads($all['door_img']),
+                'goods_img' => $this->uploads($all['goods_img']),
 
                 'desc' => $all['desc'],
                 'province_id' => $all['province_id'],
@@ -458,6 +475,27 @@ class MerchantController extends Controller
             return $this->rejson('200','当前入驻人数较多，请稍后再试');
         }
 
+    }
+
+    public function uploads($files)
+    {
+        // $files=$all['imgs'];
+        $count=count($files);
+        $msg=array();
+        // var_dump($files);exit;
+        foreach ($files as $k=>$v){
+            $type = $v->getClientOriginalExtension();
+            $path=$v->getPathname();
+            if($type == "png" || $type == "jpg"){
+                $newname = 'uploads/'.date ( "Ymdhis" ).rand(0,9999);
+                $url = $newname.'.'.$type;
+                $upload=move_uploaded_file($path,$url);
+                $msg[]=$url;
+            }else{
+                return 0;
+            }
+        }
+        return implode(',',$msg);
     }
     // W83tVnay3ZPCsMA
 }
