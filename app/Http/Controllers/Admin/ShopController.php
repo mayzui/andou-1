@@ -125,10 +125,12 @@ class ShopController extends BaseController
     public function shopMerchantOrder(){
         $all = \request() -> all();
         $list = DB::table('orders')
+            -> join('order_goods','orders.order_sn','=','order_goods.order_id')
             -> join('users','orders.user_id','=','users.id')
             -> where('orders.is_del',0)
-            -> where('orders.user_id',$all['id'])
-            -> select(['orders.id','orders.order_sn','orders.pay_way','orders.pay_money','orders.order_money','orders.status','orders.shipping_free','orders.remark','orders.auto_receipt','orders.pay_time','users.name'])
+            -> where('order_goods.merchant_id',$all['id'])
+            -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
+                'orders.pay_way','orders.remark','orders.status','users.name as user_name',])
             -> paginate(10);
         return $this->view('orders',['list'=>$list]);
     }
@@ -226,6 +228,70 @@ class ShopController extends BaseController
                         'value' => $all['attrvalue_'.$item.'']
                     ];
                 }
+            }
+            if(empty($data)){
+                // 新增
+                $model = new Goods();
+                $goodsCate = GoodsCate::with(['children'=>function($res){
+                    $res->with('children');
+                }])->where('pid','=',0)
+                    ->get();
+                // 根据获取的id 查询商品参数表
+                $goodssku = DB::table('goods_sku') -> where('goods_id',$all['goods_id']) -> get();
+                if(count($goodssku) != 0){
+                    foreach ($goodssku as $k =>$v){
+                        $a = json_decode($goodssku,true)[$k]['attr_value'];
+                        $goodssku_value[] = json_decode($a,true);
+                    }
+                    // 将三维数组转换成二维数组
+                    foreach ($goodssku_value as $v){
+                        $new_arr[] = $v[0]['value'];
+                    }
+                    // 将二维数组转换成一维数组
+                    $newarray = [];
+                    foreach($new_arr as $key=>$val){
+                        foreach ($val as $k=>$v){
+                            $newarray[$key]=$v;
+                        }
+                    }
+                    $old_arr = call_user_func_array('array_merge',$new_arr);
+                }else{
+                    $old_arr = [];
+                }
+                // 查询运费模板表
+                $express_modeldata = DB::table('express_model') -> get();
+                $level1 = GoodsCate::where('pid','=',0)->get();
+                $goodBrands = GoodBrands::select('id','name')->orderBy('id','asc')->get();
+                // 查询商品参数
+                $attrData = DB::table('goods_attr') -> get();
+                // 查询商品分类
+                $merchants_goods_type = DB::table('merchants_goods_type')
+                    -> where('is_del',1)
+                    -> where('merchant_id',Auth::id())
+                    -> select('id','name')
+                    -> get();
+                $a = DB::table('goods_attr_value') -> get();
+                $arr = [
+                    'goodsCate'=>$goodsCate,
+                    'goodBrands'=>$goodBrands,
+                    'attrData'=>$attrData,
+                    'merchants_goods_type'=>$merchants_goods_type,
+                    'attrvalueData'=>$a,
+                    'express_modeldata'=>$express_modeldata,
+                    'goods_id'=>$model->id,
+                    'goodssku'=> $old_arr,
+                    'goodsdata' =>(object)[
+                        'goods_brand_id'=>'',
+                        'is_hot'=>'',
+                        'is_bargain'=>'',
+                        'is_team_buy'=>'',
+                        'merchants_goods_type_id'=>'',
+                        'is_recommend'=>'',
+                        'dilivery'=>''
+                    ]
+                ];
+                flash('未选择参数') -> error();
+                return $this->view('addGoods',$arr);
             }
             foreach ($data as $k=>$v){
                 foreach ($v['value'] as $kk =>$item) {
@@ -714,16 +780,21 @@ class ShopController extends BaseController
         // 如果当前用户是商家，则查询当前商户的商品
         if($i){
             $list = DB::table('orders')
+                -> join('order_goods','orders.order_sn','=','order_goods.order_id')
+//            -> join('merchants','order_goods.merchant_id','=','merchants.id')
                 -> join('users','orders.user_id','=','users.id')
                 -> where('orders.is_del',0)
-                -> where('orders.user_id',$id)
-                -> select(['orders.id','orders.order_sn','orders.pay_way','orders.pay_money','orders.order_money','orders.status','orders.shipping_free','orders.remark','orders.auto_receipt','orders.pay_time','users.name'])
+                -> where('order_goods.merchant_id',$id)
+                -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
+                    'orders.pay_way','orders.remark','orders.status','users.name as user_name',])
                 -> paginate(10);
         }else{
             $list = DB::table('orders')
+                -> join('order_goods','orders.order_sn','=','order_goods.order_id')
                 -> join('users','orders.user_id','=','users.id')
                 -> where('orders.is_del',0)
-                -> select(['orders.id','orders.order_sn','orders.pay_way','orders.pay_money','orders.order_money','orders.status','orders.shipping_free','orders.remark','orders.auto_receipt','orders.pay_time','users.name'])
+                -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
+                    'orders.pay_way','orders.remark','orders.status','users.name as user_name',])
                 -> paginate(10);
         }
         return $this->view('orders',['list'=>$list]);

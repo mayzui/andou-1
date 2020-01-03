@@ -42,17 +42,17 @@
                             <th>总计金额</th>
                             <th>邮费</th>
                             <th>订单备注</th>
-                            <th>发票信息</th>
                             <th>支付时间</th>
                             <th>订单状态</th>
                             <th>操作</th>
                         </tr>
                         </thead>
+                        @if(count($list) > 0)
                         @foreach($list as $k => $item)
                             <tr>
                                 <td>{{$item->id}}</td>
                                 <td>{{$item->order_sn}}</td>
-                                <td>{{$item->name}}</td>
+                                <td>{{$item->user_name}}</td>
                                 <td>
                                     @if($item->pay_way == 1)
                                         微信支付
@@ -69,18 +69,9 @@
                                     @endif
                                 </td>
                                 <td>{{$item->pay_money}}</td>
-                                <td>{{$item->order_money}}</td>
+                                <td>{{$item->total}}</td>
                                 <td>{{$item->shipping_free}}</td>
                                 <td>{{$item->remark}}</td>
-                                <td>
-                                    @if($item->auto_receipt == 0)
-                                        不开发票
-                                    @elseif($item->auto_receipt == 1)
-                                        自动发票
-                                    @elseif($item->auto_receipt == 3)
-                                        客户发票
-                                    @endif
-                                </td>
                                 <td>{{$item->pay_time}}</td>
                                 <td>
                                     @if($item->status == 0)
@@ -107,6 +98,11 @@
                                 </td>
                             </tr>
                         @endforeach
+                            @else
+                            <tr>
+                                <td colspan="11">没有查询到相关数据</td>
+                            </tr>
+                        @endif
                         <tbody>
                     </table>
                     {{ $list }}

@@ -34,8 +34,7 @@
                             <th>地址</th>
                             <th>商户类型</th>
                             <th>是否认证</th>
-                            <th>创建时间</th>
-                            <th>更新时间</th>
+                            <th>申请时间</th>
                             <th>操作</th>
                         </tr>
                         </thead>
@@ -55,7 +54,6 @@
                                     @endif
                                 </td>
                                 <td>{{$item->created_at}}</td>
-                                <td>{{$item->updated_at}}</td>
                                 <td class="text-center">
                                     <div class="btn-group">
                                         <a href="{{route('merchants.information')}}?id={{$item->id}}"><button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 详情</button></a>

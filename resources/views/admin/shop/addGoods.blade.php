@@ -114,7 +114,7 @@
                                                 </div>
                                             </div>
                                             <div class="form-group">
-                                                <label class="col-sm-2 control-label">分类：</label>
+                                                <label class="col-sm-2 control-label">商品类目：</label>
                                                 <div class="col-sm-2">
                                                     <select class="form-control pull-left" id="level1" name="goods_cate_id" onchange="getChildren(this,1)">
                                                         @foreach($goodsCate as $item)

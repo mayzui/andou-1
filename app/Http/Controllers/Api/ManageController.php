@@ -11,11 +11,11 @@ class ManageController extends Controller
     {
         $all = request()->all();
         $token=request()->header('token')??'';
-        if ($token!='') {
+        if (!empty($token)) {
             $all['token']=$token;
         }
         if (empty($all['uid']) || empty($all['token'])) {
-            return $this->rejson(202, '登陆失效');
+            return $this->rejson(202, $token);
         }
         $check = $this->checktoten($all['uid'], $all['token']);
         if ($check['code'] == 202) {
@@ -153,7 +153,7 @@ class ManageController extends Controller
     {
         $all = request()->all();
         $res = DB::table('goods')->where('id',$all['id']);
-        if($res['is_sale'] == 1){
+        if($res['is_sale'] != 1){
             return $this->rejson('201','参数有误');
         }else{
             DB::table('goods')->where('id',$all['id'])->update(['is_sale'=>1]);
@@ -489,7 +489,7 @@ class ManageController extends Controller
         $re = [
             'desc'=>$all['desc'],
             'address'=>$all['address'],
-            'banner_img'=>$this->rejson($all['banner_img']),
+            'banner_img'=>$all['banner_img'],
             'name'=>$all['name'],
             'tel'=>$all['tel'],
             'return_address'=>$all['return_address'],
@@ -570,7 +570,7 @@ class ManageController extends Controller
             'store_num'=>$all['store_num'],
             'dilivery'=>$all['dilivery'],
             'attr_value'=>all['attr_value'],
-            'img'=>$this->rejson($all['img']),
+            'img'=>$all['img'],
             'album'=>$all['album'],
             'created_at'=>date('Y-m-d H:i:s',time()),
         ];
@@ -742,27 +742,6 @@ class ManageController extends Controller
         }else{
             return $this->rejson('201','参数有误');
         }
-    }
-
-    public function uploads($files)
-    {
-        // $files=$all['imgs'];
-        $count=count($files);
-        $msg=array();
-        // var_dump($files);exit;
-        foreach ($files as $k=>$v){
-            $type = $v->getClientOriginalExtension();
-            $path=$v->getPathname();
-            if($type == "png" || $type == "jpg"){
-                $newname = 'uploads/'.date ( "Ymdhis" ).rand(0,9999);
-                $url = $newname.'.'.$type;
-                $upload=move_uploaded_file($path,$url);
-                $msg[]=$url;
-            }else{
-                return 0;
-            }
-        }
-        return implode(',',$msg);
     }
 
 
