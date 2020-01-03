@@ -5,23 +5,25 @@ namespace App\Http\Controllers\Api;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+
 class ManageController extends Controller
 {
-    public function __construct()
-    {
-        $all = request()->all();
-        $token=request()->header('token')??'';
-        if (!empty($token)) {
-            $all['token']=$token;
-        }
-        if (empty($all['uid']) || empty($all['token'])) {
-            return $this->rejson(202, $token);
-        }
-        $check = $this->checktoten($all['uid'], $all['token']);
-        if ($check['code'] == 202) {
-            return $this->rejson($check['code'], $check['msg']);
-        }
-    }
+//    public function __construct()
+//    {
+//        $all = request()->all();
+//        $token=request()->header('token')??'';
+//        if ($token!='') {
+//            $all['token']=$token;
+//        }
+//        if (empty($all['uid']) || empty($all['token'])) {
+//            return $this->rejson(202, '登陆失效');
+//        }
+//        $check = $this->checktoten($all['uid'], $all['token']);
+//        if ($check['code'] == 202) {
+//            return $this->rejson($check['code'], $check['msg']);
+//        }
+//    }
 
 
     /**
@@ -130,7 +132,7 @@ class ManageController extends Controller
         if($res){
             return $this->rejson('200','删除成功');
         }else{
-            return $this->rejson('201','已删除');
+            return $this->rejson('202','已删除');
         }
     }
 
@@ -153,7 +155,7 @@ class ManageController extends Controller
     {
         $all = request()->all();
         $res = DB::table('goods')->where('id',$all['id']);
-        if($res['is_sale'] != 1){
+        if($res['is_sale'] == 1){
             return $this->rejson('201','参数有误');
         }else{
             DB::table('goods')->where('id',$all['id'])->update(['is_sale'=>1]);
@@ -237,6 +239,8 @@ class ManageController extends Controller
             ->where('merchant_type_id',$all['merchant_type_id'])
             ->select(['name','logo_img','stars_all'])
             ->first();
+        $data['today'] = DB::table('order_goods')->where('merchant_id',$all['id'])->where('created_at','>',date('Y-m-d 00:00:00', time()))->count();
+        $data['all'] = DB::table('order_goods')->where('merchant_id',$all['id'])->count();
         $data['payment'] = DB::table('order_goods')
             ->where('merchant_id',$all['id'])
             ->where('status',10)->count();
@@ -502,7 +506,7 @@ class ManageController extends Controller
             return $this->rejson('200','修改成功');
         }else{
             DB::rollback();//回滚
-            return $this->rejson(201,'修改失败');
+            return $this->rejson('201','修改失败');
         }
     }
 
@@ -569,7 +573,7 @@ class ManageController extends Controller
             'price'=>$all['price'],
             'store_num'=>$all['store_num'],
             'dilivery'=>$all['dilivery'],
-            'attr_value'=>all['attr_value'],
+            'attr_value'=>$all['attr_value'],
             'img'=>$all['img'],
             'album'=>$all['album'],
             'created_at'=>date('Y-m-d H:i:s',time()),
@@ -582,6 +586,7 @@ class ManageController extends Controller
      * @apiGroup menage
      * @apiParam {string} uid 用户id
      * @apiParam {string} token 验证登陆
+     * @apiParam {string} id 商家id
      * @apiParam {string} type 状态(非比传 10-未支付 20-已支付 40-已发货  50-交易成功（确认收货） 60-交易关闭（已评论）)
      * @apiParam {string} page 查询页码
      * @apiSuccessExample 参数返回:
@@ -627,12 +632,7 @@ class ManageController extends Controller
         }else{
             $where[]=['o.status',$all['type']];
         }
-        $res = DB::table('users')
-            ->join('merchants','users.id','=','merchants.user_id')
-            ->where('users.id',$all['uid'])
-            ->select(['merchants.id'])
-            ->first();
-        $where[]=['o.user_id',$res['id']];
+        $where[]=['o.merchant_id',$all['id']];
         $data=DB::table('order_goods as o')
             ->join('goods as g','g.id','=','o.goods_id')
             ->join('merchants as m','m.id','=','o.merchant_id')
@@ -640,7 +640,9 @@ class ManageController extends Controller
             ->where($where)
             ->select('g.img','g.name','o.goods_id','o.merchant_id','o.order_id','o.status','m.name as mname','m.logo_img','o.num','o.id','shipping_free','o.express_id','o.courier_num','s.price','pay_money','s.attr_value')
             ->get();
-
+        foreach ($data as $k => $v) {
+            $data[$k]->attr_value=json_decode($v->attr_value,1)[0]['value'];
+        }
         return $this->rejson(200,'查询成功',$data);
     }
     /**
@@ -649,7 +651,7 @@ class ManageController extends Controller
      * @apiGroup menage
      * @apiParam {string} uid 用户id
      * @apiParam {string} token 验证登陆
-     * @apiParam {string} order_id 订单id
+     * @apiParam {string} id 订单id
      * @apiParam {string} pay_money 修改后的价钱
      * @apiSuccessExample 参数返回:
      *     {
@@ -666,7 +668,7 @@ class ManageController extends Controller
             'pay_money'=>$all['pay_money'],
         ];
         $data = DB::table('orders')
-            ->where('id',$all['order_id'])
+            ->where('id',$all['id'])
             ->update($res);
         if($data){
             return $this->rejson(200,'修改完成');
@@ -744,6 +746,39 @@ class ManageController extends Controller
         }
     }
 
+    /**
+     * @api {post} /api/goods/uploads 图片上传
+     * @apiName uploads
+     * @apiGroup uploaded
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} token 验证登陆
+     * @apiParam {string} img 图片
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": "图片路径",
+     *       "msg":"上传成功"
+     *     }
+     */
 
+    public function uploads(Request $request)
+    {
+        if($request->method('post')){
+            $files = $request->allFiles();
+            if(is_array($files)){
+                foreach($files as $key => $value){
+                    $path = Storage::disk('uploads')->putFile('',$value);
+                }
+                if( $path ) {
+                    return ['code' => 200, 'msg' => '上传成功','data' => '/uploads/'.$path];
+                }
+                else {
+                    return $this->rejson('202','传输失败');
+                }
+            }
+        }else{
+            return $this->rejson('201','非法请求');
+        }
+    }
 
 }

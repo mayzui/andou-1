@@ -59,8 +59,9 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('users/envelopes', 'UsersController@envelopes');
      Route::post('users/envelopes_add', 'UsersController@envelopesAdd');
      Route::post('users/upmodel', 'UsersController@upmodel');
-     
 
+
+     Route::post('common/uploads','CommonController@uploads');
      Route::post('common/pay_ways', 'CommonController@payWays');
      Route::post('common/merchant_type', 'CommonController@merchantType');
      Route::any('common/wxnotify', 'CommonController@wxnotify');
@@ -111,6 +112,8 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('goods/store','ManageController@store');
      Route::post('goods/saveStore','ManageController@saveStore');
      Route::post('goods/merchants','ManageController@merchants');
+     Route::post('goods/uploads','ManageController@uploads');
+
           //商家详情
      Route::post('details/list','DetailsController@list');
      //房间类型
