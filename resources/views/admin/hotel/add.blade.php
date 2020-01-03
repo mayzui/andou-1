@@ -100,7 +100,7 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-sm-2 control-label"><em style="margin-right:5px;vertical-align: middle;color: #fe0000;">*</em>图片：</label>
+                        <label class="col-sm-2 control-label"><em style="margin-right:5px;vertical-align: middle;color: #fe0000;">*</em>房间图片：</label>
                         <div class="col-sm-6 add_div">
                             <p>
                                 <input type="file" name="choose-file[]" id="choose-file" multiple="multiple"/>

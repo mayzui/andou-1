@@ -472,7 +472,7 @@ class HotelController extends BaseController
                 }else{
                     $al = json_encode($all['choose_file']);
                 }
-                // 查询原来的值是否删除
+                // 查询原来的值是否删除了
                 $album = $img_array.$al;
             }
             if (empty($all['id'])) {
