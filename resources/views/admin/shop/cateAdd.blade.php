@@ -48,10 +48,10 @@
                     <div class="form-group">
                         <label class="col-sm-2 control-label">图片：</label>
                         <div class="layui-upload">
-                            <input type="hidden" name="img" id="img" value=""/>
-                            <button type="button" class="layui-btn" id="image">上传图片</button>
+                            <button type="button" class="layui-btn" id="image" style="display: none;">上传图片</button>
                             <div class="layui-upload-list">
-                                <img class="layui-upload-img" id="showImage">
+                                <input type="hidden" name="img" id="img" value=""/>
+                                <img class="layui-upload-img" id="showImage" src="{{loadEdition('/admin/images/default_image.jpg')}}" style="width:300px;height:300px;" >
                                 <p id="demoText"></p>
                             </div>
                         </div>
