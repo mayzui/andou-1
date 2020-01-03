@@ -495,7 +495,7 @@ class MerchantController extends Controller
                 return 0;
             }
         }
-        return implode(',',$msg);
+        return implode(',',$msg);  
     }
     // W83tVnay3ZPCsMA
 }
