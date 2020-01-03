@@ -1,6 +1,10 @@
 <!--右侧部分开始-->
 @php
     $admin = Auth::guard('admin')->user();
+    $id = $admin->id;   //用户id
+
+    $data = DB::table('merchants')->where("user_id",$id) -> first();
+    $sid =  $data->id;
 @endphp
 <link href="{{loadEdition('/admin/css/base.css')}}" rel="stylesheet">
 <link href="{{loadEdition('/admin/css/layui.css')}}" rel="stylesheet">
@@ -18,7 +22,7 @@
             <i class=""></i>
             <dl class="layui-nav-child">
                 <dd><a href="">修改密码</a></dd>
-                <dd><a href="">修改商户信息</a></dd>
+                <dd><a href="{{route('merchants.information')}}?id=@php echo $sid; @endphp">修改商户信息</a></dd>
             </dl>
         </div>
     </div>
