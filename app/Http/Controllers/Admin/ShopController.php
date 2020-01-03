@@ -566,14 +566,14 @@ class ShopController extends BaseController
     public function merchants_goods_type(){
         $id = Auth::id();
         // 判断该用户，是否开店 并且已经认证通过
-        $i = DB::table('merchants') -> where("user_id",$id) -> where("is_reg",1) -> first();
+        $i = DB::table('merchants') -> where("user_id",$id) -> where("is_reg",1) ->select('id') -> first();
         if(!empty($i)) {
             // 如果开店，则查询当前商户的信息
             // 链接数据库，查询商户的商品分类
             $data = DB::table('merchants_goods_type')
                 -> join('merchants','merchants_goods_type.merchant_id','=','merchants.id')
                 -> where('is_del',1)
-                -> where('merchant_id',$id)
+                -> where('merchant_id',$i->id)
                 -> select(['merchants.name as merchants_name','merchants_goods_type.id','merchants_goods_type.name'])
                 -> paginate(10);
         }else{
@@ -584,6 +584,7 @@ class ShopController extends BaseController
                 -> select(['merchants.name as merchants_name','merchants_goods_type.id','merchants_goods_type.name'])
                 -> paginate(10);
         }
+//        return dd($i);
         return $this->view('',['data'=>$data]);
     }
     // 新增 and 修改 商品分类
@@ -928,14 +929,17 @@ class ShopController extends BaseController
         $i = DB::table('merchants')
             -> where('user_id',$id)
             -> where('is_reg',1)
+            -> select('id')
             -> first();
         // 如果当前用户是商家，则查询当前商户的商品
         if($i){
             $goods = DB::table('goods')
                 -> join('merchants','goods.merchant_id','=','merchants.id')
-                -> where('merchants.user_id',$id)
+                -> where('goods.merchant_id',$i -> id)
                 -> where('is_del',0)
-                -> select(['merchants.name as merchant_name','goods.id','goods.pv','goods.created_at','goods.updated_at','goods.goods_cate_id','goods.img','goods.desc','goods.is_hot','goods.is_recommend','goods.is_sale','goods.is_bargain','goods.dilivery'])
+                -> select(['merchants.name as merchant_name','goods.id','goods.pv','goods.created_at','goods.updated_at',
+                    'goods.goods_cate_id','goods.name as goods_name','goods.img','goods.desc','goods.is_hot','goods.is_recommend','goods.is_sale',
+                    'goods.is_bargain','goods.dilivery'])
                 -> orderBy('goods.id','desc')
                 -> paginate(10);
             foreach ($goods as $k => $v){
@@ -952,7 +956,9 @@ class ShopController extends BaseController
             $goods = DB::table('goods')
                 -> join('merchants','goods.merchant_id','=','merchants.id')
                 -> where('is_del',0)
-                -> select(['merchants.name as merchant_name','goods.id','goods.name as goods_name','goods.pv','goods.created_at','goods.updated_at','goods.goods_cate_id','goods.img','goods.desc','goods.is_hot','goods.is_recommend','goods.is_sale','goods.is_bargain','goods.dilivery'])
+                -> select(['merchants.name as merchant_name','goods.id','goods.name as goods_name','goods.pv',
+                    'goods.created_at','goods.name as goods_name','goods.updated_at','goods.goods_cate_id','goods.img','goods.desc','goods.is_hot',
+                    'goods.is_recommend','goods.is_sale','goods.is_bargain','goods.dilivery'])
                 -> orderBy('goods.id','desc')
                 -> paginate(10);
             foreach ($goods as $k => $v){

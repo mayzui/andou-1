@@ -52,8 +52,9 @@ class IndexsController extends Controller
                 -> join('order_returns','orders.order_sn','=','order_returns.order_id')
                 -> join('users','orders.user_id','=','users.id')
                 -> join('refund_reason','order_returns.reason_id','=','refund_reason.id')
-                -> where('merchant_id',$id)
-                -> select(['order_returns.id as id','order_returns.order_id as order_id','users.name as user_name','order_returns.is_reg','order_returns.status','order_returns.content','refund_reason.name as retun_name'])
+                -> where('refund_reason.merchant_id',$id)
+                -> select(['order_returns.id as id','order_returns.order_id as order_id','users.name as user_name',
+                    'order_returns.is_reg','order_returns.status','order_returns.content','refund_reason.name as retun_name'])
                 -> paginate(10);
         }else{
             // 反之则为。管理员

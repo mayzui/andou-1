@@ -56,9 +56,8 @@ class RefundController extends Controller
      * @apiGroup refund
      * @apiParam {string} uid       用户id     （必填）
      * @apiParam {string} token     验证       （必填）
-     * @apiParam {string} order_id  订单id     （必填）
+     * @apiParam {string} order_goods_id  订单编号的id     （必填）
      * @apiParam {string} reason_id 退款原因id （必填）
-     * @apiParam {string} money     退款总金额 （必填）
      * @apiParam {string} content   退款说明   （选填）
      * @apiParam {string} image     图片       （选填）
      * @apiSuccessExample 参数返回:
@@ -76,15 +75,24 @@ class RefundController extends Controller
         if ($check['code']==202) {
             return $this->rejson($check['code'],$check['msg']);
         }
-        if (empty($all['order_id']) || empty($all['reason_id']) || empty($all['money']) ) {
-            return $this->rejson(201,'缺少必要参数');
+        if(empty($all['order_id'])){
+            return $this->rejson(201,'请输入订单id');
+        }else if(empty($all['order_goods_id'])){
+            return $this->rejson(201,'请输入订单编号的id');
+        }else if(empty($all['reason_id'])){
+            return $this->rejson(201,'请输入退款原因id');
         }
+        // 根据当前传入的订单编号的id，查询订单详情表中的订单金额
+        $id = DB::table("order_goods") -> where('id',$all['order_goods_id']) -> select('pay_money','merchant_id') -> first();
+
+        // 接收上传的图片
         $image[] = $all['image'];
         // 获取提交的数据
         $data = [
-            'order_id' => $all['order_id'],
-            'returns_amount' => $all['money'],
+            'returns_amount' => $id -> pay_money,
+            'merchant_id' => $id -> merchant_id,
             'reason_id' => $all['reason_id'],
+            'order_goods_id' => $all['order_goods_id'],
             'status' => 2,
             'content' => $all['content'] ? $all['content'] : '该用户没有填写退款说明',
             'image' => json_encode($image),
@@ -99,7 +107,7 @@ class RefundController extends Controller
         }else{
             return $this->rejson(200,'退款申请提交失败，请重试');
         }
-
+        // 3a2978315df6ac181b7b0220602416c6
     }
     /**
      * @api {post} /api/refund/return_goods 申请退货
@@ -107,7 +115,7 @@ class RefundController extends Controller
      * @apiGroup refund
      * @apiParam {string} uid       用户id     （必填）
      * @apiParam {string} token     验证       （必填）
-     * @apiParam {string} order_id  订单id     （必填）
+     * @apiParam {string} order_goods_id  订单详情id     （必填）
      * @apiSuccessExample 参数返回:
      *     {
      *       "code": "200",
@@ -123,20 +131,21 @@ class RefundController extends Controller
     public function return_goods(){
         $all = \request() -> all();
         $check=$this->checktoten($all['uid'],$all['token']);
-        if ($check['code']==201) {
+        if ($check['code']==202) {
             return $this->rejson($check['code'],$check['msg']);
         }
-        if (empty($all['order_id'])) {
+        if (empty($all['order_goods_id'])) {
             return $this->rejson(201,'缺少必要参数');
         }
         // 链接数据库，查询退货表
         $data = DB::table('order_returns')
             -> join('refund_reason','order_returns.reason_id','=','refund_reason.id')
             -> join('merchants','order_returns.merchant_id','=','merchants.id')
-            -> join('order_goods','order_returns.order_id','=','order_goods.order_id')
-            -> where('order_returns.order_id',$all['order_id'])
+            -> join('order_goods','order_returns.order_goods_id','=','order_goods.id')
+            -> where('order_goods_id',$all['order_goods_id'])
             -> select('created_time','consignee_realname','consignee_telphone','merchants.return_address','refund_reason.name as reason_name')
             -> first();
+//        $data->image=json_decode($data->image,1);
         return $this->rejson(200,'查询成功',$data);
     }
     /**
