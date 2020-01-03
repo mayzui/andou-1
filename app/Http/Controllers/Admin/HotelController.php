@@ -465,15 +465,17 @@ class HotelController extends BaseController
                     }
                 }
                 // 获取上传的图片路径
-                $img_array = json_encode($img_array);
+
                 if(empty($all['choose_file'])){
                     $al = "";
                 }else{
-                    $al = json_encode($all['choose_file']);
+                    $al = $all['choose_file'];
+                    $img_array=array_merge($img_array,$al);
                 }
                 // 查询原来的值是否删除
-                $album = $img_array.$al;
+                $album = json_encode($img_array);
             }
+            //var_dump($album);exit();
             if (empty($all['id'])) {
                 $save['user_id']=$admin->id;
                 $save['merchant_id']=Db::table('merchants')->where('user_id',$admin->id)->pluck('id')[0];
@@ -510,12 +512,14 @@ class HotelController extends BaseController
                     ->join('hotel_attr_value as hv','hr.id','=','hv.hotel_room_id')
                     ->where('hr.id',$all['id'])
                     ->first();
+
                 if (empty($data->desc)) {
                     $data->desc=array();
                 }else{
                     $data->desc=explode(',',$data->desc);
-                    $data->img=json_decode($data->img);
+                    $data->img=json_decode($data->img,1);
                 }
+                //var_dump($data->img);exit();
             }
 
             $desc=Db::table('hotel_faci')->get();
