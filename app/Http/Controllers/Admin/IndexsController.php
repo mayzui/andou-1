@@ -11,6 +11,34 @@ class IndexsController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    /*
+     *      修改密码
+     * */
+    public function updataPwd(){
+        $all = request() -> all();
+        $admin = \Auth::guard('admin')->user();
+        // 判断输入的旧密码是否正确
+        $isCheck = \Hash::check($all['old_pwd'],$admin -> password);
+        if($isCheck){
+            // 判断新密码与确认密码是否相同
+            if($all['new_pwd'] == $all['con_pwd']){
+                $data = [
+                    'password' => \Hash::make($all['new_pwd'])
+                ];
+                $i = \DB::table('users') -> where('id',$all['id']) -> update($data);
+                if($i){
+                    return 1;
+                }else{
+                    return "密码修改失败，请稍后再试";
+                }
+            }else{
+                return "新密码与确认密码不同，请重新输入。";
+            }
+        }else{
+            return "旧密码错误，请重新输入。";
+        }
+    }
+
     public function index()
     {
         return view('admin.indexs.index');
