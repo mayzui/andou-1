@@ -13,6 +13,8 @@ class HotelController extends Controller
      * @apiGroup hotel
      * @apiParam {string} uid 用户id
      * @apiParam {string} token 验证登陆
+     * @apiParam {string} type 订单状态（0-取消订单 10-未支付订单 20-已支付(待入住) 30 已入住 40-已完成(离店) 50-已评价）
+     * @apiParam {string} page 分页页码
      * @apiSuccessExample 参数返回:
      *     {
      *       "code": "200",
@@ -30,6 +32,12 @@ class HotelController extends Controller
      */
     public function order(){
         $all=request()->all();
+        $num=8;
+        if (empty($all['page'])) {
+            $pages=0;
+        }else{
+            $pages=($all['page']-1)*$num;
+        }
         $token=request()->header('token')??'';
         if ($token!='') {
             $all['token']=$token;
@@ -41,16 +49,20 @@ class HotelController extends Controller
         if ($check['code']==202) {
            return $this->rejson($check['code'],$check['msg']);
         }
-        $all=request()->all();
+        $where[]=['books.user_id',$all['uid']];
+        if (!empty($all['type'])) {
+            $where[]=['books.status',$all['type']];
+        }
         // 查询酒店订单
         $data = DB::table('books')
-            -> join('orders','books.book_sn','=','orders.order_sn')
             -> join('merchants','books.merchant_id','=','merchants.id')
             -> join('hotel_room','books.hotel_room_id','=','hotel_room.id')
             -> where('hotel_room.status',1)
-            -> where('books.user_id',$all['uid'])
-            -> select(['books.book_sn','merchants.logo_img','merchants.name as merchants_name','orders.status','hotel_room.img','hotel_room.house_name','hotel_room.price'])
-            -> get();
+            -> where($where)
+            -> select(['books.book_sn','merchants.logo_img','merchants.name as merchants_name','books.status','hotel_room.img','hotel_room.house_name','hotel_room.price'])
+            ->offset($pages)
+            ->limit($num)
+            ->get();
         return $this->rejson(200,'查询成功',$data);
     }
     /**

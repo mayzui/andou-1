@@ -7,7 +7,42 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 class CommonController extends Controller
-{   
+{
+    /**
+     * @api {post} /api/goods/uploads 图片上传
+     * @apiName uploads
+     * @apiGroup uploaded
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} token 验证登陆
+     * @apiParam {string} img 图片
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": "图片路径",
+     *       "msg":"上传成功"
+     *     }
+     */
+
+    public function uploads(Request $request)
+    {
+        if($request->method('post')){
+            $files = $request->allFiles();
+            if(is_array($files)){
+                foreach($files as $key => $value){
+                    $path = Storage::disk('uploads')->putFile('',$value);
+                }
+                if( $path ) {
+                    return ['code' => 200, 'msg' => '上传成功','data' => '/uploads/'.$path];
+                }
+                else {
+                    return $this->rejson('202','传输失败');
+                }
+            }
+        }else{
+            return $this->rejson('201','非法请求');
+        }
+    }
+
     /**
      * @api {post} /api/common/pay_ways 支付方式
      * @apiName pay_ways

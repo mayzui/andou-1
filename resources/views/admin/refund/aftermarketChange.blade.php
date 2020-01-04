@@ -49,13 +49,13 @@
                     <div class="form-group">
                         <label class="col-sm-2 control-label">订单号：</label>
                         <div class="input-group col-sm-2">
-                            <input type="text" class="form-control" name="order_id" value="{{ $orderdata -> order_id or '' }}" readonly required data-msg-required="订单号">
+                            <input type="text" class="form-control" name="order_id" value="{{ $order_money -> order_id or '' }}" readonly required data-msg-required="订单号">
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="col-sm-2 control-label">订单总金额：</label>
                         <div class="input-group col-sm-2">
-                            <input type="text" class="form-control" name="order_money" value="{{ $order_money -> order_money or '' }}" readonly required data-msg-required="订单总金额">
+                            <input type="text" class="form-control" name="order_money" value="{{ $order_money -> pay_money or '' }}" readonly required data-msg-required="订单总金额">
                         </div>
                     </div>
                     <div class="form-group">

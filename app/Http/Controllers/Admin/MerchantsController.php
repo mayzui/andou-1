@@ -14,6 +14,34 @@ class MerchantsController extends BaseController
      *
      * @return \Illuminate\Http\Response
      */
+    /*
+     *      修改商户是否推荐
+     * */
+    public function updateStatus(){
+        // 获取提交的数据
+        $all = \request() -> all();
+        // 根据当前id 查询数据库中的内容
+        $recommend = DB::table('merchants') -> where('id',$all['id']) -> select('recommend') -> first();
+        if($recommend -> recommend == 1){
+            $data = [
+                'recommend' => 0
+            ];
+        }else{
+            $data = [
+                'recommend' => 1
+            ];
+        }
+        // 链接数据库修改数据库中的内容
+        $i = DB::table('merchants') -> where('id',$all['id']) -> update($data);
+        if($i){
+            flash("状态更新成功") -> success();
+            return redirect()->route('merchants.index');
+        }else{
+            flash("状态更新失败，请稍后重试") -> error();
+            return redirect()->route('merchants.index');
+        }
+    }
+
     /**商户列表
      * [index description]
      * @return [type] [description]
@@ -75,6 +103,7 @@ class MerchantsController extends BaseController
             }
             $data=DB::table('merchants')
                 ->where($where)
+                -> orderBy('is_reg')
                 ->paginate(10);
             foreach ($data as $key => $value) {
                 $merchant_type=Db::table('merchant_type')->where('id',$value->merchant_type_id)->pluck('type_name');
@@ -93,6 +122,7 @@ class MerchantsController extends BaseController
             $wheres['type']=DB::table('merchant_type')->get();
             $wheres['where']=$screen;
         }
+//        return dd($data);
         return $this->view('',['data'=>$data,'i'=>$i],['wheres'=>$wheres]);
     }
 

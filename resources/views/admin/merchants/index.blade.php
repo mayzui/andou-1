@@ -34,8 +34,7 @@
                             <th>地址</th>
                             <th>商户类型</th>
                             <th>是否认证</th>
-                            <th>创建时间</th>
-                            <th>更新时间</th>
+                            <th>申请时间</th>
                             <th>操作</th>
                         </tr>
                         </thead>
@@ -50,15 +49,24 @@
                                 <td>{{$item->merchant_type_id}}</td>
                                 <td>@if($item->is_reg==1)
                                         <p style="color: green">已认证</p>
-                                    @else
+                                    @elseif($item->is_reg==0)
                                         <p style="color: blue">未认证</p>
+                                        @else
+                                        <p style="color: red">已驳回</p>
                                     @endif
                                 </td>
                                 <td>{{$item->created_at}}</td>
-                                <td>{{$item->updated_at}}</td>
                                 <td class="text-center">
                                     <div class="btn-group">
+                                        @if($item->is_reg==1)
+                                            @if($item -> recommend ==1)
+                                                <a onclick="del({{$item->id}})"><button class="btn btn-secondary btn-xs" type="button"><i class="fa fa-ban"></i> 取消推荐</button></a>
+                                            @else
+                                                <a onclick="del({{$item->id}})"><button class="btn btn-success btn-xs" type="button"><i class="fa fa-check"></i> 设为推荐</button></a>
+                                            @endif
+                                        @endif
                                         <a href="{{route('merchants.information')}}?id={{$item->id}}"><button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 详情</button></a>
+
                                         @if(empty($i))
                                         @if($item->is_reg==1)
                                             <a href="{{route('merchants.reg')}}?id={{$item->id}}&is_reg=0"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o"></i> 禁用</button></a>
@@ -77,4 +85,13 @@
         </div>
         <div class="clearfix"></div>
     </div>
+    <script type="text/javascript">
+        function del(e) {
+            var id = e;
+            layer.alert("是否更改当前状态？",{icon:3},function (index) {
+                location.href="{{route('merchants.updateStatus')}}?id="+id;
+                layer.close(index);
+            });
+        }
+    </script>
 @endsection

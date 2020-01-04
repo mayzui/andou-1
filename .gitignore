@@ -4,3 +4,8 @@
 .env
 .env.example
 /.idea
+/app/Http/apidoc.json
+/app/Http/apidoc.md
+/.gitignore
+/public/.htaccess
+/public/*.htaccess

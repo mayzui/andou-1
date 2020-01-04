@@ -13,6 +13,7 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::match(['get','post'],'merchants/industry_add','MerchantsController@industryAdd')->name('merchants.industry_add');
         Route::get('merchants/industry_del','MerchantsController@industryDel')->name('merchants.industry_del');
         Route::match(['get','post'],'merchants/information','MerchantsController@information')->name('merchants.information');
+        Route::get('merchants/updateStatus','MerchantsController@updateStatus')->name('merchants.updateStatus');
         //酒店管理
         Route::match(['get','post'],'hotel/index','HotelController@index')->name('hotel.index');
         Route::get('hotel/faci','HotelController@faci')->name('hotel.faci');

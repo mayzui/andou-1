@@ -49,12 +49,8 @@
                         </tr>
                     @endforeach
                     <tr>
-                        <td colspan="{{ count($dataname)+1 }}">
-                            <div class="form-group">
-                                <div class="col-sm-12 col-sm-offset-2">
-                                    <button class="btn btn-primary" type="submit" ><i class="fa fa-check"></i>&nbsp;保 存</button>
-                                </div>
-                            </div>
+                        <td colspan="{{ count($dataname)+4 }}">
+                            <button class="btn btn-primary" type="submit" ><i class="fa fa-check"></i>&nbsp;保 存</button>
                         </td>
                     </tr>
                     </tbody>

@@ -20,17 +20,16 @@ class IndexsController extends Controller
     {
         $id = \Auth::id();
         // 判断该用户，是否开店 并且已经认证通过
-        $i = \DB::table('merchants') -> where("user_id",$id) -> where("is_reg",1) -> first();
+        $i = \DB::table('merchants') -> where("user_id",$id) -> where("is_reg",1) ->select('id') -> first();
         if(!empty($i)) {
             // 如果开店，则查询当前商户的信息
             // 查询总评论
             $merchants_comments = \DB::table('order_commnets')
-                -> join('users','order_commnets.user_id','=','users.id')     // 链接用户表
-                -> join('goods','order_commnets.goods_id','=','goods.id')     // 链接商品表
-                -> where('type',2)
-                -> where('merchants_id',$id)
-                -> where('order_commnets.is_del',0)
-                -> select(['order_commnets.id','users.name as username','goods.name as goodsname','stars','order_commnets.content','order_commnets.created_at'])
+//                -> join('users','order_commnets.user_id','=','users.id')     // 链接用户表
+//                -> join('goods','order_commnets.goods_id','=','goods.id')     // 链接商品表
+                -> where('order_commnets.type',2)
+//                -> where('order_commnets.is_del',0)
+//                -> select(['order_commnets.id','users.name as username','goods.name as goodsname','stars','order_commnets.content','order_commnets.created_at'])
                 -> paginate(10);
             // 查询商品个数
             $merchants_goods = \DB::table('goods')
@@ -48,22 +47,24 @@ class IndexsController extends Controller
                 -> select(['orders.id','orders.order_sn','orders.pay_way','orders.pay_money','orders.order_money','orders.status','orders.shipping_free','orders.remark','orders.auto_receipt','orders.pay_time','users.name'])
                 -> paginate(10);
             // 查询售后服务
-            $merchants_returns =\DB::table('orders')
-                -> join('order_returns','orders.order_sn','=','order_returns.order_id')
-                -> join('users','orders.user_id','=','users.id')
+            $merchants_returns =\DB::table('order_goods')
+                -> join('order_returns','order_goods.id','=','order_returns.order_goods_id')
+                -> join('users','order_goods.user_id','=','users.id')
                 -> join('refund_reason','order_returns.reason_id','=','refund_reason.id')
-                -> where('merchant_id',$id)
-                -> select(['order_returns.id as id','order_returns.order_id as order_id','users.name as user_name','order_returns.is_reg','order_returns.status','order_returns.content','refund_reason.name as retun_name'])
+                -> where('order_goods.merchant_id',$id)
+                -> select('order_goods.id','order_goods.order_id','users.name as user_name','refund_reason.name as retun_name',
+                    'order_returns.content','order_returns.is_reg','order_returns.status')
                 -> paginate(10);
+
         }else{
             // 反之则为。管理员
             // 查询，商城评论
             $merchants_comments = \DB::table('order_commnets')
-                -> join('users','order_commnets.user_id','=','users.id')     // 链接用户表
-                -> join('goods','order_commnets.goods_id','=','goods.id')     // 链接商品表
+//                -> join('users','order_commnets.user_id','=','users.id')     // 链接用户表
+//                -> join('goods','order_commnets.goods_id','=','goods.id')     // 链接商品表
                 -> where('type',2)
-                -> where('order_commnets.is_del',0)
-                -> select(['order_commnets.id','users.name as username','goods.name as goodsname','stars','order_commnets.content','order_commnets.created_at'])
+//                -> where('order_commnets.is_del',0)
+//                -> select(['order_commnets.id','users.name as username','goods.name as goodsname','stars','order_commnets.content','order_commnets.created_at'])
                 -> paginate(10);
             // 查询商品个数
             $merchants_goods = \DB::table('goods')
@@ -79,11 +80,12 @@ class IndexsController extends Controller
                 -> select(['orders.id','orders.order_sn','orders.pay_way','orders.pay_money','orders.order_money','orders.status','orders.shipping_free','orders.remark','orders.auto_receipt','orders.pay_time','users.name'])
                 -> paginate(10);
             // 查询售后服务
-            $merchants_returns =\DB::table('orders')
-                -> join('order_returns','orders.order_sn','=','order_returns.order_id')
-                -> join('users','orders.user_id','=','users.id')
+            $merchants_returns =\DB::table('order_goods')
+                -> join('order_returns','order_goods.id','=','order_returns.order_goods_id')
+                -> join('users','order_goods.user_id','=','users.id')
                 -> join('refund_reason','order_returns.reason_id','=','refund_reason.id')
-                -> select(['order_returns.id as id','order_returns.order_id as order_id','users.name as user_name','order_returns.is_reg','order_returns.status','order_returns.content','refund_reason.name as retun_name'])
+                -> select('order_goods.id','order_goods.order_id','users.name as user_name','refund_reason.name as retun_name',
+                    'order_returns.content','order_returns.is_reg','order_returns.status')
                 -> paginate(10);
         }
         // 查询商城商家个数

@@ -44,7 +44,10 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('hotel/hotellist', 'HotelController@hotellist');
      Route::post('htorder/settlement', 'HtorderController@settlement');
      Route::post('htorder/add_order', 'HtorderController@addOrder');
-     
+     Route::post('htorder/orderdatails', 'HtorderController@orderdatails');
+     Route::post('htorder/refund_reason', 'HtorderController@refundReason');
+     Route::post('htorder/refund', 'HtorderController@refund');
+
      Route::post('Usersaddress/district', 'UsersaddressController@district');
      Route::post('Usersaddress/address_add', 'UsersaddressController@addressAdd');
      Route::post('Usersaddress/address','UsersaddressController@address');
@@ -58,8 +61,9 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('users/envelopes', 'UsersController@envelopes');
      Route::post('users/envelopes_add', 'UsersController@envelopesAdd');
      Route::post('users/upmodel', 'UsersController@upmodel');
-     
 
+
+     Route::post('common/uploads','CommonController@uploads');
      Route::post('common/pay_ways', 'CommonController@payWays');
      Route::post('common/merchant_type', 'CommonController@merchantType');
      Route::any('common/wxnotify', 'CommonController@wxnotify');
@@ -80,6 +84,8 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('order/wx_pay', 'OrderController@wxPay');
      Route::post('order/pay', 'OrderController@pay');
      Route::post('order/express', 'OrderController@express');
+     Route::post('order/confirm', 'OrderController@confirm');
+     
 
      Route::post('login/login', 'LoginController@login');
      Route::post('login/send', 'LoginController@send');
@@ -87,7 +93,7 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('login/login_p', 'LoginController@loginP');
      Route::post('login/reg_p', 'LoginController@regP');
      Route::post('login/forget', 'LoginController@forget');
-
+     Route::any('login/wxlogin', 'LoginController@wxlogin');
 
      //商品管理
      Route::post('goods/manage','ManageController@index');
@@ -108,10 +114,16 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('goods/store','ManageController@store');
      Route::post('goods/saveStore','ManageController@saveStore');
      Route::post('goods/merchants','ManageController@merchants');
+     Route::post('goods/uploads','ManageController@uploads');
+
           //商家详情
      Route::post('details/list','DetailsController@list');
      //房间类型
      Route::post('details/hotelSel','DetailsController@hotelSel');
      //用户评论
      Route::post('details/commnets','DetailsController@commnets');
+     //房间类型列表
+     Route::post('details/room_list','DetailsController@room_list');
+     //评论添加
+     Route::post('details/addcomment','DetailsController@addcomment');
 });
