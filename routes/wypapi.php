@@ -56,6 +56,7 @@ Route::group(['namespace' => 'Api'], function () {
 
     // 酒店商家
     Route::post('hotel/order ', 'HotelController@order');    // 待入住订单
+    Route::post('order/wait_goods ', 'OrderController@wait_goods');    // 待收货
 
 
 

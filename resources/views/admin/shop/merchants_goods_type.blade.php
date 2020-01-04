@@ -31,21 +31,21 @@
                         </thead>
                         <tbody>
                         @if(count($data) > 0)
-                        @foreach($data as $k => $item)
-                            <tr>
-{{--                                <td><input type="checkbox" name="ids" value="{{$item->id}}" /></td>--}}
-                                <td>{{$item}}</td>
-{{--                                <td>{{$item->merchants_name}}</td>--}}
-{{--                                <td>{{$item->name}}</td>--}}
+                            @foreach($data as $k => $item)
+                                <tr>
+                                    <td><input type="checkbox" name="ids" value="{{$item->id}}" /></td>
+                                    <td>{{$item->id}}</td>
+                                    <td>{{$item->merchants_name}}</td>
+                                    <td>{{$item->name}}</td>
 
-{{--                                <td>--}}
-{{--                                    <a href="{{route('shop.merchants_goods_typeChange')}}?id={{$item->id}}">--}}
-{{--                                        <button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 修改</button>--}}
-{{--                                    </a>--}}
-{{--                                    <a onclick="del({{$item->id}})"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o"></i> 删除</button></a>--}}
-{{--                                </td>--}}
-                            </tr>
-                        @endforeach
+                                    <td>
+                                        <a href="{{route('shop.merchants_goods_typeChange')}}?id={{$item->id}}">
+                                            <button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 修改</button>
+                                        </a>
+                                        <a onclick="del({{$item->id}})"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o"></i> 删除</button></a>
+                                    </td>
+                                </tr>
+                            @endforeach
                             @else
                             <tr>
                                 <th colspan="4">暂时没有查询到数据</th>

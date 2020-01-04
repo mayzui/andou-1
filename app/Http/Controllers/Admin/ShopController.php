@@ -516,21 +516,7 @@ class ShopController extends BaseController
                 -> select(['id','merchants_name','name','pid'])
                 -> paginate(10);
         }
-      $s=  array_map('get_object_vars', $data);
-var_dump($s);die;
-        $json = json_encode($data);
-        $red  =  json_decode($json,true);
-        $data = $this->tree($red['data'],0);
-//        $ref = json_encode($red);
-//        $data = json_decode($ref);
-//        var_dump($data);die;
-//        foreach ($data as $k=>$v){
-//            var_dump($v['id']);
-//        }
-//        die;
-
         return $this->view('',['data'=>$data]);
-
     }
 
     /**
@@ -906,14 +892,18 @@ var_dump($s);die;
         $i = DB::table('merchants')
             -> where('user_id',$id)
             -> where('is_reg',1)
+            -> select('id')
             -> first();
+
         // 如果当前用户是商家，则查询当前商户的商品
         if($i){
             $goods = DB::table('goods')
                 -> join('merchants','goods.merchant_id','=','merchants.id')
-                -> where('merchants.user_id',$id)
+                -> where('goods.merchant_id',$i -> id)
                 -> where('is_del',0)
-                -> select(['merchants.name as merchant_name','goods.id','goods.pv','goods.created_at','goods.updated_at','goods.goods_cate_id','goods.img','goods.desc','goods.is_hot','goods.is_recommend','goods.is_sale','goods.is_bargain','goods.dilivery'])
+                -> select(['merchants.name as merchant_name','goods.id','goods.pv','goods.created_at','goods.updated_at',
+                    'goods.goods_cate_id','goods.name as goods_name','goods.img','goods.desc','goods.is_hot','goods.is_recommend','goods.is_sale',
+                    'goods.is_bargain','goods.dilivery','goods.volume','goods.price'])
                 -> orderBy('goods.id','desc')
                 -> paginate(10);
             foreach ($goods as $k => $v){
@@ -930,7 +920,9 @@ var_dump($s);die;
             $goods = DB::table('goods')
                 -> join('merchants','goods.merchant_id','=','merchants.id')
                 -> where('is_del',0)
-                -> select(['merchants.name as merchant_name','goods.id','goods.name as goods_name','goods.pv','goods.created_at','goods.updated_at','goods.goods_cate_id','goods.img','goods.desc','goods.is_hot','goods.is_recommend','goods.is_sale','goods.is_bargain','goods.dilivery'])
+                -> select(['merchants.name as merchant_name','goods.id','goods.name as goods_name','goods.pv',
+                    'goods.created_at','goods.name as goods_name','goods.updated_at','goods.goods_cate_id','goods.img','goods.desc','goods.is_hot',
+                    'goods.is_recommend','goods.is_sale','goods.is_bargain','goods.dilivery','goods.volume','goods.price'])
                 -> orderBy('goods.id','desc')
                 -> paginate(10);
             foreach ($goods as $k => $v){
@@ -944,7 +936,8 @@ var_dump($s);die;
                 $goods[$k]->goods_cate_id=implode(',',$name);
             }
         }
-        return $this->view('goods',['list'=>$goods]);
+        $goods_sku = DB::select("select goods_id,SUM(store_num) as total from `goods_sku` group by `goods_id`");
+        return $this->view('goods',['list'=>$goods,'goods_sku'=>json_decode(json_encode($goods_sku),true)]);
     }
 
     // 跳转商品新增界面
