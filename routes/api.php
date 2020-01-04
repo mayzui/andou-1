@@ -42,6 +42,8 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('hotel/cate', 'HotelController@cate');
      Route::post('hotel/condition', 'HotelController@condition');
      Route::post('hotel/hotellist', 'HotelController@hotellist');
+     Route::post('hotel/need', 'HotelController@need');
+     
      Route::post('htorder/settlement', 'HtorderController@settlement');
      Route::post('htorder/add_order', 'HtorderController@addOrder');
      Route::post('htorder/orderdatails', 'HtorderController@orderdatails');
@@ -62,14 +64,13 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('users/envelopes_add', 'UsersController@envelopesAdd');
      Route::post('users/upmodel', 'UsersController@upmodel');
 
-
      Route::post('common/uploads','CommonController@uploads');
      Route::post('common/pay_ways', 'CommonController@payWays');
      Route::post('common/merchant_type', 'CommonController@merchantType');
      Route::any('common/wxnotify', 'CommonController@wxnotify');
      Route::any('common/district', 'CommonController@district');
      Route::any('common/wxnotifyhotel', 'CommonController@wxnotifyhotel');
-     
+
      Route::post('order/details', 'OrderController@details');
 
      Route::post('cart/index', 'CartController@index');
@@ -94,7 +95,8 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('login/reg_p', 'LoginController@regP');
      Route::post('login/forget', 'LoginController@forget');
      Route::any('login/wxlogin', 'LoginController@wxlogin');
-
+     Route::post('login/bindmobile', 'LoginController@bindmobile');
+     
      //商品管理
      Route::post('goods/manage','ManageController@index');
      Route::post('goods/manageDel','ManageController@manageDel');
@@ -126,4 +128,15 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('details/room_list','DetailsController@room_list');
      //评论添加
      Route::post('details/addcomment','DetailsController@addcomment');
+
+     Route::post('gourmet/delicious','GourmetController@delicious');
+     Route::post('gourmet/list','GourmetController@list');
+     Route::post('gourmet/details','GourmetController@details');
+     Route::post('gourmet/reserve_list','GourmetController@reserve_list');
+     Route::post('gourmet/dishtype','GourmetController@dishtype');
+     Route::post('gourmet/dishes','GourmetController@dishes');
+     Route::post('gourmet/comment','GourmetController@comment');
+     Route::post('gourmet/booking','GourmetController@booking');
+     Route::post('gourmet/shopping_num','GourmetController@shopping_num');
+     Route::post('gourmet/add_foods','GourmetController@add_foods');
 });
