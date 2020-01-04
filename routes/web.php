@@ -119,6 +119,7 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('shop/goodsAdd','ShopController@goods')->name('shop.goodsAdd');
         Route::get('foods/information','FoodsController@information')->name('foods.information');
         Route::get('foods/information1','FoodsController@information')->name('hotel.books');
+        Route::post('admins/updpwd','AdminsController@updPwd')->name('hotel.pwd');  //修改密码
 
         // 活动
         Route::get('shop/activity','ShopController@activity')->name('shop.activity');

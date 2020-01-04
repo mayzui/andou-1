@@ -507,28 +507,19 @@ class ShopController extends BaseController
             $data = DB::table('merchants_goods_type')
                 -> where('is_del',1)
                 -> where('merchant_id',$i->id)
-                -> select(['id','merchants_name','name','pid'])
+                -> select(['id','merchants_name','name','pid','num'])
                 -> paginate(10);
         }else{
             // 链接数据库，查询商户的商品分类
             $data = DB::table('merchants_goods_type')
                 -> where('is_del',1)
-                -> select(['id','merchants_name','name','pid'])
+                -> select(['id','merchants_name','name','pid','num'])
                 -> paginate(10);
         }
-      $s=  array_map('get_object_vars', $data);
-var_dump($s);die;
         $json = json_encode($data);
-        $red  =  json_decode($json,true);
-        $data = $this->tree($red['data'],0);
-//        $ref = json_encode($red);
-//        $data = json_decode($ref);
+        $data = json_decode($json,true);
+        $data = Tree::tree($data['data'],'name','id','pid');
 //        var_dump($data);die;
-//        foreach ($data as $k=>$v){
-//            var_dump($v['id']);
-//        }
-//        die;
-
         return $this->view('',['data'=>$data]);
 
     }
@@ -555,20 +546,7 @@ var_dump($s);die;
               DB::rollBack();
           }
       }
-
-      public function tree($red,$pid)
-      {
-          $list = [];
-          foreach($red  as $k=>$v)
-          {
-              if($v['pid']==$pid){
-                  $v['son']=$this->tree($red,$v['id']);
-                  $list[] = $v;
-              }
-          }
-          return $list;
-      }
-
+      
     // 新增 and 修改 商品分类
     public function merchants_goods_typeChange(){
         $all = \request() -> all();

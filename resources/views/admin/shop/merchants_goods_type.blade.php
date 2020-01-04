@@ -26,6 +26,7 @@
                             <th>分类ID</th>
                             <th>商家名称</th>
                             <th>分类名称</th>
+                            <th>产品数</th>
                             <th>操作</th>
                         </tr>
                         </thead>
@@ -33,17 +34,17 @@
                         @if(count($data) > 0)
                         @foreach($data as $k => $item)
                             <tr>
-{{--                                <td><input type="checkbox" name="ids" value="{{$item->id}}" /></td>--}}
-                                <td>{{$item}}</td>
-{{--                                <td>{{$item->merchants_name}}</td>--}}
-{{--                                <td>{{$item->name}}</td>--}}
-
-{{--                                <td>--}}
-{{--                                    <a href="{{route('shop.merchants_goods_typeChange')}}?id={{$item->id}}">--}}
-{{--                                        <button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 修改</button>--}}
-{{--                                    </a>--}}
-{{--                                    <a onclick="del({{$item->id}})"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o"></i> 删除</button></a>--}}
-{{--                                </td>--}}
+                                <td><input type="checkbox" name="ids" value="{{$item['id']}}" /></td>
+                                <td>{{$item['id']}}</td>
+                                <td>{{$item['merchants_name']}}</td>
+                                <td>{{$item['_name']}}</td>
+                                <td>{{$item['num']}}</td>
+                                <td>
+                                    <a href="{{route('shop.merchants_goods_typeChange')}}?id={{$item['id']}}">
+                                        <button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 修改</button>
+                                    </a>
+                                    <a onclick="del({{$item['id']}})"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o"></i> 删除</button></a>
+                                </td>
                             </tr>
                         @endforeach
                             @else
@@ -53,7 +54,6 @@
                         @endif
                         </tbody>
                     </table>
-                    {{$data}}
                 </form>
             </div>
         </div>
