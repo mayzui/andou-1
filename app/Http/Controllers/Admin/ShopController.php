@@ -507,7 +507,7 @@ class ShopController extends BaseController
             $data = DB::table('merchants_goods_type')
                 -> join('merchants','merchants_goods_type.merchant_id','=','merchants.id')
                 -> where('is_del',1)
-                -> where('merchant_id',$id)
+                -> where('merchant_id',$i->id)
                 -> select(['merchants.name as merchants_name','merchants_goods_type.id','merchants_goods_type.name'])
                 -> paginate(10);
         }else{
@@ -518,8 +518,58 @@ class ShopController extends BaseController
                 -> select(['merchants.name as merchants_name','merchants_goods_type.id','merchants_goods_type.name'])
                 -> paginate(10);
         }
-        return $this->view('',['data'=>$data]);
+
+        $res = DB::select("select * from merchants_goods_type");
+        $json = json_encode($res);
+        $red  =  json_decode($json,true);
+        $type = $this->tree($red,0);
+
+        $ref = json_encode($data);
+        $data = json_decode($ref,true);
+        $typeData = array_merge($type,$data);
+//        var_dump($type);
+//        die;
+
+        return $this->view('',['type'=>$typeData,'data'=>$data]);
+
     }
+
+    /**
+     * @descript 商品分类批删
+     * @jsy
+     */
+
+      public function goodsAlldel(){
+          $all = \request() -> all();
+          DB::beginTransaction();
+          try{
+              $data = [
+                  'is_del' => 0
+              ];
+              // 循环删除数据
+              foreach ($all['ids'] as $id){
+                  DB::table('merchants_goods_type') -> where('id',$id) -> update($data);
+              }
+              DB::commit();
+              return 1;
+          }catch (\Exception $e){
+              DB::rollBack();
+          }
+      }
+
+      public function tree($red,$pid)
+      {
+          $list = [];
+          foreach($red  as $k=>$v)
+          {
+              if($v['pid']==$pid){
+                  $v['son']=$this->tree($red,$v['id']);
+                  $list[] = $v;
+              }
+          }
+          return $list;
+      }
+
     // 新增 and 修改 商品分类
     public function merchants_goods_typeChange(){
         $all = \request() -> all();

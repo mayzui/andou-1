@@ -111,6 +111,7 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         // 商品分类
         Route::get('shop/merchants_goods_type','ShopController@merchants_goods_type')->name('shop.merchants_goods_type');
         Route::match(['get','post'],'shop/merchants_goods_typeChange','ShopController@merchants_goods_typeChange')->name('shop.merchants_goods_typeChange');
+        Route::any('shop/goodsAlldel','ShopController@goodsAlldel')->name('shop.goodsAlldel');
         Route::get('shop/merchants_goods_typeDel','ShopController@merchants_goods_typeDel')->name('shop.merchants_goods_typeDel');
 
 
