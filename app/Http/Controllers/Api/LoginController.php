@@ -55,6 +55,56 @@ class LoginController extends Controller
         
     }
     /**
+     * @api {post} /api/login/wxlogin 微信登陆
+     * @apiName wxlogin
+     * @apiGroup login
+     * @apiParam {string} code code
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": {
+     *           'name':'刘明',
+     *           'login_count':'登陆次数',
+     *           'mobile':'18883562091',
+     *           'token':'登陆验证'
+     *       },
+     *       "msg":"登陆成功"
+     *     }
+     */
+    public function wxlogin(){
+       $all=request()->all();
+       $code = $all['code'] ?? '';
+       $user = $this->getUserAccessUserInfo($code);
+       $user=json_encode($user,true);
+       $re=Db::table('users')
+            ->select('id','name','login_count','mobile')
+            ->where('mobile',$phone)
+            ->first();
+       if ($re) {
+            $token = $this->token($re->id);
+            $datas['token']=$token['token'];
+            $datas['login_count']=$re->login_count+1;
+            DB::table('users')->where('mobile',$phone)->update($datas);
+            $re->token = $token['noncestr'];
+            if (!empty($re->mobile)) {
+                return $this->rejson(200,'登陆成功',$re);
+            }else{
+                return $this->rejson(203,'绑定手机号密码',$re);
+            }
+           
+       }else{
+            $data['openid']=$user['openid'];
+            $data['create_ip'] = request()->ip();
+            $data['last_login_ip'] = request()->ip();
+            $data['created_at'] = $data['updated_at'] = date('Y-m-d H:i:s',time());
+            $data['source']=0;
+            $data['is_del']=0;
+            $data['name']='用户:'.$all['phone'];
+            $data['avator']='/uploads/images/avators/201911/29//1575020535_VGSxFj53YP.jpg';
+            $re=Db::table('users')->insertGetId($data);
+       }
+    }
+    /**
      * @api {post} /api/login/reg_p 手机注册
      * @apiName regP
      * @apiGroup login

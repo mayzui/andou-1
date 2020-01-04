@@ -45,7 +45,9 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('htorder/settlement', 'HtorderController@settlement');
      Route::post('htorder/add_order', 'HtorderController@addOrder');
      Route::post('htorder/orderdatails', 'HtorderController@orderdatails');
-     
+     Route::post('htorder/refund_reason', 'HtorderController@refundReason');
+     Route::post('htorder/refund', 'HtorderController@refund');
+
      Route::post('Usersaddress/district', 'UsersaddressController@district');
      Route::post('Usersaddress/address_add', 'UsersaddressController@addressAdd');
      Route::post('Usersaddress/address','UsersaddressController@address');
@@ -91,7 +93,7 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('login/login_p', 'LoginController@loginP');
      Route::post('login/reg_p', 'LoginController@regP');
      Route::post('login/forget', 'LoginController@forget');
-
+     Route::any('login/wxlogin', 'LoginController@wxlogin');
 
      //商品管理
      Route::post('goods/manage','ManageController@index');

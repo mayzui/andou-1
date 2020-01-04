@@ -316,5 +316,73 @@ class HtorderController extends Controller
         }else{
             return $this->rejson(201,'订单编号错误');
         }
-    }   
+    }
+    /**
+     * @api {post} /api/htorder/refund_reason 酒店退款原因
+     * @apiName refund_reason
+     * @apiGroup htorder
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} token 验证登陆
+     * @apiParam {array}  merchants_id 商户id
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": [{
+     *           "id":"退款原因id",
+     *           "name":"退款原因"
+     *       }]       
+     *       ,
+     *       "msg":"预定成功"
+     *     }
+     */
+    public function refundReason(){
+        $data=Db::table('refund_reason')
+        ->select('id','name')
+        ->where(['type'=>1,'is_del'=>0,'merchants_id'=>$all['merchants_id']])
+        ->get();
+        return $this->rejson(200,'查询成功',$data);
+    }
+    /**
+     * @api {post} /api/htorder/refund 酒店退款原因
+     * @apiName refund
+     * @apiGroup htorder
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} token 验证登陆
+     * @apiParam {array}  book_sn 订单编号
+     * @apiParam {array}  refund_id 退款原因id
+     * @apiParam {array}  refund_msg 退款备注
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": [{
+     *           "id":"退款原因id",
+     *           "name":"退款原因"
+     *       }]       
+     *       ,
+     *       "msg":"预定成功"
+     *     }
+     */
+    public function refund(){
+        $all=request()->all();
+        if (empty($all['refund_msg'])||empty($all['refund_id'])||empty($all['book_sn'])) {
+           return $this->rejson(201,'缺少参数');
+        }
+        $re=Db::table('books')->where(['book_sn'=>$all['book_sn'],'status'=>20])->select('id')->first();
+        if (empty($re)) {
+            return $this->rejson(201,'订单编号错误');
+        }
+        $data['status']=50;
+        $data['refund_msg']=$all['refund_msg'];
+        $data['book_sn']=$all['book_sn'];
+        DB::beginTransaction(); //开启事务
+        $res=Db::table('books')->where('book_sn',$all['book_sn'])->update($data);
+        $ress=Db::table('orders')->where('order_sn',$all['order_sn'])->update(array('status'=>50));
+        if ($res&&$ress) {
+            DB::commit();
+            return $this->rejson(200,'申请成功');
+        }else{
+            DB::rollback();
+            return $this->rejson(201,'申请失败');
+        }
+    }    
 }

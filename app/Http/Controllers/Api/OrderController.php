@@ -540,7 +540,7 @@ class OrderController extends Controller
         if (empty($orders)) {
             return $this->rejson(201,'订单不存在');
         }
-        $merchants_id=Db::table('order_goods')->where('order_sn',$sNo)->first()->merchants_id ?? '';
+        $merchant_id=Db::table('order_goods')->where('order_id',$sNo)->first()->merchant_id ?? '';
         if($all['is_integral']==1){
             $integrals=DB::table('config')->where('key','integral')->first()->value;
             $integral=floor(($orders->order_money-$orders->shipping_free)*$integrals);
@@ -568,7 +568,7 @@ class OrderController extends Controller
         $status['pay_way']=$all['pay_id'];
         $status['pay_time']=date('Y-m-d H:i:s',time());
         DB::beginTransaction(); //开启事务
-        $data['merchants_id']=$merchant_id;
+        $data['merchant_id']=$merchant_id;
         $re=DB::table('user_logs')->insert($data);
         $ress=DB::table('orders')->where('order_sn',$sNo)->update($status);
         $ress=DB::table('order_goods')->where('order_id',$sNo)->update(array('status'=>20));
@@ -577,7 +577,7 @@ class OrderController extends Controller
             $addintegral=$data;
             $addintegral['price']=$integral;
             $addintegral['type_id']=1;
-            $addintegral['merchants_id']=$merchant_id;
+            $addintegral['merchant_id']=$merchant_id;
             $rei=DB::table('user_logs')->insert($addintegral);
             $resi=DB::table('users')->where('id',$all['uid'])->decrement('integral',$integral);
         }
