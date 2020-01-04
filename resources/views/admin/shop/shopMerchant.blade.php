@@ -62,8 +62,8 @@
                                     <div class="btn-group">
                                         <a href="{{route('shop.information')}}?id={{$item->id}}"><button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 详情</button></a>
                                         @if($item->is_reg==1)
-                                            <a href="{{route('shop.shopMerchantOrder')}}?id={{$item->id}}"><button class="btn btn-primary btn-xs" type="button"><i class="fa fa-check"></i> 查询订单</button></a>
-                                            <a href="{{route('shop.shopMerchantMoney')}}?id={{$item->id}}"><button class="btn btn-primary btn-xs" type="button"><i class="fa fa-money"></i> 资金流水</button></a>
+                                            <a href="{{route('shop.shopMerchantOrder')}}?id={{$item->id}}"><button class="btn btn-info btn-xs" type="button"><i class="fa fa-check"></i> 查询订单</button></a>
+                                            <a href="{{route('shop.shopMerchantMoney')}}?id={{$item->id}}"><button class="btn btn-info btn-xs" type="button"><i class="fa fa-money"></i> 资金流水</button></a>
                                         @endif
                                     </div>
                                 </td>

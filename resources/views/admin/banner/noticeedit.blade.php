@@ -5,7 +5,7 @@
     <div class="row">
         <div class="col-sm-12">
             <div class="ibox-title">
-                <h5>添加商户分类</h5>
+                <h5>编辑公告</h5>
             </div>
             <div class="ibox-content">
                 <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>
@@ -22,7 +22,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="col-sm-2 control-label">公告标题：</label>
+                        <label class="col-sm-2 control-label">公告内容：</label>
                         <div class="input-group col-sm-2">
                             <textarea  class="form-control" name="content">{{$data->content or ''}}</textarea>
                         </div>
