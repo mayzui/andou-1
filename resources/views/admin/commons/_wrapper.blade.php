@@ -1,10 +1,7 @@
 <!--右侧部分开始-->
 @php
     $admin = Auth::guard('admin')->user();
-    $id = $admin->id;   //用户id
-
-    $data = DB::table('merchants')->where("user_id",$id) -> first();
-    $sid =  $data->id;
+    $sid =  Auth::id();
 @endphp
 <link href="{{loadEdition('/admin/css/base.css')}}" rel="stylesheet">
 <link href="{{loadEdition('/admin/css/layui.css')}}" rel="stylesheet">
@@ -21,8 +18,58 @@
             <!-- <span>超级管理员</span> -->
             <i class=""></i>
             <dl class="layui-nav-child">
+<<<<<<< HEAD
                 <dd class="dd"><a href="">修改密码</a></dd>
                 <dd><a href="{{route('merchants.information')}}?id=@php echo $sid; @endphp">修改商户信息</a></dd>
+=======
+                <dd><a href="" data-toggle="modal" data-target="#myModal">修改密码</a></dd>
+                <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                                    &times;
+                                </button>
+                                <h4 class="modal-title" id="myModalLabel">
+                                    修改密码
+                                </h4>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">账号：</label>
+                                    <div class="input-group col-sm-6">
+                                        <input type="text" class="form-control" name="mobile" id="mobile" value="{{ $admin -> mobile }}" required readonly>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">旧密码：</label>
+                                    <div class="input-group col-sm-6">
+                                        <input type="password" class="form-control" name="old_pwd" id="old_pwd" value="" required placeholder="请输入旧密码">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">新密码：</label>
+                                    <div class="input-group col-sm-6">
+                                        <input type="password" class="form-control" name="new_pwd" id="new_pwd" value="" required placeholder="请输入新密码">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">确认密码：</label>
+                                    <div class="input-group col-sm-6">
+                                        <input type="password" class="form-control" name="con_pwd" id="con_pwd" value="" required placeholder="请输入确认密码">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                                </button>
+                                <button type="button" class="btn btn-primary" onclick="save();">提交更改</button>
+                            </div>
+                        </div><!-- /.modal-content -->
+                    </div>
+                </div>
+                <dd><a class="J_menuItem" href="{{route('merchants.information')}}?id=@php echo $sid; @endphp">修改商户信息</a></dd>
+>>>>>>> 95e925b4c8fd66b2566b1154fe8e34f35d1fad01
             </dl>
         </div>
     </div>
@@ -31,15 +78,39 @@
 
     <script src="{{loadEdition('/admin/plugins/layui/layui.js')}}"></script>
     <script>
+        function save(){
+            layer.alert("是否修改当前密码？",{icon:3},function (index) {
+                var id = "{{ Auth::id() }}";
+                var old_pwd = document.getElementById('old_pwd').value;
+                var new_pwd = document.getElementById('new_pwd').value;
+                var con_pwd = document.getElementById('con_pwd').value;
+                if(!new_pwd.trim()){
+                    layer.alert("新密码不能为空",{icon:2})
+                }else{
+                    $.post("{{ route('index.updataPwd') }}",{id:id,old_pwd:old_pwd,new_pwd:new_pwd,con_pwd:con_pwd,_token:"{{ csrf_token() }}"},function (data) {
+                        if(data == 1){
+                            layer.alert("密码修改成功",{icon: 1},function (index) {
+                                location.href="{{ route('admin.logout') }}";
+                                layer.close(index);
+                            })
+                        }else{
+                            layer.alert(data,{icon:2})
+                        }
+                    });
+                }
+
+                layer.close(index);
+            });
+        }
         layui.use('element', function(){
             var element = layui.element; //导航的hover效果、二级菜单等功能，需要依赖element模块
 
             //监听导航点击
             element.on('nav(demo)', function(elem){
-                //console.log(elem)
-                // layer.msg(elem.text());
+
             });
         });
+
     </script>
 
     <div class="ad-wrapper  J_mainContent" id="content-main">

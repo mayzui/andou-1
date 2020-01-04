@@ -75,34 +75,85 @@ class LoginController extends Controller
        $all=request()->all();
        $code = $all['code'] ?? '';
        $user = $this->getUserAccessUserInfo($code);
-       $user=json_encode($user,true);
+       
        $re=Db::table('users')
             ->select('id','name','login_count','mobile')
-            ->where('mobile',$phone)
+            ->where('openid',$user['openid'])
             ->first();
        if ($re) {
             $token = $this->token($re->id);
             $datas['token']=$token['token'];
             $datas['login_count']=$re->login_count+1;
-            DB::table('users')->where('mobile',$phone)->update($datas);
+            DB::table('users')->where('openid',$user['openid'])->update($datas);
             $re->token = $token['noncestr'];
-            if (!empty($re->mobile)) {
-                return $this->rejson(200,'登陆成功',$re);
-            }else{
-                return $this->rejson(203,'绑定手机号密码',$re);
-            }
-           
+            return $this->rejson(200,'登陆成功',$re);   
        }else{
             $data['openid']=$user['openid'];
-            $data['create_ip'] = request()->ip();
-            $data['last_login_ip'] = request()->ip();
-            $data['created_at'] = $data['updated_at'] = date('Y-m-d H:i:s',time());
-            $data['source']=0;
-            $data['is_del']=0;
-            $data['name']='用户:'.$all['phone'];
-            $data['avator']='/uploads/images/avators/201911/29//1575020535_VGSxFj53YP.jpg';
-            $re=Db::table('users')->insertGetId($data);
+            $data['name']=$user['nickname'];
+            $data['avator']=$user['headimgurl'];
+            return $this->rejson(203,'绑定手机号密码',$data);
        }
+    }
+    /**
+     * @api {post} /api/login/bindmobile 绑定手机号
+     * @apiName bindmobile
+     * @apiGroup login
+     * @apiParam {string} phone 手机号码
+     * @apiParam {string} verify 验证码
+     * @apiParam {string} name 用户名
+     * @apiParam {string} openid 微信openid
+     * @apiParam {string} avator 微信头像
+     * @apiParam {string} password 登陆密码
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": "",
+     *       "msg":"绑定成功"
+     *     }
+     */
+    public function bindmobile(){
+        $all=request()->all();
+        if (empty($all['phone']) || empty($all['password'] || empty($all['verify'])||empty($all['openid']))) {
+            return $this->rejson(201,'参数错误');
+        }else{
+            if ($all['verify'] != Redis::get($all['phone'])) {
+                return $this->rejson(201,'验证码错误');
+            }
+            $re=Db::table('users')->where('mobile',$all['phone'])->first();
+            if ($re) {
+                $data['openid']=$all['openid'];
+                $data['password']=Hash::make($all['password']);
+                $data['avator']=$re->avator ?? $all['avator'];
+                $data['name']=$re->name ?? $all['name'];
+                $re=Db::table('users')->where('mobile',$all['phone'])->update($data);
+            }else{
+                $data['create_ip'] = request()->ip();
+                $data['last_login_ip'] = request()->ip();
+                $data['created_at'] = $data['updated_at'] = date('Y-m-d H:i:s',time());
+                $data['source']=0;
+                $data['is_del']=0;
+                $data['openid']=$all['openid'];
+                $data['password']=Hash::make($all['password']);
+                $data['avator']=$all['avator'];
+                $data['name']=$all['name'];
+                $data['mobile']=$all['phone'];
+                $re=Db::table('users')->insertGetId($data);
+            }
+            if ($re) {
+                $datare=Db::table('users')
+                ->select('id','name','login_count','mobile')
+                ->where('mobile',$all['phone'])
+                ->first();
+                $token = $this->token($datare->id);
+                $datas['token']=$token['token'];
+                $datas['login_count']=$datare->login_count+1;
+                DB::table('users')->where('mobile',$all['phone'])->update($datas);
+                $datare->token = $token['noncestr'];
+                return $this->rejson(200,'绑定成功',$datare);
+            }else{
+                return $this->rejson(201,'绑定失败');
+            }
+        }
     }
     /**
      * @api {post} /api/login/reg_p 手机注册

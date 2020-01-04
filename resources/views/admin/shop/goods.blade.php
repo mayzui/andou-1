@@ -21,43 +21,25 @@
                         <thead>
                         <tr>
                             <th><input type="checkbox" id="checkall" /></th>
-                            <th width="100">ID</th>
-                            <th style="width:150px;">商品名称</th>
-                            <th>分类</th>
-                            <th>图片</th>
-                            <th>热门</th>
-                            <th>推荐</th>
-                            <th>上架</th>
-                            <th>特价</th>
-                            <th>邮费</th>
-                            <th>点击量</th>
-                            <th width="150px">上架时间</th>
+                            <th style="width: 250px">产品名称</th>
+                            <th width="200px">产品分类</th>
+                            <th>产品图片</th>
+                            <th>是否上架</th>
+                            <th>库存</th>
+                            <th>销量</th>
+                            <th>基础价格</th>
+                            <th width="200px">上架时间</th>
                             {{--<th>更新时间</th>--}}
-                            <th width="400px">操作</th>
+                            <th width="250px">操作</th>
                         </tr>
                         </thead>
                         <tbody>
                         @foreach($list as $k => $item)
                             <tr>
                                 <td><input type="checkbox" name="ids" value="{{$item->id}}" /></td>
-                                <td>{{$item->id}}</td>
-                                <td><p style="width: 150px;overflow: hidden;white-space: nowrap;text-overflow: ellipsis;">{{$item->goods_name}}</p></td>
+                                <td><p style="width: 250px;overflow: hidden;white-space: nowrap;text-overflow: ellipsis;">{{$item->goods_name}}</p></td>
                                 <td>{{$item->goods_cate_id}}</td>
-                                <td><img src="{{ env('IMAGE_PATH_PREFIX')}}{{$item->img}}" alt="" style="width: 50px;height: 50px;"></td>
-                                <td>
-                                    @if ($item->is_hot == 1)
-                                        <span class="text-info">热卖</span>
-                                    @else
-                                        <span class="text-danger">普通</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    @if ($item->is_recommend == 1)
-                                        <span class="text-info">推荐</span>
-                                    @else
-                                        <span class="text-danger">普通</span>
-                                    @endif
-                                </td>
+                                <td><img src="{{ env('IMAGE_PATH_PREFIX')}}{{$item->img}}" alt="" style="width: 55px;height: 55px;"></td>
                                 <td>
                                     @if ($item->is_sale == 1)
                                         <span class="text-info">上架</span>
@@ -66,44 +48,25 @@
                                     @endif
                                 </td>
                                 <td>
-                                    @if ($item->is_bargain == 1)
-                                        <span class="text-info">特价</span>
-                                    @else
-                                        <span class="text-danger">非特价</span>
-                                    @endif
+                                    @foreach($goods_sku as $v)
+                                        @if(in_array($item -> id,$v))
+                                            {{ $v['total'] }}
+                                        @endif
+                                    @endforeach
                                 </td>
-                                <td>{{$item->dilivery}}</td>
-                                <td>{{$item->pv}}</td>
+                                <td>{{$item->volume}}</td>
+                                <td>{{$item->price}}</td>
                                 <td>{{$item->created_at}}</td>
                                 {{--<td>{{$item->updated_at}}</td>--}}
                                 <td class="text-center">
                                     <div class="btn-group">
-
-                                        @if($item->is_hot == 0)
-                                            <a href="{{route('shop.setStatus',['field'=>'is_hot','status'=>1,'id'=>$item->id])}}"><button class="btn btn-info btn-xs" type="button"><i class="fa fa-warning"></i>热卖品</button></a>
-                                        @else
-                                            <a href="{{route('shop.setStatus',['field'=>'is_hot','status'=>0,'id'=>$item->id])}}"><button class="btn btn-warning btn-xs" type="button"><i class="fa fa-warning"></i>非热卖</button></a>
-                                        @endif
-
-                                        @if($item->is_recommend == 0)
-                                            <a href="{{route('shop.setStatus',['field'=>'is_recommend','is_recommend'=>1,'id'=>$item->id])}}"><button class="btn btn-info btn-xs" type="button"><i class="fa fa-warning"></i> 推荐</button></a>
-                                        @else
-                                            <a href="{{route('shop.setStatus',['field'=>'is_recommend','is_recommend'=>0,'id'=>$item->id])}}"><button class="btn btn-warning btn-xs" type="button"><i class="fa fa-warning"></i> 不推荐</button></a>
-                                        @endif
-
                                         @if($item->is_sale == 0)
                                             <a href="{{route('shop.setStatus',['field'=>'is_sale','is_sale'=>1,'id'=>$item->id])}}"><button class="btn btn-info btn-xs" type="button"><i class="fa fa-warning"></i> 上架</button></a>
                                         @else
                                             <a href="{{route('shop.setStatus',['field'=>'is_sale','is_sale'=>0,'id'=>$item->id])}}"><button class="btn btn-warning btn-xs" type="button"><i class="fa fa-warning"></i>下架</button></a>
                                         @endif
-                                        @if($item->is_bargain == 0)
-                                            <a href="{{route('shop.setStatus',['field'=>'is_bargain','is_bargain'=>1,'id'=>$item->id])}}"><button class="btn btn-info btn-xs" type="button"><i class="fa fa-warning"></i> 特价</button></a>
-                                        @else
-                                            <a href="{{route('shop.setStatus',['field'=>'is_bargain','is_bargain'=>0,'id'=>$item->id])}}"><button class="btn btn-warning btn-xs" type="button"><i class="fa fa-warning"></i>非特价</button></a>
-                                        @endif
-
                                         <a href="{{route('shop.update')}}?id={{$item->id}}">
-                                            <button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 修改</button>
+                                            <button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 详情</button>
                                         </a>
                                         <a onclick="del({{$item->id}})"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o"></i> 删除</button></a>
                                     </div>

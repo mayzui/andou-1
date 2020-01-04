@@ -9,21 +9,21 @@ use Illuminate\Support\Facades\Redis;
 class MerchantController extends Controller
 {
 
-    public function __construct()
-    {
-        $all = request()->all();
-        $token=request()->header('token')??'';
-        if ($token!='') {
-            $all['token']=$token;
-        }
-        if (empty($all['uid']) || empty($all['token'])) {
-            return $this->rejson(202, '登陆失效');
-        }
-        $check = $this->checktoten($all['uid'], $all['token']);
-        if ($check['code'] == 202) {
-            return $this->rejson($check['code'], $check['msg']);
-        }
-    }
+    // public function __construct()
+    // {
+    //     $all = request()->all();
+    //     $token=request()->header('token')??'';
+    //     if ($token!='') {
+    //         $all['token']=$token;
+    //     }
+    //     if (empty($all['uid']) || empty($all['token'])) {
+    //         return $this->rejson(202, '登陆失效');
+    //     }
+    //     $check = $this->checktoten($all['uid'], $all['token']);
+    //     if ($check['code'] == 202) {
+    //         return $this->rejson($check['code'], $check['msg']);
+    //     }
+    // }
 
     /**
      * @api {post} /api/merchant/merchants 商家列表第一次请求

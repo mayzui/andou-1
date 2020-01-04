@@ -90,6 +90,26 @@ class HotelController extends Controller
           return $this->rejson('200','查询成功',$data);
     }
     /**
+     * @api {post} /api/hotel/need 入住须知
+     * @apiName need
+     * @apiGroup hotel
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": {
+     *           'need_content':'入住须知'
+     *       },
+     *       "msg":"查询成功"
+     *     }
+     */
+    public function need(){
+          $data=Db::table('hotel_need')
+          ->select('need_content')
+          ->where('status',0)
+          ->first();
+          return $this->rejson('200','查询成功',$data);
+    }
+    /**
      * @api {post} /api/hotel/condition 酒店搜索配置
      * @apiName condition
      * @apiGroup hotel

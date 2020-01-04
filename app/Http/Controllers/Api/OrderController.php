@@ -438,6 +438,7 @@ class OrderController extends Controller
                 },
                 "details": [
                     {
+                        "id": "订单编号id",
                         "img": "商品图片",
                         "name": "名字",
                         "num": "购买数量",
@@ -481,8 +482,96 @@ class OrderController extends Controller
         ->join('goods as g','g.id','=','o.goods_id')
         ->join('goods_sku as s','s.id','=','o.goods_sku_id')
         ->where('o.order_id',$all['order_sn'])
-        ->select('g.img','g.name','o.num','shipping_free','s.price','s.attr_value')
+        ->select('o.id','g.img','g.name','o.num','shipping_free','s.price','s.attr_value')
         ->get();
+        $data->shipping_free=0;
+        $data->allnum=0;
+        foreach ($data->details as $key => $value) {
+            $data->details[$key]->attr_value=json_decode($value->attr_value,1)[0]['value'];
+            $data->allnum += $value->num;
+            $data->shipping_free += $value->shipping_free;
+        }
+        return $this->rejson(200,'查询成功',$data);
+    }
+    /**
+     * @api {post} /api/order/wait_goods 待收货
+     * @apiName wait_goods
+     * @apiGroup order
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} token 验证登陆
+     * @apiParam {int}  order_goods_id 订单编号id
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": {
+                "order_money": "订单总金额",
+                "id": 订单id,
+                "order_sn": "订单号",
+                "address_id": "收货地址id",
+                "integral":"使用积分",
+                "pay_money":"支付金额",
+                "pay_time":"付款时间",
+                "status":"订单状态",
+                "allnum":"购买商品总数",
+                "userinfo": {
+                    "name": "收货人",
+                    "address": "收货详细地址",
+                    "mobile": "收货人电话",
+                    "province": "省",
+                    "city": "市",
+                    "area": "区"
+                },
+                "details": [
+                    {
+                        "id": "订单编号id",
+                        "img": "商品图片",
+                        "name": "名字",
+                        "num": "购买数量",
+                        "shipping_free": "单商品邮费",
+                        "price": "单价",
+                        "attr_value": [//规格
+                            "4G+32G",
+                            "精包装",
+                            "白"
+                        ]
+                    }
+                ],
+                "shipping_free": "总运费"
+            }
+     *       "msg":"添加成功"
+     *     }
+     */
+    public function wait_goods(){
+        $all=request()->all();
+        if (empty($all['order_goods_id'])) {
+            return $this->rejson(201,'缺少参数');
+        }
+        $order_id = DB::table('order_goods') -> where('id',$all['order_goods_id']) -> select('order_id') -> first();
+        $data=DB::table('orders')
+        ->where(['order_sn'=>$order_id -> order_id,'user_id'=>$all['uid'],'type'=>1,'is_del'=>0])
+        ->select('order_money','pay_way','pay_money','pay_time','id','integral','shipping_free','order_sn','status','address_id')
+        ->first();
+        if (empty($data)) {
+            return $this->rejson(201,'无效的订单号');
+        }
+
+        $integral=DB::table('config')->where('key','integral')->first()->value;
+            $data->integral=floor(($data->order_money-$data->shipping_free)*$integral);
+            $address=Db::table('user_address')
+            ->where('id',$data->address_id)
+            ->first();
+
+        $province=DB::table('districts')->where('id',$address->province_id)->first()->name ?? '';
+        $city=DB::table('districts')->where('id',$address->city_id)->first()->name ?? '';
+        $area=DB::table('districts')->where('id',$address->area_id)->first()->name ?? '';
+        $data->userinfo=array('name'=>$address->name,'address'=>$address->address,'mobile'=>$address->mobile,'province'=>$province,'city'=>$city,'area'=>$area);
+
+        $data->details=DB::table('order_goods as o')
+            ->join('goods as g','g.id','=','o.goods_id')
+            ->join('goods_sku as s','s.id','=','o.goods_sku_id')
+            ->where('o.id',$all['order_goods_id'])
+            ->select('o.id','g.img','g.name','o.num','shipping_free','s.price','s.attr_value')
+            ->get();
         $data->shipping_free=0;
         $data->allnum=0;
         foreach ($data->details as $key => $value) {
