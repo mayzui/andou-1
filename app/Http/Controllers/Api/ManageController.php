@@ -77,12 +77,8 @@ class ManageController extends Controller
                         "img": "商品主图",
                         "price": "商品价格",
                         "is_sale": "是否上下架0是下架1是上架",
-                        "store_num": "商品数量",
-                        "attr_value": [
-                                    "4G+32G",
-                                    "纸包装",
-                                    "白"
-                                ]
+                        "num": "商品数量",
+                        "weight": "商品重量"
                             },
                          ],
      *       "msg":"查询成功"
@@ -97,13 +93,10 @@ class ManageController extends Controller
         }
         $data = DB::table('goods')
             ->join('goods_sku',"goods.id","=","goods_sku.goods_id")
-            ->select(['goods.id','goods.name','goods.desc','goods.img','goods_sku.price','goods.is_sale','goods_sku.store_num','goods_sku.attr_value'])
+            ->groupBy('goods_sku.id')
+            ->select(DB::raw("sum(goods_sku.store_num) as num"),'goods.id','goods.name','goods.desc','goods.img','goods.price','goods.is_sale','goods.weight')
             ->where('goods.merchant_id',$all['id'])
-            ->orderBy('goods.created_at','DESC')
             ->get();
-        foreach($data as $k => $value){
-            $data->attr_value =  $value->attr_value=json_decode($value->attr_value,1)[0]['value'];;
-        }
         return $this->rejson(200,'查询成功',$data);
     }
 
@@ -340,19 +333,17 @@ class ManageController extends Controller
 
     public function ordersDetails()
     {
-        $all = request()->all();
-        $data = DB::table('order_goods')
-            ->join('goods','goods.id','=','order_goods.goods_id')
-            ->join('orders','order_goods.order_id','=','orders.order_sn')
-            ->join('order_returns','order_goods.order_id','=','order_returns.order_id')
-            ->where('order_goods.merchant_id',$all['id'])
-            ->where('order.id',$all['order_id'])
-            ->where('order_returns.is_reg',1)
-            ->where('orders.status',0)
-            ->select(['orders.id','orders.order_sn','goods.name','goods.desc','goods.img','order_goods.num','orders.order_money','order_returns.content','orders.pay_money'])
-            ->get();
-            return $this->rejson('200','查询成功',$data);
+//        $all = request()->all();
+//        $data =DB::table('order_goods')
+//            ->join('orders','order_goods.order_id','=','order_sn')
+//            ->get();
+//        $res->province=DB::table('districts')->where('id',$res->province_id)->first()->name ?? '';
+//        $res->city=DB::table('districts')->where('id',$res->city_id)->first()->name ?? '';
+//        $res->area=DB::table('districts')->where('id',$res->area_id)->first()->name ?? '';
+//        return var_dump($res);
     }
+
+
 
     /**
      * @api {post} /api/goods/audit  待审核订单
@@ -428,8 +419,10 @@ class ManageController extends Controller
      * @api {post} /api/goods/store  店铺管理
      * @apiName store
      * @apiGroup menage
-     * @apiParam {string} uid 商户id
+     * @apiParam {string} uid 用户id
      * @apiParam {string} token 验证登陆
+     * @apiParam {string} id 商家id
+     * @apiParam {string} merchant_type_id 商家类型id
      * @apiSuccessExample 参数返回:
      *     {
      *       "code": "200",
@@ -437,6 +430,7 @@ class ManageController extends Controller
                         {
                         "name": "商铺名称",
                         "mobile": "联系方式",
+                        "user_name": "联系人",
                         "desc": "商家公告",
                         "address": "地址",
                         "banner_img": "店铺形象图",
@@ -452,11 +446,18 @@ class ManageController extends Controller
     public function store()
     {
         $all = request()->all();
+        if(empty($all['merchant_type_id'])){
+            return $this->rejson('201','参数有误');
+        }
         $data = DB::table('merchants')
             ->join('users','users.id','=','merchants.user_id')
-            ->where('user_id',$all['uid'])
-            ->select(['merchants.name','users.name as nickname','merchants.tel','users.mobile','merchants.banner_img','merchants.desc','merchants.address','merchants.return_address'])
-            ->get();
+            ->where('merchants.id',$all['id'])
+            ->where('merchants.merchant_type_id',$all['merchant_type_id'])
+            ->select(['merchants.name','users.name as nickname','merchants.tel','users.mobile','merchants.user_name','merchants.banner_img','merchants.desc','merchants.address','merchants.return_address'])
+            ->first();
+        if(!$data){
+            return $this->rejson('202','未找到商家信息');
+        }
             return $this->rejson('200','查询成功',$data);
     }
 
@@ -468,6 +469,7 @@ class ManageController extends Controller
      * @apiParam {string} token 验证登陆
      * @apiParam {string} id 商家id
      * @apiParam {string} name 商铺名称
+     * @apiParam {string} user_name 联系人
      * @apiParam {string} mobile 联系方式
      * @apiParam {string} desc 商家公告
      * @apiParam {string} address 地址
@@ -495,12 +497,13 @@ class ManageController extends Controller
             'address'=>$all['address'],
             'banner_img'=>$all['banner_img'],
             'name'=>$all['name'],
+            'user_name'=>$all['user_name'],
             'tel'=>$all['tel'],
             'return_address'=>$all['return_address'],
         ];
         DB::beginTransaction();//开启事物
-        $data = DB::table('users')->where('id',$all['id'])->update($arr);
-        $res = DB::table('merchants')->where('user_id',$all['id'])->update($re);
+        $data = DB::table('users')->where('id',$all['uid'])->update($arr);
+        $res = DB::table('merchants')->where('id',$all['id'])->update($re);
         if($data&&$res){
             DB::commit();//t提交
             return $this->rejson('200','修改成功');
@@ -594,28 +597,25 @@ class ManageController extends Controller
      *       "code": "200",
      *       "data": [
                         {
-                            "img": "商品图",
-                            "name": "商品名字",
-                            "goods_id": "商品id",
-                            "merchant_id": "商户id",
-                            "order_id": "订单号",
-                            "status": "状态 10-未支付 20-已支付 40-已发货  50-交易成功（确认收货） 60-交易关闭（已评论）",
-                            "mname": "商家名字",
-                            "logo_img": "商家图",
-                            "num": "数量",
                             "id": "订单id",
-                            "express_id":"快递公司id",
-                            "courier_num":"快递单号",
-                            "shipping_free": "运费",
-                            "price": "单价",
-                            "pay_money": "总价",
-                            "attr_value": [
-                            "4G+32G",
-                            "纸包装",
-                            "白"
-                            ]
-                        }
-                    ],
+                            "order_sn": "订单号",
+                            "order_money": "总价",
+                            "created_at": "时间",
+                            "shipping_free": "总运费",
+                            "status": "状态 10-未支付 20-已支付 40-已发货  50-交易成功（确认收货） 60-交易关闭（已评论）",
+                            "details":  [
+                                            {
+                                            "img": "图片",
+                                            "name": "名称",
+                                            "num": "数量",
+                                            "price": "单价",
+                                            "attr_value": [
+                                                        "4G+64G",
+                                                        "纸包装",
+                                                        "蓝",
+                                                        "铁"
+                                                        ]
+                                            },
      *       "msg":"查询成功"
      *     }
      */
@@ -630,18 +630,28 @@ class ManageController extends Controller
         if(empty($all['type'])){
 
         }else{
-            $where[]=['o.status',$all['type']];
+            $where[]=['order_goods.status',$all['type']];
         }
-        $where[]=['o.merchant_id',$all['id']];
-        $data=DB::table('order_goods as o')
-            ->join('goods as g','g.id','=','o.goods_id')
-            ->join('merchants as m','m.id','=','o.merchant_id')
-            ->join('goods_sku as s','s.id','=','o.goods_sku_id')
+        $where[]=['order_goods.merchant_id',$all['id']];
+        $data = DB::table('order_goods')
+            ->join('orders','order_goods.order_id','=','orders.order_sn')
+            ->where('order_goods.merchant_id',$all['id'])
+            ->select('orders.order_sn','orders.order_money','orders.shipping_free','orders.status','orders.created_at')
             ->where($where)
-            ->select('g.img','g.name','o.goods_id','o.merchant_id','o.order_id','o.status','m.name as mname','m.logo_img','o.num','o.id','shipping_free','o.express_id','o.courier_num','s.price','pay_money','s.attr_value')
+            ->offset($pages)
+            -> limit($num)
             ->get();
-        foreach ($data as $k => $v) {
-            $data[$k]->attr_value=json_decode($v->attr_value,1)[0]['value'];
+        foreach ($data as $v){
+            $v->details = DB::table('order_goods as o')
+                ->join('goods as g','g.id','=','o.goods_id')
+                ->join('goods_sku as s','s.id','=','o.goods_sku_id')
+                ->where('o.merchant_id',$all['id'])
+                ->where('o.order_id',$v->order_sn)
+                ->select('g.img','g.name','o.num','o.order_id','s.price','s.attr_value')
+                ->get();
+            foreach ($v->details as $key => $value){
+                $v->details[$key]->attr_value=json_decode($value->attr_value,1)[0]['value'];
+             }
         }
         return $this->rejson(200,'查询成功',$data);
     }
@@ -653,7 +663,7 @@ class ManageController extends Controller
      * @apiParam {string} token 验证登陆
      * @apiParam {string} id 订单id
      * @apiParam {string} pay_money 修改后的价钱
-     * @apiSuccessExample 参数返回:
+     * @apiSuccessExample 参数返回
      *     {
      *       "code": "200",
      *       "data": "",
@@ -665,9 +675,9 @@ class ManageController extends Controller
     {
         $all = request()->all();
         $res = [
-            'pay_money'=>$all['pay_money'],
+            'total'=>$all['pay_money'],
         ];
-        $data = DB::table('orders')
+        $data = DB::table('order_goods')
             ->where('id',$all['id'])
             ->update($res);
         if($data){
