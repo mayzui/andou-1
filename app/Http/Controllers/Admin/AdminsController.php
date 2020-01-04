@@ -186,24 +186,4 @@ class AdminsController extends BaseController {
         return redirect()->route('login');
     }
 
-    /**
-     * 修改密码
-     * @author jsy
-     * @return \Illuminate\Http\RedirectResponse
-     */
-
-      public function updPwd(Request $request)
-      {
-          $id = Auth::id();
-          $data = $request->post();
-          $updPwd  = \DB::table("users")
-              ->where('id',$id)
-              ->update([
-              'password'=>$data['password']
-          ]);
-          if ($updPwd) {
-              $this->rejson('0','修改成功 ');
-          }
-          $this->rejson('1','修改失败 ');
-      }
 }

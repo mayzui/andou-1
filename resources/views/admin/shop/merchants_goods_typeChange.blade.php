@@ -18,6 +18,14 @@
                 <form class="form-horizontal m-t-md" action="{{ route('shop.merchants_goods_typeChange') }}" method="post" accept-charset="UTF-8" enctype="multipart/form-data">
                     {!! csrf_field() !!}
                     <input type="hidden" name="id" value="{{ $data->id or '' }}" />
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">商户名称：</label>
+                        <div class="input-group col-sm-2">
+                            <input type="text" class="form-control" name="merchants_name" id="" value="{{$data->merchants_name or ''}}" required placeholder="请输入商户名称">
+                        </div>
+                    </div>
+
                     <div class="form-group">
                         <label class="col-sm-2 control-label">分类名称：</label>
                         <div class="input-group col-sm-2">

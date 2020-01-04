@@ -546,7 +546,7 @@ class ShopController extends BaseController
               DB::rollBack();
           }
       }
-      
+
     // 新增 and 修改 商品分类
     public function merchants_goods_typeChange(){
         $all = \request() -> all();
