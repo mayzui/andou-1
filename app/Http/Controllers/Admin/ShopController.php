@@ -529,8 +529,7 @@ class ShopController extends BaseController
         $typeData = array_merge($type,$data);
 //        var_dump($type);
 //        die;
-
-        return $this->view('',['type'=>$typeData,'data'=>$data]);
+        return $this->view('',['type'=>$type,'data'=>$data]);
 
     }
 

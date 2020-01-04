@@ -112,12 +112,12 @@
         <td>名称</td>
     </tr>
 
-    <?php foreach ($type as $k=>$v) {?>
-       <tr>
-           <td>
-               <?php var_dump($v);?>
+    <?php foreach ($data['data'] as $k=>$v) {?>
+
+           <td> <tr>
+               <?php echo $v['merchants_name'];?> </tr>
            </td>
-       </tr>
+
     <?php } ?>
 
 
