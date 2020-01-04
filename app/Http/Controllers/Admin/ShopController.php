@@ -505,31 +505,31 @@ class ShopController extends BaseController
             // 如果开店，则查询当前商户的信息
             // 链接数据库，查询商户的商品分类
             $data = DB::table('merchants_goods_type')
-                -> join('merchants','merchants_goods_type.merchant_id','=','merchants.id')
                 -> where('is_del',1)
                 -> where('merchant_id',$i->id)
-                -> select(['merchants.name as merchants_name','merchants_goods_type.id','merchants_goods_type.name'])
+                -> select(['id','merchants_name','name','pid'])
                 -> paginate(10);
         }else{
             // 链接数据库，查询商户的商品分类
             $data = DB::table('merchants_goods_type')
-                -> join('merchants','merchants_goods_type.merchant_id','=','merchants.id')
                 -> where('is_del',1)
-                -> select(['merchants.name as merchants_name','merchants_goods_type.id','merchants_goods_type.name'])
+                -> select(['id','merchants_name','name','pid'])
                 -> paginate(10);
         }
-
-        $res = DB::select("select * from merchants_goods_type");
-        $json = json_encode($res);
+      $s=  array_map('get_object_vars', $data);
+var_dump($s);die;
+        $json = json_encode($data);
         $red  =  json_decode($json,true);
-        $type = $this->tree($red,0);
-
-        $ref = json_encode($data);
-        $data = json_decode($ref,true);
-        $typeData = array_merge($type,$data);
-//        var_dump($type);
+        $data = $this->tree($red['data'],0);
+//        $ref = json_encode($red);
+//        $data = json_decode($ref);
+//        var_dump($data);die;
+//        foreach ($data as $k=>$v){
+//            var_dump($v['id']);
+//        }
 //        die;
-        return $this->view('',['type'=>$type,'data'=>$data]);
+
+        return $this->view('',['data'=>$data]);
 
     }
 
