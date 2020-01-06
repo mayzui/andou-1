@@ -93,7 +93,7 @@ class ManageController extends Controller
         }
         $data = DB::table('goods')
             ->join('goods_sku',"goods.id","=","goods_sku.goods_id")
-            ->groupBy('goods_sku.id')
+            ->groupBy('goods_sku.goods_id')
             ->select(DB::raw("sum(goods_sku.store_num) as num"),'goods.id','goods.name','goods.desc','goods.img','goods.price','goods.is_sale','goods.weight')
             ->where('goods.merchant_id',$all['id'])
             ->get();
@@ -259,12 +259,13 @@ class ManageController extends Controller
     }
 
     /**
-     * @api {post} /api/goods/ordersCancel  已退款
+     * @api {post} /api/goods/ordersCancel  订单退款
      * @apiName ordersCancel
      * @apiGroup menage
      * @apiParam {string} uid 用户id
      * @apiParam {string} token 验证登陆
      * @apiParam {string} id 商家id
+     * @apiParam {string} type 订单状态0未审核3已完成（非必传）
      * @apiSuccessExample 参数返回:
      *     {
      *       "code": "200",
@@ -278,6 +279,7 @@ class ManageController extends Controller
                         "pay_money": "订单支付金额",
                         "num": "商品数量",
                         "status": "商品状态  0 已退款",
+                        "is_reg": "是否审核 0审核中 1已同意退款 2用户发货中 3已完成",
                         }
                     ],
      *       "msg":"获取成功"
@@ -290,102 +292,118 @@ class ManageController extends Controller
         if(empty($all['id'])){
             return $this->rejson('201','参数有误');
         }
+        if(empty($all['type'])){
+
+        }else{
+            $where[] = ['order_returns.is_reg',$all['type']];
+        }
+        $where[] = ['orders.status',0];
         $data = DB::table('order_goods')
             ->join('goods','goods.id','=','order_goods.goods_id')
             ->join('orders','order_goods.order_id','=','orders.order_sn')
-            ->join('order_returns','order_returns.order_id','=','orders.id')
+            ->join('order_returns','order_returns.order_goods_id','=','orders.id')
             ->where('order_goods.merchant_id',$all['id'])
-            ->where('type',1)
-            ->where('orders.status',0)
-            ->where('order_returns.is_reg',1)
+            ->where($where)
             ->select(['order_goods.id','orders.order_sn','goods.name','goods.desc','goods.img','order_goods.num','orders.pay_money','orders.status'])
             ->get();
             return $this->rejson('200','查询成功',$data);
     }
 
     /**
-     * @api {post} /api/goods/ordersDetails  订单详情
+     * @api {post} /api/goods/ordersDetails 订单详情
      * @apiName ordersDetails
      * @apiGroup menage
      * @apiParam {string} uid 用户id
      * @apiParam {string} token 验证登陆
-     * @apiParam {string} id 商家id
-     * @apiParam {string} order_id 订单id
+     * @apiParam {array}  order_sn 订单编号
      * @apiSuccessExample 参数返回:
      *     {
      *       "code": "200",
-     *       "data": [
-                        {
+     *       "data": {
+                        "order_money": "订单总金额",
                         "id": "订单id",
                         "order_sn": "订单号",
-                        "name": "商品名称",
-                        "desc": "商品描述",
-                        "img": "商品封面图",
-                        "order_money": "订单金额",
-                        "num": "商品数量",
-                        "content": "退款原因",
-                        "pay_money": "支付金额",
+                        "address_id": "收货地址id",
+                        "integral":"使用积分",
+                        "pay_money":"支付金额",
+                        "pay_time":"付款时间",
+                        "status":"订单状态",
+                        "allnum":"购买商品总数",
+                        "created_at":"创建时间",
+                        "pay_way":"支付方式 1微信 2支付宝 3银联 4余额支付 5其他",
+                        "userinfo": {
+                                    "name": "收货人",
+                                    "address": "收货详细地址",
+                                    "mobile": "收货人电话",
+                                    "province": "省",
+                                    "city": "市",
+                                    "area": "区"
+                                    },
+                        "details": [
+                                    {
+                                    "id": "订单编号id",
+                                    "img": "商品图片",
+                                    "name": "名字",
+                                    "num": "购买数量",
+                                    "shipping_free": "单商品邮费",
+                                    "price": "单价",
+                                    "courier_num": "快递单号",
+                                    "express_id": "快递名称",
+                                    "attr_value": [//规格
+                                                    "4G+32G",
+                                                    "精包装",
+                                                    "白"
+                                            ]
+                                    }
+                        ],
+                        "shipping_free": "总运费"
+                        "goodsPay": "减去运费后价格"
                         }
-                    ],
-     *       "msg":"获取成功"
+     *       "msg":"添加成功"
      *     }
      */
 
     public function ordersDetails()
     {
-//        $all = request()->all();
-//        $data =DB::table('order_goods')
-//            ->join('orders','order_goods.order_id','=','order_sn')
-//            ->get();
-//        $res->province=DB::table('districts')->where('id',$res->province_id)->first()->name ?? '';
-//        $res->city=DB::table('districts')->where('id',$res->city_id)->first()->name ?? '';
-//        $res->area=DB::table('districts')->where('id',$res->area_id)->first()->name ?? '';
-//        return var_dump($res);
-    }
-
-
-
-    /**
-     * @api {post} /api/goods/audit  待审核订单
-     * @apiName audit
-     * @apiGroup menage
-     * @apiParam {string} uid 商户id
-     * @apiParam {string} token 验证登陆
-     * @apiParam {string} id  商家id
-     * @apiSuccessExample 参数返回:
-     *     {
-     *       "code": "200",
-     *       "data": [
-                        {
-                        "id": "订单id",
-                        "order_sn": "订单号",
-                        "name": "商品名称",
-                        "desc": "商品描述",
-                        "img": "商品封面图",
-                        "pay_money": "订单支付金额",
-                        "num": "商品数量",
-                        "status": "商品状态  0 已退款",
-                        }
-                    ],
-     *       "msg":"获取成功"
-     *     }
-     */
-
-    public function audit()
-    {
         $all = request()->all();
-        $data = DB::table('order_goods')
-            ->join('goods','goods.id','=','order_goods.goods_id')
-            ->join('orders','order_goods.order_id','=','orders.id')
-            ->join('order_returns','order_goods.order_id','=','order_returns.order_id')
-            ->where('order_goods.merchant_id',$all['id'])
-            ->where('order_returns.is_reg',0)
-            ->where('orders.status',0)
-            ->select(['orders.id','orders.order_sn','goods.name','goods.desc','goods.img','order_goods.num','orders.order_money','orders.pay_money'])
+        if (empty($all['order_sn'])) {
+            return $this->rejson(201,'缺少参数');
+        }
+        $data=DB::table('orders')
+            ->where(['order_sn'=>$all['order_sn'],'is_del'=>0])
+            ->select('order_money','pay_way','pay_money','pay_time','id','integral','shipping_free','order_sn','status','address_id','created_at')
+            ->first();
+        if (empty($data)) {
+            return $this->rejson(201,'无效的订单号');
+        }
+        $integral=DB::table('config')->where('key','integral')->first()->value;
+        $data->integral=floor(($data->order_money-$data->shipping_free)*$integral);
+        $address=Db::table('user_address')
+            ->where('id',$data->address_id)
+            ->first();
+        $province=DB::table('districts')->where('id',$address->province_id)->first()->name ?? '';
+        $city=DB::table('districts')->where('id',$address->city_id)->first()->name ?? '';
+        $area=DB::table('districts')->where('id',$address->area_id)->first()->name ?? '';
+        $data->userinfo=array('name'=>$address->name,'address'=>$address->address,'mobile'=>$address->mobile,'province'=>$province,'city'=>$city,'area'=>$area);
+        $data->details=DB::table('order_goods as o')
+            ->join('goods as g','g.id','=','o.goods_id')
+            ->join('goods_sku as s','s.id','=','o.goods_sku_id')
+            ->where('o.order_id',$all['order_sn'])
+            ->select('o.id','g.img','g.name','o.num','shipping_free','s.price','s.attr_value','o.courier_num','o.express_id')
             ->get();
-            return $this->rejson('200','查询成功',$data);
+        foreach ($data->details as $v){
+            $v->express_id = DB::table('express')->where('id', $v->express_id)->first();
+        }
+        $data->shipping_free=0;
+        $data->allnum=0;
+        foreach ($data->details as $key => $value) {
+            $data->details[$key]->attr_value=json_decode($value->attr_value,1)[0]['value'];
+            $data->allnum += $value->num;
+            $data->shipping_free += $value->shipping_free;
+        }
+        $data->goodsPay = $data->order_money - $data->shipping_free;
+        return $this->rejson(200,'查询成功',$data);
     }
-
 
     /**
      * @api {post} /api/goods/affirm  同意退货退款
@@ -408,7 +426,6 @@ class ManageController extends Controller
         $arr = [ 'is_reg'=>1];
         $data = DB::table('order_returns')->where('order_id',$all['id'])->update($arr);
         if($data){
-
             return $this->rejson('200','审核完成');
         }else{
             return $this->rejson('201','参数有误');
@@ -590,7 +607,7 @@ class ManageController extends Controller
      * @apiParam {string} uid 用户id
      * @apiParam {string} token 验证登陆
      * @apiParam {string} id 商家id
-     * @apiParam {string} type 状态(非比传 10-未支付 20-已支付 40-已发货  50-交易成功（确认收货） 60-交易关闭（已评论）)
+     * @apiParam {string} type 状态(非必传 10-未支付 20-已支付 40-已发货  50-交易成功（确认收货） 60-交易关闭（已评论）)
      * @apiParam {string} page 查询页码
      * @apiSuccessExample 参数返回:
      *     {
@@ -627,16 +644,14 @@ class ManageController extends Controller
         }else{
             $pages=0;
         }
-        if(empty($all['type'])){
-
-        }else{
+        if(!empty($all['type'])){
             $where[]=['order_goods.status',$all['type']];
         }
         $where[]=['order_goods.merchant_id',$all['id']];
         $data = DB::table('order_goods')
             ->join('orders','order_goods.order_id','=','orders.order_sn')
             ->where('order_goods.merchant_id',$all['id'])
-            ->select('orders.order_sn','orders.order_money','orders.shipping_free','orders.status','orders.created_at')
+            ->select('orders.order_sn','orders.order_money','orders.shipping_free','order_goods.status','orders.created_at')
             ->where($where)
             ->offset($pages)
             -> limit($num)
@@ -751,6 +766,136 @@ class ManageController extends Controller
         $data = DB::table('order_commnets')->where('id',$all['id'])->update($res);
         if($data){
             return $this->rejson('200','删除成功');
+        }else{
+            return $this->rejson('201','参数有误');
+        }
+    }
+
+    /**
+     * @api {post} /api/goods/water 商户流水
+     * @apiName water
+     * @apiGroup menage
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} token 验证登陆
+     * @apiParam {string} id 商户id
+     * @apiParam {string} status 1获得 2提现
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": [
+                        {
+                        "id"   "流水id",
+                        "price": "金额",
+                        "msg": "备注",
+                        "type": "1酒店 2商城 3饭店",
+                        "status": "1获得 2提现",
+                        "created": "时间",
+                        }
+                    ],
+     *       "msg":"删除成功"
+     *     }
+     */
+
+    public function water()
+    {
+        $all = requses()->all();
+        $data = DB::table('merchant_log')
+            ->where('merchant_id',$all['id'])
+            ->where('status',$all['status'])
+            ->select('price','msg','type','status','created')
+            ->get();
+        return $this->rejson('200','获取成功',$data);
+    }
+
+    /**
+     * @api {post} /api/goods/quit 退出
+     * @apiName quit
+     * @apiGroup menage
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} token 验证登陆
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": "",
+     *       "msg":"退出完成"
+     *     }
+     */
+
+    public function quit()
+    {
+        $all = request()->all();
+        $res = ['token'=>null];
+        $data = DB::table('users')->where('id',$all['uid'])->update($res);
+        if($data){
+            return $this->rejson('200','退出完成');
+        }else{
+            return $this->rejson('201','参数有误');
+        }
+    }
+
+    /**
+     * @api {post} /api/goods/express 快递
+     * @apiName express
+     * @apiGroup menage
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} token 验证登陆
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": [
+                        {
+                        "id"   "快递类型id",
+                        "name": "公司名称",
+                        }
+                    ],
+     *       "msg":"查询成功"
+     *     }
+     */
+
+    public function express()
+    {
+        $data = DB::table('express')->where('is_del',0)->select('id','name')->get();
+        return $this->rejson('200','查询成功',$data);
+    }
+
+    /**
+     * @api {post} /api/goods/express 快递
+     * @apiName express
+     * @apiGroup menage
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} token 验证登陆
+     * @apiParam {string} id 订单编号id
+     * @apiParam {string} express_id 快递公司id
+     * @apiParam {string} courier_num 快递单号
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": [
+                        {
+                        "id"   "快递类型id",
+                        "name": "公司名称",
+                        }
+                    ],
+     *       "msg":"查询成功"
+     *     }
+     */
+
+    public function deliver()
+    {
+        $all = request()->all();
+        if(empty($all['express_id'])){
+            return $this->rejson('201','请选择快递');
+        }
+        if(empty($all['courier_num'])){
+            return $this->rejson('201','请填写快递单号');
+        }
+        $res = [
+            'express_id'=>$all['express_id'],
+            'courier_num'=>$all['courier_num']
+        ];
+        $data = DB::table('order_goods')->where('id',$all['id'])->update($res);
+        if($data){
+            return $this->rejson('200','发货完成');
         }else{
             return $this->rejson('201','参数有误');
         }

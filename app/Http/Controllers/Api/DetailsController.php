@@ -21,7 +21,6 @@ class DetailsController extends Controller
      * {
      * "code":"200",
      * "data":{
-     *         [
      *             "door_img":"商家门头图",
      *             "stars_all":"商家星级",
      *             "address":"详细地址",
@@ -31,8 +30,7 @@ class DetailsController extends Controller
      *             "id":"商户id",
      *             "desc":"商家简介",
      *             "facilities":"商家环境设施"
-     *          ]
-     * },
+     *          },
      *  "msg":"查询成功"
      * }
      *
@@ -115,7 +113,14 @@ class DetailsController extends Controller
      *              {
      *                  "img":"房间图片",
      *                  "price":"房间价格",
-     *                  "house_name":"房间名称"
+     *                  "house_name":"房间名称",
+     *                  "areas":"面积",
+     *                  "has_window":"窗户",
+     *                  "wifi":"wifi",
+     *                  "num":"可住人数",
+     *                  "has_breakfast":"有无早餐",
+     *                  "bed_type":"床型",
+     *                  "other_sets":"配套设置"
      *               }
      *              ],
      *    "msg":"查询成功"
@@ -127,9 +132,10 @@ class DetailsController extends Controller
         if(empty($all['id'])){
             return $this->rejson(201,"缺少参数");
         }
-        $data = DB::table("hotel_room")
-            ->select(['img', 'price', 'house_name'])
-            ->where('id', $all['id'])
+        $data = DB::table("hotel_room as r")
+            ->join("hotel_attr_value as a","r.hotel_room_id","=","a.id")
+            ->select(['r.img', 'r.price', 'r.house_name','a.areas','a.has_window','a.wifi','a.num','a.has_breakfast','a.bed_type','a.other_sets'])
+            ->where('r.id', $all['id'])
             ->first();
         if ($data) {
             return $this->rejson(200, '查询成功', $data);

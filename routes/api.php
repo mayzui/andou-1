@@ -116,7 +116,16 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('goods/store','ManageController@store');
      Route::post('goods/saveStore','ManageController@saveStore');
      Route::post('goods/merchants','ManageController@merchants');
+     //文件上传
      Route::post('goods/uploads','ManageController@uploads');
+     //余额明细
+     Route::post('goods/water','ManageController@water');
+     //退出
+     Route::post('goods/quit','ManageController@quit');
+     //快递公司
+     Route::post('goods/express','ManageController@express');
+     //发货
+     Route::post('goods/deliver','ManageController@deliver');
 
           //商家详情
      Route::post('details/list','DetailsController@list');
