@@ -519,7 +519,6 @@ class ShopController extends BaseController
         $json = json_encode($data);
         $data = json_decode($json,true);
         $data = Tree::tree($data['data'],'name','id','pid');
-//        return dd($data);
         return $this->view('',['data'=>$data]);
 
     }

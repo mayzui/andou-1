@@ -17,12 +17,12 @@
                     <table class="table table-striped table-bordered table-hover m-t-md">
                         <thead>
                         <tr>
-                            <th><input type="checkbox" id="checkall" /></th>
-                            <th>分类ID</th>
-                            <th>商家名称</th>
+                            <th width="50px"><input type="checkbox" id="checkall" /></th>
+                            <th width="150px">分类ID</th>
+                            <th width="250px">商家名称</th>
                             <th>分类名称</th>
-                            <th>产品数</th>
-                            <th>操作</th>
+                            <th width="200px">产品数</th>
+                            <th width="200px">操作</th>
                         </tr>
                         </thead>
                         <tbody>
