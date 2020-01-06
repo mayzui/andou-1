@@ -230,6 +230,9 @@ class ShopController extends BaseController
                         'name' => json_decode(json_encode($name),true)['name'],
                         'value' => $all['attrvalue_'.$item.'']
                     ];
+                }else{
+                    flash("未选择商品参数，请选择后重试") -> error();
+                    return redirect()->route('shop.goods');
                 }
             }
             foreach ($data as $k=>$v){
@@ -302,44 +305,44 @@ class ShopController extends BaseController
                 // 存在该id，执行修改
                 // 将该表中存在该id的所有数据删除，再重新新增
                 DB::beginTransaction();
+                try{
+                    // 删除表中，用该商品id的所有数据
+                    DB::table('goods_sku') -> where('goods_id',$all['goods_id']) -> delete();
+                    // 执行新增
+                    for($i = 1;$i<=count($all)-5;$i++){
+                        $value[] = [
+                            'name' => $attr_name,
+                            'value' => $all['value_'.$i.'']
+                        ];
+                        $values[] = json_encode($value,JSON_UNESCAPED_UNICODE);
+                        $value = [];
+                    }
                     try{
-                        // 删除表中，用该商品id的所有数据
-                        DB::table('goods_sku') -> where('goods_id',$all['goods_id']) -> delete();
-                        // 执行新增
-                        for($i = 1;$i<=count($all)-5;$i++){
-                            $value[] = [
-                                'name' => $attr_name,
-                                'value' => $all['value_'.$i.'']
+                        foreach ($values as $k =>$v){
+                            $data = [
+                                'goods_id' => $all['goods_id'],
+                                'attr_value' => $values[$k],
+                                'price' => $price[$k],
+                                'store_num' => $num[$k]
                             ];
-                            $values[] = json_encode($value,JSON_UNESCAPED_UNICODE);
-                            $value = [];
+                            $i = DB::table('goods_sku') -> insert($data);
                         }
-                        try{
-                            foreach ($values as $k =>$v){
-                                $data = [
-                                    'goods_id' => $all['goods_id'],
-                                    'attr_value' => $values[$k],
-                                    'price' => $price[$k],
-                                    'store_num' => $num[$k]
-                                ];
-                                $i = DB::table('goods_sku') -> insert($data);
-                            }
-                            if($i){
-                                flash('修改成功') -> success();
-                                return redirect()->route('shop.goods');
-                                DB::commit();
-                            }else{
-                                flash('修改失败') -> error();
-                                return redirect()->route('shop.goods');
-                                DB::rollBack();
-                            }
-                        }catch (\Exception $e){
+                        if($i){
+                            flash('修改成功') -> success();
+                            return redirect()->route('shop.goods');
+                            DB::commit();
+                        }else{
+                            flash('修改失败') -> error();
+                            return redirect()->route('shop.goods');
                             DB::rollBack();
                         }
-
                     }catch (\Exception $e){
                         DB::rollBack();
                     }
+
+                }catch (\Exception $e){
+                    DB::rollBack();
+                }
 
             }
 
@@ -1009,6 +1012,7 @@ class ShopController extends BaseController
                 'is_recommend'=>'',
                 'dilivery'=>'',
                 'merchants_goods_type_id'=>'',
+                'is_sale'=>'',
             ]
         ];
         return $this->view('addGoods',$arr);
@@ -1245,23 +1249,21 @@ class ShopController extends BaseController
     // 商品信息新增 and 修改
     public function store (Request $request)
     {
+        // 判断是否传值
         $validate = Validator::make($request->all(),[
             'goods_cate_id'=>'required',
-            'goods_brand_id'=>'required',
             'name' => 'required',
+            'merchants_goods_type' => 'required',
             'desc' => 'required',
             'img' => 'required',
             'price' => 'required',
-            'is_hot' => 'required',
-            'is_recommend' => 'required',
-            'is_bargain' => 'required',
-            'is_team_buy' => 'required',
+            'weight' => 'required',
         ],[
-            'goods_brand_id.required'=>'缺少品牌',
             'name.required'=>'缺少名称',
-            'desc.required'=>'缺少描述',
-            'img.required'=>'缺少图片',
-            'price.required'=>'缺少基础价',
+            'merchants_goods_type.required'=>'缺少分类',
+            'img.required'=>'缺少封面图片',
+            'price.required'=>'缺少基础价格',
+            'weight.required'=>'缺少重量',
         ]);
 
         if ($validate->fails()) {
@@ -1270,10 +1272,82 @@ class ShopController extends BaseController
         }
         // 商品详情修改
         $all = \request() -> all();
+        // 判断执行新增方法还是执行修改方法
         if($request -> input('goods_id')){
+            // 执行修改方法
+            // 判断是否上传新文件
+            $choose_file = $_FILES['choose-file'];
+            // 如果第一个文件为空，则未上传新文件
+            if($choose_file['name'][0] == ""){
+                // 判断是否传值
+                $validate = Validator::make($request->all(),[
+                    'choose_file'=>'required'
+                ],[
+                    'choose_file.required'=>'缺少详细图片'
+                ]);
+
+                if ($validate->fails()) {
+                    flash($validate->errors()->first())->error()->important();
+                    return redirect()->route('shop.goods');
+                }
+                // 如果未上传新文件，则获取当前文件内容
+                $album = json_encode($all['choose_file']);
+            }else{
+                // 如果上传了文件
+                //判断保存文件的路径是否存在
+                $dir = $_SERVER['DOCUMENT_ROOT']."/shop/shopImage/";
+                // 如果文件不存在，则创建
+                if (!is_dir($dir)) {
+                    mkdir($dir,0777,true);
+                }
+                // 声明支持的文件类型
+                $types = array("png", "jpg", "webp", "jpeg", "gif");
+                // 执行文件上传操作
+                for ($i = 0; $i < count($choose_file['name']); $i++) {
+                    //在循环中取得每次要上传的文件名
+                    $name = $choose_file['name'][$i];
+                    // 将上传的文件名，分割成数组
+                    $end = explode(".", $name);
+                    //在循环中取得每次要上传的文件类型
+                    $type = strtolower(end($end));
+                    // 判断上传的文件是否正确
+                    if (!in_array($type, $types)) {
+                        return '第'.($i + 1).'个文件类型错误';
+                    } else {
+                        //在循环中取得每次要上传的文件的错误情况
+                        $error = $choose_file['error'][$i];
+                        if ($error != 0) {
+                            flash("第" . ($i + 1) . "个文件上传错误") -> error();
+                            return redirect()->route('shop.create');
+                        } else {
+                            //在循环中取得每次要上传的文件的临时文件
+                            $tmp_name = $choose_file['tmp_name'][$i];
+                            if (!is_uploaded_file($tmp_name)) {
+                                return "第" . ($i + 1) . "个临时文件错误";
+                            } else {
+                                // 给上传的文件重命名
+                                $newname = $dir.date("YmdHis") . rand(1, 10000) . "." . $type;
+                                $img_array[$i] = substr($newname,strpos($newname,'/shop/shopImage/'));
+                                //对文件执行上传操作
+                                if (!move_uploaded_file($tmp_name, $newname)) {
+                                    return "第" . ($i + 1) . "个文件上传失败";
+                                }
+                            }
+                        }
+                    }
+                }
+                // 获取上传的图片路径
+                $img_array = json_encode($img_array);
+                if(empty($all['choose_file'])){
+                    $al = "";
+                }else{
+                    $al = json_encode($all['choose_file']);
+                }
+                // 查询原来的值是否删除
+                $album = $img_array.$al;
+            }
             // 获取提交的数据
             $data = [
-                'goods_brand_id' => $all['goods_brand_id'],
                 'goods_cate_id' => ','.$request->input('goods_cate_id').','.$request->input('goods_cate_id1').','.$request->input('goods_cate_id2').',',
                 'name' => $all['name'],
                 'img' => $all['img'],
@@ -1281,11 +1355,9 @@ class ShopController extends BaseController
                 'weight' => $all['weight'],
                 'dilivery' => $all['dilivery'],
                 'desc' => $all['desc'],
-                'is_hot' => $all['is_hot'],
-                'is_bargain' => $all['is_bargain'],
-                'is_recommend' => $all['is_recommend'],
-                'is_team_buy' => $all['is_team_buy'],
+                'is_sale' => $all['is_sale'],
                 'merchants_goods_type_id' => $all['merchants_goods_type'],
+                'album' => $album,
             ];
             // 链接数据库，修改内容
             $i = DB::table('goods') -> where('id',$all['goods_id']) -> update($data);
@@ -1312,6 +1384,7 @@ class ShopController extends BaseController
                 $old_arr = [];
             }
             $goodsdata = DB::table('goods') -> where('id',$all['goods_id']) -> first();
+            // 判断是否修改成功
             if($i){
                 $goodsCate = GoodsCate::with(['children'=>function($res){
                     $res->with('children');
@@ -1340,7 +1413,7 @@ class ShopController extends BaseController
                     'attrvalueData'=>$a,
                     'goods_id'=>$all['goods_id'],
                     'goodssku'=> $old_arr,
-                    'goods_album'=> []
+                    'goods_album'=> json_decode($goodsdata->album)
                 ];
                 flash('修改成功') -> success();
                 return $this->view('addGoods',$arr);
@@ -1367,44 +1440,91 @@ class ShopController extends BaseController
                     'goodsdata'=>$goodsdata,
                     'goodBrands'=>$goodBrands,
                     'express_modeldata'=>$express_modeldata,
-                    'merchants_goods_type'=>$merchants_goods_type,
                     'attrData'=>$attrData,
+                    'merchants_goods_type'=>$merchants_goods_type,
                     'attrvalueData'=>$a,
                     'goods_id'=>$all['goods_id'],
                     'goodssku'=> $old_arr,
-                    'goods_album'=> []
+                    'goods_album'=> json_decode($goodsdata->album),
                 ];
                 flash('未修改任何内容') -> success();
                 return $this->view('addGoods',$arr);
             }
         }else{
-            // 新增
+            // 执行新增方法
             $model = new Goods();
 
             if ($request->input('id')) {
                 $model = Goods::find($request->input('id'));
             }
 
+            // 获取上传的文件
+            $choose_file = $_FILES['choose-file'];
+            //判断第一个文件名是否为空
+            if ($choose_file['name'][0] == "") {
+                flash("请选择详情图片") -> error();
+                return redirect()->route('shop.create');
+            }
+            // 判断保存文件的路径是否存在
+            $dir = $_SERVER['DOCUMENT_ROOT']."/shop/shopImage/";
+            // 如果文件不存在，则创建
+            if (!is_dir($dir)) {
+                mkdir($dir,0777,true);
+            }
+            // 声明支持的文件类型
+            $types = array("png", "jpg", "webp", "jpeg", "gif");
+            // 执行文件上传操作
+            for ($i = 0; $i < count($choose_file['name']); $i++) {
+                //在循环中取得每次要上传的文件名
+                $name = $choose_file['name'][$i];
+                // 将上传的文件名，分割成数组
+                $end = explode(".", $name);
+                //在循环中取得每次要上传的文件类型
+                $type = strtolower(end($end));
+                // 判断上传的文件是否正确
+                if (!in_array($type, $types)) {
+                    return '第'.($i + 1).'个文件类型错误';
+                } else {
+                    //在循环中取得每次要上传的文件的错误情况
+                    $error = $choose_file['error'][$i];
+                    if ($error != 0) {
+                        flash("第" . ($i + 1) . "个文件上传错误") -> error();
+                        return redirect()->route('shop.create');
+                    } else {
+                        //在循环中取得每次要上传的文件的临时文件
+                        $tmp_name = $choose_file['tmp_name'][$i];
+                        if (!is_uploaded_file($tmp_name)) {
+                            return "第" . ($i + 1) . "个临时文件错误";
+                        } else {
+                            // 给上传的文件重命名
+                            $newname = $dir.date("YmdHis") . rand(1, 10000) . "." . $type;
+                            $img_array[$i] = substr($newname,strpos($newname,'/shop/shopImage/'));
+                            //对文件执行上传操作
+                            if (!move_uploaded_file($tmp_name, $newname)) {
+                                return "第" . ($i + 1) . "个文件上传失败";
+                            }
+                        }
+                    }
+                }
+            }
+            // 获取上传的图片路径
+            $img_array = json_encode($img_array);
+
             $model->goods_cate_id = ','.$request->input('goods_cate_id').','.$request->input('goods_cate_id1').','.$request->input('goods_cate_id2').',';
 
-            $model->goods_brand_id = $request->input('goods_brand_id');
             $model->name = $request->input('name');
-            $model->img = $request->input('img');
-            $model->desc = $request->input('desc');
-            $model->price = $request->input('price');
             $model->merchants_goods_type_id = $request->input('merchants_goods_type');
-
-            $model->dilivery = $request->input('dilivery');
+            $model->img = $request->input('img');
+            $model->price = $request->input('price');
             $model->weight = $request->input('weight');
-
-            $model->is_hot = $request->input('is_hot',0);
-            $model->is_recommend = $request->input('is_recommend',0);
-            $model->is_bargain = $request->input('is_bargain',0);
-            $model->is_team_buy = $request->input('is_team_buy',0);
+            $model->desc = $request->input('desc');
+            $model->is_sale = $request->input('is_sale');
+            $model->dilivery = $request->input('dilivery');
+            $model->album = $img_array;
             $model->merchant_id = Auth::id();
             try {
                 $model->save();
-//            return $this->status('保存成功',['id'=>$model->id],200);
+
                 $goodsCate = GoodsCate::with(['children'=>function($res){
                     $res->with('children');
                 }])->where('pid','=',0)
@@ -1454,16 +1574,19 @@ class ShopController extends BaseController
                     'goods_id'=>$model->id,
                     'goodssku'=> $old_arr,
                     'goodsdata' =>(object)[
-                        'goods_brand_id'=>'',
-                        'is_hot'=>'',
-                        'is_bargain'=>'',
-                        'is_team_buy'=>'',
-                        'merchants_goods_type_id'=>'',
-                        'is_recommend'=>'',
-                        'dilivery'=>''
+                        'goods_cate_id'=>'',
+                        'name'=>$request->input('name'),
+                        'merchants_goods_type_id'=>$request->input('merchants_goods_type'),
+                        'img'=>$request->input('img'),
+                        'price'=>$request->input('price'),
+                        'weight'=>$request->input('weight'),
+                        'desc'=>$request->input('desc'),
+                        'is_sale'=>$request->input('is_sale'),
+                        'dilivery'=>$request->input('dilivery'),
+
                     ]
                 ];
-                flash('新增成功,请继续下一步,上传相册') -> success();
+                flash('新增成功,请继续下一步,上传参数') -> success();
                 return $this->view('addGoods',$arr);
             } catch (\Exception $e){
                 return $this->failed($e->getMessage());

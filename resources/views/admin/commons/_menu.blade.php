@@ -9,8 +9,8 @@
         <div class="andou_left navbar-default">
             <div class="logo"><img class="transform" src="{{loadEdition('/admin/images/logo.png')}}" ></div>
             <div class="ad-user">
-                <img src="{{$admin->avator}}" >
-                <p>{{$admin->name}}</p>
+                {{--<img src="{{$admin->avator}}" >--}}
+                {{--<p>{{$admin->name}}</p>--}}
             </div>
 
             <ul class="layui-nav layui-nav-tree layui-inline" lay-filter="demo" id="side-menu">
