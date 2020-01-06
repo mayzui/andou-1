@@ -85,14 +85,26 @@
                                             <a href="{{url("/admin/refund/aftermarket?id=$item->id")}}">
                                                 <button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 售后服务</button>
                                             </a>
-                                            <a href="{{url("/admin/shop/ordersUpd?id=$item->id")}}">
-                                                <button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 修改</button>
-                                            </a>
+                                            @if($item->status==10)
+                                                <a href="{{url("/admin/shop/ordersUpd?id=$item->id")}}">
+                                                    <button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i>修改</button>
+                                                </a>
+                                             @else
+                                                <a href="{{url("/admin/shop/ordersUpd?id=$item->id")}}">
+                                                    <button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i>详情</button>
+                                                </a>
+                                             @endif
                                             <a href="{{url("/admin/shop/ordersDel?id=$item->id")}}" onClick="delcfm()"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o" ></i> 删除</button></a>
                                         @else
-                                            <a href="{{url("/admin/shop/ordersUpd?id=$item->id")}}">
-                                                <button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 修改</button>
-                                            </a>
+                                            @if($item->status==10)
+                                                <a href="{{url("/admin/shop/ordersUpd?id=$item->id")}}">
+                                                    <button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i>修改</button>
+                                                </a>
+                                            @else
+                                                <a href="{{url("/admin/shop/ordersUpd?id=$item->id")}}">
+                                                    <button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i>详情</button>
+                                                </a>
+                                            @endif
                                             <a href="{{url("/admin/shop/ordersDel?id=$item->id")}}" onClick="delcfm()"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o" ></i> 删除</button></a>
                                         @endif
 
