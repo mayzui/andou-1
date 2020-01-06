@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Models\District;
 use App\Models\ExpressAttr;
 use App\Models\ExpressModel;
+use App\Models\GoodsType;
 use App\Models\Orders;
 use App\Models\Statics;
 use Illuminate\Http\Request;
@@ -504,22 +505,12 @@ class ShopController extends BaseController
         if(!empty($i)) {
             // 如果开店，则查询当前商户的信息
             // 链接数据库，查询商户的商品分类
-            $data = DB::table('merchants_goods_type')
-                -> where('is_del',1)
-                -> where('merchant_id',$i->id)
-                -> select(['id','merchants_name','name','pid','num'])
-                -> paginate(10);
+            $datas = GoodsType::where('is_del',1)->get(['id','merchants_name','name','pid','num'])->toArray();
         }else{
             // 链接数据库，查询商户的商品分类
-            $data = DB::table('merchants_goods_type')
-                -> where('is_del',1)
-                -> select(['id','merchants_name','name','pid','num'])
-                -> paginate(10);
+            $datas = GoodsType::where('is_del',1)->get(['id','merchants_name','name','pid','num'])->toArray();
         }
-        $json = json_encode($data);
-        $data = json_decode($json,true);
-        $data = Tree::tree($data['data'],'name','id','pid');
-//        return dd($data);
+        $data = Tree::tree($datas,'name','id','pid');
         return $this->view('',['data'=>$data]);
 
     }
@@ -548,40 +539,74 @@ class ShopController extends BaseController
       }
 
     // 新增 and 修改 商品分类
-    public function merchants_goods_typeChange(){
+    public function merchants_goods_typeChange(Request $request){
         $all = \request() -> all();
         if(\request() -> isMethod("get")){
             if(empty($all['id'])){
+            $list = GoodsType::where('is_del',1)->get(['pid','merchants_name','num','id','name'])->toArray();
+            $list = Tree::tree($list,'name','id','pid');
                 // 跳转新增界面
-                return $this->view('');
+                return $this->view('',['list'=>$list]);
             }else{
                 // 跳转修改界面
                 // 根据传入的id 查询数据库中的值
-                $data = DB::table('merchants_goods_type') -> where('id',$all['id']) -> first();
-                return $this->view('',['data'=> $data]);
+//                $list = GoodsType::where('id',$all['id'])->get(['pid','merchants_name','num','id','name'])->toArray();
+                $list = GoodsType::where('is_del',1)->get(['id','merchants_name','name','pid','num'])->toArray();
+                $list = Tree::tree($list,'name','id','pid');
+                $model = new GoodsType();
+                $data = GoodsType::where('id',$all['id'])->first(['pid','merchants_name','num','id','name','roots','level'])->toArray();
+                return $this->view('',['data'=>$data,'list'=>$list]);
             }
         }else{
             if(empty($all['id'])){
                 // 执行新增操作
                 // 获取提交的内容
-                $data  = [
-                    'name' => $all['name'],
-                    'merchant_id' => Auth::id()
-                ];
-                // 链接数据库，新增内容
-                $i = DB::table('merchants_goods_type') -> insert($data);
-                if($i){
-                    flash('新增成功') -> success();
-                    return redirect()->route('shop.merchants_goods_type');
+                if ($all['pid']==0){
+                    $data  = [
+                        'name'        => $all['name'],
+                        'merchant_id' => Auth::id(),
+                        'pid'         => $all['pid'],
+                        'roots'       => 0,
+                        'num'         => $all['num']
+                    ];
+                    // 链接数据库，新增内容
+                    $i = DB::table('merchants_goods_type') -> insert($data);
+                    if($i){
+                        flash('新增成功') -> success();
+                        return redirect()->route('shop.merchants_goods_type');
+                    }else{
+                        flash('新增失败') -> error();
+                        return redirect()->route('shop.merchants_goods_type');
+                    }
                 }else{
-                    flash('新增失败') -> error();
-                    return redirect()->route('shop.merchants_goods_type');
+                    $data  = [
+                        'name'        => $all['name'],
+                        'merchant_id' => Auth::id(),
+                        'pid'         => $all['pid'],
+                        'roots'       =>"0".",".$all['pid'],
+                        'level'       => 2,
+                        'num'         => $all['num']
+                    ];
+                    // 链接数据库，新增内容
+                    $i = DB::table('merchants_goods_type') -> insert($data);
+                    if($i){
+                        flash('新增成功') -> success();
+                        return redirect()->route('shop.merchants_goods_type');
+                    }else{
+                        flash('新增失败') -> error();
+                        return redirect()->route('shop.merchants_goods_type');
+                    }
                 }
+
             }else{
                 // 执行修改操作
                 // 获取提交的内容
                 $data  = [
                     'name' => $all['name'],
+                    'num'  => $all['num'],
+                    'pid'  => $all['pid'],
+                    'roots'=>"0".",".$all['pid'],
+                    'level'=>2
                 ];
                 $i = DB::table('merchants_goods_type') -> where('id',$all['id']) -> update($data);
                 if($i){
@@ -1552,6 +1577,7 @@ class ShopController extends BaseController
 
         $model = new GoodsCate();
         if ($request->input('id')) {
+
             $model = GoodsCate::find($request->input('id'));
             if ($model->pid != $request->input('pid')){
                 flash('操作失败，不能更改分类的上下级关系')->error()->important();
