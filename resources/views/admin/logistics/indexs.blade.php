@@ -80,7 +80,10 @@
                                             </a>
                                             @else
                                             <a href="{{route('logistics.readLogistics')}}?id={{$item->id}}&express_id={{ $item -> express_id }}&courier_num={{ $item ->courier_num }}">
-                                                <button class="btn btn-primary btn-xs" type="button"><i class="fa fa-check"></i> 查看物流信息</button>
+                                                <button class="btn btn-info btn-xs" type="button"><i class="fa fa-check"></i> 查看物流信息</button>
+                                            </a>
+                                            <a href="{{route('logistics.updateLogistics')}}?id={{$item->id}}">
+                                                <button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 修改物流单号</button>
                                             </a>
                                         @endif
                                     </div>

@@ -6,6 +6,34 @@ use App\Http\Controllers\Controller;
 
 class LogisticsController extends BaseController
 {
+    // 修改物流信息
+    public function updateLogistics(){
+        $all = \request() ->  all();
+        if(\request() -> isMethod("get")){
+            // 根据提交的id，查询商品详情表中的内容
+            $data = \DB::table('order_goods') -> where('id',$all['id']) -> first();
+            // 查询物流表
+            $type = \DB::table('express') -> get();
+            return $this->view('',['data'=> $data,'type'=>$type]);
+        }else{
+            // 获取提交的数据
+            $data = [
+                'express_id' => $all['express_id'],
+                'courier_num' => $all['courier_num']
+            ];
+            // 链接数据库修改内容
+            $i = \DB::table('order_goods') -> where('id',$all['id']) -> update($data);
+            if($i){
+                flash("修改成功") -> success();
+                return redirect()->route('logistics.indexs');
+            }else{
+                flash("修改失败，请稍后再试") -> error();
+                return redirect()->route('logistics.indexs');
+            }
+        }
+    }
+
+    // 跳转物流信息界面
     public function indexs()
     {
         $id = \Auth::id();
@@ -19,7 +47,6 @@ class LogisticsController extends BaseController
                 -> join('users','order_goods.user_id','=','users.id')
                 -> join('goods','order_goods.goods_id','=','goods.id')
                 -> where('merchants.user_id',$id)
-//            -> join('express','order_goods.express_id','=','express.id')
                 -> select(['order_goods.id','order_goods.order_id','merchants.name as merchants_name','users.name as users_name','goods.name as goods_name',
                     'order_goods.num','order_goods.shipping_free','order_goods.total','order_goods.express_id','order_goods.courier_num'])
                 -> paginate(5);
@@ -30,7 +57,6 @@ class LogisticsController extends BaseController
                 -> join('merchants','order_goods.merchant_id','=','merchants.id')
                 -> join('users','order_goods.user_id','=','users.id')
                 -> join('goods','order_goods.goods_id','=','goods.id')
-//            -> join('express','order_goods.express_id','=','express.id')
                 -> select(['order_goods.id','order_goods.order_id','merchants.name as merchants_name','users.name as users_name','goods.name as goods_name',
                     'order_goods.num','order_goods.shipping_free','order_goods.total','order_goods.express_id','order_goods.courier_num'])
                 -> paginate(5);
@@ -138,7 +164,7 @@ class LogisticsController extends BaseController
                     $state = '退回';
                 }
             }else{
-                flash("对不起没有查询到该物流信息") ->error();
+                flash("对不起没有查询到该物流信息，请查看快递公司与快递单号是否一致") ->error();
                 return redirect()->route('logistics.indexs');
             }
 
