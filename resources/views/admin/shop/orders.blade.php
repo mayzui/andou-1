@@ -38,11 +38,7 @@
                             <th>订单号</th>
                             <th>下单人</th>
                             <th>支付方式</th>
-                            <th>支付金额</th>
-                            <th>总计金额</th>
-                            <th>邮费</th>
-                            <th>订单备注</th>
-                            <th>支付时间</th>
+
                             <th>订单状态</th>
                             <th>操作</th>
                         </tr>
@@ -68,11 +64,6 @@
                                         其他方式
                                     @endif
                                 </td>
-                                <td>{{$item->pay_money}}</td>
-                                <td>{{$item->total}}</td>
-                                <td>{{$item->shipping_free}}</td>
-                                <td>{{$item->remark}}</td>
-                                <td>{{$item->pay_time}}</td>
                                 <td>
                                     @if($item->status == 0)
                                         <font color="880000">取消支付</font>
@@ -90,10 +81,21 @@
                                 </td>
                                 <td class="text-center">
                                     <div class="btn-group">
-                                        <a href="{{url("/admin/shop/ordersUpd?id=$item->id")}}">
-                                            <button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 修改</button>
-                                        </a>
-                                        <a href="{{url("/admin/shop/ordersDel?id=$item->id")}}" onClick="delcfm()"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o" ></i> 删除</button></a>
+                                        @if(in_array($item->id,$has))
+                                            <a href="{{url("/admin/refund/aftermarket?id=$item->id")}}">
+                                                <button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 售后服务</button>
+                                            </a>
+                                            <a href="{{url("/admin/shop/ordersUpd?id=$item->id")}}">
+                                                <button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 修改</button>
+                                            </a>
+                                            <a href="{{url("/admin/shop/ordersDel?id=$item->id")}}" onClick="delcfm()"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o" ></i> 删除</button></a>
+                                        @else
+                                            <a href="{{url("/admin/shop/ordersUpd?id=$item->id")}}">
+                                                <button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 修改</button>
+                                            </a>
+                                            <a href="{{url("/admin/shop/ordersDel?id=$item->id")}}" onClick="delcfm()"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o" ></i> 删除</button></a>
+                                        @endif
+
                                     </div>
                                 </td>
                             </tr>

@@ -6,6 +6,8 @@ use App\Models\District;
 use App\Models\ExpressAttr;
 use App\Models\ExpressModel;
 use App\Models\GoodsType;
+use App\Models\Ogoods;
+use App\Models\Order;
 use App\Models\Orders;
 use App\Models\Statics;
 use Illuminate\Http\Request;
@@ -198,7 +200,9 @@ class ShopController extends BaseController
     {
         $all = \request()-> all();
         $id = $all['id'];
-        $data = Orders::where('id',$id)->select(['status'])->get();
+        $data = Orders::where('id',$id)->get()->toArray();
+        $sql ="select order_goods.pay_money, order_goods.shipping_free,order_goods.pay_way,order_goods.total,order_goods.pay_time,orders.remark  from order_goods join orders on order_goods.order_id = orders.order_sn where  order_goods.id=".$all['id'];
+        $data = DB::select($sql);
         return $this->view('ordersUpd',['data'=>$data,'id'=>$id]);
     }
     //订单修改提交
@@ -765,6 +769,7 @@ class ShopController extends BaseController
             -> first();
         // 如果当前用户是商家，则查询当前商户的商品
         if($i){
+            $sta = 1;
             $list = DB::table('orders')
                 -> join('order_goods','orders.order_sn','=','order_goods.order_id')
 //            -> join('merchants','order_goods.merchant_id','=','merchants.id')
@@ -774,6 +779,7 @@ class ShopController extends BaseController
                 -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
                     'orders.pay_way','orders.remark','orders.status','users.name as user_name',])
                 -> paginate(10);
+
         }else{
             $list = DB::table('orders')
                 -> join('order_goods','orders.order_sn','=','order_goods.order_id')
@@ -783,7 +789,9 @@ class ShopController extends BaseController
                     'orders.pay_way','orders.remark','orders.status','users.name as user_name',])
                 -> paginate(10);
         }
-        return $this->view('orders',['list'=>$list]);
+         $model = Order::get(['order_goods_id'])->toArray();
+         $cfCen =array_column($model,"order_goods_id");
+        return $this->view('orders',['list'=>$list,'has'=>$cfCen]);
 
     }
 
