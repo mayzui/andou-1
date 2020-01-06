@@ -18,10 +18,6 @@
             <!-- <span>超级管理员</span> -->
             <i class=""></i>
             <dl class="layui-nav-child">
-<<<<<<< HEAD
-                <dd class="dd"><a href="">修改密码</a></dd>
-                <dd><a href="{{route('merchants.information')}}?id=@php echo $sid; @endphp">修改商户信息</a></dd>
-=======
                 <dd><a href="" data-toggle="modal" data-target="#myModal">修改密码</a></dd>
                 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
@@ -69,7 +65,6 @@
                     </div>
                 </div>
                 <dd><a class="J_menuItem" href="{{route('merchants.information')}}?id=@php echo $sid; @endphp">修改商户信息</a></dd>
->>>>>>> 95e925b4c8fd66b2566b1154fe8e34f35d1fad01
             </dl>
         </div>
     </div>

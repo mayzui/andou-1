@@ -519,7 +519,7 @@ class ShopController extends BaseController
         $json = json_encode($data);
         $data = json_decode($json,true);
         $data = Tree::tree($data['data'],'name','id','pid');
-//        var_dump($data);die;
+//        return dd($data);
         return $this->view('',['data'=>$data]);
 
     }
@@ -741,16 +741,21 @@ class ShopController extends BaseController
         // 如果当前用户是商家，则查询当前商户的商品
         if($i){
             $list = DB::table('orders')
+                -> join('order_goods','orders.order_sn','=','order_goods.order_id')
+//            -> join('merchants','order_goods.merchant_id','=','merchants.id')
                 -> join('users','orders.user_id','=','users.id')
                 -> where('orders.is_del',0)
-                -> where('orders.user_id',$id)
-                -> select(['orders.id','orders.order_sn','orders.pay_way','orders.pay_money','orders.order_money','orders.status','orders.shipping_free','orders.remark','orders.auto_receipt','orders.pay_time','users.name'])
+                -> where('order_goods.merchant_id',$id)
+                -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
+                    'orders.pay_way','orders.remark','orders.status','users.name as user_name',])
                 -> paginate(10);
         }else{
             $list = DB::table('orders')
+                -> join('order_goods','orders.order_sn','=','order_goods.order_id')
                 -> join('users','orders.user_id','=','users.id')
                 -> where('orders.is_del',0)
-                -> select(['orders.id','orders.order_sn','orders.pay_way','orders.pay_money','orders.order_money','orders.status','orders.shipping_free','orders.remark','orders.auto_receipt','orders.pay_time','users.name'])
+                -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
+                    'orders.pay_way','orders.remark','orders.status','users.name as user_name',])
                 -> paginate(10);
         }
         return $this->view('orders',['list'=>$list]);
@@ -884,14 +889,18 @@ class ShopController extends BaseController
         $i = DB::table('merchants')
             -> where('user_id',$id)
             -> where('is_reg',1)
+            -> select('id')
             -> first();
+
         // 如果当前用户是商家，则查询当前商户的商品
         if($i){
             $goods = DB::table('goods')
                 -> join('merchants','goods.merchant_id','=','merchants.id')
-                -> where('merchants.user_id',$id)
+                -> where('goods.merchant_id',$i -> id)
                 -> where('is_del',0)
-                -> select(['merchants.name as merchant_name','goods.id','goods.pv','goods.created_at','goods.updated_at','goods.goods_cate_id','goods.img','goods.desc','goods.is_hot','goods.is_recommend','goods.is_sale','goods.is_bargain','goods.dilivery'])
+                -> select(['merchants.name as merchant_name','goods.id','goods.pv','goods.created_at','goods.updated_at',
+                    'goods.goods_cate_id','goods.name as goods_name','goods.img','goods.desc','goods.is_hot','goods.is_recommend','goods.is_sale',
+                    'goods.is_bargain','goods.dilivery','goods.volume','goods.price'])
                 -> orderBy('goods.id','desc')
                 -> paginate(10);
             foreach ($goods as $k => $v){
@@ -908,7 +917,9 @@ class ShopController extends BaseController
             $goods = DB::table('goods')
                 -> join('merchants','goods.merchant_id','=','merchants.id')
                 -> where('is_del',0)
-                -> select(['merchants.name as merchant_name','goods.id','goods.name as goods_name','goods.pv','goods.created_at','goods.updated_at','goods.goods_cate_id','goods.img','goods.desc','goods.is_hot','goods.is_recommend','goods.is_sale','goods.is_bargain','goods.dilivery'])
+                -> select(['merchants.name as merchant_name','goods.id','goods.name as goods_name','goods.pv',
+                    'goods.created_at','goods.name as goods_name','goods.updated_at','goods.goods_cate_id','goods.img','goods.desc','goods.is_hot',
+                    'goods.is_recommend','goods.is_sale','goods.is_bargain','goods.dilivery','goods.volume','goods.price'])
                 -> orderBy('goods.id','desc')
                 -> paginate(10);
             foreach ($goods as $k => $v){
@@ -922,7 +933,8 @@ class ShopController extends BaseController
                 $goods[$k]->goods_cate_id=implode(',',$name);
             }
         }
-        return $this->view('goods',['list'=>$goods]);
+        $goods_sku = DB::select("select goods_id,SUM(store_num) as total from `goods_sku` group by `goods_id`");
+        return $this->view('goods',['list'=>$goods,'goods_sku'=>json_decode(json_encode($goods_sku),true)]);
     }
 
     // 跳转商品新增界面

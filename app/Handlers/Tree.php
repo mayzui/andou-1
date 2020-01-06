@@ -107,9 +107,9 @@ final class Tree
             if ($v['_level'] != 1) {
                 $t = $title ? $v[$title] : "";
                 if (isset($arr[$k + 1]) && $arr[$k + 1]['_level'] >= $arr[$k]['_level']) {
-                    $arr[$k]['_name'] = $str . "&emsp;------- " . $v['_html'] . $t;
+                    $arr[$k]['_name'] = $str . "&emsp;├─ " . $v['_html'] . $t;
                 } else {
-                    $arr[$k]['_name'] = $str . "&emsp;-------" . $v['_html'] . $t;
+                    $arr[$k]['_name'] = $str . "&emsp;|─ " . $v['_html'] . $t;
                 }
             } else {
                 $arr[$k]['_name'] = $v[$title];

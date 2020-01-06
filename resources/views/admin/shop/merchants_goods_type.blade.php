@@ -14,11 +14,6 @@
                 <button type="button" class="btn btn-danger btn-sm mdels" title="批量删除" ><i class="fa fa-trash-o"></i> 批量删除</button>
 
                 <form method="post" action="{{route('shop.express')}}" name="form">
-                    <style>
-                        th ,td{
-                            text-align: center;
-                        }
-                    </style>
                     <table class="table table-striped table-bordered table-hover m-t-md">
                         <thead>
                         <tr>

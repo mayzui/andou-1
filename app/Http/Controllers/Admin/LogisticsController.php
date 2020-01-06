@@ -121,21 +121,27 @@ class LogisticsController extends BaseController
 
             $data['courier_num'] = $courier_num;
             // 判断订单状态 包括0在途，1揽收，2疑难，3签收，4退签，5派件，6退回等7个状态
-            if($res_1['state'] == 0){
-                $state = '在途中';
-            }else if($res_1['state'] == 1){
-                $state = '已揽收';
-            }else if($res_1['state'] == 2){
-                $state = '疑难';
-            }else if($res_1['state'] == 3){
-                $state = '已签收';
-            }else if($res_1['state'] == 4){
-                $state = '退签';
-            }else if($res_1['state'] == 5){
-                $state = '已派件';
-            }else if($res_1['state'] == 6){
-                $state = '退回';
+            if(isset($res_1['state'])){
+                if($res_1['state'] == 0){
+                    $state = '在途中';
+                }else if($res_1['state'] == 1){
+                    $state = '已揽收';
+                }else if($res_1['state'] == 2){
+                    $state = '疑难';
+                }else if($res_1['state'] == 3){
+                    $state = '已签收';
+                }else if($res_1['state'] == 4){
+                    $state = '退签';
+                }else if($res_1['state'] == 5){
+                    $state = '已派件';
+                }else if($res_1['state'] == 6){
+                    $state = '退回';
+                }
+            }else{
+                flash("对不起没有查询到该物流信息") ->error();
+                return redirect()->route('logistics.indexs');
             }
+
             return $this->view('',['data' => $data,'id'=>$all['id'],'state'=>$state]);
         } else {
             return "no";

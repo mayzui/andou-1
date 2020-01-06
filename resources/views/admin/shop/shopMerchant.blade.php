@@ -27,7 +27,6 @@
                     <table class="table table-striped table-bordered table-hover m-t-md" >
                         <thead>
                         <tr>
-                            <th><input type="checkbox"  /></th>
                             <th width="100">ID</th>
                             <th>商户名字</th>
                             <th>用户名字</th>
@@ -42,7 +41,6 @@
                         <tbody>
                         @foreach($data as $k => $item)
                             <tr>
-                                <td><input type="checkbox" /></td>
                                 <td>{{$item->id}}</td>
                                 <td>{{$item->name}}</td>
                                 <th>{{$item->username}}</th>
