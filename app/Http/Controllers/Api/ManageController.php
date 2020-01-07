@@ -66,6 +66,7 @@ class ManageController extends Controller
      * @apiParam {string} uid 用户id
      * @apiParam {string} token 验证登陆
      * @apiParam {string} id 商家id
+     * @apiParam {string} page 页码
      * @apiSuccessExample 参数返回:
      *     {
      *       "code": "200",
@@ -91,11 +92,19 @@ class ManageController extends Controller
         if(empty($all['id'])){
             return $this->rejson('201','参数有误');
         }
+        $num=10;
+        if (isset($all['page'])) {
+            $pages=($all['page']-1)*$num;
+        }else{
+            $pages=0;
+        }
         $data = DB::table('goods')
             ->join('goods_sku',"goods.id","=","goods_sku.goods_id")
             ->groupBy('goods_sku.goods_id')
             ->select(DB::raw("sum(goods_sku.store_num) as num"),'goods.id','goods.name','goods.desc','goods.img','goods.price','goods.is_sale','goods.weight')
             ->where('goods.merchant_id',$all['id'])
+            -> limit($num)
+            ->offset($pages)
             ->get();
         return $this->rejson(200,'查询成功',$data);
     }
@@ -121,7 +130,8 @@ class ManageController extends Controller
         if(empty($all['id'])){
             return $this->rejson('201','参数有误');
         }
-        $res = DB::table('goods')->where('id',$all['id'])->delete();
+        $data = ['is_del'=>1];
+        $res = DB::table('goods')->where('id',$all['id'])->update($data);
         if($res){
             return $this->rejson('200','删除成功');
         }else{
@@ -147,8 +157,8 @@ class ManageController extends Controller
     public function putaway()
     {
         $all = request()->all();
-        $res = DB::table('goods')->where('id',$all['id']);
-        if($res['is_sale'] == 1){
+        $res = DB::table('goods')->where('id',$all['id'])->first();
+        if($res->is_sale == 1){
             return $this->rejson('201','参数有误');
         }else{
             DB::table('goods')->where('id',$all['id'])->update(['is_sale'=>1]);
@@ -174,8 +184,8 @@ class ManageController extends Controller
     public function soldOut()
     {
         $all = request()->all();
-        $res = DB::table('goods')->where('id',$all['id'])->get();
-        if($res['is_sale'] != 0){
+        $res = DB::table('goods')->where('id',$all['id'])->first();
+        if($res->is_sale == 0){
             return $this->rejson('201','参数有误');
         }else{
             DB::table('goods')->where('id',$all['id'])->update(['is_sale'=>0]);
@@ -505,6 +515,33 @@ class ManageController extends Controller
     public function saveStore()
     {
         $all = request()->all();
+        if(empty($all['nickname'])){
+            return $this->rejson('202','参数不能为空');
+        }
+        if(empty($all['mobile'])){
+            return $this->rejson('202','参数不能为空');
+        }
+        if(empty($all['desc'])){
+            return $this->rejson('202','参数不能为空');
+        }
+        if(empty($all['address'])){
+            return $this->rejson('202','参数不能为空');
+        }
+        if(empty($all['banner_img'])){
+            return $this->rejson('202','参数不能为空');
+        }
+        if(empty($all['name'])){
+            return $this->rejson('202','参数不能为空');
+        }
+        if(empty($all['user_name'])){
+            return $this->rejson('202','参数不能为空');
+        }
+        if(empty($all['tel'])){
+            return $this->rejson('202','参数不能为空');
+        }
+        if(empty($all['return_address'])){
+            return $this->rejson('202','参数不能为空');
+        }
         $arr = [
             'name'=>$all['nickname'],
             'mobile'=>$all['mobile'],
@@ -527,6 +564,32 @@ class ManageController extends Controller
         }else{
             DB::rollback();//回滚
             return $this->rejson('201','修改失败');
+        }
+    }
+
+    /**
+     * @api {post} /api/goods/classifys  分类列表
+     * @apiName classifys
+     * @apiGroup menage
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} token 验证登陆
+     * @apiParam {string} id 商家id
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": "",
+     *       "msg":"添加完成"
+     *     }
+     */
+
+    public function classifys()
+    {
+        $all = request()->all();
+        $res = DB::table('merchants_goods_type')->where('merchant_id',$all['id'])->get();
+        if($res){
+            return $this->rejson('200','添加完成');
+        }else{
+            return $this->rejson('201','参数有误');
         }
     }
 
@@ -717,6 +780,7 @@ class ManageController extends Controller
                         {
                         "id"   "评论id",
                         "name": "用户名",
+                        "avator": "用户头像",
                         "created_at": "评论时间",
                         "goods_id": "评星",
                         "stars": "评论内容",
@@ -733,14 +797,14 @@ class ManageController extends Controller
         $data = DB::table('order_commnets as o')
             ->join('users','o.user_id','=','users.id')
             ->where('o.type',$all['type'])
-            ->where('o.order_id',$all['roder_id'])
-            ->select(['users.name','o.created_at','o.stars','o.content','o.image'])
+            ->where('o.order_id',$all['order_id'])
+            ->select(['users.name','users.avator','o.created_at','o.stars','o.content','o.image'])
             ->first();
         if($data)
         {
             return $this->rejson(200,'查询成功',$data);
         }else{
-            return $this->rejson(201,'参数有误');
+            return $this->rejson(201,'订单没有评论');
         }
     }
 
@@ -834,33 +898,8 @@ class ManageController extends Controller
     }
 
     /**
-     * @api {post} /api/goods/express 快递
-     * @apiName express
-     * @apiGroup menage
-     * @apiParam {string} uid 用户id
-     * @apiParam {string} token 验证登陆
-     * @apiSuccessExample 参数返回:
-     *     {
-     *       "code": "200",
-     *       "data": [
-                        {
-                        "id"   "快递类型id",
-                        "name": "公司名称",
-                        }
-                    ],
-     *       "msg":"查询成功"
-     *     }
-     */
-
-    public function express()
-    {
-        $data = DB::table('express')->where('is_del',0)->select('id','name')->get();
-        return $this->rejson('200','查询成功',$data);
-    }
-
-    /**
-     * @api {post} /api/goods/express 快递
-     * @apiName express
+     * @api {post} /api/goods/deliver 发货
+     * @apiName deliver
      * @apiGroup menage
      * @apiParam {string} uid 用户id
      * @apiParam {string} token 验证登陆
@@ -870,12 +909,7 @@ class ManageController extends Controller
      * @apiSuccessExample 参数返回:
      *     {
      *       "code": "200",
-     *       "data": [
-                        {
-                        "id"   "快递类型id",
-                        "name": "公司名称",
-                        }
-                    ],
+     *       "data": "",
      *       "msg":"查询成功"
      *     }
      */
@@ -925,7 +959,7 @@ class ManageController extends Controller
                     $path = Storage::disk('uploads')->putFile('',$value);
                 }
                 if( $path ) {
-                    return ['code' => 200, 'msg' => '上传成功','data' => '/uploads/'.$path];
+                    return ['code' => 200, 'msg' => '上传成功','data' => '/uploads/'.date('Ymd').'/'.$path];
                 }
                 else {
                     return $this->rejson('202','传输失败');

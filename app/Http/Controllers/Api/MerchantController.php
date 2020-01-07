@@ -245,6 +245,7 @@ class MerchantController extends Controller
      *          "name": "商户名字",
                 "banner_img": "背景海报图",
                 "logo_img": "头像图片",
+                "status": "是否关注 1已关注 0未关注",
                 "goods": [
                     {
                         "name": "商品名字",
@@ -306,6 +307,12 @@ class MerchantController extends Controller
         }
         $id=$all['id'];
         $data=Db::table('merchants')->select('name','banner_img','logo_img')->where('id',$id)->first();
+        $arr = DB::table('collection')->where('user_id',$all['uid'])->where('type',3)->where('pid',$all['id'])->first();
+        if($arr){
+            $data->status = 1;
+        }else{
+            $data->status = 0;
+        }
         $data->goods=Db::table('goods')
         ->select('name','img','price','id')
         ->where($where)
@@ -315,7 +322,6 @@ class MerchantController extends Controller
         ->get();
         $data->type=Db::table('merchants_goods_type')->select('name','id')->where(['merchant_id'=>$id,'is_del'=>1])->get();
         return $this->rejson(200,'查询成功',$data);
-
     }
     /**
      * @api {post} /api/merchant/entry 商家入驻
