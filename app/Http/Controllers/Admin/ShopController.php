@@ -598,12 +598,23 @@ class ShopController extends BaseController
         if(!empty($i)) {
             // 如果开店，则查询当前商户的信息
             // 链接数据库，查询商户的商品分类
-            $datas = GoodsType::where('is_del',1)->get(['id','merchants_name','name','pid','num'])->toArray();
+//            $datas = GoodsType::where('is_del',1)->get(['id','merchants_name','name','pid','num'])->toArray();
+            $datas = DB::table('merchants_goods_type')
+                -> join('merchants','merchants_goods_type.merchant_id','=','merchants.id')
+                -> where('is_del',1)
+                -> where('merchants_goods_type,merchant_id',$i -> id)
+                -> select('merchants_goods_type.id','merchants.name as merchants_name','merchants_goods_type.name as name','pid','num')
+                -> get();
         }else{
             // 链接数据库，查询商户的商品分类
-            $datas = GoodsType::where('is_del',1)->get(['id','merchants_name','name','pid','num'])->toArray();
+//            $datas = GoodsType::where('is_del',1)->get(['id','merchants_name','name','pid','num'])->toArray();
+            $datas = DB::table('merchants_goods_type')
+                -> join('merchants','merchants_goods_type.merchant_id','=','merchants.id')
+                -> where('is_del',1)
+                -> select('merchants_goods_type.id','merchants.name as merchants_name','merchants_goods_type.name as name','pid','num')
+                -> get();
         }
-        $data = Tree::tree($datas,'name','id','pid');
+        $data = Tree::tree(json_decode(json_encode($datas),true),'name','id','pid');
         return $this->view('',['data'=>$data]);
 
     }
@@ -1055,8 +1066,29 @@ class ShopController extends BaseController
                 $goods[$k]->goods_cate_id=implode(',',$name);
             }
         }
+        if(!empty($i)) {
+            // 如果开店，则查询当前商户的信息
+            // 链接数据库，查询商户的商品分类
+//            $datas = GoodsType::where('is_del',1)->get(['id','merchants_name','name','pid','num'])->toArray();
+            $datas = DB::table('merchants_goods_type')
+                -> join('merchants','merchants_goods_type.merchant_id','=','merchants.id')
+                -> where('is_del',1)
+                -> where('merchants_goods_type,merchant_id',$i -> id)
+                -> select('merchants_goods_type.id','merchants.name as merchants_name','merchants_goods_type.name as name','pid','num')
+                -> get();
+        }else{
+            // 链接数据库，查询商户的商品分类
+//            $datas = GoodsType::where('is_del',1)->get(['id','merchants_name','name','pid','num'])->toArray();
+            $datas = DB::table('merchants_goods_type')
+                -> join('merchants','merchants_goods_type.merchant_id','=','merchants.id')
+                -> where('is_del',1)
+                -> select('merchants_goods_type.id','merchants.name as merchants_name','merchants_goods_type.name as name','pid','num')
+                -> get();
+        }
+//        return dd();
+        $data = Tree::tree(json_decode(json_encode($datas),true),'name','id','pid');
         $goods_sku = DB::select("select goods_id,SUM(store_num) as total from `goods_sku` group by `goods_id`");
-        return $this->view('goods',['list'=>$goods,'goods_sku'=>json_decode(json_encode($goods_sku),true)]);
+        return $this->view('goods',['list'=>$goods,'data'=>$data,'goods_sku'=>json_decode(json_encode($goods_sku),true)]);
     }
 
     // 跳转商品新增界面

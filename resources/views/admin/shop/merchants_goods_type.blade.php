@@ -44,7 +44,7 @@
                         @endforeach
                             @else
                             <tr>
-                                <th colspan="4">暂时没有查询到数据</th>
+                                <th colspan="6" style="text-align: center">暂时没有查询到数据</th>
                             </tr>
                         @endif
                         </tbody>
