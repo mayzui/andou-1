@@ -49,7 +49,7 @@ class LogisticsController extends BaseController
                 -> where('merchants.user_id',$id)
                 -> select(['order_goods.id','order_goods.order_id','merchants.name as merchants_name','users.name as users_name','goods.name as goods_name',
                     'order_goods.num','order_goods.shipping_free','order_goods.total','order_goods.express_id','order_goods.courier_num'])
-                -> paginate(5);
+                -> paginate(10);
         }else{
             // 如果未开店，则是管理员
             //查询订单详情表中内容
@@ -59,7 +59,7 @@ class LogisticsController extends BaseController
                 -> join('goods','order_goods.goods_id','=','goods.id')
                 -> select(['order_goods.id','order_goods.order_id','merchants.name as merchants_name','users.name as users_name','goods.name as goods_name',
                     'order_goods.num','order_goods.shipping_free','order_goods.total','order_goods.express_id','order_goods.courier_num'])
-                -> paginate(5);
+                -> paginate(10);
         }
         return $this -> view('',['list' => $data]);
     }
