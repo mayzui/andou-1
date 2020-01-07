@@ -98,6 +98,7 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
 
         // 商家管理
         Route::get('shop/shopMerchant','ShopController@shopMerchant')->name('shop.shopMerchant');
+        Route::get('shop/waitExamine','ShopController@waitExamine')->name('shop.waitExamine');       // 待审核商家
         Route::get('shop/shopMerchantOrder','ShopController@shopMerchantOrder')->name('shop.shopMerchantOrder');    // 查询订单
         Route::get('shop/shopMerchantMoney','ShopController@shopMerchantMoney')->name('shop.shopMerchantMoney');    // 查询资金流水
         Route::get('shop/shopDiscount','ShopController@shopDiscount')->name('shop.shopDiscount');   // 平台优惠

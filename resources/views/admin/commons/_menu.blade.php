@@ -5,6 +5,8 @@
 <link rel="stylesheet" type="text/css" media="(max-width:750px)" href="{{loadEdition('/admin/css/wap.css')}}"/>
 @php
     $admin = Auth::guard('admin')->user();
+    $data = DB::table('merchants') -> where('is_reg',0) -> get();
+    $counts = count($data);
 @endphp
         <div class="andou_left navbar-default">
             <div class="logo"><img class="transform" src="{{loadEdition('/admin/images/logo.png')}}" ></div>
@@ -27,17 +29,32 @@
                     {{--下拉列表--}}
                     <li class="layui-nav-item">
                         <i class="icon{{$key}}"></i>
-                        {{--<a title="{{$rule['name']}}">--}}
-                            {{--<span class="nav-label">{{$rule['name']}}</span>--}}
-                            {{--<span class="layui-nav-more"></span>--}}
-                        {{--</a>--}}
-                        <a href="javascript:;">{{$rule['name']}}</a>
+                        <a href="javascript:;">
+                            @if($rule['name'] == "商城管理")
+                                @if($counts == 0)
+                                    {{$rule['name']}}
+                                    @else
+                                {{$rule['name']}}&nbsp;<span class="label label-danger">{{ $counts }}</span>
+                                @endif
+                            @else
+                                {{$rule['name']}}
+                            @endif
+                        </a>
                         @if(isset($rule['children']))
                             <ul class="nav nav-second-level collapse">
                                 @foreach($rule['children'] as $k=>$item)
                                     <li>
                                         <a class="J_menuItem" href="{{ route($item['route']) }}" data-index="index_v1.html">
-                                            {{$item['name']}}
+                                            {{--{{$item['name']}}--}}
+                                            @if($item['name'] == "待审核商家")
+                                                @if($counts == 0)
+                                                    {{$item['name']}}
+                                                @else
+                                                    {{$item['name']}}&nbsp;<span class="label label-danger">{{ $counts }}</span>
+                                                @endif
+                                                @else
+                                                {{$item['name']}}
+                                            @endif
                                         </a>
                                     </li>
                                 @endforeach

@@ -69,6 +69,9 @@ class ShopController extends BaseController
             $data=DB::table('merchants')
                 -> where('user_id',$id)
                 -> where($where)
+                -> where('is_reg',1)
+                -> orWhere('is_reg',2)
+                ->orderBy('is_reg')
                 -> paginate(10);
             foreach ($data as $key => $value) {
                 $merchant_type=Db::table('merchant_type')->where('id',$value->merchant_type_id)->pluck('type_name');
@@ -103,7 +106,9 @@ class ShopController extends BaseController
             $data=DB::table('merchants')
                 ->where('merchant_type_id',2)
                 ->where($where)
-                -> orderBy('is_reg')
+                -> where('is_reg',1)
+                -> orWhere('is_reg',2)
+                ->orderBy('is_reg')
                 ->paginate(10);
             foreach ($data as $key => $value) {
                 $merchant_type=Db::table('merchant_type')->where('id',$value->merchant_type_id)->pluck('type_name');
@@ -124,6 +129,87 @@ class ShopController extends BaseController
         }
         return $this->view('',['data'=>$data,'i'=>$i],['wheres'=>$wheres]);
     }
+    // 待审核商家
+    public function waitExamine(){
+        $all = request()->all();
+        $id = \Auth::id();
+        // 判断该用户，是否开店 并且已经认证通过
+        $i = DB::table('merchants') -> where("user_id",$id) -> where("is_reg",1) -> first();
+        if(!empty($i)) {
+            // 如果开店，则查询当前商户的信息
+            $where[]=['id','>','0'];
+            if (!empty($all['merchant_type_id'])) {
+                $where[]=['merchant_type_id',$all['merchant_type_id']];
+                $screen['merchant_type_id'] = $all['merchant_type_id'];
+            }else{
+                $screen['merchant_type_id']='';
+            }
+            if (!empty($all['name'])) {
+                $where[]=['name', 'like', '%'.$all['name'].'%'];
+                $screen['name']=$all['name'];
+            }else{
+                $screen['name']='';
+            }
+            $data=DB::table('merchants')
+                -> where('user_id',$id)
+                ->where('is_reg',0)
+                -> where($where)
+                -> paginate(10);
+            foreach ($data as $key => $value) {
+                $merchant_type=Db::table('merchant_type')->where('id',$value->merchant_type_id)->pluck('type_name');
+                if (!empty($merchant_type[0])) {
+                    $data[$key]->merchant_type_id=$merchant_type[0];
+                }else{
+                    $data[$key]->merchant_type_id='';
+                }
+                $username=Db::table('users')->where('id',$value->user_id)->pluck('name');
+                if (!empty($username[0])) {
+                    $data[$key]->username=$username[0];
+                }else{
+                    $data[$key]->username='';
+                }
+            }
+            $wheres['type']=DB::table('merchant_type')->get();
+            $wheres['where']=$screen;
+        }else{
+            $where[]=['id','>','0'];
+            if (!empty($all['merchant_type_id'])) {
+                $where[]=['merchant_type_id',$all['merchant_type_id']];
+                $screen['merchant_type_id'] = $all['merchant_type_id'];
+            }else{
+                $screen['merchant_type_id']='';
+            }
+            if (!empty($all['name'])) {
+                $where[]=['name', 'like', '%'.$all['name'].'%'];
+                $screen['name']=$all['name'];
+            }else{
+                $screen['name']='';
+            }
+            $data=DB::table('merchants')
+                ->where('merchant_type_id',2)
+                ->where('is_reg',0)
+                ->where($where)
+                ->paginate(10);
+            foreach ($data as $key => $value) {
+                $merchant_type=Db::table('merchant_type')->where('id',$value->merchant_type_id)->pluck('type_name');
+                if (!empty($merchant_type[0])) {
+                    $data[$key]->merchant_type_id=$merchant_type[0];
+                }else{
+                    $data[$key]->merchant_type_id='';
+                }
+                $username=Db::table('users')->where('id',$value->user_id)->pluck('name');
+                if (!empty($username[0])) {
+                    $data[$key]->username=$username[0];
+                }else{
+                    $data[$key]->username='';
+                }
+            }
+            $wheres['type']=DB::table('merchant_type')->get();
+            $wheres['where']=$screen;
+        }
+        return $this->view('shopMerchant',['data'=>$data,'i'=>$i],['wheres'=>$wheres]);
+    }
+
     // 跳转订单管理
     public function shopMerchantOrder(){
         $all = \request() -> all();
@@ -1031,7 +1117,7 @@ class ShopController extends BaseController
             flash('修改成功') -> success();
             return redirect()->route('shop.goods');
         }else{
-            flash('修改成功') -> error();
+            flash('修改失败') -> error();
             return redirect()->route('shop.goods');
         }
     }

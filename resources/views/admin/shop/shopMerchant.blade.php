@@ -39,6 +39,7 @@
                         </tr>
                         </thead>
                         <tbody>
+                        @if(count($data) > 0)
                         @foreach($data as $k => $item)
                             <tr>
                                 <td>{{$item->id}}</td>
@@ -67,6 +68,11 @@
                                 </td>
                             </tr>
                         @endforeach
+                            @else
+                            <tr>
+                                <td colspan="9">未查询到相关内容</td>
+                            </tr>
+                        @endif
                         </tbody>
                     </table>
                     {{$data}}
