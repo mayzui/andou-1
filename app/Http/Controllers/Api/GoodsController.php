@@ -392,6 +392,57 @@ class GoodsController extends Controller
         }
     }
     /**
+     * @api {post} /api/goods/follow 商家关注或取消关注
+     * @apiName follow
+     * @apiGroup goods
+     * @apiParam {string} id 商家id
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} token 用户验证
+     * @apiParam {string} type 1关注 0取消关注
+     * @apiSuccessExample 参数返回:
+     *     {
+     *      "code": "200",
+     *      "data": "",
+     *      "msg":"关注成功"
+     *     }
+     */
+    public function follow(){
+        $all=request()->all();
+        $token=request()->header('token')??'';
+        if ($token!='') {
+            $all['token']=$token;
+        }
+        if (empty($all['uid'])||empty($all['token'])) {
+           return $this->rejson(202,'登陆失效');
+        }
+        $check=$this->checktoten($all['uid'],$all['token']);
+        if ($check['code']==202) {
+           return $this->rejson($check['code'],$check['msg']);
+        }
+        if (!isset($all['id']) || !isset($all['type'])) {
+           return $this->rejson(201,'缺少参数');  
+        }
+        if ($all['type']==1) {
+            $data['type']=3;
+            $data['user_id']=$all['uid'];
+            $data['pid']=$all['id'];
+            $data['created_at']=date('Y-m-d H:i:s',time());
+            $res=Db::table('collection')
+            ->where(['user_id'=>$all['uid'],'pid'=>$all['id'],'type'=>3])
+            ->first();
+            if (!empty($res)) {
+                return $this->rejson(201,'商品已关注');
+            }
+            Db::table('collection')->insert($data);
+            return $this->rejson(200,'关注成功');
+        }else{
+            Db::table('collection')
+            ->where(['user_id'=>$all['uid'],'pid'=>$all['id'],'type'=>3])
+            ->delete();
+            return $this->rejson(200,'取消关注成功');
+        }
+    }
+    /**
      * @api {post} /api/goods/goods_cate 商品分类
      * @apiName goods_cate
      * @apiGroup goods
