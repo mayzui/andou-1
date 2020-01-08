@@ -55,7 +55,6 @@
                                 <p id="demoText"></p>
                             </div>
                         </div>
-
                         <script>
                             layui.use('upload', function(){
                                 var $ = layui.jquery

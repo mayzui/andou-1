@@ -28,7 +28,7 @@
                             <tr>
                                 <th><input type="checkbox" id="checkall" /></th>
                                 <th style="width: 250px">产品名称</th>
-                                <th width="200px">产品分类</th>
+                                <th width="200px">产品类目</th>
                                 <th>产品图片</th>
                                 <th>是否上架</th>
                                 <th>库存</th>
@@ -48,9 +48,9 @@
                                     <td><img src="{{ env('IMAGE_PATH_PREFIX')}}{{$item->img}}" alt="" style="width: 55px;height: 55px;"></td>
                                     <td>
                                         @if ($item->is_sale == 1)
-                                            <span class="text-info">上架</span>
+                                            <span class="text-info">是</span>
                                         @else
-                                            <span class="text-danger">未上架</span>
+                                            <span class="text-danger">否</span>
                                         @endif
                                     </td>
                                     <td>
@@ -67,12 +67,12 @@
                                     <td class="text-center">
                                         <div class="btn-group">
                                             @if($item->is_sale == 0)
-                                                <a href="{{route('shop.setStatus',['field'=>'is_sale','is_sale'=>1,'id'=>$item->id])}}"><button class="btn btn-info btn-xs" type="button"><i class="fa fa-warning"></i> 上架</button></a>
+                                                <a href="{{route('shop.setStatus',['field'=>'is_sale','is_sale'=>1,'id'=>$item->id])}}"><button class="btn btn-outline btn-info btn-xs" type="button"><i class="fa fa-warning"></i> 上架</button></a>
                                             @else
-                                                <a href="{{route('shop.setStatus',['field'=>'is_sale','is_sale'=>0,'id'=>$item->id])}}"><button class="btn btn-warning btn-xs" type="button"><i class="fa fa-warning"></i>下架</button></a>
+                                                <a href="{{route('shop.setStatus',['field'=>'is_sale','is_sale'=>0,'id'=>$item->id])}}"><button class="btn btn-outline btn-warning btn-xs" type="button"><i class="fa fa-warning"></i>下架</button></a>
                                             @endif
                                             <a href="{{route('shop.update')}}?id={{$item->id}}">
-                                                <button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 详情</button>
+                                                <button class="btn btn-outline btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 编辑</button>
                                             </a>
                                             <a onclick="del({{$item->id}})"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o"></i> 删除</button></a>
                                         </div>
@@ -91,7 +91,6 @@
                     <a href="{{route('shop.merchants_goods_typeChange')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
                             <i class="fa fa-plus-circle"></i> 新增分类</button>
                     </a>
-
 
                     <form method="post" action="{{route('shop.express')}}" name="form">
                         <table class="table table-striped table-bordered table-hover m-t-md">
@@ -116,7 +115,7 @@
                                         <td>{{$item['num']}}</td>
                                         <td>
                                             <a href="{{route('shop.merchants_goods_typeChange')}}?id={{$item['id']}}">
-                                                <button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 修改</button>
+                                                <button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 编辑</button>
                                             </a>
                                             <a onclick="del({{$item['id']}})"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o"></i> 删除</button></a>
                                         </td>

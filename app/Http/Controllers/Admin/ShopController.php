@@ -1499,12 +1499,12 @@ class ShopController extends BaseController
 
     public function attrStore (Request $request)
     {
+        $all = \request() -> all();
+        return dd($all);
         $validate = Validator::make($request->all(),[
             'name' => 'required',
-            'is_sale_attr' => 'required',
         ],[
             'name.required'=>'名称必须',
-            'is_sale_attr.numeric'=>'排序必须是数字',
         ]);
 
 
@@ -1528,7 +1528,6 @@ class ShopController extends BaseController
         // 判断是哪个商户或者修改  上线后可以删除判断
         $model->merchant_id = Auth::id();
         $model->name = $request->input('name');
-        $model->is_sale_attr = $request->input('is_sale_attr');
 
         if ($model->save()) {
             return   redirect()->route('shop.goodsAttr');

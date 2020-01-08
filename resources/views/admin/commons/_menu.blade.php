@@ -30,7 +30,7 @@
                     <li class="layui-nav-item">
                         <i class="icon{{$key}}"></i>
                         <a href="javascript:;">
-                            @if($rule['name'] == "商城管理")
+                            @if($rule['name'] == "商户管理")
                                 @if($counts == 0)
                                     {{$rule['name']}}
                                     @else

@@ -126,13 +126,18 @@
                                             </div>
 
                                             <div class="form-group">
-                                                <label class="col-sm-2 control-label"><em style="margin-right:5px;vertical-align: middle;color: #fe0000;">*</em>产品分类：</label>
+                                                <label class="col-sm-2 control-label">
+                                                    <em style="margin-right:5px;vertical-align: middle;color: #fe0000;">*</em>产品分类：
+                                                </label>
                                                 <div class="col-sm-2">
                                                     <select class="form-control pull-left" name="merchants_goods_type">
                                                         @foreach($merchants_goods_type as $item)
                                                             <option value="{{$item->id}}" @if($item->id == $goodsdata->merchants_goods_type_id) selected @endif > {{$item->name}}</option>
                                                         @endforeach
                                                     </select>
+                                                    <a href="{{route('shop.merchants_goods_typeChange')}}" link-url="javascript:void(0)">
+                                                        <button class="btn btn-outline btn-link btn-sm" type="button">设置分类</button>
+                                                    </a>
                                                 </div>
                                             </div>
 
@@ -271,6 +276,9 @@
                                                                 <option value="{{ $v -> id }}" @if($v -> id == $goodsdata -> dilivery) selected @endif >{{ $v -> name }}</option>
                                                             @endforeach
                                                         </select>
+                                                        <a href="{{route('shop.express')}}" link-url="javascript:void(0)">
+                                                            <button class="btn btn-outline btn-link btn-sm" type="button">设置运费</button>
+                                                        </a>
                                                     </div>
                                                 </div>
                                             </div>
