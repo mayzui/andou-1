@@ -55,17 +55,18 @@ class DetailsController extends Controller
      * @api {post} /api/details/room_list 房间列表
      * @apiName room_list
      * @apiGroup details
-     * @apiParam {string} merchant_id 商户id
+     * @apiParam {int} merchant_id 商户id
      * @apiSuccessExample 返回参数：
      *     {
      *        "code":"200",
      *        "data":[
-                *{
-                    "img":"图片",
-                    "house_name":"房间名称",
-                    "price":"价格",
-                    "name":"房间介绍"
-                *}
+     *{
+    "id":"房型id",
+    "img":"图片",
+    "house_name":"房间名称",
+    "price":"价格",
+    "name":"房间介绍"
+     *}
      *         ],
      *          "msg":"查询成功"
 
@@ -80,37 +81,37 @@ class DetailsController extends Controller
             $pages=0;
         }
 
-        $data=DB::table("hotel_room")
-            ->select(['house_name','price','img','desc'])
+        $data['hotel_room']=DB::table("hotel_room")
+            ->select(['id','house_name','price','img','desc'])
             ->where('merchant_id',$all['merchant_id'])
             ->offset($pages)
             ->limit($num)
             ->get();
-        foreach($data as $key=>$value ) {
+        foreach($data['hotel_room'] as $key=>$value ) {
             $res=explode(',',$value->desc);
-            $data[$key]->name='';
+            $data['hotel_room'][$key]->name='';
             if (!empty($res)){
                 foreach ($res as $k=>$v){
-                    $data[$key]->name.=DB::table('hotel_faci')
-                        ->where('id',$v)
-                        ->first()->name ?? '';
-                    $data[$key]->name.=',';
+                    $data['hotel_room'][$key]->name.=DB::table('hotel_faci')
+                            ->where('id',$v)
+                            ->first()->name ?? '';
+                    $data['hotel_room'][$key]->name.=',';
                 }
             }
         }
-            return $this->rejson(200,'查询成功',$data);
+
+        return $this->rejson(200,'查询成功',$data);
     }
     /**
      * @api {post} /api/details/hotelSel 房间详情
      * @apiName hotelSel
      * @apiGroup details
-     * @apiParam {string} id 房间id
+     * @apiParam {int} id 房间id
      * @apiSuccessExample 返回参数：
      *     {
      *       "code":"200",
-     *       "data":[
-     *
-     *              {
+     *       "data":{
+     *                  "id":"房间id",
      *                  "img":"房间图片",
      *                  "price":"房间价格",
      *                  "house_name":"房间名称",
@@ -121,8 +122,7 @@ class DetailsController extends Controller
      *                  "has_breakfast":"有无早餐",
      *                  "bed_type":"床型",
      *                  "other_sets":"配套设置"
-     *               }
-     *              ],
+     *               },
      *    "msg":"查询成功"
      *     }
      */
@@ -132,16 +132,13 @@ class DetailsController extends Controller
         if(empty($all['id'])){
             return $this->rejson(201,"缺少参数");
         }
+
         $data = DB::table("hotel_room as r")
-            ->join("hotel_attr_value as a","r.hotel_room_id","=","a.id")
-            ->select(['r.img', 'r.price', 'r.house_name','a.areas','a.has_window','a.wifi','a.num','a.has_breakfast','a.bed_type','a.other_sets'])
+            ->join("hotel_attr_value as a","r.id","=","a.hotel_room_id")
+            ->select(['r.id', 'r.img', 'r.price', 'r.house_name','a.areas','a.has_window','a.wifi','a.num','a.has_breakfast','a.bed_type','a.other_sets'])
             ->where('r.id', $all['id'])
             ->first();
-        if ($data) {
-            return $this->rejson(200, '查询成功', $data);
-        } else {
-            return $this->rejson(201, '查询失败');
-        }
+        return $this->rejson(200, '查询成功', $data);
     }
     /**
      * @api {post} /api/details/commnets 酒店住宿评论
