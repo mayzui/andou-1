@@ -34,6 +34,7 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('goods/details', 'GoodsController@details');
      Route::post('goods/comment', 'GoodsController@comment');
      Route::post('goods/collection', 'GoodsController@collection');
+     Route::post('goods/follow', 'GoodsController@follow');
      Route::post('goods/goods_cate', 'GoodsController@goodsCate');
      Route::post('goods/good_list', 'GoodsController@goodList');
      Route::post('goods/specslist', 'GoodsController@specslist');
@@ -63,7 +64,9 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('users/envelopes', 'UsersController@envelopes');
      Route::post('users/envelopes_add', 'UsersController@envelopesAdd');
      Route::post('users/upmodel', 'UsersController@upmodel');
-
+     Route::post('users/collection', 'UsersController@collection');
+     Route::post('users/follow', 'UsersController@follow');
+     
      Route::post('common/uploads','CommonController@uploads');
      Route::post('common/pay_ways', 'CommonController@payWays');
      Route::post('common/merchant_type', 'CommonController@merchantType');
@@ -118,13 +121,14 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('goods/merchants','ManageController@merchants');
      //文件上传
      Route::post('goods/uploads','ManageController@uploads');
-     //余额明细
+     Route::post('common/uploads','CommonController@uploads');
+    //余额明细
      Route::post('goods/water','ManageController@water');
-     //退出
+    //退出
      Route::post('goods/quit','ManageController@quit');
-     //快递公司
-     Route::post('goods/express','ManageController@express');
-     //发货
+    //快递公司
+     Route::post('common/express','CommonController@express');
+    //发货
      Route::post('goods/deliver','ManageController@deliver');
 
           //商家详情
@@ -148,4 +152,6 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('gourmet/booking','GourmetController@booking');
      Route::post('gourmet/shopping_num','GourmetController@shopping_num');
      Route::post('gourmet/add_foods','GourmetController@add_foods');
+     Route::post('gourmet/search','GourmetController@search');
+
 });

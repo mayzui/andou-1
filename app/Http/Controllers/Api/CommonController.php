@@ -8,12 +8,34 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 class CommonController extends Controller
 {
+
     /**
-     * @api {post} /api/goods/uploads 图片上传
+     * @api {post} /api/common/express 快递
+     * @apiName express
+     * @apiGroup common
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": [
+                        {
+                        "id"   "快递类型id",
+                        "name": "公司名称",
+                        }
+                    ],
+     *       "msg":"查询成功"
+     *     }
+     */
+
+    public function express()
+    {
+        $data = DB::table('express')->select('id','name')->get();
+        return $this->rejson('200','查询成功',$data);
+    }
+
+    /**
+     * @api {post} /api/common/uploads 图片上传
      * @apiName uploads
      * @apiGroup uploaded
-     * @apiParam {string} uid 用户id
-     * @apiParam {string} token 验证登陆
      * @apiParam {string} img 图片
      * @apiSuccessExample 参数返回:
      *     {

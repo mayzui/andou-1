@@ -39,9 +39,11 @@ class UsersController extends Controller
                     "id": "商户id",
                     "created_at": "创建时间",
                     "stars_all": "星级",
-                    "praise_num":"点赞数量"
+                    "praise_num":"点赞数量",
                     "logo_img":"商家图片",
-                    "name":"商家名字"
+                    "name":"商家名字",
+                    "address":"商家地址",
+                    "tel":"商家电话"
                 }
             ],     
      *       "msg":"查询成功"
@@ -58,6 +60,89 @@ class UsersController extends Controller
         $data=Db::table('see_log as c')
         ->join('merchants as m','m.id','=','c.pid')
         ->where(['c.user_id'=>$all['uid'],'c.type'=>2])
+        ->select('m.id','m.address','m.tel','m.stars_all','m.praise_num','m.name','m.logo_img')
+        ->orderBy('c.id',"DESC")
+        ->offset($start)
+        ->limit($num)
+        ->get();
+        return $this->rejson(200,'查询成功',$data);
+    }
+    /**
+     * @api {post} /api/users/collection 商品收藏记录
+     * @apiName collection
+     * @apiGroup users
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} token 验证登陆
+     * @apiParam {string} page 查询页码(不是必传 
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data":  [
+                {
+                    "id": "商品id",
+                    "created_at": "创建时间",
+                    "price": "商品价格",
+                    "img":"商品图片",
+                    "name":"商品名字"
+                }
+            ],     
+     *       "msg":"查询成功"
+     *     }
+     */
+    public function collection(){
+        $all=request()->all();
+        $num=10;
+        $start=0;
+        if (!empty($all['page'])) {
+            $page=$all['page'];
+            $start=$num*($page-1);
+        }
+        $data=Db::table('collection as c')
+        ->join('goods as m','m.id','=','c.pid')
+        ->where(['c.user_id'=>$all['uid'],'c.type'=>1])
+        ->select('m.id','m.price','m.img','m.name')
+        ->orderBy('c.id',"DESC")
+        ->offset($start)
+        ->limit($num)
+        ->get();
+        return $this->rejson(200,'查询成功',$data);
+    }
+    /**
+     * @api {post} /api/users/follow 商家关注记录
+     * @apiName follow
+     * @apiGroup users
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} token 验证登陆
+     * @apiParam {string} page 查询页码(不是必传 
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data":  [
+                {
+                    "id": "商户id",
+                    "created_at": "创建时间",
+                    "stars_all": "星级",
+                    "praise_num":"点赞数量",
+                    "logo_img":"商家图片",
+                    "name":"商家名字",
+                    "address":"商家地址",
+                    "tel":"商家电话"
+                }
+            ],     
+     *       "msg":"查询成功"
+     *     }
+     */
+    public function follow(){
+        $all=request()->all();
+        $num=10;
+        $start=0;
+        if (!empty($all['page'])) {
+            $page=$all['page'];
+            $start=$num*($page-1);
+        }
+        $data=Db::table('collection as c')
+        ->join('merchants as m','m.id','=','c.pid')
+        ->where(['c.user_id'=>$all['uid'],'c.type'=>3])
         ->select('m.id','m.address','m.tel','m.stars_all','m.praise_num','m.name','m.logo_img')
         ->orderBy('c.id',"DESC")
         ->offset($start)

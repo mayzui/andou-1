@@ -96,7 +96,7 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('shop/attrUpdate/{id}','ShopController@attrUpdate')->name('shop.attrUpdate');
         Route::get('shop/attrDelete/{id}','ShopController@attrDelete')->name('shop.attrDelete');
         Route::get('shop/addAttrValue/{id}','ShopController@addAttrValue')->name('shop.addAttrValue');
-        Route::post('shop/attrStore','ShopController@attrStore')->name('shop.attrStore');
+        Route::match(['get','post'],'shop/attrStore','ShopController@attrStore')->name('shop.attrStore');
         Route::post('shop/getAttr','ShopController@getAttr')->name('shop.getAttr');
         Route::get('shop/goodsAttr','ShopController@goodsAttr')->name('shop.goodsAttr');
         Route::post('shop/saveAttrValue','ShopController@saveAttrValue')->name('shop.saveAttrValue');

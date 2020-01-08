@@ -80,24 +80,24 @@ class DetailsController extends Controller
             $pages=0;
         }
 
-        $data['hotel_room']=DB::table("hotel_room")
+        $data=DB::table("hotel_room")
             ->select(['house_name','price','img','desc'])
             ->where('merchant_id',$all['merchant_id'])
             ->offset($pages)
             ->limit($num)
             ->get();
-            foreach($data['hotel_room'] as $key=>$value ) {
-                $res=explode(',',$value->desc);
-                $data['hotel_room'][$key]->name='';
-                if (!empty($res)){
-                    foreach ($res as $k=>$v){
-                        $data['hotel_room'][$key]->name.=DB::table('hotel_faci')
-                            ->where('id',$v)
-                            ->first()->name ?? '';
-                        $data['hotel_room'][$key]->name.=',';
-                    }
+        foreach($data as $key=>$value ) {
+            $res=explode(',',$value->desc);
+            $data[$key]->name='';
+            if (!empty($res)){
+                foreach ($res as $k=>$v){
+                    $data[$key]->name.=DB::table('hotel_faci')
+                        ->where('id',$v)
+                        ->first()->name ?? '';
+                    $data[$key]->name.=',';
                 }
             }
+        }
             return $this->rejson(200,'查询成功',$data);
     }
     /**

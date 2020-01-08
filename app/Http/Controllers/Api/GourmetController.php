@@ -1,4 +1,11 @@
 <?php
+/**
+ * Created by PhpStorm.
+ * User: Administrator
+ * Date: 2020/1/3
+ * Time: 10:03
+ */
+
 namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -9,12 +16,12 @@ class GourmetController extends Controller
      * @api {post} /api/gourmet/delicious 美食分类
      * @apiName delicious
      * @apiGroup gourmet
-     * @apiParam {string} merchants_id 商户id
      * @apiSuccessExample 参数返回：
      * {
      "code":"200",
      *      "data":[
      *             {
+     *              "id":"id",
                     "name":"名称"
      *             }
      *             ],
@@ -22,10 +29,9 @@ class GourmetController extends Controller
      * }
      */
     public function delicious(){
-        $all=\request()->all();
+        //$all=\request()->all();
         $data=DB::table("foods_classification")
-            ->select('name')
-            ->where('merchants_id',$all['merchants_id'])
+            ->select('name','id')
             ->get();
         if($data){
             return $this->rejson(200,"查询成功",$data);
@@ -34,11 +40,41 @@ class GourmetController extends Controller
         }
     }
 
+    /**
+     * @api {post} /api/gourmet/search 关键字搜索
+     * @apiName search
+     * @apiGroup gourmet
+     * @apiParam {string} name 关键字name
+     * @apiSuccessExample 参数返回：
+     * {
+     "code":"200",
+     *    "data":[
+     *           {
+                 "id":"关键字id",
+     *           "name":"关键字name"
+     *           }
+     *           ],
+     * "msg":"查询成功"
+     * }
+     */
+    public function search(){
+        $all=\request()->all();
+        $data=DB::table("merchants")
+          ->select('id','name')
+          ->where('name','like','%'.$all['name'].'%')
+          ->get();
+        if($data){
+            return $this->rejson(200,"查询成功",$data);
+        }else{
+            return $this->rejson(201,"查询失败");
+        }
+    }
+
+
    /**
     * @api {post} /api/gourmet/list 商铺列表
     * @apiName list
     * @apiGroup gourmet
-    * @apiParam {string} id 商家id
     * @apiSuccessExample 参数返回：
     *{
    "code":"200",
@@ -55,13 +91,9 @@ class GourmetController extends Controller
     */
    public function list(){
        $all=request()->all();
-       if(empty($all['id'])){
-           return $this->rejson(200,'缺少参数');
-       }
        $data=DB::table("merchants")
-           ->select(['door_img','name','praise_num','stars_all'])
-           ->where('id',$all['id'])
-           ->first();
+           ->select('door_img','name','praise_num','stars_all')
+           ->get();
        if($data){
            return $this->rejson(200,'查询成功',$data);
        }else{
@@ -76,25 +108,24 @@ class GourmetController extends Controller
      * @apiSuccessExample 参数返回：
      * {
         "code":"200",
-     *      "data":[
-                   {
+     *      "data":{
      *               "name":"商家名称",
      *               "praise_num":"点赞数量",
      *               "address":"商家地址",
      *               "desc":"商家简介",
+     *               "stars_all":"商家星级",
      *               "business_start":"营业时间",
      *               "business_end":"结束时间",
      *               "tel":"联系电话"
-     *             }
-     *            ],
+     *             },
      *          "msg":"查询成功"
      * }
      */
    public function details(){
        $all=\request()->all();
        $data=DB::table("merchants as m")
-           ->leftJoin("merchant_stores as s","m.id","=","s.merchant_id")
-           ->select(['m.name','m.praise_num','m.address','m.desc','m.tel','s.business_start','s.business_end'])
+           ->join("merchant_stores as s","m.id","=","s.merchant_id")
+           ->select(['m.name','m.praise_num','m.address','m.desc','m.tel','m.stars_all','s.business_start','s.business_end'])
            ->where('m.id',$all['id'])
            ->first();
        if($data){
@@ -174,15 +205,13 @@ class GourmetController extends Controller
      * @apiSuccessExample 参数返回：
      * {
     "code":"200"
-     *      "data": [
-     *              {
+     *      "data":{
      *               "image":"菜品图片",
      *               "name":"菜品名称",
      *               "remark":"菜品介绍",
      *               "price":"价格",
      *               "name":"规格名称"
-     *              }
-     *              ],
+     *              },
      *           "msg":"查询成功"
      * }
      */
@@ -194,7 +223,7 @@ class GourmetController extends Controller
             ->where('f.merchant_id',$all['merchant_id'])
             ->first();
         if($data){
-            return $this->rejson(200,"查询成功",$data);
+           return $this->rejson(200,"查询成功",$data);
         }else{
             return $this->rejson(201,"查询失败");
         }
@@ -246,10 +275,10 @@ class GourmetController extends Controller
     }
 
     /**
-     * @api {post} /api/gourmet/booking 在线预定详情
+     * @api {post} /api/gourmet/booking 购物车列表
      * @apiName booking
      * @apiGroup gourmet
-     * @apiParam {string} merchant_id 商户id
+     * @apiParam {string} user_id 用户id
      * @apiSuccessExample 参数返回：
      * {
             "code":"200",
@@ -265,10 +294,9 @@ class GourmetController extends Controller
      */
     public function booking(){
         $all=\request()->all();
-        $data=DB::table("foods_information as f")
-            ->join("foods_order_particulars as r","f.id","=","r.foods_id")
-            ->select(['f.name','f.price','r.num'])
-            ->where("f.merchant_id",$all['merchant_id'])
+        $data=DB::table("foods_cart")
+            ->select(['name','price','num'])
+            ->where('user_id',$all['user_id'])
             ->get();
         if($data){
             return $this->rejson(200,"查询成功",$data);
@@ -276,11 +304,12 @@ class GourmetController extends Controller
             return $this->rejson(201,"查询失败");
         }
     }
+
     /**
      * @api {post} /api/gourmet/shopping_num 购物车数量
      * @apiName shopping_num
      * @apiGroup gourmet
-     * @apiParam {string} merchant_id 商户id
+     * @apiParam {string} user_id 用户id
      * @apiSuccessExample 参数返回：
      * {
             "code":"200",
@@ -297,8 +326,8 @@ class GourmetController extends Controller
         $all=\request()->all();
         $data=DB::table("foods_cart")
             ->select(['num','price'])
-            ->where('merchant_id',$all['merchant_id'])
-            ->get();
+            ->where('user_id',$all['user_id'])
+            ->first();
         if($data){
             return $this->rejson(200,"查询成功",count($data));
         }else{
