@@ -16,46 +16,39 @@
             <div class="ibox-content">
                 <div class="hr-line-dashed m-t-sm m-b-sm"></div>
                 <form class="form-horizontal m-t-md" action="{{url('/admin/shop/ordersUpds')}}" method="POST">
-{{--                    <div class="hr-line-dashed m-t-sm m-b-sm"></div>--}}
-{{--                    <div class="form-group">--}}
-{{--                        <label class="col-sm-2 control-label">订单状态：</label>--}}
-{{--                        <div class="col-sm-2">--}}
-{{--                            <select name="status" class="form-control">--}}
-{{--                                <option value="10" @if(old('status') == 10) selected="selected" @endif>未支付</option>--}}
-{{--                                <option value="20" @if(old('status') == 20) selected="selected" @endif>已支付</option>--}}
-{{--                                <option value="40" @if(old('status') == 40) selected="selected" @endif>已发货</option>--}}
-{{--                                <option value="50" @if(old('status') == 50) selected="selected" @endif>交易成功</option>--}}
-{{--                                <option value="60" @if(old('status') == 60) selected="selected" @endif>交易关闭</option>--}}
-{{--                                <option value="0" @if(old('status') == 0) selected="selected" @endif>已取消</option>--}}
-{{--                            </select>--}}
-{{--                        </div>--}}
-{{--                    </div>--}}
 
                     <div class="form-group">
                         <label class="col-sm-2 control-label">支付金额：</label>
                         <div class="input-group col-sm-2">
-                            <input type="text" class="form-control" name="pay_money" id="name" value="{{$data[0]->pay_money}}" required placeholder="支付金额">
+                            <input type="text" class="form-control" name="pay_money" id="name" value="{{$data['pay_money']}}" required placeholder="支付金额">
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label class="col-sm-2 control-label">总计金额：</label>
                         <div class="input-group col-sm-2">
-                            <input type="text" class="form-control" name=""  value="{{$data[0]->total}}" required placeholder="总计金额">
+                            <input type="text" class="form-control" name=""  value="{{$data['total']}}" required placeholder="总计金额">
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label class="col-sm-2 control-label">邮费：</label>
                         <div class="input-group col-sm-2">
-                            <input type="text" class="form-control" name="" value="{{$data[0]->shipping_free}}" required placeholder="邮费">
+                            <input type="text" class="form-control" name="" value="{{$data['shipping_free']}}" required placeholder="邮费">
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label class="col-sm-2 control-label">支付时间：</label>
                         <div class="input-group col-sm-2">
-                            <input type="text" class="form-control" name="" id="name" value="{{$data[0]->pay_time}}" required placeholder="支付时间">
+                            <input type="text" class="form-control"  id="name" value="{{$data['pay_time']}}" required placeholder="支付时间">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">订单备注：</label>
+                        <div class="input-group col-sm-2">
+                            <textarea cols="36" rows="10" >{{ $data['remark'] or '' }}</textarea>
                         </div>
                     </div>
 

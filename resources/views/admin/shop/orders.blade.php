@@ -13,15 +13,34 @@
                 <h5>订单管理</h5>
             </div>
             <div class="ibox-content">
-                <div class="col-sm-3" style="padding-left: 0px;">
+                <div class="col-sm-3" style="padding-left: 0px; width: 100%;">
                     <div class="input-group">
-                        {{--<input type="text" class="form-control" v-model="key" placeholder="输入需查询的关键字" />--}}
-                        {{--<span class="input-group-btn">--}}
-                           {{--<a type="button" class="btn btn-primary" @click="search"><i class="fa fa-search"></i> 搜索</a>--}}
-                        {{--</span>&nbsp;&nbsp;&nbsp;--}}
-                        {{--<span class="input-group-btn">--}}
-                           {{--<a  href="{{url('/admin/shop/ordersAdd')}}" type="button" class="btn btn-primary"><i class="fa fa-plus-circle"></i>添加</a>--}}
-                    {{--</span>--}}
+                        <a href="{{url("/admin/shop/orders")}}">
+                            <button class="btn btn-primary " type="button"><i class="fa fa-paste">全部订单@php if(empty($count)){echo 0;}else {echo (count($count['data5']));} @endphp</i></button>
+                        </a>
+                        <a href="{{url("/admin/shop/orders?status=10")}}">
+                            <button class="btn btn-primary " type="button"><i class="fa fa-paste">待付款@php if(empty($count)){echo 0;}else {echo (count($count['data']));} @endphp</i></button>
+                        </a>
+
+                        <a href="{{url("/admin/shop/orders?status=20")}}">
+                            <button class="btn btn-primary " type="button"><i class="fa fa-paste">待发货@php if(empty($count)){echo 0;}else {echo (count($count['data1']));} @endphp</i></button>
+                        </a>
+
+                        <a href="{{url("/admin/shop/orders?status=40")}}">
+                            <button class="btn btn-primary " type="button"><i class="fa fa-paste">已发货@php if(empty($count)){echo 0;}else {echo (count($count['data2']));} @endphp</i></button>
+                        </a>
+
+                        <a href="{{url("/admin/shop/orders?status=50")}}">
+                            <button class="btn btn-primary " type="button"><i class="fa fa-paste">已完成@php if(empty($count)){echo 0;}else {echo (count($count['data3']));} @endphp</i></button>
+                        </a>
+
+                        <a href="{{url("/admin/shop/orders?status=60")}}">
+                            <button class="btn btn-primary " type="button"><i class="fa fa-paste">已关闭@php if(empty($count)){echo 0;}else {echo (count($count['data4']));} @endphp</i></button>
+                        </a>
+
+                        输入搜索:<input type="text" style="height: 25px;margin-left: 10px;" id="sval" onkeydown="search()" placeholder="订单编号/商品货号">
+
+                        收货人:<input type="text" style="height: 25px;margin-left: 10px;" class="userval" onkeydown="user()" placeholder="收货人姓名/手号码">
                     </div>
                 </div>
                 <style>
@@ -35,10 +54,12 @@
                         <thead>
                         <tr>
                             <th width="100">ID</th>
-                            <th>订单号</th>
-                            <th>下单人</th>
+                            <th>订单编号</th>
+                            <th>提交时间</th>
+                            <th>用户账号</th>
+                            <th>订单金额</th>
                             <th>支付方式</th>
-
+                            <th>订单来源</th>
                             <th>订单状态</th>
                             <th>操作</th>
                         </tr>
@@ -48,7 +69,9 @@
                             <tr>
                                 <td>{{$item->id}}</td>
                                 <td>{{$item->order_sn}}</td>
-                                <td>{{$item->user_name}}</td>
+                                <td>{{$item->created_at}}</td>
+                                <td>{{$item->mobile}}</td>
+                                <td>{{$item->pay_money}}</td>
                                 <td>
                                     @if($item->pay_way == 1)
                                         微信支付
@@ -65,49 +88,44 @@
                                     @endif
                                 </td>
                                 <td>
-                                    @if($item->status == 0)
-                                        <font color="880000">取消支付</font>
-                                    @elseif($item->status == 10)
-                                        <font color="red">未支付</font>
-                                    @elseif($item->status == 20)
-                                        <font color="#ff6600">已支付</font>
-                                    @elseif($item->status == 40)
+                                    @if($item->order_source==1)
+                                        APP订单
+                                    @else
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($item->statuss == 0)
+                                        <font color="880000">已取消</font>
+                                    @elseif($item->statuss == 10)
+                                        <font color="red">待付款</font>
+                                    @elseif($item->statuss == 20)
+                                        <font color="#ff6600">待发货</font>
+                                    @elseif($item->statuss == 40)
                                         <font color="#cc9900">已发货</font>
-                                    @elseif($item->status == 50)
-                                        <font color="#228b22">交易成功</font>
-                                    @elseif($item->status == 60)
-                                        <font color="#004400">交易关闭</font>
+                                    @elseif($item->statuss == 50)
+                                        <font color="#228b22">已完成</font>
+                                    @elseif($item->statuss== 60)
+                                        <font color="#004400">已关闭</font>
                                     @endif
                                 </td>
                                 <td class="text-center">
                                     <div class="btn-group">
-                                        @if(in_array($item->id,$has))
-                                            <a href="{{url("/admin/refund/aftermarket?id=$item->id")}}">
-                                                <button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 售后服务</button>
-                                            </a>
-                                            @if($item->status==10)
-                                                <a href="{{url("/admin/shop/ordersUpd?id=$item->id")}}">
-                                                    <button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i>修改</button>
+                                                <a href="{{url("/admin/shop/ordersUpd?id=$item->id&status=$item->statuss")}}">
+                                                    <button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i>查看订单</button>
                                                 </a>
-                                             @else
-                                                <a href="{{url("/admin/shop/ordersUpd?id=$item->id")}}">
-                                                    <button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i>详情</button>
-                                                </a>
-                                             @endif
-                                            <a href="{{url("/admin/shop/ordersDel?id=$item->id")}}" onClick="delcfm()"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o" ></i> 删除</button></a>
-                                        @else
-                                            @if($item->status==10)
-                                                <a href="{{url("/admin/shop/ordersUpd?id=$item->id")}}">
-                                                    <button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i>修改</button>
-                                                </a>
-                                            @else
-                                                <a href="{{url("/admin/shop/ordersUpd?id=$item->id")}}">
-                                                    <button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i>详情</button>
-                                                </a>
-                                            @endif
-                                            <a href="{{url("/admin/shop/ordersDel?id=$item->id")}}" onClick="delcfm()"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o" ></i> 删除</button></a>
+                                        @if($item->statuss == 0)
+                                            <font color="880000">已取消</font>
+                                        @elseif($item->statuss == 10)
+                                            <a onclick="del({{$item->id}})"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o"></i> 删除订单</button></a>
+                                        @elseif($item->statuss == 20)
+                                            <a href="{{url("/admin/logistics/indexs")}}" ><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o" ></i> 订单发货</button></a>
+                                        @elseif($item->statuss == 40)
+                                            <a href="{{url("/admin/logistics/readLogistics?id=$item->id&express_id=$item->express_id&courier_num=$item->courier_num")}}" ><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o" ></i> 订单跟踪</button></a>
+                                        @elseif($item->statuss == 50)
+                                            <a href="{{url("/admin/logistics/readLogistics?id=$item->id&express_id=$item->express_id&courier_num=$item->courier_num")}}" ><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o" ></i> 订单跟踪</button></a>
+                                        @elseif($item->statuss == 60)
+                                            <a onclick="del({{$item->id}})"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o"></i> 删除订单</button></a>
                                         @endif
-
                                     </div>
                                 </td>
                             </tr>
@@ -119,18 +137,36 @@
                         @endif
                         <tbody>
                     </table>
-                    {{ $list }}
+                    {{ $list->appends(['status'=>$item->statuss]) }}
                 </form>
             </div>
         </div>
         <div class="clearfix"></div>
     </div>
-    <script language="javascript">
-        function delcfm() {
-            if (!confirm("订单数据很重要确认要删除吗？")) {
-                window.event.returnValue = false;
+    <script src="{{loadEdition('/js/jquery.min.js')}}"></script>
+    <script type="text/javascript">
+        function del(e) {
+            var id = e;
+            layer.alert("是否删除该数据？",{icon:3},function (index) {
+                location.href="{{route('shop.ordersDel')}}?id="+id;
+                layer.close(index);
+            });
+        }
+         //搜索订单编号
+        function search() {
+            var keyword = $("#sval").val()
+            if (event.keyCode==13){
+                location.href="{{route('shop.orders')}}?keyword="+keyword +"&sta="+"1" ;
             }
         }
+       //搜索收货人
+        function user() {
+            var user = $(".userval").val()
+            if (event.keyCode==13){
+                location.href="{{route('shop.orders')}}?user="+user +"&sta="+"2";
+            }
+        }
+
 
     </script>
 @endsection

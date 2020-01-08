@@ -81,7 +81,7 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('shop/attrUpdate/{id}','ShopController@attrUpdate')->name('shop.attrUpdate');
         Route::get('shop/attrDelete/{id}','ShopController@attrDelete')->name('shop.attrDelete');
         Route::get('shop/addAttrValue/{id}','ShopController@addAttrValue')->name('shop.addAttrValue');
-        Route::match(['get','post'],'shop/attrStore','ShopController@attrStore')->name('shop.attrStore');
+        Route::post('shop/attrStore','ShopController@attrStore')->name('shop.attrStore');
         Route::post('shop/getAttr','ShopController@getAttr')->name('shop.getAttr');
         Route::get('shop/goodsAttr','ShopController@goodsAttr')->name('shop.goodsAttr');
         Route::post('shop/saveAttrValue','ShopController@saveAttrValue')->name('shop.saveAttrValue');
@@ -145,7 +145,7 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
 
         Route::get('shop/ordersAdd','ShopController@ordersAdd')->name('shop.ordersAdd');//添加订单测试数据
         Route::any('shop/ordersAdds','ShopController@ordersAdds')->name('shop.ordersAdds');//订单测试
-        Route::get('shop/ordersDel','ShopController@ordersDel')->name('shop.ordersDel');//订单删除
+        Route::any('shop/ordersDel','ShopController@ordersDel')->name('shop.ordersDel');//订单删除
         Route::get('shop/ordersUpd','ShopController@ordersUpd')->name('shop.ordersUpd');//订单修改
         Route::any('shop/ordersUpds','ShopController@ordersUpds')->name('shop.ordersUpds');//订单修改提交
 

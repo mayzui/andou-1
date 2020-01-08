@@ -11,7 +11,11 @@ class Ogoods extends Model
 
     public function phone()
     {
-        return $this->hasOne('App\Models\Orders','order_id','order_sn');
+        return $this->hasOne('App\Models\Orders','order_sn','order_id');
+    }
+
+    public function users(){
+        return $this->hasOne('App\Models\Admin','id','user_id');
     }
 
 }
