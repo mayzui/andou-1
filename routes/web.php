@@ -163,6 +163,7 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::any('shop/ordersDel','ShopController@ordersDel')->name('shop.ordersDel');//订单删除
         Route::get('shop/ordersUpd','ShopController@ordersUpd')->name('shop.ordersUpd');//订单修改
         Route::any('shop/ordersUpds','ShopController@ordersUpds')->name('shop.ordersUpds');//订单修改提交
+        Route::any('shop/orderDl','ShopController@orderDl')->name('shop.orderDl');//订单删除
 
         Route::get('shop/orders','ShopController@orders')->name('shop.orders');
         Route::get('shop/goodsBrand','ShopController@goodsBrand')->name('shop.goodsBrand');

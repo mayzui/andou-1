@@ -630,6 +630,25 @@ class ShopController extends BaseController
           }
       }
 
+    /**
+     * @descript 订单删除
+     * @jsy
+     */
+
+    public function orderDl(){
+        $all = \request() -> all();
+
+        $data = [
+            'is_del' => 1
+        ];
+        // 循环删除数据
+        foreach ($all['ids'] as $id){
+            $datas = DB::table('order_goods') -> where('id',$id) -> update($data);
+        }
+        return 1;
+
+    }
+
     // 新增 and 修改 商品分类
     public function merchants_goods_typeChange(Request $request){
         $all = \request() -> all();
@@ -856,6 +875,49 @@ class ShopController extends BaseController
             -> where('user_id',$id)
             -> where('is_reg',1)
             -> first();
+        if(empty($input['time'])){
+        }else{
+            if($i){
+                $list = DB::table('orders')
+                    -> join('order_goods','orders.order_sn','=','order_goods.order_id')
+//            -> join('merchants','order_goods.merchant_id','=','merchants.id')
+                    -> join('users','orders.user_id','=','users.id')
+                    -> where('order_goods.is_del',0)
+                    -> where('order_goods.merchant_id',$id)
+                    ->whereDate('order_goods.created_at','like',$input['time'])
+                    -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
+                        'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num'])
+                    -> paginate(10);
+            }else{
+                $list = DB::table('orders')
+                    -> join('order_goods','orders.order_sn','=','order_goods.order_id')
+                    -> join('users','orders.user_id','=','users.id')
+                    -> where('order_goods.is_del',0)
+                    ->whereDate('order_goods.created_at','like',$input['time'])
+                    -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
+                        'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num'])
+                    -> paginate(10);
+            }
+            if($i){
+                $data =Ogoods::with("users")->where(['is_del'=>0,'user_id'=>$id,'status'=>10])->get(['id'])->toArray();
+                $data1 =Ogoods::with("users")->where(['is_del'=>0,'user_id'=>$id,'status'=>20])->get(['id'])->toArray();
+                $data2 =Ogoods::with("users")->where(['is_del'=>0,'user_id'=>$id,'status'=>40])->get(['id'])->toArray();
+                $data3 =Ogoods::with("users")->where(['is_del'=>0,'user_id'=>$id,'status'=>50])->get(['id'])->toArray();
+                $data4 =Ogoods::with("users")->where(['is_del'=>0,'user_id'=>$id,'status'=>60])->get(['id'])->toArray();
+                $data5 =Ogoods::with("users")->where(['is_del'=>0,'user_id'=>$id])->get(['id'])->toArray();
+
+            }else{
+                $data =Ogoods::with("users")->where(['is_del'=>0,'status'=>10])->get(['id'])->toArray();
+                $data1 =Ogoods::with("users")->where(['is_del'=>0,'status'=>20])->get(['id'])->toArray();
+                $data2 =Ogoods::with("users")->where(['is_del'=>0,'status'=>40])->get(['id'])->toArray();
+                $data3 =Ogoods::with("users")->where(['is_del'=>0,'status'=>50])->get(['id'])->toArray();
+                $data4 =Ogoods::with("users")->where(['is_del'=>0,'status'=>60])->get(['id'])->toArray();
+                $data5 =Ogoods::with("users")->where(['is_del'=>0])->get(['id'])->toArray();
+            }
+            $count = ['data'=>$data,'data1'=>$data1,'data2'=>$data2,'data3'=>$data3,'data4'=>$data4,'data5'=>$data5];
+            return $this->view('orders',['list'=>$list,'count'=>$count]);
+
+        }
         if(empty($input)){
             $id = Auth::id();     // 当前登录用户的id
             if(empty($input['status'])){
@@ -1074,59 +1136,88 @@ class ShopController extends BaseController
                 }
             }
         }else{
-            if ($input['sta']=="1"){
-                // 如果当前用户是商家，则查询当前商户的商品
-                if($i){
-                    $list = DB::table('orders')
-                        -> join('order_goods','orders.order_sn','=','order_goods.order_id')
+            if(empty($input['name'])){
+                return redirect()->route('shop.orders');
+            }else{
+                if ($input['sta']=="1"){
+                    // 如果当前用户是商家，则查询当前商户的商品
+                    if($i){
+                        $list = DB::table('orders')
+                            -> join('order_goods','orders.order_sn','=','order_goods.order_id')
 //            -> join('merchants','order_goods.merchant_id','=','merchants.id')
-                        -> join('users','orders.user_id','=','users.id')
-                        -> where('order_goods.is_del',0)
-                        -> where('order_goods.merchant_id',$id)
-                        ->where('order_id','like','%'.$input["keyword"].'%')
-                        -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
-                            'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num'])
-                        -> paginate(10);
-                }else{
-                    $list = DB::table('orders')
-                        -> join('order_goods','orders.order_sn','=','order_goods.order_id')
-                        -> join('users','orders.user_id','=','users.id')
-                        -> where('order_goods.is_del',0)
-                        ->where('order_id','like','%'.$input["keyword"].'%')
-                        -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
-                            'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num'])
-                        -> paginate(10);
+                            -> join('users','orders.user_id','=','users.id')
+                            -> where('order_goods.is_del',0)
+                            -> where('order_goods.merchant_id',$id)
+                            ->where('order_id','like','%'.$input["keyword"].'%')
+                            -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
+                                'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num'])
+                            -> paginate(10);
+                    }else{
+                        $list = DB::table('orders')
+                            -> join('order_goods','orders.order_sn','=','order_goods.order_id')
+                            -> join('users','orders.user_id','=','users.id')
+                            -> where('order_goods.is_del',0)
+                            ->where('order_id','like','%'.$input["keyword"].'%')
+                            -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
+                                'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num'])
+                            -> paginate(10);
+                    }
+                }
+                //手机号 用户名搜索
+                if ($input['sta']=="2"){
+                    // 如果当前用户是商家，则查询当前商户的商品
+                    $ids=  DB::table("users")->where("name","=",$input['name'])->first(['id']);
+                    if (empty($ids)){
+                        if($i){
+                            $list = DB::table('orders')
+                                -> join('order_goods','orders.order_sn','=','order_goods.order_id')
+//            -> join('merchants','order_goods.merchant_id','=','merchants.id')
+                                -> join('users','order_goods.user_id','=','users.id')
+                                -> where('order_goods.is_del',0)
+                                -> where('order_goods.merchant_id',$id)
+                                ->where('users.mobile','=',$input["user"])
+//                        ->orWhere('order_goods.user_id','=',$ids->id)
+                                -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
+                                    'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num'])
+                                -> paginate(10);
+                        }else{
+                            $list = DB::table('orders')
+                                -> join('order_goods','orders.order_sn','=','order_goods.order_id')
+                                -> join('users','order_goods.user_id','=','users.id')
+                                -> where('order_goods.is_del',0)
+                                ->where('users.mobile','=',$input["user"])
+//                        ->orWhere('order_goods.user_id','=',$ids->id)
+                                -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
+                                    'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num'])
+                                -> paginate(10);
+                        }
+                    }else{
+                        if($i){
+                            $list = DB::table('orders')
+                                -> join('order_goods','orders.order_sn','=','order_goods.order_id')
+//            -> join('merchants','order_goods.merchant_id','=','merchants.id')
+                                -> join('users','orders.user_id','=','users.id')
+                                -> where('order_goods.is_del',0)
+                                -> where('order_goods.merchant_id',$id)
+                                ->where('order_goods.user_id','=',$ids->id)
+                                -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
+                                    'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num'])
+                                -> paginate(10);
+                        }else{
+                            $list = DB::table('orders')
+                                -> join('order_goods','orders.order_sn','=','order_goods.order_id')
+                                -> join('users','orders.user_id','=','users.id')
+                                -> where('order_goods.is_del',0)
+                                ->where('order_goods.user_id','=',$ids->id)
+                                -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
+                                    'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num'])
+                                -> paginate(10);
+                        }
+                    }
                 }
             }
-               //手机号 用户名搜索
-            if ($input['sta']=="2"){
-                // 如果当前用户是商家，则查询当前商户的商品
-                $ids=  DB::table("users")->where("name","=",$input['user'])->first(['id']);
-                if($i){
-                    $list = DB::table('orders')
-                        -> join('order_goods','orders.order_sn','=','order_goods.order_id')
-//            -> join('merchants','order_goods.merchant_id','=','merchants.id')
-                        -> join('users','orders.user_id','=','users.id')
-                        -> where('order_goods.is_del',0)
-                        -> where('order_goods.merchant_id',$id)
-                        ->where('users.mobile','=',$input["user"])
-                        ->orWhere('order_goods.user_id','=',$ids->id)
-                        -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
-                            'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num'])
-                        -> paginate(10);
-                }else{
-                    $list = DB::table('orders')
-                        -> join('order_goods','orders.order_sn','=','order_goods.order_id')
-                        -> join('users','orders.user_id','=','users.id')
-                        -> where('order_goods.is_del',0)
-                        ->where('users.mobile','=',$input["user"])
-                        ->orWhere('order_goods.user_id','=',$ids->id)
-                        -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
-                            'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num'])
-                        -> paginate(10);
 
-                }
-            }
+
         }
         $id = Auth::id();     // 当前登录用户的id
         // 判断当前用户是否是商家
@@ -1151,10 +1242,10 @@ class ShopController extends BaseController
             $data4 =Ogoods::with("users")->where(['is_del'=>0,'status'=>60])->get(['id'])->toArray();
             $data5 =Ogoods::with("users")->where(['is_del'=>0])->get(['id'])->toArray();
         }
-         $count = ['data'=>$data,'data1'=>$data1,'data2'=>$data2,'data3'=>$data3,'data4'=>$data4,'data5'=>$data5];
-         $model = Order::get(['order_goods_id'])->toArray();
-         $cfCen =array_column($model,"order_goods_id");
 
+        $count = ['data'=>$data,'data1'=>$data1,'data2'=>$data2,'data3'=>$data3,'data4'=>$data4,'data5'=>$data5];
+        $model = Order::get(['order_goods_id'])->toArray();
+        $cfCen =array_column($model,"order_goods_id");
         return $this->view('orders',['list'=>$list,'has'=>$cfCen,'count'=>$count]);
     }
 

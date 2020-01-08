@@ -41,6 +41,10 @@
                         输入搜索:<input type="text" style="height: 25px;margin-left: 10px;" id="sval" onkeydown="search()" placeholder="订单编号/商品货号">
 
                         收货人:<input type="text" style="height: 25px;margin-left: 10px;" class="userval" onkeydown="user()" placeholder="收货人姓名/手号码">
+
+                        提交时间:<input type="date"  style="height: 25px;margin-left: 10px;" class="time" onkeydown="time()" placeholder="请选择时间">&nbsp
+
+                        <button type="button" class="btn btn-danger btn-sm mdels" title="批量删除" ><i class="fa fa-trash-o"></i> 批量删除</button>
                     </div>
                 </div>
                 <style>
@@ -53,6 +57,7 @@
                     <table class="table table-striped table-bordered table-hover m-t-md">
                         <thead>
                         <tr>
+                            <th width="50px"><input type="checkbox" id="checkall" /></th>
                             <th width="100">ID</th>
                             <th>订单编号</th>
                             <th>提交时间</th>
@@ -67,6 +72,7 @@
                         @if(count($list) > 0)
                         @foreach($list as $k => $item)
                             <tr>
+                                <td><input type="checkbox" name="ids" value="{{$item->id}}" /></td>
                                 <td>{{$item->id}}</td>
                                 <td>{{$item->order_sn}}</td>
                                 <td>{{$item->created_at}}</td>
@@ -116,13 +122,13 @@
                                         @if($item->statuss == 0)
                                             <font color="880000">已取消</font>
                                         @elseif($item->statuss == 10)
-                                            <a onclick="del({{$item->id}})"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o"></i> 删除订单</button></a>
+                                            <a onclick="del({{$item->id}})"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o"></i> 关闭订单</button></a>
                                         @elseif($item->statuss == 20)
                                             <a href="{{url("/admin/logistics/indexs")}}" ><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o" ></i> 订单发货</button></a>
                                         @elseif($item->statuss == 40)
-                                            <a href="{{url("/admin/logistics/readLogistics?id=$item->id&express_id=$item->express_id&courier_num=$item->courier_num")}}" ><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o" ></i> 订单跟踪</button></a>
+                                            <a href="{{url("/admin/logistics/readLogistics?id=$item->id&express_id=$item->express_id&courier_num=$item->courier_num")}}" ><button class="btn" type="button"><i class="fa fa-trash-o" ></i> 订单跟踪</button></a>
                                         @elseif($item->statuss == 50)
-                                            <a href="{{url("/admin/logistics/readLogistics?id=$item->id&express_id=$item->express_id&courier_num=$item->courier_num")}}" ><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o" ></i> 订单跟踪</button></a>
+                                            <a href="{{url("/admin/logistics/readLogistics?id=$item->id&express_id=$item->express_id&courier_num=$item->courier_num")}}" ><button class="btn " type="button"><i class="fa fa-trash-o" ></i> 订单跟踪</button></a>
                                         @elseif($item->statuss == 60)
                                             <a onclick="del({{$item->id}})"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o"></i> 删除订单</button></a>
                                         @endif
@@ -137,7 +143,10 @@
                         @endif
                         <tbody>
                     </table>
-                    {{ $list->appends(['status'=>$item->statuss]) }}
+                       @if(count($list)>0)
+                        {{ $list->appends(['status'=>$item->statuss]) }}
+                           @else
+                           @endif
                 </form>
             </div>
         </div>
@@ -163,9 +172,49 @@
         function user() {
             var user = $(".userval").val()
             if (event.keyCode==13){
-                location.href="{{route('shop.orders')}}?user="+user +"&sta="+"2";
+                location.href="{{route('shop.orders')}}?user="+user +"&sta="+"2" +"&name="+user;
             }
         }
+
+        function time() {
+
+            if (event.keyCode==13){
+                var time = $(".time").val()
+                location.href="{{route('shop.orders')}}?time="+time;
+            }
+        }
+        // 实现全选
+        $("#checkall").click(function () {
+            if(this.checked){
+                $("[name=ids]:checkbox").prop("checked",true);
+            }else{
+                $("[name=ids]:checkbox").prop("checked",false);
+            }
+        })
+
+        $(".mdels").click(function () {
+            var obj = document.getElementsByName("ids");
+            var check_val = [];
+            for(k in obj){
+                if(obj[k].checked)
+                    check_val.push(obj[k].value);
+            }
+            if(check_val==""){
+                layer.alert("请选择你需要删除的选项",{icon:2});
+            }else {
+                layer.confirm("是否删除这 "+check_val.length+" 项数据？", {icon: 3}, function (index) {
+                    // alert(check_val)
+                    $.post("{{route('shop.orderDl')}}", {ids: check_val, _token: "{{csrf_token()}}"}, function (data) {
+                        if (data = 1) {
+                            layer.alert("删除成功", {icon: 1}, function (index) {
+                                window.location.href = "{{route('shop.orders')}}";
+                            });
+                        }
+                    })
+
+                })
+            }
+        })
 
 
     </script>
