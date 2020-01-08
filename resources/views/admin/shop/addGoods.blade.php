@@ -144,23 +144,43 @@
                                             <div class="form-group">
                                                 <label class="col-sm-2 control-label"><em style="margin-right:5px;vertical-align: middle;color: #fe0000;">*</em>产品参数：</label>
                                                 <div class="col-sm-2">
-                                                    @foreach($attrData as $k =>$v)
-                                                        <div class="form-group">
-                                                            <label class="col-sm-2 control-label">
-                                                                <input type="hidden" name="attrname[]" value="{{ $v -> id }}"  />
-                                                                <input type="text"  value="{{ $v -> name }}" readonly style="border: 0px;width: 50px;" />
-                                                            </label>
-                                                            <div class="input-group col-sm-2">
-                                                                <div class="checkbox i-checks checkbox">
-                                                                    @foreach($attrvalueData as $m)
-                                                                        @if($v -> id == $m -> goods_attr_id)
-                                                                            <span><label><input type="checkbox" name="attrvalue_{{ $v -> id }}[]" value="{{$m -> value}}" @if(in_array($m -> value,$goodssku)) checked @endif disabled />{{$m -> value}} </label></span>
-                                                                        @endif
-                                                                    @endforeach
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    @endforeach
+                                                    <select class="form-control pull-left" name="merchants_goods_type">
+                                                        <option value="0">— 选择参数模板 —</option>
+                                                        @foreach($goods_attr as $item)
+                                                            <option value="{{$item->id}}" @if($item->id == $goodsdata->merchants_goods_type_id) selected @endif > {{$item->name}}</option>
+                                                        @endforeach
+                                                    </select>
+                                                    <div style="width: 766px;min-height: 100px;margin-top: 36px;background-color: #EEEEEE;">
+                                                        {{--@foreach($attrvalueData as $v)--}}
+                                                        {{--<div style="display: inline-block;float: left;width: 100px;height: 40px;">--}}
+                                                            {{--<input type="text" value="{{$v -> spec}}" readonly style="margin: 15px;background-color: #EEEEEE;border: 0px" />--}}
+                                                        {{--</div>--}}
+                                                        {{--<div style="display: inline-block;float: left;width: 650px;height: 40px;">--}}
+                                                            {{--@foreach(json_decode($v->spec_value,true) as $m)--}}
+                                                            {{--<label>--}}
+                                                                {{--<input type="checkbox" />--}}
+                                                            {{--</label>--}}
+                                                            {{--@endforeach--}}
+                                                        {{--</div>--}}
+                                                        {{--@endforeach--}}
+                                                    </div>
+                                                    {{--@foreach($attrData as $k =>$v)--}}
+                                                        {{--<div class="form-group">--}}
+                                                            {{--<label class="col-sm-2 control-label">--}}
+                                                                {{--<input type="hidden" name="attrname[]" value="{{ $v -> id }}"  />--}}
+                                                                {{--<input type="text"  value="{{ $v -> name }}" readonly style="border: 0px;width: 50px;" />--}}
+                                                            {{--</label>--}}
+                                                            {{--<div class="input-group col-sm-2">--}}
+                                                                {{--<div class="checkbox i-checks checkbox">--}}
+                                                                    {{--@foreach($attrvalueData as $m)--}}
+                                                                        {{--@if($v -> id == $m -> goods_attr_id)--}}
+                                                                            {{--<span><label><input type="checkbox" name="attrvalue_{{ $v -> id }}[]" value="{{$m -> value}}" @if(in_array($m -> value,$goodssku)) checked @endif disabled />{{$m -> value}} </label></span>--}}
+                                                                        {{--@endif--}}
+                                                                    {{--@endforeach--}}
+                                                                {{--</div>--}}
+                                                            {{--</div>--}}
+                                                        {{--</div>--}}
+                                                    {{--@endforeach--}}
                                                 </div>
                                             </div>
 
@@ -301,25 +321,24 @@
                                                     <h2 class="title">添加商品参数</h2>
                                                 </div>
                                             </div>
-                                            @foreach($attrData as $k =>$v)
-                                                <div class="hr-line-dashed"></div>
-                                                <div class="form-group">
-                                                    <label class="col-sm-2 control-label">
-                                                        <input type="hidden" name="attrname[]" value="{{ $v -> id }}"  />
-                                                        <input type="text"  value="{{ $v -> name }}" readonly style="border: 0px;width: 50px;" />
-                                                    </label>
-                                                    <div class="input-group col-sm-2">
-                                                        <div class="radio i-checks checkbox">
-                                                            @foreach($attrvalueData as $m)
-                                                                @if($v -> id == $m -> goods_attr_id)
-
-                                                                    <label><input type="checkbox" name="attrvalue_{{ $v -> id }}[]" value="{{$m -> value}}" @if(in_array($m -> value,$goodssku)) checked @endif />{{$m -> value}} </label>
-                                                                @endif
-                                                            @endforeach
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            @endforeach
+                                            {{--@foreach($attrData as $k =>$v)--}}
+                                                {{--<div class="hr-line-dashed"></div>--}}
+                                                {{--<div class="form-group">--}}
+                                                    {{--<label class="col-sm-2 control-label">--}}
+                                                        {{--<input type="hidden" name="attrname[]" value="{{ $v -> id }}"  />--}}
+                                                        {{--<input type="text"  value="{{ $v -> name }}" readonly style="border: 0px;width: 50px;" />--}}
+                                                    {{--</label>--}}
+                                                    {{--<div class="input-group col-sm-2">--}}
+                                                        {{--<div class="radio i-checks checkbox">--}}
+                                                            {{--@foreach($attrvalueData as $m)--}}
+                                                                {{--@if($v -> id == $m -> goods_attr_id)--}}
+                                                                    {{--<label><input type="checkbox" name="attrvalue_{{ $v -> id }}[]" value="{{$m -> value}}" @if(in_array($m -> value,$goodssku)) checked @endif />{{$m -> value}} </label>--}}
+                                                                {{--@endif--}}
+                                                            {{--@endforeach--}}
+                                                        {{--</div>--}}
+                                                    {{--</div>--}}
+                                                {{--</div>--}}
+                                            {{--@endforeach--}}
                                             <div class="hr-line-dashed"></div>
                                             <div class="form-group">
                                                 <div class="col-sm-12 col-sm-offset-2">

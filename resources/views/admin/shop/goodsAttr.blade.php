@@ -13,7 +13,6 @@
                 <h5>属性列表</h5>
             </div>
             <div class="ibox-content">
-                {{--<a href="{{route('shop.addAttr')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button"> 添加模板</button></a>--}}
                 <button type="button" class="btn btn-primary btn-xl" data-toggle="modal" data-target="#addMyModal">新增模板</button>
                 <table class="table table-striped table-bordered table-hover m-t-md">
                     <thead>
@@ -29,10 +28,7 @@
                             <td>{{$item->id}}</td>
                             <td>{{$item->name}}</td>
                             <td class="text-center">
-
-                                <a href="{{route('shop.attrUpdate',$item->id)}}">
-                                    <button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 修改</button>
-                                </a>
+                                <button type="button" class="btn btn-outline btn-primary btn-xs type_info" data-id="{{$item->id}}" data-toggle="modal" data-target="#addMyModal"><i class="fa fa-paste"></i>编辑</button>
                                 <a href="{{route('shop.attrDelete',$item->id)}}"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o"></i> 删除</button></a>
                             </td>
                         </tr>
@@ -46,12 +42,13 @@
     </div>
     </div>
 @endsection
+{{--新增模态框--}}
 <div class="modal inmodal fade" id="addMyModal" tabindex="-1" role="dialog"  aria-hidden="true" data-backdrop="static">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                <h3>新增模板</h3>
+                <h3>编辑模板</h3>
             </div>
             <form class="form-horizontal m-t-md" action="{{ route('shop.attrStore') }}" method="post" accept-charset="UTF-8" enctype="multipart/form-data">
                 {!! csrf_field() !!}
@@ -60,10 +57,10 @@
                         <thead>
                         <tr>
                             <td>
-                                <span><em style="margin-right:5px;vertical-align: middle;color: #fe0000;">*</em>模板名称：<input type="text" name="specNmae" /></span>
+                                <span><em style="margin-right:5px;vertical-align: middle;color: #fe0000;">*</em>模板名称：<input type="text" name="specNmae" id="specNmae" required /></span>
                             </td>
                             <td>
-                                规格图片
+
                             </td>
                             <td>
                                 <div class="btn btn-outline btn-primary add" title="新增规格" id="add_spec"><span><i class="fa fa-plus"></i> 新增规格</span></div>
@@ -71,7 +68,7 @@
                         </tr>
                         <tr>
                             <th width="100">规格名称</th>
-                            <th width="500">规格值</th>
+                            <th width="450">规格值</th>
                             <th width="100">操作</th>
                         </tr>
                         </thead>
@@ -104,7 +101,7 @@
             '<td> <div style="width: 100px;"><input type="text" class="w80" name="spec['+spec_length+'][name]" value=""></div> </td> ' +
             '<td> <div style=""> ' +
             '<input type="text" maxlength="25" placeholder="点击添加保存" autocomplete="off" class="spec_item_name" autocomplete="off" style="display: block;float: left;">' +
-            '<a href="javascript:void(0);" class="add_spec_item" style="">添加</a> </div> </td> <td class="handle-s"> <div style="text-align: center; width: 60px;">' +
+            '<a href="javascript:void(0);" class="add_spec_item" style="display: block;float: right">添加</a> </div> </td> <td class="handle-s"> <div style="text-align: center; width: 60px;">' +
             '<a href="javascript:void(0);" class="btn red delete_spec" ><i class="fa fa-trash-o"></i>删除</a></div> </td></tr>';
         spec_list.append(spec_item_div);
     });
@@ -158,7 +155,7 @@
         }
         var spec_index = $(this).parents('tr').data('index');
         var html = '<div class="spec_item_button_div" style="float: left"> ' +
-            '<input type="text" class="w70" name="spec['+spec_index+'][item]['+spec_item_length+'][item]" value="'+spec_item_name+'"> ' +
+            '<input type="text" class="w70" name="spec['+spec_index+'][item]['+spec_item_length+'][item]" value="'+spec_item_name+'" style="display: block;float: left;"> ' +
             '<span class="ys-btn-close delete_spec_item" style="cursor: pointer">×</span> ' +
             '</div>';
         $(this).parent().find(".spec_item_name").before(html).val('');
@@ -199,43 +196,64 @@
         }
     });
 
-    // 设置id
-    function  setAttrId (id)
-    {
-        document.getElementById('attrId').value = id;
-        getAttrData(id)
-    }
-
-    function remevethis(obj) {
-        return  $(obj).remove();
-    }
-    // 获取id对应的属性1数据
-    function getAttrData (id) {
-        $('#attrValues').html('');
-        $.ajax({
-            type: "POST",
-            url: "/admin/shop/getAttr",
-            data: {id : id },
-            headers:{'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-            dataType:"JSON",
-            success: function(res){
-                if (res.code == 200) {
-                    if (res.data && res.data.attr_value.length >0) {
-                        console.log(res.data.attr_value);
-                        for (i in  res.data.attr_value) {
-                            var val = res.data.attr_value[i];
-                            $('#attrValues').append("<input type=\"text\" ondblclick=\"remevethis(this)\" name=\"attr_value["+val.id+"]\"  class=\"form-control value-num\" value=\""+val.value+"\"/>");
+    // 获取当前id
+    $(document).on('click', '.type_info', function () {
+        var type_id = $(this).data('id');
+        add_edit_type(type_id);
+    });
+    function add_edit_type(type_id) {
+        // 通过异步传输id
+        $.post("{{route('shop.getAttr')}}",{id:type_id,_token:'{{ csrf_token() }}'},function (data) {
+            // 将获取的字符串转换成对象
+            var strToObj = JSON.parse(data);
+            if(strToObj.code == 200){
+                // 清空addspec中的内容
+                $('#addspec').empty();
+                // 获取模板名称
+                var spec_name = strToObj.data.name;
+                // 向模板名称添加数据
+                document.getElementById("specNmae").value=spec_name;
+                var goods_attr_value_data = strToObj.goods_attr_value_data;
+                // 判断商品规格属性是否存在
+                if(strToObj.goods_attr_value_data.length){
+                    // 存在规格属性
+                    // js 新增规格
+                    for (var i = 0 ;i<goods_attr_value_data.length;i++){
+                        var spec_list = $('#addspec');
+                        var spec_length = spec_list.find('tr').length;
+                        if(spec_length >= 4){
+                            layer.open({icon: 2, content: '规格最多可添加3个'});
+                            return;
                         }
-                    } else {
+                        var spec_item_div = '<tr data-index='+spec_length+'>' +
+                            '<td> <div style="width: 100px;"><input type="text" class="w80" name="spec['+spec_length+'][name]" value="'+goods_attr_value_data[i].spec+'"></div> </td> ' +
+                            '<td> <div style=""> ' +
+                            '<input type="text" maxlength="25" placeholder="点击添加保存" autocomplete="off" class="spec_item_name" autocomplete="off" style="display: block;float: left;">' +
+                            '<a href="javascript:void(0);" class="add_spec_item" style="display: block;float: right">添加</a> </div> </td> <td class="handle-s"> <div style="text-align: center; width: 60px;">' +
+                            '<a href="javascript:void(0);" class="btn red delete_spec" ><i class="fa fa-trash-o"></i>删除</a></div> </td></tr>';
+                        spec_list.append(spec_item_div);
 
+                        // js 新增属性
+                        // 获取属性值
+                        var attr = goods_attr_value_data[i].spec_value;
+                        // 将属性值转换成数组
+                        var attr_value = JSON.parse(attr);
+                        for (var j = 0;j<attr_value.length;j++){
+                            var html = '<div class="spec_item_button_div" style="float: left"> ' +
+                                '<input type="text" class="w70" name="spec['+i+'][item]['+j+'][item]" value="'+attr_value[j]+'" style="display: block;float: left;"> ' +
+                                '<span class="ys-btn-close delete_spec_item" style="cursor: pointer">×</span> ' +
+                                '</div>';
+                            // $(".clas").find(".spec_item_name").before(html).val('');
+                            spec_list.children(".spec_item_name").append(html);
+                        }
                     }
-                    $('#attrName').val(res.data.name)
+                    console.log(goods_attr_value_data);
                 }
+            }else{
+                console.log("no");
             }
         });
     }
-    function addinput() {
-        $('#attrValues').append("<input type=\"text\" ondblclick=\"remevethis(this)\" name=\"attr_value[]\"  class=\"form-control value-num\" value=\"\"/>");
-    }
+
 
 </script>
