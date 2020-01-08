@@ -66,9 +66,9 @@ class CommonController extends Controller
     }
 
     /**
-     * @api {post} /api/common/pay_ways 支付方式
+     * @api {post} /api/wallet/pay_ways 支付方式
      * @apiName pay_ways
-     * @apiGroup common
+     * @apiGroup wallet
      * @apiSuccessExample 参数返回:
      *     {
      *       "code": "200",
@@ -246,4 +246,70 @@ class CommonController extends Controller
             exit('fail');
         }
     }
+
+    /**
+     * @api {post} /api/common/wxnotify 微信充值支付回调
+     * @apiName wxnotify
+     * @apiGroup common
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data":"",
+     *       "msg":"查询成功"
+     *     }
+     */
+
+    public function wxRecharge() {
+
+        $xml=file_get_contents('php://input');
+        //$xml = PHP_VERSION <= 5.6 ? $GLOBALS['HTTP_RAW_POST_DATA']:file_get_contents('php://input');
+        libxml_disable_entity_loader(true);
+        $values = json_decode(json_encode(simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA)), true);
+//        $aa['val']=$xml;
+        $values['trade_status']=$values['trade_status']??'';
+        $values['return_code']=$values['return_code']??'';
+//        Db::table('record')->insert($aa);
+
+        if ($values['trade_status'] == 'TRADE_SUCCESS' || $values['trade_status'] == 'TRADE_FINISHED' || $values['return_code']=='SUCCESS') {
+            //这里根据项目需求来写你的操作 如更新订单状态等信息 更新成功返回'success'即可
+            $trade_no = $values['transaction_id'];
+            $total=$values['total_fee']/100;
+            $datas = array('status' => 1, 'pay_way' => 1, 'trade_no' => $trade_no,'price'=>$total);
+            $out_trade_no = $values['out_trade_no'];
+            // echo $out_trade_no;
+            $ress=Db::table('recharge')->where(['order_sn' =>$out_trade_no])->where('status',0)->first();
+            // var_dump($ress);exit();
+            if (!empty($ress)) {
+                $re = Db::table('recharge')->where('order_sn', $out_trade_no)->update($datas);
+                $arr = [
+                    'user_id'=>$ress['user_id'],
+                    'price'=>$ress['price'],
+                    'describe'=>'充值',
+                    'create_time' => date('Y-m-d H:i:s'),
+                    'type_id' => 2,
+                    'state' => 1,
+                    'phone' => $ress['phone'],
+                    'method' => 1,
+                ];
+                $res = DB::table('user_logs')->insert($arr);
+                $pic = DB::table('users')->where('id',$ress['user_id'])->select('money')->first();
+                $money = $pic->money+$total;
+                $r = DB::table('users')->where('id',$ress['user_id'])->update($money);
+                if ($re && $res && $r) {
+                    $str='<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>';
+                    return $str;
+
+                } else {
+                    return 'fail1';
+                }
+            }else{
+                return 'fail2';
+            }
+
+        } else {
+            return 'fail3';
+        }
+
+    }
+
 }

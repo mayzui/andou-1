@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\Admin\RoleRequest;
 use App\Models\Role;
 use App\Repositories\RulesRepository;
@@ -1008,5 +1009,114 @@ class FoodsController extends BaseController
             return redirect()->route('foods.index');
         }
     }
+
+    //饭店分类管理
+    public function classification(){
+        $id = Auth::id();
+        // 判断该用户，是否开店 并且已经认证通过
+        $i = DB::table('merchants') -> where("user_id",$id) -> where("is_reg",1) -> first();
+        if(!empty($i)) {
+            // 如果开店，则查询当前商户的信息
+            $data = DB::table('hotel_category')
+                ->where('status','=','1')
+                ->where('type_id','=','2')
+                ->orderBy('sort','asc')
+                ->get();
+        }else{
+            // 查询酒店分类表
+            $data = DB::table('hotel_category')
+                ->where('status','=','1')
+                ->where('type_id','=','2')
+                ->orderBy('sort','asc')
+                ->get();
+        }
+        $data = json_decode(json_encode($data),true);
+        return $this->view('',['list' => $data]);
+    }
+
+    //饭店分类添加
+    public function classAdd ()
+    {
+        return $this->view('classAdd');
+    }
+
+    //添加饭店分类
+    public function addClass(Request $request){
+        $validate = Validator::make($request->all(),[
+            'name' => 'required',
+            'sort' => 'required|numeric',
+            'img' => 'required',
+        ],[
+            'name.required'=>'名称必须',
+            'sort.numeric'=>'排序必须是数字',
+            'img.required'=>'请上传图片',
+        ]);
+
+
+        if ($validate->fails()) {
+            flash($validate->errors()->first())->error()->important();
+            return redirect()->route('hotel.classAdd');
+        }
+        $data["name"] = $request->input('name');
+        $data["img"] = $request->input('img');
+        $data["sort"] = $request->input('sort');
+        $data['type_id'] = 2;
+        $data['created_at'] = date('Y-m-d H:i:s');
+        $i = DB::table('hotel_category') -> insert($data);
+        if ($i){
+            return   redirect()->route('foods.classAdd');
+        }else{
+            return  viewError('操作失败','foods.classAdd');
+        }
+
+    }
+
+    //饭店分类删除
+    public function classDel(Request $request,$id){
+        $i = DB::table('hotel_category')->delete($id);
+        if ($i){
+            return redirect()->route('foods.classification');
+        }
+        return viewError('已删除或者删除失败');
+    }
+
+    //饭店分类修改
+    public function classEdit(Request $request,$id){
+        $list = DB::table('hotel_category')
+            ->where('status','=','1')
+            ->where('id','=',"$id")
+            ->first();
+        return $this->view('classEdit',['list'=>$list]);
+    }
+
+    //修改饭店分类
+    public function editClass(Request $request){
+        $validate = Validator::make($request->all(),[
+            'name' => 'required',
+            'sort' => 'required|numeric',
+            'img' => 'required',
+        ],[
+            'name.required'=>'名称必须',
+            'sort.numeric'=>'排序必须是数字',
+            'img.required'=>'请上传图片',
+        ]);
+
+        if ($validate->fails()) {
+            flash($validate->errors()->first())->error()->important();
+            return redirect()->route('foods.editClass');
+        }
+        $id = $request->input('id');
+        $data['name'] = $request->input('name');
+        $data['img'] = $request->input('img');
+        $data['sort'] = $request->input('sort');
+        $i = DB::table('hotel_category')
+            ->where('id','=',"$id")
+            ->update($data);
+        if ($i) {
+            return   redirect()->route('foods.classification');
+        }
+        return  viewError('操作失败','foods.classification');
+    }
+
 
 }

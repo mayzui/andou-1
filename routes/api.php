@@ -130,6 +130,12 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('common/express','CommonController@express');
     //发货
      Route::post('goods/deliver','ManageController@deliver');
+     //余额充值明细
+     Route::post('wallet/rechar','WalletController@rechar');
+     //余额充值回调
+     Route::post('common/wxRecharge','CommonController@wxRecharge');
+     //支付
+     Route::post('wallet/pay_ways','WalletController@pay_ways');
 
           //商家详情
      Route::post('details/list','DetailsController@list');
