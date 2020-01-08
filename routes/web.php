@@ -51,6 +51,21 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::post('config/store','ConfigController@store')->name('config.store');
         Route::get('config/delete/{id}','ConfigController@delete')->name('config.delete');
 
+        //酒店分类管理
+        Route::any('hotel/addClass','HotelController@addClass')->name('hotel.addClass');
+        Route::get('hotel/classAdd','HotelController@classAdd')->name('hotel.classAdd');
+        Route::any('hotel/classDel/{id}','HotelController@classDel')->name('hotel.classDel');
+        Route::any('hotel/classEdit/{id}','HotelController@classEdit')->name('hotel.classEdit');
+        Route::any('hotel/editClass','HotelController@editClass')->name('hotel.editClass');
+
+        //饭店分类管理
+        Route::get('foods/classification','FoodsController@classification')->name('foods.classification');
+        Route::get('foods/classAdd','FoodsController@classAdd')->name('foods.classAdd');
+        Route::any('foods/addClass','FoodsController@addClass')->name('foods.addClass');
+        Route::any('foods/classDel/{id}','FoodsController@classDel')->name('foods.classDel');
+        Route::any('foods/classEdit/{id}','FoodsController@classEdit')->name('foods.classEdit');
+        Route::any('foods/editClass','FoodsController@editClass')->name('foods.editClass');
+
 
 
         // 区域管理

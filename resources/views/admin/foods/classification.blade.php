@@ -4,7 +4,7 @@
         <div class="col-sm-12">
             <div class="alert alert-warning alert-dismissable">
                 <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
-              非专业技术人员请勿修改、增加、删除等操作。
+                非专业技术人员请勿修改、增加、删除等操作。
             </div>
         </div>
     </div>
@@ -14,7 +14,7 @@
                 <h5>分类列表</h5>
             </div>
             <div class="ibox-content">
-                <a href="{{route('hotel.classAdd')}}" link-url="javascript:void(0)">
+                <a href="{{route('foods.classAdd')}}" link-url="javascript:void(0)">
                     <button class="btn btn-primary btn-sm" type="button">
                         <i class="fa fa-plus-circle"></i> 添加分类
                     </button>
@@ -35,10 +35,10 @@
                             <td><img src="{{env('IMAGE_PATH_PREFIX')}}{{$item['img']}}" alt="" style="max-height: 50px;max-width: 100px"></td>
                             <td class="text-center">{{$item['sort']}}</td>
                             <td class="text-center">
-                                <a href="{{route('hotel.classEdit',$item['id'])}}">
+                                <a href="{{route('foods.classEdit',$item['id'])}}">
                                     <button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 修改</button>
                                 </a>
-                                <a href="{{route('hotel.classDel',$item['id'])}}"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o"></i> 删除</button></a>
+                                <a href="{{route('foods.classDel',$item['id'])}}"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o"></i> 删除</button></a>
                             </td>
                         </tr>
                     @endforeach
