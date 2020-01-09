@@ -392,8 +392,25 @@ class FoodsController extends BaseController
                 -> select(['merchants.id','merchants.is_reg','merchants.user_id','merchant_type.type_name','foods_classification.status as foods_status','foods_classification.id as foods_id','foods_classification.name','merchants.name as name2' ,'merchants.address'])
                 -> paginate(10);
         }
+        // 查询已审核
+        $old = DB::table("merchants")
+            -> join("merchant_type","merchants.merchant_type_id","=","merchant_type.id")
+            -> join("foods_classification","merchants.user_id","=","foods_classification.merchants_id")
+            -> where("role_id",5)
+            -> where("is_reg",1)
+            -> select(['merchants.id','merchants.is_reg','merchants.user_id','merchant_type.type_name','foods_classification.status as foods_status','foods_classification.id as foods_id','foods_classification.name','merchants.name as name2' ,'merchants.address'])
+            -> paginate(10);
+        // 查询待审核
+        $wait = DB::table("merchants")
+            -> join("merchant_type","merchants.merchant_type_id","=","merchant_type.id")
+            -> join("foods_classification","merchants.user_id","=","foods_classification.merchants_id")
+            -> where("role_id",5)
+            -> where("foods_classification.status",0)
+            -> select(['merchants.id','merchants.is_reg','merchants.user_id','merchant_type.type_name','foods_classification.status as foods_status','foods_classification.id as foods_id','foods_classification.name','merchants.name as name2' ,'merchants.address'])
+            -> paginate(10);
+
         // 跳转饭店管理模块
-        return $this -> view('',['data'=>$data,'name'=>$name]);
+        return $this -> view('',['data'=>$data,'name'=>$name,'old'=>$old,'wait'=>$wait]);
     }
 
     // 修改饭店状态
