@@ -15,54 +15,99 @@
             </div>
             <div class="ibox-content">
                 <div class="hr-line-dashed m-t-sm m-b-sm"></div>
-                <form class="form-horizontal m-t-md" action="{{url('/admin/shop/ordersUpds')}}" method="POST">
+                <table class="table table-striped table-bordered table-hover m-t-md">
+                    <h3>基本信息</h3>
+                    <thead>
+                    <tr>
+                        <th>订单编号</th>
+                        <th>发货单流水号</th>
+                        <th>用户账号</th>
+                        <th>支付方式</th>
+                        <th>订单来源</th>
+                        <th>订单类型</th>
+                    </tr>
+                    </thead>
+                            <tr>
+                                <td>{{$data->order_id}}</td>
+                                <td>{{$data->courier_num}}</td>
+                                <td>{{$data->mobile}}</td>
+                                <td>
+                                    @if($data->pay_way == 1)
+                                        微信支付
+                                    @elseif($data->pay_way == 2)
+                                        支付宝支付
+                                    @elseif($data->pay_way == 4)
+                                        平台余额支付
+                                    @elseif($data->pay_way == 3)
+                                        银联支付
+                                    @elseif($data->pay_way == 0)
+                                        未选择支付方式
+                                    @else
+                                        其他方式
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($data->order_source==1)
+                                        APP订单
+                                    @else
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($data->order_types==1)
+                                        普通订单
+                                    @else
+                                    @endif
+                                </td>
+                            </tr>
+                    <tbody>
+                </table>
 
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label">支付金额：</label>
-                        <div class="input-group col-sm-2">
-                            <input type="text" class="form-control" name="pay_money" id="name" value="{{$data['pay_money']}}" required placeholder="支付金额">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label">总计金额：</label>
-                        <div class="input-group col-sm-2">
-                            <input type="text" class="form-control" name=""  value="{{$data['total']}}" required placeholder="总计金额">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label">邮费：</label>
-                        <div class="input-group col-sm-2">
-                            <input type="text" class="form-control" name="" value="{{$data['shipping_free']}}" required placeholder="邮费">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label">支付时间：</label>
-                        <div class="input-group col-sm-2">
-                            <input type="text" class="form-control"  id="name" value="{{$data['pay_time']}}" required placeholder="支付时间">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label">订单备注：</label>
-                        <div class="input-group col-sm-2">
-                            <textarea cols="36" rows="10" >{{ $data['remark'] or '' }}</textarea>
-                        </div>
-                    </div>
-
-                    <input type="hidden" name="id" value="{{$id}}">
-                    <div class="hr-line-dashed m-t-sm m-b-sm"></div>
-                    <div class="form-group">
-                        <div class="col-sm-12 col-sm-offset-2">
-                            <button class="btn btn-primary" type="submit"><i class="fa fa-check"></i>&nbsp;保 存</button>
-                        </div>
-                    </div>
-                    <div class="clearfix"></div>
-                    {{csrf_field()}}
-
-                </form>
+                <table class="table table-striped table-bordered table-hover m-t-md" >
+                    <h3 style="margin-top: 20px;">收货人信息</h3>
+                    <thead>
+                    <tr>
+                        <th>收货人</th>
+                        <th>手机号码</th>
+                        <th>快递公司</th>
+                        <th>收货地址</th>
+                    </tr>
+                    </thead>
+                    <tr>
+                        <td>{{$address->name}}</td>
+                        <td>
+                            @if($address->express_id == 1)
+                                韵达快递
+                            @elseif($address->express_id == 2)
+                                申通快递
+                            @elseif($address->express_id == 3)
+                                圆通速递
+                            @elseif($address->express_id == 4)
+                                邮政快递包裹
+                            @elseif($address->express_id == 5)
+                                中通快递
+                            @elseif($address->express_id == 6)
+                                顺丰速运
+                            @elseif($address->express_id == 7)
+                                百世快递
+                            @elseif($address->express_id == 8)
+                                京东物流
+                            @elseif($address->express_id == 9)
+                                天天快递
+                            @elseif($address->express_id == 10)
+                                EMS
+                            @elseif($address->express_id == 11)
+                                德邦
+                            @elseif($address->express_id == 12)
+                                DHL-中国件
+                            @elseif($address->express_id == 13)
+                                优速快递
+                            @endif
+                        </td>
+                        <td>{{$address->courier_num}}</td>
+                        <td>{{$address->address}}</td>
+                    </tr>
+                    <tbody>
+                </table>
             </div>
         </div>
     </div>
