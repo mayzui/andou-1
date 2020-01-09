@@ -123,11 +123,11 @@
                                         @elseif($item->statuss == 10)
                                             <a onclick="del({{$item->id}})"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o"></i> 关闭订单</button></a>
                                         @elseif($item->statuss == 20)
-                                            <a href="{{url("/admin/logistics/indexs")}}" ><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o" ></i> 订单发货</button></a>
+                                            <a href="{{url("/admin/logistics/indexs")}}" ><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-check" ></i> 订单发货</button></a>
                                         @elseif($item->statuss == 40)
-                                            <a href="{{url("/admin/logistics/readLogistics?id=$item->id&express_id=$item->express_id&courier_num=$item->courier_num")}}" ><button class="btn" type="button"><i class="fa fa-trash-o" ></i> 订单跟踪</button></a>
+                                            <a href="{{url("/admin/logistics/readLogistics?id=$item->id&express_id=$item->express_id&courier_num=$item->courier_num")}}" ><button class="btn btn-xs" type="button"><i class="fa fa-trash-o" ></i> 订单跟踪</button></a>
                                         @elseif($item->statuss == 50)
-                                            <a href="{{url("/admin/logistics/readLogistics?id=$item->id&express_id=$item->express_id&courier_num=$item->courier_num")}}" ><button class="btn " type="button"><i class="fa fa-trash-o" ></i> 订单跟踪</button></a>
+                                            <a href="{{url("/admin/logistics/readLogistics?id=$item->id&express_id=$item->express_id&courier_num=$item->courier_num")}}" ><button class="btn btn-xs" type="button"><i class="fa fa-trash-o" ></i> 订单跟踪</button></a>
                                         @elseif($item->statuss == 60)
                                             <a onclick="del({{$item->id}})"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o"></i> 删除订单</button></a>
                                         @endif
