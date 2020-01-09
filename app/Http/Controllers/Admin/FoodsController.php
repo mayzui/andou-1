@@ -766,18 +766,21 @@ class FoodsController extends BaseController
                 -> join('merchants','foods_spec.merchant_id','=','merchants.id')
                 -> where($where)
                 -> where('merchants.id',$id)
-                -> select(['foods_spec.id','foods_spec.name as spec_name','merchants.name as merchants_name'])
+                -> select(['foods_spec.id','foods_spec.name as spec_name','merchants.name as merchants_name','foods_spec.price as spec_price'])
                 -> paginate(5);
+//            print_r($data);die();
         }else{
             // 如果开店，则为超级管理员，能够看见所有的数据
             // 查询数据库数据
             $data = DB::table("foods_spec")
                 -> join('merchants','foods_spec.merchant_id','=','merchants.id')
                 -> where($where)
-                -> select(['foods_spec.id','foods_spec.name as spec_name','merchants.name as merchants_name'])
+                -> select(['foods_spec.id','foods_spec.name as spec_name','merchants.name as merchants_name','foods_spec.price as spec_price'])
                 -> paginate(5);
             $id = "";
+
         }
+
         return $this -> view('',['data'=>$data,'id'=>$id,'name'=>$name]);
     }
     // 新增 and 修改，菜品规格
@@ -809,13 +812,14 @@ class FoodsController extends BaseController
                 // 获取当前商户id
                 $id = Auth::id();
                 // 判断数据库是否存在同样的规格
-                $m = DB::table("foods_spec") ->where('name',$all['name']) -> first();
+                $m = DB::table("foods_spec")->where('merchant_id',$id)->where('name',$all['name']) -> first();
                 if(empty($m)){
                     // 数据库不存在该值,则进行新增操作
                     // 定义一个数组，用于向数据库添加数据
                     $data = [
                         'merchant_id' => $id,
-                        'name' => $all['name']
+                        'name' => $all['name'],
+                        'price' => $all['price']
                     ];
                     //链接数据库，执行新增操作
                     $i = DB::table("foods_spec") ->insert($data);
@@ -834,13 +838,16 @@ class FoodsController extends BaseController
 
             }else{
                 // 执行修改操作
+
                 // 判断数据库是否存在同样的规格
-                $m = DB::table("foods_spec") ->where('name',$all['name']) -> first();
+                $m = DB::table("foods_spec")->where('id','!=',$all['spec_id'])->where('name',$all['name']) -> first();
                 if(empty($m)){
+
                     // 数据库不存在该值,则进行修改操作
                     // 定义一个数组，用于向数据库添加数据
                     $data = [
-                        'name' => $all['name']
+                        'name' => $all['name'],
+                        'price' => $all['price']
                     ];
                     $i = DB::table("foods_spec") -> where("id",$all['id']) -> update($data);
                     if($i){
@@ -850,6 +857,7 @@ class FoodsController extends BaseController
                         flash('修改失败') -> error();
                         return redirect()->route('foods.spec');
                     }
+
                 }else{
                     // 数据库存在该值，则提示商户，该规格已存在
                     flash('修改失败，该规格已存在！') -> error();
