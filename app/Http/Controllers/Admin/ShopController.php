@@ -429,32 +429,36 @@ class ShopController extends BaseController
         }
         //商品信息
         $goodInfo = DB::table("order_goods")
-                  ->join('goods','order_goods.goods_id','=','goods.id')
-                  ->join('goods_sku','order_goods.goods_id','=','goods_sku.goods_id')
-                  ->where('order_goods.goods_id',18)
-                  ->get(['goods.img','goods.name','goods.price','goods.good_num','order_goods.num','goods_sku.attr_value','goods_sku.store_num','goods.good_num']);
-          //总计
-          $sum = DB::table("order_goods")
-              ->join('goods','order_goods.goods_id','=','goods.id')
-              ->join('goods_sku','order_goods.goods_id','=','goods_sku.goods_id')
-              ->where('order_goods.goods_id',18)
-              ->get(['goods.price']);
-              $json =json_encode($sum);
-              $sumPrice = json_decode($json,true);
-              $sumNum = array_column($sumPrice,'price');
+            ->join('goods','order_goods.goods_id','=','goods.id')
+            ->join('goods_sku','order_goods.goods_id','=','goods_sku.goods_id')
+            ->where('order_goods.goods_id',18)
+            ->get(['goods.img','goods.name','goods.price','goods.good_num','order_goods.num','goods_sku.attr_value','goods_sku.store_num','goods.good_num']);
+        //总计
+        $sum = DB::table("order_goods")
+            ->join('goods','order_goods.goods_id','=','goods.id')
+            ->join('goods_sku','order_goods.goods_id','=','goods_sku.goods_id')
+            ->where('order_goods.goods_id',18)
+            ->get(['goods.price']);
+        $json =json_encode($sum);
+        $sumPrice = json_decode($json,true);
+        $sumNum = array_column($sumPrice,'price');
 
-             //发票信息
-              $tick = DB::table("order_invoice")
-                  ->where('order_id',$uid->order_id)
-                  ->get(['is_vat','invoice_title','invoice_content','order_id']);
-             $goods =  DB::table("order_goods")
-                    ->where('order_id',$tick[0]->order_id)
-                    ->get(['user_id']);
+//             //发票信息
+//              $tick = DB::table("order_invoice")
+//                  ->where('order_id',$uid->order_id)
+//                  ->get(['is_vat','invoice_title','invoice_content','order_id']);
+//            if(empty($tick))
+//             $goods =  DB::table("order_goods")
+//                    ->where('order_id',$tick[0]->order_id)
+//                    ->get(['user_id']);
+//
+//             $user = DB::table("users")
+//                 ->where('id',$goods[0]->user_id)
+//                 ->get(['mobile']);
+//             var_dump($user);die;
 
-             $user = DB::table("users")
-                 ->where('id',$goods[0]->user_id)
-                 ->get(['mobile']);
-        return $this->view('ordersUpd',['id'=>$ids,'data'=>$data,'address'=>$address,'uid'=>$uid,'good'=>$goodInfo,'num'=>$sumNum,'tick'=>$tick,'user'=>$user]);
+
+        return $this->view('ordersUpd',['id'=>$ids,'data'=>$data,'address'=>$address,'uid'=>$uid,'good'=>$goodInfo,'num'=>$sumNum]);
     }
     //订单修改提交
     public function ordersUpds()
