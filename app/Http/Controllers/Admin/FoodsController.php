@@ -355,6 +355,20 @@ class FoodsController extends BaseController
             $where[] = ['merchants.name', 'like', '%'."".'%'];
             $name = "";
         }
+        if(!empty($all['status'])){
+            if($all['status'] == 2){
+                $where[] = ['merchants.is_reg',0];
+            }elseif ($all['status'] == 1){
+                $where[] = ['merchants.is_reg',1];
+            }elseif ($all['status'] == 3){
+                $where[] = ['foods_classification.status',0];
+            }elseif ($all['status'] == 4){
+                $where[] = ['foods_classification.status',1];
+            }else{
+
+            }
+        }
+
         if(!empty($i)){
             // 如果开店，则查询当前商户的信息
             // 链接数据库 查询商户表
@@ -363,7 +377,7 @@ class FoodsController extends BaseController
                 -> join("foods_classification","merchants.user_id","=","foods_classification.merchants_id")
                 -> where("role_id",5)
                 -> where("user_id",$id)
-                -> where("is_reg",1)
+//                -> where("is_reg",1)
                 -> where($where)
                 -> select(['merchants.id','merchants.is_reg','merchants.user_id','merchant_type.type_name','foods_classification.name','merchants.name as name2' ,'merchants.address'])
                 -> paginate(10);
@@ -373,7 +387,7 @@ class FoodsController extends BaseController
                 -> join("merchant_type","merchants.merchant_type_id","=","merchant_type.id")
                 -> join("foods_classification","merchants.user_id","=","foods_classification.merchants_id")
                 -> where("role_id",5)
-                -> where("is_reg",1)
+//                -> where("is_reg",1)
                 -> where($where)
                 -> select(['merchants.id','merchants.is_reg','merchants.user_id','merchant_type.type_name','foods_classification.status as foods_status','foods_classification.id as foods_id','foods_classification.name','merchants.name as name2' ,'merchants.address'])
                 -> paginate(10);
