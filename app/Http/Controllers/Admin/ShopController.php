@@ -71,7 +71,7 @@ class ShopController extends BaseController
                 -> where($where)
                 -> where('is_reg',1)
                 -> orWhere('is_reg',2)
-                ->orderBy('is_reg')
+                -> orderBy('created_at','desc')
                 -> paginate(10);
             foreach ($data as $key => $value) {
                 $merchant_type=Db::table('merchant_type')->where('id',$value->merchant_type_id)->pluck('type_name');
@@ -104,11 +104,10 @@ class ShopController extends BaseController
                 $screen['name']='';
             }
             $data=DB::table('merchants')
-                ->where('merchant_type_id',2)
                 ->where($where)
                 -> where('is_reg',1)
                 -> orWhere('is_reg',2)
-                ->orderBy('is_reg')
+                -> orderBy('created_at','desc')
                 ->paginate(10);
             foreach ($data as $key => $value) {
                 $merchant_type=Db::table('merchant_type')->where('id',$value->merchant_type_id)->pluck('type_name');
@@ -152,8 +151,9 @@ class ShopController extends BaseController
             }
             $data=DB::table('merchants')
                 -> where('user_id',$id)
-                ->where('is_reg',0)
+                -> where('is_reg',0)
                 -> where($where)
+                -> orderBy('created_at','desc')
                 -> paginate(10);
             foreach ($data as $key => $value) {
                 $merchant_type=Db::table('merchant_type')->where('id',$value->merchant_type_id)->pluck('type_name');
@@ -186,9 +186,9 @@ class ShopController extends BaseController
                 $screen['name']='';
             }
             $data=DB::table('merchants')
-                ->where('merchant_type_id',2)
                 ->where('is_reg',0)
                 ->where($where)
+                -> orderBy('created_at','desc')
                 ->paginate(10);
             foreach ($data as $key => $value) {
                 $merchant_type=Db::table('merchant_type')->where('id',$value->merchant_type_id)->pluck('type_name');

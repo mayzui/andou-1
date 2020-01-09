@@ -238,14 +238,15 @@
                         var attr = goods_attr_value_data[i].spec_value;
                         // 将属性值转换成数组
                         var attr_value = JSON.parse(attr);
-                        for (var j = 0;j<attr_value.length;j++){
-                            var html = '<div class="spec_item_button_div" style="float: left"> ' +
-                                '<input type="text" class="w70" name="spec['+i+'][item]['+j+'][item]" value="'+attr_value[j]+'" style="display: block;float: left;"> ' +
-                                '<span class="ys-btn-close delete_spec_item" style="cursor: pointer">×</span> ' +
-                                '</div>';
-                            // $(".clas").find(".spec_item_name").before(html).val('');
-                            spec_list.children(".spec_item_name").append(html);
-                        }
+                        console.log(attr_value);
+                        // for (var j = 0;j<attr_value.length;j++){
+                        //     var html = '<div class="spec_item_button_div" style="float: left"> ' +
+                        //         '<input type="text" class="w70" name="spec['+i+'][item]['+j+'][item]" value="'+attr_value[j]+'" style="display: block;float: left;"> ' +
+                        //         '<span class="ys-btn-close delete_spec_item" style="cursor: pointer">×</span> ' +
+                        //         '</div>';
+                        //     // $(".clas").find(".spec_item_name").before(html).val('');
+                        //     spec_list.children(".spec_item_name").append(html);
+                        // }
                     }
                     console.log(goods_attr_value_data);
                 }

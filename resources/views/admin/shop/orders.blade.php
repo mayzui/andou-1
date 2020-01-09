@@ -12,6 +12,9 @@
             <div class="ibox-title">
                 <h5>订单管理</h5>
             </div>
+            <div class="ibox-title">
+                <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>
+            </div>
             <div class="ibox-content">
                 <div class="col-sm-3" style="padding-left: 0px; width: 100%;">
                     <div class="input-group">
