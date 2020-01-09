@@ -106,6 +106,9 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         //入住需知
         Route::any('know/index','KnowController@index')->name('know.index');
         Route::post('know/www','KnowController@www')->name('know.add');
+        // 排序
+        Route::get('shop/sort','ShopController@sort')->name('shop.sort');
+
     });
 });
 ?>

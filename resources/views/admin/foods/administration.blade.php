@@ -9,9 +9,21 @@
                 <form method="post" action="{{route('foods.administration')}}" name="form">
                     {{ csrf_field() }}
                     <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>
-
                     <input type="text" style="height: 25px;margin-left: 10px;" value="{{ $name or '' }}" name="name" placeholder="饭店名称">
                     <button style="height: 25px;margin-left: 10px;" type="submit">按条件查询</button>
+
+                    <a href="{{url('/admin/foods/administration?status=0')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
+                            全部 {{count($data)}}</button>
+                    </a>
+                    <a href="{{url('/admin/foods/administration?status=1')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
+                            已审核 {{count($old)}}</button>
+                    </a>
+                    <a href="{{url('/admin/foods/administration?status=2')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
+                            待审核 {{ count($wait) }}</button>
+                    </a>
+                    <a href="{{url('/admin/foods/administration?status=4')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
+                            已启用 {{count($old)}}</button>
+                    </a>
                 </form>
                 {{--判断用户是否是超级管理员，超级管理员不能新增菜品--}}
                 {{--@if($id)--}}
@@ -47,11 +59,17 @@
                                         <th>{{$v->name}}</th>
                                         <th>{{$v->address}}</th>
                                         <th>
-                                            @if($v->foods_status == 1)
+                                            {{--@if($v->reg == 0)--}}
+                                                {{--<p style="color: green">待审核</p>--}}
+                                            {{--@else--}}
+                                            @if($v->is_reg == 0)
+                                                <p style="color: blue">未审核</p>
+                                            @elseif($v->foods_status == 1)
                                                 <p style="color: green">启用中</p>
-                                                @else
+                                            @else
                                                 <p style="color: blue">未启用</p>
                                             @endif
+                                            {{--@endif--}}
                                         </th>
                                         <td class="text-center">
                                             <div class="btn-group">

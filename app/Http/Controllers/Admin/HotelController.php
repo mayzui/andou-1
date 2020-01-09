@@ -105,7 +105,7 @@ class HotelController extends BaseController
 
         if ($validate->fails()) {
             flash($validate->errors()->first())->error()->important();
-            return redirect()->route('hotel.editClass');
+            return redirect()->route('hotel.classEdit');
         }
         $id = $request->input('id');
         $data['name'] = $request->input('name');

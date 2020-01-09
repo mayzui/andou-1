@@ -355,6 +355,20 @@ class FoodsController extends BaseController
             $where[] = ['merchants.name', 'like', '%'."".'%'];
             $name = "";
         }
+        if(!empty($all['status'])){
+            if($all['status'] == 2){
+                $where[] = ['merchants.is_reg',0];
+            }elseif ($all['status'] == 1){
+                $where[] = ['merchants.is_reg',1];
+            }elseif ($all['status'] == 3){
+                $where[] = ['foods_classification.status',0];
+            }elseif ($all['status'] == 4){
+                $where[] = ['foods_classification.status',1];
+            }else{
+
+            }
+        }
+
         if(!empty($i)){
             // 如果开店，则查询当前商户的信息
             // 链接数据库 查询商户表
@@ -363,7 +377,7 @@ class FoodsController extends BaseController
                 -> join("foods_classification","merchants.user_id","=","foods_classification.merchants_id")
                 -> where("role_id",5)
                 -> where("user_id",$id)
-                -> where("is_reg",1)
+//                -> where("is_reg",1)
                 -> where($where)
                 -> select(['merchants.id','merchants.is_reg','merchants.user_id','merchant_type.type_name','foods_classification.name','merchants.name as name2' ,'merchants.address'])
                 -> paginate(10);
@@ -373,13 +387,30 @@ class FoodsController extends BaseController
                 -> join("merchant_type","merchants.merchant_type_id","=","merchant_type.id")
                 -> join("foods_classification","merchants.user_id","=","foods_classification.merchants_id")
                 -> where("role_id",5)
-                -> where("is_reg",1)
+//                -> where("is_reg",1)
                 -> where($where)
                 -> select(['merchants.id','merchants.is_reg','merchants.user_id','merchant_type.type_name','foods_classification.status as foods_status','foods_classification.id as foods_id','foods_classification.name','merchants.name as name2' ,'merchants.address'])
                 -> paginate(10);
         }
+        // 查询已审核
+        $old = DB::table("merchants")
+            -> join("merchant_type","merchants.merchant_type_id","=","merchant_type.id")
+            -> join("foods_classification","merchants.user_id","=","foods_classification.merchants_id")
+            -> where("role_id",5)
+            -> where("is_reg",1)
+            -> select(['merchants.id','merchants.is_reg','merchants.user_id','merchant_type.type_name','foods_classification.status as foods_status','foods_classification.id as foods_id','foods_classification.name','merchants.name as name2' ,'merchants.address'])
+            -> paginate(10);
+        // 查询待审核
+        $wait = DB::table("merchants")
+            -> join("merchant_type","merchants.merchant_type_id","=","merchant_type.id")
+            -> join("foods_classification","merchants.user_id","=","foods_classification.merchants_id")
+            -> where("role_id",5)
+            -> where("foods_classification.status",0)
+            -> select(['merchants.id','merchants.is_reg','merchants.user_id','merchant_type.type_name','foods_classification.status as foods_status','foods_classification.id as foods_id','foods_classification.name','merchants.name as name2' ,'merchants.address'])
+            -> paginate(10);
+
         // 跳转饭店管理模块
-        return $this -> view('',['data'=>$data,'name'=>$name]);
+        return $this -> view('',['data'=>$data,'name'=>$name,'old'=>$old,'wait'=>$wait]);
     }
 
     // 修改饭店状态
@@ -619,6 +650,9 @@ class FoodsController extends BaseController
     }
     // 新增菜品详情
     public function informationadd(){
+        // 获取当前商户id
+        $id = Auth::id();
+        $data = DB::table('merchants') -> where("user_id",$id) -> first();
         if(\request()->isMethod("get")){
             $all = \request() -> all();
             // 判断跳转新增界面还是修改界面
@@ -627,7 +661,11 @@ class FoodsController extends BaseController
                 // 链接数据库，查询菜品分类
                 $type = DB::table("foods_classification") -> get();
                 // 链接数据库，查询菜品规格
-                $spec = DB::table("foods_spec") -> get();
+                if(!empty($i)){
+                    $spec = DB::table("foods_spec") ->where('merchant_id',$data -> id) -> get();
+                }else{
+                    $spec = DB::table("foods_spec") -> get();
+                }
                 $data = (object)[
                     "classification_id" => 0,
                     "specifications" => []
@@ -646,7 +684,11 @@ class FoodsController extends BaseController
                 // 链接数据库，查询菜品分类
                 $type = DB::table("foods_classification") -> get();
                 // 链接数据库，查询菜品规格
-                $spec = DB::table("foods_spec") -> get();
+                if(!empty($i)){
+                    $spec = DB::table("foods_spec") -> where('merchant_id',$data -> id) -> get();
+                }else{
+                    $spec = DB::table("foods_spec") -> get();
+                }
                 // 获得查询出来的菜品规格
                 $data->specifications =explode(",",$data->specifications);
                 // 定义一个传值用的数组
@@ -664,12 +706,15 @@ class FoodsController extends BaseController
             if(empty($all['id'])){
                 // 执行新增操作
                 $spec = $all['specifications'];
-
+                // 根据获取的id查询规格表中数据库
+                foreach ($spec as $v){
+                    $specdata[] = json_decode(json_encode(DB::table('foods_spec') -> where('id',$v)->select(['name']) -> first()),true);
+                }
                 // 将数组转换成字符串
-                $specs = implode(",",$spec);
+                $specs = implode(",",array_column($specdata,'name'));
                 // 定义一个数组用于接收需要上传数据库的值
                 $data = [
-                    "merchant_id" => Auth::id(),
+                    "merchant_id" => $data -> id,
                     "classification_id" => $all['classification_id'],
                     "name" => $all['name'],
                     "price" => $all['price'],
@@ -698,7 +743,7 @@ class FoodsController extends BaseController
                 $specs = implode(",",array_column($specdata,'name'));
                 // 定义一个数组用于接收需要上传数据库的值
                 $data = [
-                    "merchant_id" => Auth::id(),
+                    "merchant_id" => $data -> id,
                     "classification_id" => $all['classification_id'],
                     "name" => $all['name'],
                     "price" => $all['price'],
@@ -766,18 +811,21 @@ class FoodsController extends BaseController
                 -> join('merchants','foods_spec.merchant_id','=','merchants.id')
                 -> where($where)
                 -> where('merchants.id',$id)
-                -> select(['foods_spec.id','foods_spec.name as spec_name','merchants.name as merchants_name'])
+                -> select(['foods_spec.id','foods_spec.name as spec_name','merchants.name as merchants_name','foods_spec.price as spec_price'])
                 -> paginate(5);
+//            print_r($data);die();
         }else{
             // 如果开店，则为超级管理员，能够看见所有的数据
             // 查询数据库数据
             $data = DB::table("foods_spec")
                 -> join('merchants','foods_spec.merchant_id','=','merchants.id')
                 -> where($where)
-                -> select(['foods_spec.id','foods_spec.name as spec_name','merchants.name as merchants_name'])
+                -> select(['foods_spec.id','foods_spec.name as spec_name','merchants.name as merchants_name','foods_spec.price as spec_price'])
                 -> paginate(5);
             $id = "";
+
         }
+
         return $this -> view('',['data'=>$data,'id'=>$id,'name'=>$name]);
     }
     // 新增 and 修改，菜品规格
@@ -809,13 +857,14 @@ class FoodsController extends BaseController
                 // 获取当前商户id
                 $id = Auth::id();
                 // 判断数据库是否存在同样的规格
-                $m = DB::table("foods_spec") ->where('name',$all['name']) -> first();
+                $m = DB::table("foods_spec")->where('merchant_id',$id)->where('name',$all['name']) -> first();
                 if(empty($m)){
                     // 数据库不存在该值,则进行新增操作
                     // 定义一个数组，用于向数据库添加数据
                     $data = [
                         'merchant_id' => $id,
-                        'name' => $all['name']
+                        'name' => $all['name'],
+                        'price' => $all['price']
                     ];
                     //链接数据库，执行新增操作
                     $i = DB::table("foods_spec") ->insert($data);
@@ -834,13 +883,16 @@ class FoodsController extends BaseController
 
             }else{
                 // 执行修改操作
+
                 // 判断数据库是否存在同样的规格
-                $m = DB::table("foods_spec") ->where('name',$all['name']) -> first();
+                $m = DB::table("foods_spec")->where('id','!=',$all['spec_id'])->where('name',$all['name']) -> first();
                 if(empty($m)){
+
                     // 数据库不存在该值,则进行修改操作
                     // 定义一个数组，用于向数据库添加数据
                     $data = [
-                        'name' => $all['name']
+                        'name' => $all['name'],
+                        'price' => $all['price']
                     ];
                     $i = DB::table("foods_spec") -> where("id",$all['id']) -> update($data);
                     if($i){
@@ -850,6 +902,7 @@ class FoodsController extends BaseController
                         flash('修改失败') -> error();
                         return redirect()->route('foods.spec');
                     }
+
                 }else{
                     // 数据库存在该值，则提示商户，该规格已存在
                     flash('修改失败，该规格已存在！') -> error();

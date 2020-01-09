@@ -69,7 +69,7 @@
                                 </tr>
                             @else
                             <tr>
-                                <th colspan="9">暂时还没有数据</th>
+                                <th colspan="11">暂时还没有数据</th>
                             </tr>
                         @endif
                         </tbody>

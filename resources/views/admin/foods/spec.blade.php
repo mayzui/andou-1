@@ -31,6 +31,7 @@
                         <th width="100">ID</th>
                         <th>商户名称</th>
                         <th>规格名称</th>
+                        <th>价格</th>
                         <th>操作</th>
                     </tr>
                     </thead>
@@ -41,6 +42,7 @@
                                 <th>{{ $v->id }}</th>
                                 <th>{{ $v->merchants_name }}</th>
                                 <th>{{ $v->spec_name }}</th>
+                                <th>{{ $v->spec_price }}</th>
                                 <td class="text-center">
                                     <div class="btn-group">
                                         <a href="{{route('foods.specadd')}}?id={{$v->id}}"><button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 修改</button></a>
@@ -54,7 +56,7 @@
                         </tr>
                     @else
                         <tr>
-                            <th colspan="4">暂时还没有数据</th>
+                            <th colspan="5">暂时还没有数据</th>
                         </tr>
                     @endif
                     </tbody>
