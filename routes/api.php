@@ -133,9 +133,9 @@ Route::group(['namespace' => 'Api'], function () {
      //余额充值明细
      Route::post('wallet/rechar','WalletController@rechar');
      //余额充值回调
-     Route::post('common/wxRecharge','CommonController@wxRecharge');
+     Route::any('common/wxRecharge','CommonController@wxRecharge');
      //支付
-     Route::post('wallet/pay_ways','WalletController@pay_ways');
+     Route::post('wallet/payWays','WalletController@payWays');
 
           //商家详情
      Route::post('details/list','DetailsController@list');

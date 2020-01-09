@@ -14,6 +14,23 @@
                     <a href="{{route('shop.create')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
                             <i class="fa fa-plus-circle"></i> 新增商品</button>
                     </a>
+                    <a href="{{url('/admin/shop/goods?status=1')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
+                            上架</button>
+                    </a>
+                    <a href="{{url('/admin/shop/goods?status=2')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
+                            下架</button>
+                    </a>
+                    <select name="" id="">
+                        <option value="0">排序</option>
+                        <option value="">销量</option>
+                        <option value="">价格</option>
+                        <option value="">库存</option>.
+                    </select>&nbsp;&nbsp;&nbsp;
+                    提交时间:<input type="date"  style="height: 25px;margin-left: 10px;" class="times" placeholder="请选择时间">&nbsp;&nbsp;-
+                    <input type="date"  style="height: 25px;margin-left: 10px;" class="time"  placeholder="请选择时间">
+                    <a onkeydown="time()" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
+                            搜索</button>
+                    </a>
                     <form method="post" action="{{route('shop.index')}}" name="form">
                         <style>
                             th{
@@ -174,5 +191,14 @@
                 $("[name=ids]:checkbox").prop("checked",false);
             }
         })
+
+        function time() {
+
+            if (event.keyCode==13){
+                var time = $(".time").val()
+                var times = $(".times").val()
+                location.href="{{route('shop.goods')}}?time="+time+times;
+            }
+        }
     </script>
 @endsection

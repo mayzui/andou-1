@@ -1391,13 +1391,22 @@ class ShopController extends BaseController
             -> where('is_reg',1)
             -> select('id')
             -> first();
-
+        $all = $request->all();
+        if(!empty($all['status']))
+        {
+            if($all['status'] == 2){
+                $where[] = ['goods.is_sale',0];
+            }else{
+                $where[] = ['goods.is_sale',$all['status']];
+            }
+        }
+        $where[] = ['goods.is_del',0];
         // 如果当前用户是商家，则查询当前商户的商品
         if($i){
             $goods = DB::table('goods')
                 -> join('merchants','goods.merchant_id','=','merchants.id')
                 -> where('goods.merchant_id',$i -> id)
-                -> where('is_del',0)
+                -> where($where)
                 -> select(['merchants.name as merchant_name','goods.id','goods.pv','goods.created_at','goods.updated_at',
                     'goods.goods_cate_id','goods.name as goods_name','goods.img','goods.desc','goods.is_hot','goods.is_recommend','goods.is_sale',
                     'goods.is_bargain','goods.dilivery','goods.volume','goods.price'])
@@ -1416,7 +1425,7 @@ class ShopController extends BaseController
         }else{
             $goods = DB::table('goods')
                 -> join('merchants','goods.merchant_id','=','merchants.id')
-                -> where('is_del',0)
+                -> where($where)
                 -> select(['merchants.name as merchant_name','goods.id','goods.name as goods_name','goods.pv',
                     'goods.created_at','goods.name as goods_name','goods.updated_at','goods.goods_cate_id','goods.img','goods.desc','goods.is_hot',
                     'goods.is_recommend','goods.is_sale','goods.is_bargain','goods.dilivery','goods.volume','goods.price'])
