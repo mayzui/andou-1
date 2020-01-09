@@ -22,6 +22,7 @@
                 <table class="table table-striped table-bordered table-hover m-t-md">
                     <thead>
                     <tr>
+                        <th>ID</th>
                         <th>分类名称</th>
                         <th>缩略片</th>
                         <th class="text-center" width="100">排序</th>
@@ -31,6 +32,7 @@
                     <tbody>
                     @foreach($list as $k=>$item)
                         <tr>
+                            <td>{{$item['id']}}</td>
                             <td>{{$item['name']}}</td>
                             <td><img src="{{env('IMAGE_PATH_PREFIX')}}{{$item['img']}}" alt="" style="max-height: 50px;max-width: 100px"></td>
                             <td class="text-center">{{$item['sort']}}</td>

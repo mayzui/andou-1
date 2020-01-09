@@ -619,6 +619,9 @@ class FoodsController extends BaseController
     }
     // 新增菜品详情
     public function informationadd(){
+        // 获取当前商户id
+        $id = Auth::id();
+        $data = DB::table('merchants') -> where("user_id",$id) -> first();
         if(\request()->isMethod("get")){
             $all = \request() -> all();
             // 判断跳转新增界面还是修改界面
@@ -627,7 +630,11 @@ class FoodsController extends BaseController
                 // 链接数据库，查询菜品分类
                 $type = DB::table("foods_classification") -> get();
                 // 链接数据库，查询菜品规格
-                $spec = DB::table("foods_spec") -> get();
+                if(!empty($i)){
+                    $spec = DB::table("foods_spec") ->where('merchant_id',$data -> id) -> get();
+                }else{
+                    $spec = DB::table("foods_spec") -> get();
+                }
                 $data = (object)[
                     "classification_id" => 0,
                     "specifications" => []
@@ -646,7 +653,11 @@ class FoodsController extends BaseController
                 // 链接数据库，查询菜品分类
                 $type = DB::table("foods_classification") -> get();
                 // 链接数据库，查询菜品规格
-                $spec = DB::table("foods_spec") -> get();
+                if(!empty($i)){
+                    $spec = DB::table("foods_spec") -> where('merchant_id',$data -> id) -> get();
+                }else{
+                    $spec = DB::table("foods_spec") -> get();
+                }
                 // 获得查询出来的菜品规格
                 $data->specifications =explode(",",$data->specifications);
                 // 定义一个传值用的数组
@@ -664,12 +675,15 @@ class FoodsController extends BaseController
             if(empty($all['id'])){
                 // 执行新增操作
                 $spec = $all['specifications'];
-
+                // 根据获取的id查询规格表中数据库
+                foreach ($spec as $v){
+                    $specdata[] = json_decode(json_encode(DB::table('foods_spec') -> where('id',$v)->select(['name']) -> first()),true);
+                }
                 // 将数组转换成字符串
-                $specs = implode(",",$spec);
+                $specs = implode(",",array_column($specdata,'name'));
                 // 定义一个数组用于接收需要上传数据库的值
                 $data = [
-                    "merchant_id" => Auth::id(),
+                    "merchant_id" => $data -> id,
                     "classification_id" => $all['classification_id'],
                     "name" => $all['name'],
                     "price" => $all['price'],
@@ -698,7 +712,7 @@ class FoodsController extends BaseController
                 $specs = implode(",",array_column($specdata,'name'));
                 // 定义一个数组用于接收需要上传数据库的值
                 $data = [
-                    "merchant_id" => Auth::id(),
+                    "merchant_id" => $data -> id,
                     "classification_id" => $all['classification_id'],
                     "name" => $all['name'],
                     "price" => $all['price'],

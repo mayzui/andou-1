@@ -318,17 +318,19 @@ class ShopController extends BaseController
         // 获得提交的数据
         $all = \request() -> all();
         if(\request() -> isMethod("get")){
+            if(count($all) == 3){
+                flash("未选择商品参数，请选择后重试") -> error();
+                return redirect()->route('shop.goods');
+            }
             foreach ($all['attrname'] as $item) {
                 // 通过该id 在商品参数中去找值
                 $name = DB::table('goods_attr') -> where('id',$item)-> select(['name']) -> first();
+                $num = 0;
                 if(!empty($all['attrvalue_'.$item.''])){
                     $data[] =[
                         'name' => json_decode(json_encode($name),true)['name'],
                         'value' => $all['attrvalue_'.$item.'']
                     ];
-                }else{
-                    flash("未选择商品参数，请选择后重试") -> error();
-                    return redirect()->route('shop.goods');
                 }
             }
             foreach ($data as $k=>$v){
@@ -1564,12 +1566,14 @@ class ShopController extends BaseController
             -> where('is_del',1)
             -> select('id','name')
             -> get();
+        $goods_attr = DB::table('goods_attr') -> get();
         $a = DB::table('goods_attr_value') -> get();
         $arr = [
             'goodsCate'=>$goodsCate,
             'goodBrands'=>$goodBrands,
             'attrData'=>$attrData,
             'attrvalueData'=>$a,
+            'goods_attr'=>$goods_attr,
             'goodsdata'=>$goodsdata,
             'merchants_goods_type'=>$merchants_goods_type,
             'goods_album'=>json_decode($goodsdata->album),
@@ -1682,6 +1686,8 @@ class ShopController extends BaseController
     // 新增模板
     public function attrStore (Request $request)
     {
+        flash("该功能还在开发中，敬请期待") -> error();
+        return redirect()->route('shop.goodsAttr');
         $validate = Validator::make($request->all(),[
             'specNmae' => 'required',
         ],[
@@ -1910,6 +1916,7 @@ class ShopController extends BaseController
                     -> where('merchant_id',Auth::id())
                     -> select('id','name')
                     -> get();
+                $goods_attr = DB::table('goods_attr') -> get();
                 $a = DB::table('goods_attr_value') -> get();
                 $arr = [
                     'goodsCate'=>$goodsCate,
@@ -1917,6 +1924,7 @@ class ShopController extends BaseController
                     'goodBrands'=>$goodBrands,
                     'express_modeldata'=>$express_modeldata,
                     'attrData'=>$attrData,
+                    'goods_attr'=>$goods_attr,
                     'merchants_goods_type'=>$merchants_goods_type,
                     'attrvalueData'=>$a,
                     'goods_id'=>$all['goods_id'],
@@ -2071,6 +2079,7 @@ class ShopController extends BaseController
                     -> where('merchant_id',Auth::id())
                     -> select('id','name')
                     -> get();
+                $goods_attr = DB::table('goods_attr') -> get();
                 $a = DB::table('goods_attr_value') -> get();
                 $arr = [
                     'goodsCate'=>$goodsCate,
@@ -2081,6 +2090,7 @@ class ShopController extends BaseController
                     'express_modeldata'=>$express_modeldata,
                     'goods_id'=>$model->id,
                     'goodssku'=> $old_arr,
+                    'goods_attr'=> $goods_attr,
                     'goodsdata' =>(object)[
                         'goods_cate_id'=>'',
                         'name'=>$request->input('name'),

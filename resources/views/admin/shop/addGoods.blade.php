@@ -164,6 +164,7 @@
                                                         {{--</div>--}}
                                                         {{--@endforeach--}}
                                                     </div>
+                                                    <div style="width: 766px;min-height: 120px;margin-top: 10px;border: 1px solid #EEEEEE"></div>
                                                     {{--@foreach($attrData as $k =>$v)--}}
                                                         {{--<div class="form-group">--}}
                                                             {{--<label class="col-sm-2 control-label">--}}
@@ -321,24 +322,24 @@
                                                     <h2 class="title">添加商品参数</h2>
                                                 </div>
                                             </div>
-                                            {{--@foreach($attrData as $k =>$v)--}}
-                                                {{--<div class="hr-line-dashed"></div>--}}
-                                                {{--<div class="form-group">--}}
-                                                    {{--<label class="col-sm-2 control-label">--}}
-                                                        {{--<input type="hidden" name="attrname[]" value="{{ $v -> id }}"  />--}}
-                                                        {{--<input type="text"  value="{{ $v -> name }}" readonly style="border: 0px;width: 50px;" />--}}
-                                                    {{--</label>--}}
-                                                    {{--<div class="input-group col-sm-2">--}}
-                                                        {{--<div class="radio i-checks checkbox">--}}
-                                                            {{--@foreach($attrvalueData as $m)--}}
-                                                                {{--@if($v -> id == $m -> goods_attr_id)--}}
-                                                                    {{--<label><input type="checkbox" name="attrvalue_{{ $v -> id }}[]" value="{{$m -> value}}" @if(in_array($m -> value,$goodssku)) checked @endif />{{$m -> value}} </label>--}}
-                                                                {{--@endif--}}
-                                                            {{--@endforeach--}}
-                                                        {{--</div>--}}
-                                                    {{--</div>--}}
-                                                {{--</div>--}}
-                                            {{--@endforeach--}}
+                                            @foreach($attrData as $k =>$v)
+                                                <div class="hr-line-dashed"></div>
+                                                <div class="form-group">
+                                                    <label class="col-sm-2 control-label">
+                                                        <input type="hidden" name="attrname[]" value="{{ $v -> id }}"  />
+                                                        <input type="text"  value="{{ $v -> name }}" readonly style="border: 0px;width: 50px;" />
+                                                    </label>
+                                                    <div class="input-group col-sm-2">
+                                                        <div class="radio i-checks checkbox">
+                                                            @foreach($attrvalueData as $m)
+                                                                @if($v -> id == $m -> goods_attr_id)
+                                                                    <label><input type="checkbox" name="attrvalue_{{ $v -> id }}[]" value="{{$m -> value}}" @if(in_array($m -> value,$goodssku)) checked @endif />{{$m -> value}} </label>
+                                                                @endif
+                                                            @endforeach
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endforeach
                                             <div class="hr-line-dashed"></div>
                                             <div class="form-group">
                                                 <div class="col-sm-12 col-sm-offset-2">
