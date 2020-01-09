@@ -20,11 +20,10 @@
                     <a href="{{url('/admin/shop/goods?status=2')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
                             下架</button>
                     </a>
-                    <select name="" id="">
+                    <select name="sort" id="sort" style="width: 100px;height: 25px;">
                         <option value="0">排序</option>
-                        <option value="">销量</option>
-                        <option value="">价格</option>
-                        <option value="">库存</option>.
+                        <option value="1">销量</option>
+                        <option value="2">价格</option>
                     </select>&nbsp;&nbsp;&nbsp;
                     提交时间:<input type="date"  style="height: 25px;margin-left: 10px;" class="times" placeholder="请选择时间">&nbsp;&nbsp;-
                     <input type="date"  style="height: 25px;margin-left: 10px;" class="time"  placeholder="请选择时间">
@@ -153,6 +152,12 @@
     </div>
     <script src="{{loadEdition('/js/jquery.min.js')}}"></script>
     <script type="text/javascript">
+        // 排序
+        $("#sort").change(function () {
+            var options = $("#sort option:selected").val();
+            location.href="{{route('shop.sort')}}?id="+options;
+        });
+
         function del(e) {
             var id = e;
             layer.alert("是否删除该数据？",{icon:3},function (index) {

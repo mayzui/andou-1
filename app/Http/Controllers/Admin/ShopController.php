@@ -26,6 +26,93 @@ use Auth;
 
 class ShopController extends BaseController
 {
+    // 排序
+    public function sort(){
+        $all = \request() -> all();
+        // 判断是按照什么排序 1销量 2价格
+        if($all['id'] == 1){    // 销量
+            $sort = "volume";
+        }else if($all['id'] == 2){ // 价格
+            $sort = "price";
+        }
+        $id = Auth::id();     // 当前登录用户的id
+        // 判断当前用户是否是商家
+        $i = DB::table('merchants')
+            -> where('user_id',$id)
+            -> where('is_reg',1)
+            -> select('id')
+            -> first();
+        if(!empty($all['status']))
+        {
+            if($all['status'] == 2){
+                $where[] = ['goods.is_sale',0];
+            }else{
+                $where[] = ['goods.is_sale',$all['status']];
+            }
+        }
+        $where[] = ['goods.is_del',0];
+        // 如果当前用户是商家，则查询当前商户的商品
+        if($i){
+            $goods = DB::table('goods')
+                -> join('merchants','goods.merchant_id','=','merchants.id')
+                -> where('goods.merchant_id',$i -> id)
+                -> where($where)
+                -> orderBy($sort,'desc')
+                -> select(['merchants.name as merchant_name','goods.id','goods.pv','goods.created_at','goods.updated_at',
+                    'goods.goods_cate_id','goods.name as goods_name','goods.img','goods.desc','goods.is_hot','goods.is_recommend','goods.is_sale',
+                    'goods.is_bargain','goods.dilivery','goods.volume','goods.price'])
+                -> paginate(10);
+            foreach ($goods as $k => $v){
+                $goods_cate_id  = explode(',',$v->goods_cate_id);
+                unset($goods_cate_id[0]);
+                array_pop($goods_cate_id);
+                $name=[];
+                foreach ($goods_cate_id as $item) {
+                    $name[]=Db::table('goods_cate')->select('name')->where('id',$item)->first()->name ?? '';
+                }
+                $goods[$k]->goods_cate_id=implode(',',$name);
+            }
+        }else{
+            $goods = DB::table('goods')
+                -> join('merchants','goods.merchant_id','=','merchants.id')
+                -> where($where)
+                -> orderBy($sort,'desc')
+                -> select(['merchants.name as merchant_name','goods.id','goods.name as goods_name','goods.pv',
+                    'goods.created_at','goods.name as goods_name','goods.updated_at','goods.goods_cate_id','goods.img','goods.desc','goods.is_hot',
+                    'goods.is_recommend','goods.is_sale','goods.is_bargain','goods.dilivery','goods.volume','goods.price'])
+                -> paginate(10);
+            foreach ($goods as $k => $v){
+                $goods_cate_id  = explode(',',$v->goods_cate_id);
+                unset($goods_cate_id[0]);
+                array_pop($goods_cate_id);
+                $name=[];
+                foreach ($goods_cate_id as $item) {
+                    $name[]=Db::table('goods_cate')->select('name')->where('id',$item)->first()->name ?? '';
+                }
+                $goods[$k]->goods_cate_id=implode(',',$name);
+            }
+        }
+        if(!empty($i)) {
+            // 如果开店，则查询当前商户的信息
+            // 链接数据库，查询商户的商品分类
+            $datas = DB::table('merchants_goods_type')
+                -> join('merchants','merchants_goods_type.merchant_id','=','merchants.id')
+                -> where('is_del',1)
+                -> where('merchants_goods_type,merchant_id',$i -> id)
+                -> select('merchants_goods_type.id','merchants.name as merchants_name','merchants_goods_type.name as name','pid','num')
+                -> get();
+        }else{
+            // 链接数据库，查询商户的商品分类
+            $datas = DB::table('merchants_goods_type')
+                -> join('merchants','merchants_goods_type.merchant_id','=','merchants.id')
+                -> where('is_del',1)
+                -> select('merchants_goods_type.id','merchants.name as merchants_name','merchants_goods_type.name as name','pid','num')
+                -> get();
+        }
+        $data = Tree::tree(json_decode(json_encode($datas),true),'name','id','pid');
+        $goods_sku = DB::select("select goods_id,SUM(store_num) as total from `goods_sku` group by `goods_id`");
+        return $this->view('goods',['list'=>$goods,'data'=>$data,'goods_sku'=>json_decode(json_encode($goods_sku),true)]);
+    }
     // 批量删除商品
     public function deleteAll(){
         $all = \request() -> all();
