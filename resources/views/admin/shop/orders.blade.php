@@ -44,7 +44,6 @@
 
                         提交时间:<input type="date"  style="height: 25px;margin-left: 10px;" class="time" onkeydown="time()" placeholder="请选择时间">&nbsp
 
-                        <button type="button" class="btn btn-danger btn-sm mdels" title="批量删除" ><i class="fa fa-trash-o"></i> 批量删除</button>
                     </div>
                 </div>
                 <style>
@@ -189,30 +188,6 @@
                 $("[name=ids]:checkbox").prop("checked",true);
             }else{
                 $("[name=ids]:checkbox").prop("checked",false);
-            }
-        })
-
-        $(".mdels").click(function () {
-            var obj = document.getElementsByName("ids");
-            var check_val = [];
-            for(k in obj){
-                if(obj[k].checked)
-                    check_val.push(obj[k].value);
-            }
-            if(check_val==""){
-                layer.alert("请选择你需要删除的选项",{icon:2});
-            }else {
-                layer.confirm("是否删除这 "+check_val.length+" 项数据？", {icon: 3}, function (index) {
-                    // alert(check_val)
-                    $.post("{{route('shop.orderDl')}}", {ids: check_val, _token: "{{csrf_token()}}"}, function (data) {
-                        if (data = 1) {
-                            layer.alert("删除成功", {icon: 1}, function (index) {
-                                window.location.href = "{{route('shop.orders')}}";
-                            });
-                        }
-                    })
-
-                })
             }
         })
 
