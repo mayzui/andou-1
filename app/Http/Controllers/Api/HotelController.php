@@ -85,7 +85,7 @@ class HotelController extends Controller
     public function cate(){
           $data=Db::table('hotel_category')
           ->select('id','name','img')
-          ->where('status',1)
+          ->where(['status'=>1,'type_id'=>1])
           ->get();
           return $this->rejson('200','查询成功',$data);
     }
