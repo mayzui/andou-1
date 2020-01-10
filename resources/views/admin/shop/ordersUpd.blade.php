@@ -12,6 +12,7 @@
         <div class="col-sm-12">
             <div class="ibox-title">
                 <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>
+                <a href="{{url("/admin/logistics/readLogistics?id=$id&express_id=$express_id&courier_num=$courier_num")}}" ><button class= "btn btn-danger btn-xs"type="button"><i class="fa fa-check" ></i> 订单跟踪</button></a>
             </div>
             <div class="ibox-content">
                 <div class="hr-line-dashed m-t-sm m-b-sm"></div>
@@ -170,36 +171,36 @@
                         @endphp</font></span>
 
 {{--                        发票信息--}}
-{{--                <table class="table table-striped table-bordered table-hover m-t-md">--}}
-{{--                    <h3>发票信息</h3>--}}
-{{--                    <thead>--}}
-{{--                    <tr>--}}
-{{--                        <th>发票类型</th>--}}
-{{--                        <th>发票抬头</th>--}}
-{{--                        <th>发票内容</th>--}}
-{{--                        <th>收票人信息</th>--}}
-{{--                    </tr>--}}
-{{--                    </thead>--}}
-{{--                    @if(!empty($tick))--}}
-{{--                    <tr>--}}
-{{--                        <td>--}}
-{{--                            @if($tick[0]->is_vat==0)--}}
-{{--                                普通发票--}}
-{{--                            @else--}}
-{{--                                增值发票--}}
-{{--                            @endif--}}
-{{--                        </td>--}}
-{{--                        <td>{{$tick[0]->invoice_title}}</td>--}}
-{{--                        <td>{{$tick[0]->invoice_content}}</td>--}}
-{{--                        <td>{{$user[0]->mobile}}</td>--}}
-{{--                    </tr>--}}
-{{--                    @else--}}
-{{--                        <tr>--}}
-{{--                            <td colspan="11">没有查询到相关数据</td>--}}
-{{--                        </tr>--}}
-{{--                        @endif--}}
-{{--                    <tbody>--}}
-{{--                </table>--}}
+                <table class="table table-striped table-bordered table-hover m-t-md">
+                    <h3>发票信息</h3>
+                    <thead>
+                    <tr>
+                        <th>发票类型</th>
+                        <th>发票抬头</th>
+                        <th>发票内容</th>
+                        <th>收票人信息</th>
+                    </tr>
+                    </thead>
+                    @if(!empty($tick) && !empty($user))
+                    <tr>
+                        <td>
+                            @if($tick[0]->is_vat==0)
+                                普通发票
+                            @else
+                                增值发票
+                            @endif
+                        </td>
+                        <td>{{$tick[0]->invoice_title}}</td>
+                        <td>{{$tick[0]->invoice_content}}</td>
+                        <td>{{$user[0]->mobile}}</td>
+                    </tr>
+                    @else
+                        <tr>
+                            <td colspan="11">没有查询到相关数据</td>
+                        </tr>
+                        @endif
+                    <tbody>
+                </table>
             </div>
         </div>
     </div>
