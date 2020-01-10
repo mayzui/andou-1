@@ -41,12 +41,13 @@
                             <button class="btn btn-primary " type="button"><i class="fa fa-paste">已关闭@php if(empty($count)){echo 0;}else {echo (count($count['data4']));} @endphp</i></button>
                         </a>
 
-                        输入搜索:<input type="text" style="height: 25px;margin-left: 10px;" id="sval" onkeydown="search()" placeholder="订单编号/商品货号">
+                        {{--                        收货人:<input type="text" style="height: 25px;margin-left: 10px;" class="userval" onkeydown="user()" placeholder="收货人姓名/手号码">--}}
 
-                        收货人:<input type="text" style="height: 25px;margin-left: 10px;" class="userval" onkeydown="user()" placeholder="收货人姓名/手号码">
+                        输入搜索:<input type="text" style="height: 25px;margin-left: 10px; width: 200px;" name="search" id="sval" onkeydown="search()" placeholder="订单编号/收货人姓名/手号码">
 
-                        提交时间:<input type="date"  style="height: 25px;margin-left: 10px;" class="time" onkeydown="time()" placeholder="请选择时间">&nbsp
+                        提交时间:<input type="date"  class="time" onkeydown="time()" placeholder="请选择时间">
 
+                         <button class="btn btn-primary " type="button"><i class="fa fa-search" id="pse">搜索</i></button>
                     </div>
                 </div>
                 <style>
@@ -151,7 +152,7 @@
                              @endif
                            @else
                            @endif
-{{--                    {{$item->statuss}}--}}
+
                 </form>
             </div>
         </div>
@@ -170,7 +171,7 @@
         function search() {
             var keyword = $("#sval").val()
             if (event.keyCode==13){
-                location.href="{{route('shop.orders')}}?keyword="+keyword +"&sta="+"1" ;
+                location.href="{{route('shop.orders')}}?keyword="+keyword +"&sta="+"1"+ "&good_num="+keyword;
             }
         }
        //搜索收货人
@@ -197,7 +198,16 @@
             }
         })
 
+        //搜索
 
+        $("#pse").click(function () {
+            var vals = $("#sval").val()
+            if(vals==""){
+                location.href="{{route('shop.orders')}}";return;
+            }
+            location.href="{{route('shop.orders')}}?num="+vals +"&mobiles="+ vals+"&names="+vals
+
+        })
 
 
     </script>

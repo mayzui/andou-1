@@ -12,7 +12,7 @@
         <div class="col-sm-12">
             <div class="ibox-title">
                 <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>
-                <a href="{{url("/admin/logistics/readLogistics?id=$id&express_id=$express_id&courier_num=$courier_num")}}" ><button class= "btn btn-danger btn-xs"type="button"><i class="fa fa-check" ></i> 订单跟踪</button></a>
+                <a href="{{url("/admin/logistics/readLogistics?id=$id&express_id=$express_id&courier_num=$courier_num")}}" ><button class= "btn btn-danger btn-xs"type="button"><i class="fa fa-check" ></i> 订单发货</button></a>
             </div>
             <div class="ibox-content">
                 <div class="hr-line-dashed m-t-sm m-b-sm"></div>
