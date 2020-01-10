@@ -1660,6 +1660,7 @@ class ShopController extends BaseController
             -> select('id')
             -> first();
         $all = $request->all();
+        // 上架/下架
         if(!empty($all['status']))
         {
             $status = $all['status'];
@@ -1670,6 +1671,13 @@ class ShopController extends BaseController
             }
         }else{
             $status = 0;
+        }
+        // 模糊查询产品名称
+        if (!empty($all['product_name'])) {
+            $where[]=['goods.name', 'like', '%'.$all['product_name'].'%'];
+            $product_name=$all['product_name'];
+        }else{
+            $product_name='';
         }
         $where[] = ['goods.is_del',0];
         // 判断是否上传时间
@@ -1790,7 +1798,7 @@ class ShopController extends BaseController
 //        return dd();
         $data = Tree::tree(json_decode(json_encode($datas),true),'name','id','pid');
         $goods_sku = DB::select("select goods_id,SUM(store_num) as total from `goods_sku` group by `goods_id`");
-        return $this->view('goods',['list'=>$goods,'data'=>$data,'goods_sku'=>json_decode(json_encode($goods_sku),true),'sort'=>0,'status' => $status]);
+        return $this->view('goods',['list'=>$goods,'data'=>$data,'product_name'=>$product_name,'goods_sku'=>json_decode(json_encode($goods_sku),true),'sort'=>0,'status' => $status]);
     }
 
     // 跳转商品新增界面

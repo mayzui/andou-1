@@ -12,7 +12,10 @@
                     <form action="{{route('shop.goods')}}" method="get">
                         {!! csrf_field() !!}
                         <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>
-                        
+
+                        <input type="text" style="height: 25px;margin-left: 10px;" value="{{ $product_name or '' }}" name="product_name" placeholder="请输入产品名称">
+                        <button class="btn btn-primary btn-sm" type="submit"><i class="fa fa-search"></i> 查询</button>
+
                         <button type="button" class="btn btn-danger btn-sm mdels" title="批量删除" ><i class="fa fa-trash-o"></i> 批量删除</button>
                         <a href="{{route('shop.create')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
                                 <i class="fa fa-plus-circle"></i> 新增商品</button>
