@@ -9,23 +9,23 @@
                 <form method="post" action="{{route('foods.administration')}}" name="form">
                     {{ csrf_field() }}
                     <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>
-                    <input type="text" style="height: 25px;margin-left: 10px;" value="{{ $name or '' }}" name="name" placeholder="饭店名称">
+                    <input type="text" style="height: 25px;margin-left: 10px;" value="{{$wheres['where']['name']}}" name="name" placeholder="商家名字">
                     <button style="height: 25px;margin-left: 10px;" type="submit">按条件查询</button>
 
                     <a href="{{url('/admin/foods/administration?status=0')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
-                            全部 {{ count($allmerchant) }}</button>
+                            全部</button>
                     </a>
                     <a href="{{url('/admin/foods/administration?status=1')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
-                            已审核 </button>
+                            已审核</button>
                     </a>
                     <a href="{{url('/admin/foods/administration?status=2')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
-                            待审核 </button>
+                            待审核</button>
                     </a>
                     <a href="{{url('/admin/foods/administration?status=3')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
-                            已禁用 {{ count($jinyong) }}</button>
+                            已禁用</button>
                     </a>
                     <a href="{{url('/admin/foods/administration?status=4')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
-                            已启用 {{count($qiyong)}}</button>
+                            已启用</button>
                     </a>
                 </form>
                 {{--判断用户是否是超级管理员，超级管理员不能新增菜品--}}
@@ -43,53 +43,60 @@
                     <table class="table table-striped table-bordered table-hover m-t-md">
                         <thead>
                         <tr>
-                            <th>商户ID</th>
+                            <th width="100">商户ID</th>
+                            <th>商户名字</th>
+                            <th>用户名字</th>
+                            <th>商家logo图</th>
+                            <th>地址</th>
                             <th>商户类型</th>
-                            <th>饭店名称</th>
-                            <th>菜品分类</th>
-                            <th>饭店地址</th>
+                            <th>是否审核</th>
                             <th>状态</th>
+                            <th style="width: 150px">申请时间</th>
                             <th>操作</th>
                         </tr>
                         </thead>
                         <tbody>
                             @if(count($data) > 0)
-                                @foreach($data as $v)
+                                @foreach($data as $k => $item)
                                     <tr>
-                                        <th>{{$v->id}}</th>
-                                        <th>{{$v->type_name}}</th>
-                                        <th>{{$v->name2}}</th>
-                                        <th>{{$v->name}}</th>
-                                        <th>{{$v->address}}</th>
-                                        <th>
-                                            {{--@if($v->reg == 0)--}}
-                                                {{--<p style="color: green">待审核</p>--}}
-                                            {{--@else--}}
-                                            @if($v->is_reg == 0)
-                                                <p style="color: blue">未审核</p>
-                                            @elseif($v->foods_status == 1)
+                                        <td>{{$item->id}}</td>
+                                        <td>{{$item->name}}</td>
+                                        <th>{{$item->username}}</th>
+                                        <td><img src="{{$item->logo_img}}" alt="" style="width: 50px;height: 50px;"></td>
+                                        <td>{{$item->address}}</td>
+                                        <td>{{$item->merchant_type_id}}</td>
+                                        <td>@if($item->is_reg==1)
+                                                <p style="color: green">已审核</p>
+                                            @elseif($item->is_reg==2)
+                                                <p style="color: red">已驳回</p>
+                                            @else
+                                                <p style="color: red">未审核</p>
+                                            @endif
+                                        </td>
+                                        <td>@if($item->status==1)
                                                 <p style="color: green">启用中</p>
                                             @else
-                                                <p style="color: blue">未启用</p>
+                                                <p style="color: red">未启用</p>
                                             @endif
-                                            {{--@endif--}}
-                                        </th>
+                                        </td>
+                                        <td>{{$item->created_at}}</td>
                                         <td class="text-center">
                                             <div class="btn-group">
-                                                @if(empty($i))
-                                                    @if($v->foods_status==1)
-                                                        <a href="{{route('foods.administrationStatus')}}?id={{$v->foods_id}}&is_reg=1"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o"></i> 禁用</button></a>
+                                                <a href="{{route('shop.information')}}?id={{$item->id}}"><button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 详情</button></a>
+                                                @if($item->is_reg == 1)
+                                                    @if($item->status==1)
+                                                        <a onclick="del({{$item->id}})"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-ban"></i> 禁用</button></a>
                                                     @else
-                                                        <a href="{{route('foods.administrationStatus')}}?id={{$v->foods_id}}&is_reg=0"><button class="btn btn-group btn-xs" type="button"><i class="fa fa-adn"></i>启用</button></a>
+                                                        <a onclick="del({{$item->id}})"><button class="btn btn-success btn-xs" type="button"><i class="fa fa-check"></i> 启用</button></a>
                                                     @endif
                                                 @endif
                                             </div>
                                         </td>
                                     </tr>
                                 @endforeach
-                                @else
+                            @else
                                 <tr>
-                                    <th colspan="7">暂时还没有数据</th>
+                                    <td colspan="10">未查询到相关内容</td>
                                 </tr>
                             @endif
                         </tbody>
@@ -104,7 +111,7 @@
         function del(e) {
             var id = e;
             layer.alert("是否更新状态？",{icon:3},function (index) {
-                location.href="{{route('foods.del')}}?id="+id;
+                location.href="{{route('foods.status')}}?id="+id;
                 layer.close(index);
             });
         }

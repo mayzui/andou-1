@@ -14,7 +14,7 @@
                 <select style="height: 25px;margin-left: 10px;" name="merchant_type_id">
                     <option value="0">商家分类</option>
                     @foreach($wheres['type'] as $k => $item)
-                    <option value="{{$item->id}}" @if($wheres['where']['merchant_type_id'] == $item->id) selected="selected" @endif>{{$item->type_name}}</option>
+                        <option value="{{$item->id}}" @if($wheres['where']['merchant_type_id'] == $item->id) selected="selected" @endif>{{$item->type_name}}</option>
                     @endforeach
                 </select>
                 <button style="height: 25px;margin-left: 10px;" type="submit">按条件查询</button>
