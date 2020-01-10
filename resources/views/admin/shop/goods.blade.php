@@ -34,7 +34,7 @@
                         提交时间:<input type="date"  style="height: 25px;margin-left: 10px;" class="one_time" name="one_time" placeholder="请选择时间">&nbsp;&nbsp;-
                         <input type="date"  style="height: 25px;margin-left: 10px;" class="two_time" name="two_time" placeholder="请选择时间">
                         <button class="btn btn-primary btn-sm" type="submit" >
-                            搜索
+                            <i class="fa fa-search"></i> 搜索
                         </button>
                     </form>
 

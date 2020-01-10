@@ -2029,25 +2029,31 @@ class ShopController extends BaseController
     // 新增模板
     public function attrStore (Request $request)
     {
-        flash("该功能还在开发中，敬请期待") -> error();
-        return redirect()->route('shop.goodsAttr');
         $validate = Validator::make($request->all(),[
             'specNmae' => 'required',
         ],[
             'specNmae.required'=>'模板名称未输入',
         ]);
         $all = \request() -> all();
-        // 判断新增的模板是否存在
-        $data = DB::table('goods_attr') -> where('id','!=',$all['id']) -> where('name',$all['specNmae']) -> first();
-        if(!empty($data)){
-            flash("该商品模板已存在，不能重复。") -> error();
-            return redirect()->route('shop.goodsAttr');
-        }
+        $id = 13;
 
         if (empty($all['id'])){
+            // 新增模板表
+            $merchants_data = DB::table('merchants')
+                -> where('user_id',$id)
+                -> where('is_reg',1)
+                -> first();
+            if(empty($merchants_data)){
+                // 判断新增的模板是否存在
+                $data = DB::table('goods_attr') -> where('merchant_id',$merchants_data -> id) -> where('name',$all['specNmae']) -> first();
+                if(!empty($data)){
+                    flash("该商品模板已存在，不能重复。") -> error();
+                    return redirect()->route('shop.goodsAttr');
+                }
+            }
+
             DB::beginTransaction();
             try{
-                // 新增模板表
                 $goods_attr_data = [
                     'merchant_id' => 1,
                     'name' => $all['specNmae']
@@ -2128,12 +2134,7 @@ class ShopController extends BaseController
                 return redirect()->route('shop.goodsAttr');
             }
         }
-
-
-
     }
-
-
     public function attrDelete(Request $request,$id)
     {
         $model = GoodsAttr::find($id);
