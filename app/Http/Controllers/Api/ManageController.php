@@ -958,7 +958,7 @@ class ManageController extends Controller
                 foreach($files as $key => $value){
                     $path = Storage::disk('uploads')->putFile('',$value);
                 }
-                if( $path ) {
+                if( !empty($path) ) {
                     return ['code' => 200, 'msg' => '上传成功','data' => '/uploads/'.date('Ymd').'/'.$path];
                 }
                 else {

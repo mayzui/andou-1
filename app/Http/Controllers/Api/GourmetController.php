@@ -282,6 +282,7 @@ class GourmetController extends Controller
             "code":"200",
      *           "data":[
      *                  {
+                        "id":"购物车列表id",
                         "name":"菜品名称",
      *                  "price":"菜品价格",
      *                  "num":"菜品数量"
@@ -294,7 +295,7 @@ class GourmetController extends Controller
         $all=\request()->all();
         $data=DB::table("foods_cart as c")
             ->join("merchants as m",'c.merchant_id','=','m.id')
-            ->select(['c.name','c.price','c.num'])
+            ->select(['c.name','c.price','c.num','c.id'])
             ->where(['c.user_id'=>['user_id'],'m.id'=>$all['merchant_id']])
             ->get();
         if($data){
@@ -378,5 +379,144 @@ class GourmetController extends Controller
         }
     }
 
+    /**
+     * @api {post} /api/gourmet/reserve 预定
+     * @apiName reserve
+     * @apiGroup gourmet
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} token 验证登陆
+     * @apiParam {string} foods_id 菜品id
+     * @apiParam {string} spec_id 规格id
+     * @apiParam {string} merchant_id 商户id
+     * @apiParam {string} id 购物车列表id
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": "",
+     *       "msg":"添加成功"
+     *     }
+     */
+
+    public function reserve()
+    {
+        $all = request()->all();
+        if(empty($all['id']) || empty($all['food_id']) || empty($all['merchant_id']))
+        {
+            return $this->rejson('201','缺少参数');
+        }
+        $data = DB::table('merchants')->where('id',$all['merchant_id'])->select('name')->first();
+        $data->foods = DB::table("foods_cart")
+            ->join('foods_information','foods_cart.foods_id','=','foods_information.id')
+            ->where('foods_cart.id',$all['id'])
+            ->select(['foods_cart.name','foods_cart.price','foods_cart.num','foods_information.image'])
+            ->get();
+        $all = 0;
+        foreach ($data->foods as $value){
+            $all += $value->price;
+        }
+        $data->all = $all;
+        return $this->rejson('200','查询成功',$data);
+    }
+    /**
+     * @api {post} /api/gourmet/timely 立即预定
+     * @apiName timely
+     * @apiGroup gourmet
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} token 验证登陆
+     * @apiParam {string} merchant_id 商家id
+     * @apiParam {string} people 用餐人数
+     * @apiParam {string} remark 备注
+     * @apiParam {string} orderingtime 下单时间
+     * @apiParam {string} prices 订单总金额
+     * @apiParam {string} method 支付方式（1微信，2支付宝，3银联）
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": "",
+     *       "msg":"添加成功"
+     *     }
+     */
+
+    public function timely()
+    {
+        $all = request()->all();
+        if(empty($all['merchant_id']) ||
+            empty($all['people']) ||
+            empty($all['remark']) ||
+            empty($all['prices']) ||
+            empty($all['orderingtime']) ||
+            empty($all['method'])){
+            return $this->rejson('201','缺少参数');
+        }
+        $res = [
+            'user_id'=>$all['uid'],
+            'merchant_id'=>$all['merchant_id'],
+            'orderingtime'=>$all['orderingtime'],
+            'remark'=>$all['remark'],
+            'phone'=>'165894685',
+            'people'=>$all['people'],
+            'prices'=>$all['prices'],
+            'order_sn'=>$this->suiji(),
+            'method'=>$all['method'],
+        ];
+        $sNo = $res['order_sn'];
+        $data = DB::table('foods_user_ordering')->insert($res);
+        if($data){
+            if ($all['method']==1) {//微信支付
+                $this->wxPay($sNo);
+            }else if($all['method']==2){//支付宝支付
+                return $this->rejson('201','暂未开通');
+            }else if($all['method']==0){//银联支付
+                return $this->rejson('201','暂未开通');
+            }else{
+                return $this->rejson('201','暂未开通');
+            }
+            return $this->rejson('200','下单成功');
+        }else{
+            return $this->rejson('201','添加失败');
+        }
+    }
+
+    public function wxPay($sNo){
+        require_once base_path()."/wxpay/lib/WxPay.Api.php";
+        require_once base_path()."/wxpay/example/WxPay.NativePay.php";
+
+        if (empty($sNo)) {
+            return $this->rejson(201,'参数错误');
+        }
+        //查找表里是否有此订单
+        $orders = Db::table('foods_user_ordering')
+            ->where('order_sn',$sNo)
+            ->first();
+        if (empty($orders)) {
+            return $this->rejson(201,'订单不存在');
+        }
+
+        $pay_money = 100*($orders->price);
+
+        $input = new \WxPayUnifiedOrder();
+
+        $input->SetBody("安抖商城平台");
+        $input->SetOut_trade_no($sNo);
+        $input->SetTotal_fee($pay_money);
+//        $input->SetTotal_fee(1);
+        $input->SetNotify_url("http://andou.zhuosongkj.com/api/common/gourmet");
+        $input->SetTrade_type("APP");
+        $input->SetSpbill_create_ip($_SERVER['REMOTE_ADDR']);
+//        $input->SetAttach($uid);
+        $config = new \WxPayConfig();
+        $order = \WxPayApi::unifiedOrder($config, $input);
+        // var_dump($order);exit();
+        if($order['return_code']=="SUCCESS"){
+            $time = time();
+            $string = "appid=".$order['appid']."&noncestr=".$order['nonce_str']."&package="."Sign=WXPay"."&partnerid=".$order['mch_id']."&prepayid=".$order['prepay_id']."&timestamp=".$time."&key=AndoubendishenghuoXIdoukeji66888";
+            $string = md5($string);
+            $order['sign'] = strtoupper($string);
+            $order['timestamp'] = $time;
+            return  $this->rejson(200,'获取支付信息成功！',$order);
+        }else{
+            return  $this->rejson(201,'获取支付信息失败！');
+        }
+    }
 
 }
