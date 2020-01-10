@@ -22,8 +22,8 @@
                     </a>
                     <select name="sort" id="sort" style="width: 100px;height: 25px;">
                         <option value="0">排序</option>
-                        <option value="1">销量</option>
-                        <option value="2">价格</option>
+                        <option value="1" @if($sort == 1) selected @endif>销量</option>
+                        <option value="2" @if($sort == 2) selected @endif>价格</option>
                     </select>&nbsp;&nbsp;&nbsp;
                     提交时间:<input type="date"  style="height: 25px;margin-left: 10px;" class="times" placeholder="请选择时间">&nbsp;&nbsp;-
                     <input type="date"  style="height: 25px;margin-left: 10px;" class="time"  placeholder="请选择时间">

@@ -359,6 +359,7 @@ class FoodsController extends BaseController
                 $screen['name']='';
             }
             if(!empty($all['status'])){
+                $status = $all['status'];
                 if($all['status'] == 2){            // 待审核
                     $where[] = ['merchants.is_reg',0];
                 }elseif ($all['status'] == 1){      // 已审核
@@ -370,10 +371,13 @@ class FoodsController extends BaseController
                 }else{
 
                 }
+            }else{
+                $status = 0;
             }
             $data=DB::table('merchants')
                 -> where('user_id',$id)
                 -> where($where)
+                -> orderBy('is_reg','desc')
                 -> paginate(10);
             foreach ($data as $key => $value) {
                 $merchant_type=Db::table('merchant_type')->where('id',$value->merchant_type_id)->pluck('type_name');
@@ -402,6 +406,7 @@ class FoodsController extends BaseController
                 $screen['name']='';
             }
             if(!empty($all['status'])){
+                $status = $all['status'];
                 if($all['status'] == 2){            // 待审核
                     $where[] = ['merchants.is_reg',0];
                 }elseif ($all['status'] == 1){      // 已审核
@@ -413,10 +418,12 @@ class FoodsController extends BaseController
                 }else{
 
                 }
+            }else{
+                $status = 0;
             }
             $data=DB::table('merchants')
                 ->where($where)
-                -> orderBy('is_reg')
+                -> orderBy('is_reg','desc')
                 ->paginate(10);
             foreach ($data as $key => $value) {
                 $merchant_type=Db::table('merchant_type')->where('id',$value->merchant_type_id)->pluck('type_name');
@@ -435,7 +442,7 @@ class FoodsController extends BaseController
             $wheres['type']=DB::table('merchant_type')->get();
             $wheres['where']=$screen;
         }
-        return $this->view('',['data'=>$data,'i'=>$i],['wheres'=>$wheres]);
+        return $this->view('',['data'=>$data,'i'=>$i,'status' => $status],['wheres'=>$wheres]);
     }
     // 禁用商家
     public function status(){

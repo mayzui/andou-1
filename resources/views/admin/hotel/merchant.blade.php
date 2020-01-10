@@ -43,7 +43,7 @@
                             <th>商家logo图</th>
                             <th>地址</th>
                             <th>商户类型</th>
-                            <th>是否认证</th>
+                            <th>是否审核</th>
                             <th>状态</th>
                             <th style="width: 150px">申请时间</th>
                             <th>操作</th>
@@ -95,7 +95,9 @@
                         @endif
                         </tbody>
                     </table>
-                    {{$data}}
+                @if(count($data)>0)
+                    {{ $data->appends(['status'=>$status]) }}
+                @endif
             </div>
         </div>
         <div class="clearfix"></div>

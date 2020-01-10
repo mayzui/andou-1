@@ -110,6 +110,9 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::post('know/www','KnowController@www')->name('know.add');
         // 排序
         Route::get('shop/sort','ShopController@sort')->name('shop.sort');
+        // 商城商户
+        Route::get('shop/mall_merchants','ShopController@mall_merchants')->name('shop.mall_merchants');
+        Route::get('shop/shopStatus','ShopController@shopStatus')->name('shop.shopStatus'); // 修改状态
 
 
 

@@ -101,7 +101,9 @@
                             @endif
                         </tbody>
                     </table>
-                {{$data}}
+                @if(count($data)>0)
+                    {{ $data->appends(['status'=>$status]) }}
+                @endif
             </div>
         </div>
         <div class="clearfix"></div>
