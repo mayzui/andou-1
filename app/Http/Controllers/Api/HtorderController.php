@@ -121,6 +121,9 @@ class HtorderController extends Controller
         $data['end_time']=$all['end_time'];
         $data['real_name']=$all['real_name'];
         $data['day_num']=$all['day_num'];
+        $startdate=strtotime($data['start_time']);
+        $enddate=strtotime($data['end_time']);
+        $data['day_num']=round(($enddate-$startdate)/3600/24);
         $data['pay_way']=$all['pay_way'];
         $data['mobile']=$all['mobile'];
         $users=Db::table('users')
@@ -244,8 +247,8 @@ class HtorderController extends Controller
         
         $input->SetBody("安抖商城平台");
         $input->SetOut_trade_no($sNo);
-        $input->SetTotal_fee($pay_money);
-        // $input->SetTotal_fee(1);
+        // $input->SetTotal_fee($pay_money);
+        $input->SetTotal_fee(1);
         $input->SetNotify_url("http://andou.zhuosongkj.com/api/common/wxnotifyhotel");
         $input->SetTrade_type("APP");
         $input->SetSpbill_create_ip($_SERVER['REMOTE_ADDR']);

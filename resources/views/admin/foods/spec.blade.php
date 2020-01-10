@@ -56,7 +56,7 @@
                         </tr>
                     @else
                         <tr>
-                            <th colspan="4">暂时还没有数据</th>
+                            <th colspan="5">暂时还没有数据</th>
                         </tr>
                     @endif
                     </tbody>

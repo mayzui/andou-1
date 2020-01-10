@@ -278,9 +278,11 @@ class WalletController extends Controller
         }
     }
     /**
-     * @api {post} /api/common/pay_ways 支付方式
-     * @apiName pay_ways
-     * @apiGroup common
+     * @api {post} /api/wallet/payWays 支付方式
+     * @apiName payWays
+     * @apiGroup wallet
+     * @apiParam {string} uid 用户id（必填）
+     * @apiParam {string} token 验证登陆 （必填）
      * @apiSuccessExample 参数返回:
      *     {
      *       "code": "200",
@@ -296,9 +298,7 @@ class WalletController extends Controller
      */
     public function payWays(){
         $data=Db::table('pay_ways')->select('id','pay_way','logo')
-            ->where('id',1)
-            ->where('id',2)
-            ->where('id',3)
+            ->having('id','!=',4)
             ->where('status',1)->get();
         return $this->rejson(200,'查询成功',json_decode($data,JSON_UNESCAPED_UNICODE));
     }
@@ -337,11 +337,11 @@ class WalletController extends Controller
             $sNo = $add['order_sn'];
             $i = DB::table('recharge') -> insert($add);
             if($i){
-                if ($all['money']==1) {//微信支付
+                if ($all['method']==1) {//微信支付
                     $this->wxPay($sNo);
-                }else if($all['money']==2){//支付宝支付
+                }else if($all['method']==2){//支付宝支付
                     return $this->rejson(201,'暂未开通');
-                }else if($all['money']==0){//银联支付
+                }else if($all['method']==0){//银联支付
                     return $this->rejson(201,'暂未开通');
                 }else{
                     return $this->rejson(201,'暂未开通');
@@ -365,7 +365,7 @@ class WalletController extends Controller
         if (empty($sNo)) {
             return $this->rejson(201,'参数错误');
         }
-
+        //查找表里是否有此订单
         $orders = Db::table('recharge')
             ->where('order_sn',$sNo)
             ->first();

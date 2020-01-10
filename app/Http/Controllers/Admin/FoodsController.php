@@ -355,6 +355,20 @@ class FoodsController extends BaseController
             $where[] = ['merchants.name', 'like', '%'."".'%'];
             $name = "";
         }
+        if(!empty($all['status'])){
+            if($all['status'] == 2){
+                $where[] = ['merchants.is_reg',0];
+            }elseif ($all['status'] == 1){
+                $where[] = ['merchants.is_reg',1];
+            }elseif ($all['status'] == 3){
+                $where[] = ['foods_classification.status',0];
+            }elseif ($all['status'] == 4){
+                $where[] = ['foods_classification.status',1];
+            }else{
+
+            }
+        }
+
         if(!empty($i)){
             // 如果开店，则查询当前商户的信息
             // 链接数据库 查询商户表
@@ -363,7 +377,6 @@ class FoodsController extends BaseController
                 -> join("foods_classification","merchants.user_id","=","foods_classification.merchants_id")
                 -> where("role_id",5)
                 -> where("user_id",$id)
-                -> where("is_reg",1)
                 -> where($where)
                 -> select(['merchants.id','merchants.is_reg','merchants.user_id','merchant_type.type_name','foods_classification.name','merchants.name as name2' ,'merchants.address'])
                 -> paginate(10);
@@ -373,13 +386,52 @@ class FoodsController extends BaseController
                 -> join("merchant_type","merchants.merchant_type_id","=","merchant_type.id")
                 -> join("foods_classification","merchants.user_id","=","foods_classification.merchants_id")
                 -> where("role_id",5)
-                -> where("is_reg",1)
                 -> where($where)
                 -> select(['merchants.id','merchants.is_reg','merchants.user_id','merchant_type.type_name','foods_classification.status as foods_status','foods_classification.id as foods_id','foods_classification.name','merchants.name as name2' ,'merchants.address'])
                 -> paginate(10);
         }
+        // 查询已审核
+        $old = DB::table("merchants")
+            -> join("merchant_type","merchants.merchant_type_id","=","merchant_type.id")
+            -> join("foods_classification","merchants.user_id","=","foods_classification.merchants_id")
+            -> where("role_id",5)
+            -> where("merchants.is_reg",1)
+            -> select(['merchants.id','merchants.is_reg','merchants.user_id','merchant_type.type_name','foods_classification.status as foods_status','foods_classification.id as foods_id','foods_classification.name','merchants.name as name2' ,'merchants.address'])
+            -> paginate(10);
+        // 查询待审核
+        $wait = DB::table("merchants")
+            -> join("merchant_type","merchants.merchant_type_id","=","merchant_type.id")
+            -> join("foods_classification","merchants.user_id","=","foods_classification.merchants_id")
+            -> where("role_id",5)
+            -> where("merchants.is_reg",0)
+            -> select(['merchants.id','merchants.is_reg','merchants.user_id','merchant_type.type_name','foods_classification.status as foods_status','foods_classification.id as foods_id','foods_classification.name','merchants.name as name2' ,'merchants.address'])
+            -> paginate(10);
+        // 查询已启用
+        $qiyong = DB::table("merchants")
+            -> join("merchant_type","merchants.merchant_type_id","=","merchant_type.id")
+            -> join("foods_classification","merchants.user_id","=","foods_classification.merchants_id")
+            -> where("role_id",5)
+            -> where("foods_classification.status",1)
+            -> select(['merchants.id','merchants.is_reg','merchants.user_id','merchant_type.type_name','foods_classification.status as foods_status','foods_classification.id as foods_id','foods_classification.name','merchants.name as name2' ,'merchants.address'])
+            -> paginate(10);
+        // 查询禁启用
+        $jinyong = DB::table("merchants")
+            -> join("merchant_type","merchants.merchant_type_id","=","merchant_type.id")
+            -> join("foods_classification","merchants.user_id","=","foods_classification.merchants_id")
+            -> where("role_id",5)
+            -> where("foods_classification.status",0)
+            -> select(['merchants.id','merchants.is_reg','merchants.user_id','merchant_type.type_name','foods_classification.status as foods_status','foods_classification.id as foods_id','foods_classification.name','merchants.name as name2' ,'merchants.address'])
+            -> paginate(10);
+        // 全部商家
+        $allMerchant = DB::table("merchants")
+            -> join("merchant_type","merchants.merchant_type_id","=","merchant_type.id")
+            -> join("foods_classification","merchants.user_id","=","foods_classification.merchants_id")
+            -> where("role_id",5)
+            -> select(['merchants.id','merchants.is_reg','merchants.user_id','merchant_type.type_name','foods_classification.status as foods_status','foods_classification.id as foods_id','foods_classification.name','merchants.name as name2' ,'merchants.address'])
+            -> paginate(10);
+
         // 跳转饭店管理模块
-        return $this -> view('',['data'=>$data,'name'=>$name]);
+        return $this -> view('',['data'=>$data,'name'=>$name,'old'=>$old,'wait'=>$wait,'allmerchant'=>$allMerchant,'qiyong'=>$qiyong,'jinyong'=>$jinyong]);
     }
 
     // 修改饭店状态
@@ -619,6 +671,9 @@ class FoodsController extends BaseController
     }
     // 新增菜品详情
     public function informationadd(){
+        // 获取当前商户id
+        $id = Auth::id();
+        $data = DB::table('merchants') -> where("user_id",$id) -> first();
         if(\request()->isMethod("get")){
             $all = \request() -> all();
             // 判断跳转新增界面还是修改界面
@@ -627,7 +682,11 @@ class FoodsController extends BaseController
                 // 链接数据库，查询菜品分类
                 $type = DB::table("foods_classification") -> get();
                 // 链接数据库，查询菜品规格
-                $spec = DB::table("foods_spec") -> get();
+                if(!empty($i)){
+                    $spec = DB::table("foods_spec") ->where('merchant_id',$data -> id) -> get();
+                }else{
+                    $spec = DB::table("foods_spec") -> get();
+                }
                 $data = (object)[
                     "classification_id" => 0,
                     "specifications" => []
@@ -646,7 +705,11 @@ class FoodsController extends BaseController
                 // 链接数据库，查询菜品分类
                 $type = DB::table("foods_classification") -> get();
                 // 链接数据库，查询菜品规格
-                $spec = DB::table("foods_spec") -> get();
+                if(!empty($i)){
+                    $spec = DB::table("foods_spec") -> where('merchant_id',$data -> id) -> get();
+                }else{
+                    $spec = DB::table("foods_spec") -> get();
+                }
                 // 获得查询出来的菜品规格
                 $data->specifications =explode(",",$data->specifications);
                 // 定义一个传值用的数组
@@ -664,12 +727,15 @@ class FoodsController extends BaseController
             if(empty($all['id'])){
                 // 执行新增操作
                 $spec = $all['specifications'];
-
+                // 根据获取的id查询规格表中数据库
+                foreach ($spec as $v){
+                    $specdata[] = json_decode(json_encode(DB::table('foods_spec') -> where('id',$v)->select(['name']) -> first()),true);
+                }
                 // 将数组转换成字符串
-                $specs = implode(",",$spec);
+                $specs = implode(",",array_column($specdata,'name'));
                 // 定义一个数组用于接收需要上传数据库的值
                 $data = [
-                    "merchant_id" => Auth::id(),
+                    "merchant_id" => $data -> id,
                     "classification_id" => $all['classification_id'],
                     "name" => $all['name'],
                     "price" => $all['price'],
@@ -698,7 +764,7 @@ class FoodsController extends BaseController
                 $specs = implode(",",array_column($specdata,'name'));
                 // 定义一个数组用于接收需要上传数据库的值
                 $data = [
-                    "merchant_id" => Auth::id(),
+                    "merchant_id" => $data -> id,
                     "classification_id" => $all['classification_id'],
                     "name" => $all['name'],
                     "price" => $all['price'],

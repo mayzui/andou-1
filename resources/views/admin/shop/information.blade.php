@@ -345,7 +345,7 @@
     <script type="text/javascript">
         function adopt(id) {
             layer.alert("是否通过当前审核?",{icon:3},function (index) {
-                $.post("{{route('shop.information')}}",{id:id,is_reg:0,_token:'{{csrf_token()}}'},function (data) {
+                $.post("{{route('shop.information')}}",{id:id,is_reg:1,_token:'{{csrf_token()}}'},function (data) {
                     if(data == 1){
                         layer.alert('已通过该商家的申请',{icon:1},function (index) {
                             location.href="{{ route('shop.shopMerchant') }}";

@@ -19,6 +19,8 @@ class HotelController extends Controller
      *     {
      *       "code": "200",
      *       "data": {
+        "merchants_id":"商户id",
+        "hotel_room_id":"房间id",
         "book_sn":"订单编号",
         "logo_img":"商家logo图",
         "merchants_name":"商家名称",
@@ -43,11 +45,11 @@ class HotelController extends Controller
             $all['token']=$token;
         }
         if (empty($all['uid'])||empty($all['token'])) {
-           return $this->rejson(202,'登陆失效');
+            return $this->rejson(202,'登陆失效');
         }
         $check=$this->checktoten($all['uid'],$all['token']);
         if ($check['code']==202) {
-           return $this->rejson($check['code'],$check['msg']);
+            return $this->rejson($check['code'],$check['msg']);
         }
         $where[]=['books.user_id',$all['uid']];
         if (!empty($all['type'])) {
@@ -59,7 +61,7 @@ class HotelController extends Controller
             -> join('hotel_room','books.hotel_room_id','=','hotel_room.id')
             -> where('hotel_room.status',1)
             -> where($where)
-            -> select(['books.book_sn','merchants.logo_img','merchants.name as merchants_name','books.status','hotel_room.img','hotel_room.house_name','hotel_room.price'])
+            -> select(['merchants.id as merchants_id','hotel_room.id as hotel_room_id','books.book_sn','merchants.logo_img','merchants.name as merchants_name','books.status','hotel_room.img','hotel_room.house_name','hotel_room.price'])
             ->offset($pages)
             ->limit($num)
             ->get();
@@ -85,7 +87,7 @@ class HotelController extends Controller
     public function cate(){
           $data=Db::table('hotel_category')
           ->select('id','name','img')
-          ->where('status',1)
+          ->where(['status'=>1,'type_id'=>1])
           ->get();
           return $this->rejson('200','查询成功',$data);
     }
