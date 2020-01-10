@@ -9,6 +9,8 @@ use App\Http\Requests\Admin\RoleRequest;
 use App\Models\Role;
 use App\Repositories\RulesRepository;
 use App\Handlers\Tree;
+use PhpParser\Node\Stmt\Return_;
+
 class FoodsController extends BaseController
 {
     /**
@@ -341,76 +343,129 @@ class FoodsController extends BaseController
      *      饭店管理
      * */
     public function administration(){
-        $all = \request() -> all();
-        $id = Auth::id();
+        $all = request()->all();
+        $id = \Auth::id();
         // 判断该用户，是否开店 并且已经认证通过
         $i = DB::table('merchants') -> where("user_id",$id) -> where("is_reg",1) -> first();
-        // 判断是否执行条件查询
-        if(!empty($all['name'])){
-            // 条件查询
-            $where[] = ['merchants.name', 'like', '%'.$all['name'].'%'];
-            $name = $all['name'];
-        }else{
-            // 跳转页面
-            $where[] = ['merchants.name', 'like', '%'."".'%'];
-            $name = "";
-        }
-        if(!empty($all['status'])){
-            if($all['status'] == 2){
-                $where[] = ['merchants.is_reg',0];
-            }elseif ($all['status'] == 1){
-                $where[] = ['merchants.is_reg',1];
-            }elseif ($all['status'] == 3){
-                $where[] = ['foods_classification.status',0];
-            }elseif ($all['status'] == 4){
-                $where[] = ['foods_classification.status',1];
-            }else{
-
-            }
-        }
-
-        if(!empty($i)){
+        if(!empty($i)) {
             // 如果开店，则查询当前商户的信息
-            // 链接数据库 查询商户表
-            $data = DB::table("merchants")
-                -> join("merchant_type","merchants.merchant_type_id","=","merchant_type.id")
-                -> join("foods_classification","merchants.user_id","=","foods_classification.merchants_id")
-                -> where("role_id",5)
-                -> where("user_id",$id)
-//                -> where("is_reg",1)
-                -> where($where)
-                -> select(['merchants.id','merchants.is_reg','merchants.user_id','merchant_type.type_name','foods_classification.name','merchants.name as name2' ,'merchants.address'])
-                -> paginate(10);
-        }else{
-            // 反之则为。管理员
-            $data = DB::table("merchants")
-                -> join("merchant_type","merchants.merchant_type_id","=","merchant_type.id")
-                -> join("foods_classification","merchants.user_id","=","foods_classification.merchants_id")
-                -> where("role_id",5)
-//                -> where("is_reg",1)
-                -> where($where)
-                -> select(['merchants.id','merchants.is_reg','merchants.user_id','merchant_type.type_name','foods_classification.status as foods_status','foods_classification.id as foods_id','foods_classification.name','merchants.name as name2' ,'merchants.address'])
-                -> paginate(10);
-        }
-        // 查询已审核
-        $old = DB::table("merchants")
-            -> join("merchant_type","merchants.merchant_type_id","=","merchant_type.id")
-            -> join("foods_classification","merchants.user_id","=","foods_classification.merchants_id")
-            -> where("role_id",5)
-            -> where("is_reg",1)
-            -> select(['merchants.id','merchants.is_reg','merchants.user_id','merchant_type.type_name','foods_classification.status as foods_status','foods_classification.id as foods_id','foods_classification.name','merchants.name as name2' ,'merchants.address'])
-            -> paginate(10);
-        // 查询待审核
-        $wait = DB::table("merchants")
-            -> join("merchant_type","merchants.merchant_type_id","=","merchant_type.id")
-            -> join("foods_classification","merchants.user_id","=","foods_classification.merchants_id")
-            -> where("role_id",5)
-            -> where("foods_classification.status",0)
-            -> select(['merchants.id','merchants.is_reg','merchants.user_id','merchant_type.type_name','foods_classification.status as foods_status','foods_classification.id as foods_id','foods_classification.name','merchants.name as name2' ,'merchants.address'])
-            -> paginate(10);
+            $where[]=['id','>','0'];
+            $where[]=['merchant_type_id',4];
+            $screen['merchant_type_id'] = 4;
+            if (!empty($all['name'])) {
+                $where[]=['name', 'like', '%'.$all['name'].'%'];
+                $screen['name']=$all['name'];
+            }else{
+                $screen['name']='';
+            }
+            if(!empty($all['status'])){
+                $status = $all['status'];
+                if($all['status'] == 2){            // 待审核
+                    $where[] = ['merchants.is_reg',0];
+                }elseif ($all['status'] == 1){      // 已审核
+                    $where[] = ['merchants.is_reg',1];
+                }elseif ($all['status'] == 3){      // 已禁用
+                    $where[] = ['merchants.status',0];
+                }elseif ($all['status'] == 4){      // 已启用
+                    $where[] = ['merchants.status',1];
+                }else{
 
-        // 跳转饭店管理模块
-        return $this -> view('',['data'=>$data,'name'=>$name,'old'=>$old,'wait'=>$wait]);
+                }
+            }else{
+                $status = 0;
+            }
+            $data=DB::table('merchants')
+                -> where('user_id',$id)
+                -> where($where)
+                -> orderBy('is_reg','desc')
+                -> paginate(10);
+            foreach ($data as $key => $value) {
+                $merchant_type=Db::table('merchant_type')->where('id',$value->merchant_type_id)->pluck('type_name');
+                if (!empty($merchant_type[0])) {
+                    $data[$key]->merchant_type_id=$merchant_type[0];
+                }else{
+                    $data[$key]->merchant_type_id='';
+                }
+                $username=Db::table('users')->where('id',$value->user_id)->pluck('name');
+                if (!empty($username[0])) {
+                    $data[$key]->username=$username[0];
+                }else{
+                    $data[$key]->username='';
+                }
+            }
+            $wheres['type']=DB::table('merchant_type')->get();
+            $wheres['where']=$screen;
+        }else{
+            $where[]=['id','>','0'];
+            $where[]=['merchant_type_id',4];
+            $screen['merchant_type_id'] = 4;
+            if (!empty($all['name'])) {
+                $where[]=['name', 'like', '%'.$all['name'].'%'];
+                $screen['name']=$all['name'];
+            }else{
+                $screen['name']='';
+            }
+            if(!empty($all['status'])){
+                $status = $all['status'];
+                if($all['status'] == 2){            // 待审核
+                    $where[] = ['merchants.is_reg',0];
+                }elseif ($all['status'] == 1){      // 已审核
+                    $where[] = ['merchants.is_reg',1];
+                }elseif ($all['status'] == 3){      // 已禁用
+                    $where[] = ['merchants.status',0];
+                }elseif ($all['status'] == 4){      // 已启用
+                    $where[] = ['merchants.status',1];
+                }else{
+
+                }
+            }else{
+                $status = 0;
+            }
+            $data=DB::table('merchants')
+                ->where($where)
+                -> orderBy('is_reg','desc')
+                ->paginate(10);
+            foreach ($data as $key => $value) {
+                $merchant_type=Db::table('merchant_type')->where('id',$value->merchant_type_id)->pluck('type_name');
+                if (!empty($merchant_type[0])) {
+                    $data[$key]->merchant_type_id=$merchant_type[0];
+                }else{
+                    $data[$key]->merchant_type_id='';
+                }
+                $username=Db::table('users')->where('id',$value->user_id)->pluck('name');
+                if (!empty($username[0])) {
+                    $data[$key]->username=$username[0];
+                }else{
+                    $data[$key]->username='';
+                }
+            }
+            $wheres['type']=DB::table('merchant_type')->get();
+            $wheres['where']=$screen;
+        }
+        return $this->view('',['data'=>$data,'i'=>$i,'status' => $status],['wheres'=>$wheres]);
+    }
+    // 禁用商家
+    public function status(){
+        $all = \request() -> all();
+        // 根据当前id 查询当前商户的状态
+        $data = DB::table('merchants') -> where('id',$all['id']) ->first();
+        if($data -> status == 1){
+            $arr = [
+                'status' => 0
+            ];
+        }else{
+            $arr = [
+                'status' => 1
+            ];
+        }
+        $i = DB::table('merchants') -> where('id',$all['id']) -> update($arr);
+        if($i){
+            flash("状态更新成功") -> success();
+            return redirect()->route('foods.administration');
+        }else{
+            flash("状态更新失败") -> error();
+            return redirect()->route('foods.administration');
+        }
     }
 
     // 修改饭店状态
@@ -885,7 +940,8 @@ class FoodsController extends BaseController
                 // 执行修改操作
 
                 // 判断数据库是否存在同样的规格
-                $m = DB::table("foods_spec")->where('id','!=',$all['spec_id'])->where('name',$all['name']) -> first();
+//                print_r($all['spec_id']);die();
+                $m = DB::table("foods_spec")->where('id','!=',$all['id'])->where('name',$all['name']) -> first();
                 if(empty($m)){
 
                     // 数据库不存在该值,则进行修改操作

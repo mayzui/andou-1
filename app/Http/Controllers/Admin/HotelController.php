@@ -472,34 +472,132 @@ class HotelController extends BaseController
          } 
         return $this->view('',['data'=>$data],['wheres'=>$wheres]);
     }
+    // 跳转酒店商户
     public function merchant()
     {
         $all = request()->all();
-        $where[]=['merchant_type_id',3];
-        
-        if (!empty($all['name'])) {
-           $where[]=['name', 'like', '%'.$all['name'].'%'];
-           $screen['name']=$all['name']; 
+        $id = \Auth::id();
+        // 判断该用户，是否开店 并且已经认证通过
+        $i = DB::table('merchants') -> where("user_id",$id) -> where("is_reg",1) -> first();
+        if(!empty($i)) {
+            // 如果开店，则查询当前商户的信息
+            $where[]=['id','>','0'];
+            $where[]=['merchant_type_id',3];
+            $screen['merchant_type_id'] = 3;
+            if (!empty($all['name'])) {
+                $where[]=['name', 'like', '%'.$all['name'].'%'];
+                $screen['name']=$all['name'];
+            }else{
+                $screen['name']='';
+            }
+            if(!empty($all['status'])){
+                $status = $all['status'];
+                if($all['status'] == 2){            // 待审核
+                    $where[] = ['merchants.is_reg',0];
+                }elseif ($all['status'] == 1){      // 已审核
+                    $where[] = ['merchants.is_reg',1];
+                }elseif ($all['status'] == 3){      // 已禁用
+                    $where[] = ['merchants.status',0];
+                }elseif ($all['status'] == 4){      // 已启用
+                    $where[] = ['merchants.status',1];
+                }else{
+
+                }
+            }else{
+                $status = 0;
+            }
+            $data=DB::table('merchants')
+                -> where('user_id',$id)
+                -> where($where)
+                -> orderBy('is_reg','desc')
+                -> paginate(10);
+            foreach ($data as $key => $value) {
+                $merchant_type=Db::table('merchant_type')->where('id',$value->merchant_type_id)->pluck('type_name');
+                if (!empty($merchant_type[0])) {
+                    $data[$key]->merchant_type_id=$merchant_type[0];
+                }else{
+                    $data[$key]->merchant_type_id='';
+                }
+                $username=Db::table('users')->where('id',$value->user_id)->pluck('name');
+                if (!empty($username[0])) {
+                    $data[$key]->username=$username[0];
+                }else{
+                    $data[$key]->username='';
+                }
+            }
+            $wheres['type']=DB::table('merchant_type')->get();
+            $wheres['where']=$screen;
         }else{
-           $screen['name']=''; 
-        }
-        $data=DB::table('merchants')->where($where)->paginate(10);
-        foreach ($data as $key => $value) {
-            $merchant_type=Db::table('merchant_type')->where('id',$value->merchant_type_id)->pluck('type_name');
-            if (!empty($merchant_type[0])) {
-                $data[$key]->merchant_type_id=$merchant_type[0];
+            $where[]=['id','>','0'];
+            $where[]=['merchant_type_id',3];
+            $screen['merchant_type_id'] = 3;
+            if (!empty($all['name'])) {
+                $where[]=['name', 'like', '%'.$all['name'].'%'];
+                $screen['name']=$all['name'];
             }else{
-                $data[$key]->merchant_type_id='';
+                $screen['name']='';
             }
-            $username=Db::table('users')->where('id',$value->user_id)->pluck('name');
-            if (!empty($username[0])) {
-                $data[$key]->username=$username[0];
+            if(!empty($all['status'])){
+                $status = $all['status'];
+                if($all['status'] == 2){            // 待审核
+                    $where[] = ['merchants.is_reg',0];
+                }elseif ($all['status'] == 1){      // 已审核
+                    $where[] = ['merchants.is_reg',1];
+                }elseif ($all['status'] == 3){      // 已禁用
+                    $where[] = ['merchants.status',0];
+                }elseif ($all['status'] == 4){      // 已启用
+                    $where[] = ['merchants.status',1];
+                }else{
+
+                }
             }else{
-                $data[$key]->username='';
+                $status = 0;
             }
+            $data=DB::table('merchants')
+                ->where($where)
+                -> orderBy('is_reg','desc')
+                ->paginate(10);
+            foreach ($data as $key => $value) {
+                $merchant_type=Db::table('merchant_type')->where('id',$value->merchant_type_id)->pluck('type_name');
+                if (!empty($merchant_type[0])) {
+                    $data[$key]->merchant_type_id=$merchant_type[0];
+                }else{
+                    $data[$key]->merchant_type_id='';
+                }
+                $username=Db::table('users')->where('id',$value->user_id)->pluck('name');
+                if (!empty($username[0])) {
+                    $data[$key]->username=$username[0];
+                }else{
+                    $data[$key]->username='';
+                }
+            }
+            $wheres['type']=DB::table('merchant_type')->get();
+            $wheres['where']=$screen;
         }
-        $wheres['type']=DB::table('merchant_type')->get();
-        $wheres['where']=$screen;
-        return $this->view('',['data'=>$data],['wheres'=>$wheres]);
+        return $this->view('',['data'=>$data,'i'=>$i,'status' => $status],['wheres'=>$wheres]);
+    }
+
+    // 禁用商家
+    public function hotelStatus(){
+        $all = \request() -> all();
+        // 根据当前id 查询当前商户的状态
+        $data = DB::table('merchants') -> where('id',$all['id']) ->first();
+        if($data -> status == 1){
+            $arr = [
+                'status' => 0
+            ];
+        }else{
+            $arr = [
+                'status' => 1
+            ];
+        }
+        $i = DB::table('merchants') -> where('id',$all['id']) -> update($arr);
+        if($i){
+            flash("状态更新成功") -> success();
+            return redirect()->route('hotel.merchant');
+        }else{
+            flash("状态更新失败") -> error();
+            return redirect()->route('hotel.merchant');
+        }
     }
 }

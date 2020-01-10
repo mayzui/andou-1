@@ -9,27 +9,35 @@
             <div class="tab-content" style="z-index: auto">
                 {{--产品列表--}}
                 <div class="ibox-content tab-pane active a" id="home">
-                    <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>
-                    <button type="button" class="btn btn-danger btn-sm mdels" title="批量删除" ><i class="fa fa-trash-o"></i> 批量删除</button>
-                    <a href="{{route('shop.create')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
-                            <i class="fa fa-plus-circle"></i> 新增商品</button>
-                    </a>
-                    <a href="{{url('/admin/shop/goods?status=1')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
-                            上架</button>
-                    </a>
-                    <a href="{{url('/admin/shop/goods?status=2')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
-                            下架</button>
-                    </a>
-                    <select name="sort" id="sort" style="width: 100px;height: 25px;">
-                        <option value="0">排序</option>
-                        <option value="1">销量</option>
-                        <option value="2">价格</option>
-                    </select>&nbsp;&nbsp;&nbsp;
-                    提交时间:<input type="date"  style="height: 25px;margin-left: 10px;" class="times" placeholder="请选择时间">&nbsp;&nbsp;-
-                    <input type="date"  style="height: 25px;margin-left: 10px;" class="time"  placeholder="请选择时间">
-                    <a onkeydown="time()" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
-                            搜索</button>
-                    </a>
+                    <form action="{{route('shop.goods')}}" method="get">
+                        {!! csrf_field() !!}
+                        <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>
+
+                        <input type="text" style="height: 25px;margin-left: 10px;" value="{{ $product_name or '' }}" name="product_name" placeholder="请输入产品名称">
+                        <button class="btn btn-primary btn-sm" type="submit"><i class="fa fa-search"></i> 查询</button>
+
+                        <button type="button" class="btn btn-danger btn-sm mdels" title="批量删除" ><i class="fa fa-trash-o"></i> 批量删除</button>
+                        <a href="{{route('shop.create')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
+                                <i class="fa fa-plus-circle"></i> 新增商品</button>
+                        </a>
+                        <a href="{{url('/admin/shop/goods?status=1')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
+                                上架</button>
+                        </a>
+                        <a href="{{url('/admin/shop/goods?status=2')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
+                                下架</button>
+                        </a>
+                        <select name="sort" id="sort" style="width: 100px;height: 25px;">
+                            <option value="0">排序</option>
+                            <option value="1" @if($sort == 1) selected @endif>销量</option>
+                            <option value="2" @if($sort == 2) selected @endif>价格</option>
+                        </select>&nbsp;&nbsp;&nbsp;
+                        提交时间:<input type="date"  style="height: 25px;margin-left: 10px;" class="one_time" name="one_time" placeholder="请选择时间">&nbsp;&nbsp;-
+                        <input type="date"  style="height: 25px;margin-left: 10px;" class="two_time" name="two_time" placeholder="请选择时间">
+                        <button class="btn btn-primary btn-sm" type="submit" >
+                            <i class="fa fa-search"></i> 搜索
+                        </button>
+                    </form>
+
                     <form method="post" action="{{route('shop.index')}}" name="form">
                         <style>
                             th{
@@ -56,6 +64,7 @@
                             </tr>
                             </thead>
                             <tbody>
+                            @if(count($list) > 0)
                             @foreach($list as $k => $item)
                                 <tr>
                                     <td><input type="checkbox" name="ids" value="{{$item->id}}" /></td>
@@ -95,9 +104,16 @@
                                     </td>
                                 </tr>
                             @endforeach
+                                @else
+                                <tr>
+                                    <td colspan="10">对不起未查询到相关数据</td>
+                                </tr>
+                            @endif
                             </tbody>
                         </table>
-                        {{$list}}
+                        @if(count($list)>0)
+                            {{ $list->appends(['status'=>$status]) }}
+                        @endif
                     </form>
                 </div>
                 {{--产品分类--}}
@@ -197,13 +213,6 @@
             }
         })
 
-        function time() {
 
-            if (event.keyCode==13){
-                var time = $(".time").val()
-                var times = $(".times").val()
-                location.href="{{route('shop.goods')}}?time="+time+times;
-            }
-        }
     </script>
 @endsection
