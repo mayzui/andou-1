@@ -1,7 +1,7 @@
-<?php  
+<?php
 /**后台模块**/
 Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
-/**需要登录认证模块**/
+    /**需要登录认证模块**/
     Route::middleware(['auth:admin','rbac'])->group(function (){//LM
         //商户管理
         Route::match(['get','post'],'merchants/index','MerchantsController@index')->name('merchants.index');
@@ -29,6 +29,7 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::match(['get','post'],'hotel/commnetsAdd','HotelController@commnetsAdd')->name('hotel.commnetsAdd');
         Route::get('hotel/commnetsDel','HotelController@commnetsDel')->name('hotel.commnetsDel');
         Route::get('hotel/classification','HotelController@classification')->name('hotel.classification');        // 酒店分类
+        Route::get('hotel/hotelStatus','HotelController@hotelStatus')->name('hotel.hotelStatus');        // 酒店状态
 
         //个人中心
         Route::get('user/merchant','UserController@merchant')->name('user.merchant');
@@ -43,6 +44,7 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         // 饭店商家审核
         Route::match(['get','post'],'foods/examine','FoodsController@examine')->name('foods.examine');
         Route::get('foods/examinepass','FoodsController@examinepass')->name('foods.examinepass'); // 删除
+        Route::get('foods/status','FoodsController@status')->name('foods.status'); // 禁用商家
         // 订单总管理
         Route::match(['get','post'],'foods/orders','FoodsController@orders')->name('foods.orders');
         Route::match(['get','post'],'foods/orderschange','FoodsController@orderschange')->name('foods.orderschange'); // 新增 and 修改
@@ -97,7 +99,7 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
 
         // 平台流水
         Route::get('finance/cashLogsDel','FinanceController@cashLogsDel')->name('finance.cashLogsDel'); // 删除
-        Route::get('banner/notice','BannerController@notice')->name('banner.notice'); 
+        Route::get('banner/notice','BannerController@notice')->name('banner.notice');
         Route::get('banner/noticedel','BannerController@noticedel')->name('banner.noticedel');
         Route::match(['get','post'],'banner/noticeedit','BannerController@noticeedit')->name('banner.noticeedit');
         Route::get('shop/hotkeywords','ShopController@hotkeywords')->name('shop.hotkeywords');
@@ -106,6 +108,16 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         //入住需知
         Route::any('know/index','KnowController@index')->name('know.index');
         Route::post('know/www','KnowController@www')->name('know.add');
+        // 排序
+        Route::get('shop/sort','ShopController@sort')->name('shop.sort');
+        // 商城商户
+        Route::get('shop/mall_merchants','ShopController@mall_merchants')->name('shop.mall_merchants');
+        Route::get('shop/shopStatus','ShopController@shopStatus')->name('shop.shopStatus'); // 修改状态
+
+
+
+
+        Route::get('shop/orders?status=70','ShopController@sort')->name('shop.orders');
     });
 });
 ?>

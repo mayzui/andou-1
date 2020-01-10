@@ -13,8 +13,12 @@
                 <div class="hr-line-dashed m-t-sm m-b-sm"></div>
                 <form class="form-horizontal m-t-md" action="{{route('foods.specadd')}}" method="post" accept-charset="UTF-8">
                     {!! csrf_field() !!}
+<<<<<<< HEAD
+                    <input type="hidden" name="id" value="{{ $id or '' }}" />
+=======
                     <input type="hidden" name="id" value="{{ $data -> id or '' }}" />
                     <input type="hidden" name="spec_id" value="{{$data -> id or ''}}" />
+>>>>>>> 4f91d2008dca09fefa25b221c9b77cfe0c154718
                     <div class="form-group">
                         <label class="col-sm-2 control-label">规格名称：</label>
                         <div class="input-group col-sm-2">

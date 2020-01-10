@@ -175,7 +175,7 @@ class LoginController extends Controller
      */
     public function regP(){
         $all=request()->all();
-        if (empty($all['phone']) || empty($all['password'] || empty($all['verify']))) {
+        if (empty($all['phone']) || empty($all['password']) || empty($all['verify'])) {
             return $this->rejson(201,'参数错误');
         }else{
             // if ($all['password'] != $all['password_two']) {

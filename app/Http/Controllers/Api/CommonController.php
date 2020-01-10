@@ -199,7 +199,7 @@ class CommonController extends Controller
 
             $ress=Db::table('orders')->where(['order_sn' => $out_trade_no, 'status' =>10])->first();
             if (!empty($ress)) {
-                $re = Db::table('order')->where('order_sn', $out_trade_no)->update($datas);
+                $re = Db::table('orders')->where('order_sn', $out_trade_no)->update($datas);
                 $res = Db::table('books')->where('book_sn', $out_trade_no)->update($datas);
                 if ($re && $res) {
                     $str='<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>';  

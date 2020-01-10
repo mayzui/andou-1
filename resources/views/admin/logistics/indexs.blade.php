@@ -22,7 +22,7 @@
                             <th width="230">订单编号</th>
                             <th>商户名称</th>
                             <th>用户名称</th>
-                            <th>商品名称</th>
+                            <th style="width: 200px">商品名称</th>
                             <th>商品数量</th>
                             <th>运费</th>
                             <th>总金额</th>
@@ -38,7 +38,7 @@
                                 <td>{{$item->order_id}}</td>
                                 <td>{{$item->merchants_name}}</td>
                                 <td>{{$item->users_name}}</td>
-                                <td>{{$item->goods_name}}</td>
+                                <td><p style="width: 200px;overflow: hidden;white-space: nowrap;text-overflow: ellipsis;">{{$item->goods_name}}</p></td>
                                 <td>{{$item->num}}</td>
                                 <td>{{$item->shipping_free}}</td>
                                 <td>{{$item->total}}</td>

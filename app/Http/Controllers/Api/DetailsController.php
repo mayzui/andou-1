@@ -197,6 +197,7 @@ class DetailsController extends Controller
      * @apiParam {string} content 评价内容（非必填）
      * @apiParam {string} stars 评价星级（必填）
      * @apiParam {string} image 商品图片（非必填）
+     * @apiParam {string} dianzhan 是否点赞(0未点赞 1点赞)
      * @apiSuccessExample 参数返回:
      *     {
      *       "code": "200",
@@ -239,6 +240,17 @@ class DetailsController extends Controller
             'created_at' => date('Y-m-d H:i:s'),
             'type' => 1,
         ];
+
+        if(empty($all['dianzhan']==1)){
+            $da['user_id']=$all['uid'];
+            $da['pid']=$all['id'];
+            $da['created_at']=date('Y-m-d H:i:s',time());
+            $re=Db::table('fabulous')->insert($da);
+            $res=DB::table('merchants')->where('id',$all['id'])->increment('praise_num');
+
+        }
+
+
         $i = DB::table('order_commnets') -> insert($data);
         if($i){
             return $this->rejson(200,'添加成功');
