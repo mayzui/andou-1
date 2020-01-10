@@ -346,7 +346,7 @@ class HtorderController extends Controller
         return $this->rejson(200,'查询成功',$data);
     }
     /**
-     * @api {post} /api/htorder/refund 酒店退款原因
+     * @api {post} /api/htorder/refund 酒店退款
      * @apiName refund
      * @apiGroup htorder
      * @apiParam {string} uid 用户id
@@ -357,12 +357,8 @@ class HtorderController extends Controller
      * @apiSuccessExample 参数返回:
      *     {
      *       "code": "200",
-     *       "data": [{
-     *           "id":"退款原因id",
-     *           "name":"退款原因"
-     *       }]       
-     *       ,
-     *       "msg":"预定成功"
+     *       "data": "",
+     *       "msg":"申请成功"
      *     }
      */
     public function refund(){
