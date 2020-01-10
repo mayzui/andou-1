@@ -10,25 +10,25 @@
     <div class="member-user clearfix mr20 mt60">
         <div class="statistics-left fl box-shadow w60 h500">
             <span class="company">网站销售额统计</span>
-            <span class="transformX pt">总销售额:15452.55 元</span>
+            <span class="transformX pt">总销售额:0.00 元</span>
             <iframe id="round-frame" name="mainFrame" frameborder="0" src="{{route('index.census')}}" scrolling="no"></iframe>
         </div>
         <div class="statistics-right fr w37 bg-gray pt0">
             <div class="capital box-shadow ">
                 <div class="capital-c">
                     <p class="t">资金统计</p>
-                    <p class="money">￥<span>5425552</span></p>
+                    <p class="money">￥<span>0.00</span></p>
                     <div class="clearfix">
                         <a class="fl"  onclick="clicke();">
-                            <span>￥2565545</span>
+                            <span>￥ 0.00</span>
                             <span>会员总资金</span>
                         </a>
                         <a class="fl"  onclick="clicke();">
-                            <span>￥2565545</span>
+                            <span>￥ 0.00</span>
                             <span>会员总资金</span>
                         </a>
                         <a class="fl" onclick="clicke();">
-                            <span>￥2565545</span>
+                            <span>￥ 0.00</span>
                             <span>会员总资金</span>
                         </a>
                     </div>
@@ -39,9 +39,9 @@
                 <div class="z-member fl">
                     <div class="capital-c">
                         <h3>总会员<i class="m"></i></h3>
-                        <span class="money">454522</span>
+                        <span class="money">0</span>
                         <h3>今日新增<i class="add"></i></h3>
-                        <span class="money">122</span>
+                        <span class="money">0</span>
                     </div>
                 </div>
                 <div class="z-member box-shadow  fr">
@@ -50,7 +50,7 @@
                         <p>欢迎：admin（系统管理员）</p>
                         <p>1：上次登录地址：重庆市电信</p>
                         <p>2：更新到2018.01.01</p>
-                        <p>3：PHP版本：5.6.30</p>
+                        <p>3：PHP版本：7.2.10</p>
                     </div>
                 </div>
             </div>
@@ -105,65 +105,65 @@
         <div class="item box-shadow">
             <div class="p30">
                 <div class="tit">
-                    <a onclick="clicke();" class="green"><span class="v">325852</span> 外卖商家</a>
+                    <a onclick="clicke();" class="green"><span class="v">0</span> 外卖商家</a>
                 </div>
-                <p class="v">今日新增<a onclick="clicke();">145</a>个商家，总计商家 <a  onclick="clicke();">15</a> 个</p>
-                <p class="v">今日上新<a onclick="clicke();">1585</a>个，待审核 <a onclick="clicke();">56</a> 个</p>
-                <p class="v">总订单<a onclick="clicke();">185</a>单，今日订单 <a onclick="clicke();"> 56</a> 单</p>
-                <p class="v">退款申请<a onclick="clicke();">145</a>条，待审核 <a onclick="clicke();">15</a>条</p>
-                <p class="v">总点评<a onclick="clicke();">145</a>条</p>
+                <p class="v">今日新增<a onclick="clicke();">0</a>个商家，总计商家 <a  onclick="clicke();">0</a> 个</p>
+                <p class="v">今日上新<a onclick="clicke();">0</a>个，待审核 <a onclick="clicke();">0</a> 个</p>
+                <p class="v">总订单<a onclick="clicke();">0</a>单，今日订单 <a onclick="clicke();"> 0</a> 单</p>
+                <p class="v">退款申请<a onclick="clicke();">0</a>条，待审核 <a onclick="clicke();">0</a>条</p>
+                <p class="v">总点评<a onclick="clicke();">0</a>条</p>
             </div>
             <img src="{{loadEdition('/admin/images/icon13.png')}}" >
         </div>
         <div class="item box-shadow">
             <div class="p30">
                 <div class="tit">
-                    <a onclick="clicke();" class="green"><span class="g1">2635</span> 农家乐</a>
+                    <a onclick="clicke();" class="green"><span class="g1">0</span> 农家乐</a>
                 </div>
-                <p class="g1">今日新增<a onclick="clicke();">145</a>个商家，总计商家 <a onclick="clicke();">15</a> 个</p>
-                <p class="g1">今日上新<a onclick="clicke();">1585</a>个，待审核 <a onclick="clicke();">56</a> 个</p>
-                <p class="g1">总订单<a onclick="clicke();">185</a>单，今日订单 <a onclick="clicke();"> 56</a> 单</p>
-                <p class="g1">退款申请<a onclick="clicke();">145</a>条，待审核 <a onclick="clicke();">15</a>条</p>
-                <p class="g1">总点评<a onclick="clicke();">145</a>条</p>
+                <p class="g1">今日新增<a onclick="clicke();">0</a>个商家，总计商家 <a onclick="clicke();">0</a> 个</p>
+                <p class="g1">今日上新<a onclick="clicke();">0</a>个，待审核 <a onclick="clicke();">0</a> 个</p>
+                <p class="g1">总订单<a onclick="clicke();">0</a>单，今日订单 <a onclick="clicke();"> 0</a> 单</p>
+                <p class="g1">退款申请<a onclick="clicke();">0</a>条，待审核 <a onclick="clicke();">0</a>条</p>
+                <p class="g1">总点评<a onclick="clicke();">0</a>条</p>
             </div>
             <img src="{{loadEdition('/admin/images/icon14.png')}}" >
         </div>
         <div class="item box-shadow">
             <div class="p30">
                 <div class="tit">
-                    <a onclick="clicke();" class="green"><span class="r">23232</span> 民宿</a>
+                    <a onclick="clicke();" class="green"><span class="r">0</span> 民宿</a>
                 </div>
-                <p class="r">今日新增<a onclick="clicke();">145</a>个商家，总计商家 <a onclick="clicke();">15</a> 个</p>
-                <p class="r">今日上新<a onclick="clicke();">1585</a>个，待审核 <a onclick="clicke();">56</a> 个</p>
-                <p class="r">总订单<a onclick="clicke();">185</a>单，今日订单 <a onclick="clicke();"> 56</a> 单</p>
-                <p class="r">退款申请<a onclick="clicke();">145</a>条，待审核 <a onclick="clicke();">15</a>条</p>
-                <p class="r">总点评<a onclick="clicke();">145</a>条</p>
+                <p class="r">今日新增<a onclick="clicke();">0</a>个商家，总计商家 <a onclick="clicke();">0</a> 个</p>
+                <p class="r">今日上新<a onclick="clicke();">0</a>个，待审核 <a onclick="clicke();">0</a> 个</p>
+                <p class="r">总订单<a onclick="clicke();">0</a>单，今日订单 <a onclick="clicke();"> 0</a> 单</p>
+                <p class="r">退款申请<a onclick="clicke();">0</a>条，待审核 <a onclick="clicke();">0</a>条</p>
+                <p class="r">总点评<a onclick="clicke();">0</a>条</p>
             </div>
             <img src="{{loadEdition('/admin/images/icon15.png')}}" >
         </div>
         <div class="item box-shadow">
             <div class="p30">
                 <div class="tit">
-                    <a onclick="clicke();" class="green"><span class="y1">8566</span> 旅游商家</a>
+                    <a onclick="clicke();" class="green"><span class="y1">0</span> 旅游商家</a>
                 </div>
-                <p class="y1">今日新增<a onclick="clicke();">145</a>个商家，总计商家 <a onclick="clicke();">15</a> 个</p>
-                <p class="y1">今日上新<a onclick="clicke();">1585</a>个，待审核 <a onclick="clicke();">56</a> 个</p>
-                <p class="y1">总订单<a onclick="clicke();">185</a>单，今日订单 <a onclick="clicke();"> 56</a> 单</p>
-                <p class="y1">退款申请<a onclick="clicke();">145</a>条，待审核 <a onclick="clicke();">15</a>条</p>
-                <p class="y1">总点评<a onclick="clicke();">145</a>条</p>
+                <p class="y1">今日新增<a onclick="clicke();">0</a>个商家，总计商家 <a onclick="clicke();">0</a> 个</p>
+                <p class="y1">今日上新<a onclick="clicke();">0</a>个，待审核 <a onclick="clicke();">0</a> 个</p>
+                <p class="y1">总订单<a onclick="clicke();">0</a>单，今日订单 <a onclick="clicke();"> 0</a> 单</p>
+                <p class="y1">退款申请<a onclick="clicke();">0</a>条，待审核 <a onclick="clicke();">0</a>条</p>
+                <p class="y1">总点评<a onclick="clicke();">0</a>条</p>
             </div>
             <img src="{{loadEdition('/admin/images/icon16.png')}}" >
         </div>
         <div class="item box-shadow">
             <div class="p30">
                 <div class="tit">
-                    <a onclick="clicke();" class="green"><span class="g2">654</span> 条分类信息</a>
+                    <a onclick="clicke();" class="green"><span class="g2">0</span> 条分类信息</a>
                 </div>
-                <p class="g2">今日新增<a onclick="clicke();">145</a>个商家，总计商家 <a onclick="clicke();">15</a> 个</p>
-                <p class="g2">今日上新<a onclick="clicke();">1585</a>个，待审核 <a onclick="clicke();">56</a> 个</p>
-                <p class="g2">总订单<a onclick="clicke();">185</a>单，今日订单 <a onclick="clicke();"> 56</a> 单</p>
-                <p class="g2">退款申请<a onclick="clicke();">145</a>条，待审核 <a onclick="clicke();">15</a>条</p>
-                <p class="g2">总点评<a onclick="clicke();">145</a>条</p>
+                <p class="g2">今日新增<a onclick="clicke();">0</a>个商家，总计商家 <a onclick="clicke();">0</a> 个</p>
+                <p class="g2">今日上新<a onclick="clicke();">0</a>个，待审核 <a onclick="clicke();">0</a> 个</p>
+                <p class="g2">总订单<a onclick="clicke();">0</a>单，今日订单 <a onclick="clicke();"> 0</a> 单</p>
+                <p class="g2">退款申请<a onclick="clicke();">0</a>条，待审核 <a onclick="clicke();">0</a>条</p>
+                <p class="g2">总点评<a onclick="clicke();">0</a>条</p>
             </div>
             <img class="bt" src="{{loadEdition('/admin/images/icon17.png')}}" >
         </div>

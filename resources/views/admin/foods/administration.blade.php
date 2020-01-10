@@ -13,16 +13,19 @@
                     <button style="height: 25px;margin-left: 10px;" type="submit">按条件查询</button>
 
                     <a href="{{url('/admin/foods/administration?status=0')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
-                            全部 {{count($data)}}</button>
+                            全部 {{ count($allmerchant) }}</button>
                     </a>
                     <a href="{{url('/admin/foods/administration?status=1')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
-                            已审核 {{count($old)}}</button>
+                            已审核 </button>
                     </a>
                     <a href="{{url('/admin/foods/administration?status=2')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
-                            待审核 {{ count($wait) }}</button>
+                            待审核 </button>
+                    </a>
+                    <a href="{{url('/admin/foods/administration?status=3')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
+                            已禁用 {{ count($jinyong) }}</button>
                     </a>
                     <a href="{{url('/admin/foods/administration?status=4')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
-                            已启用 {{count($old)}}</button>
+                            已启用 {{count($qiyong)}}</button>
                     </a>
                 </form>
                 {{--判断用户是否是超级管理员，超级管理员不能新增菜品--}}

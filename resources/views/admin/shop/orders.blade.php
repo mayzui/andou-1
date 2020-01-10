@@ -146,9 +146,9 @@
                         <tbody>
                     </table>
                        @if(count($list)>0)
-                        {{ $list->appends(['status'=>$item->statuss]) }}
+                           {{ $list->appends(['status'=>$item->statuss]) }}
                            @else
-                           @endif
+                       @endif
                 </form>
             </div>
         </div>
