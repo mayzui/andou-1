@@ -146,7 +146,11 @@
                     </table>
                        @if(count($list)>0)
                          @if(empty($item->order_show))
-                            {{ $list->appends(['status'=>$item->statuss]) }}
+                             @if(empty($timess) && empty($namess) && empty($mobiless) && empty($numss))
+                                { $list->appends(['status'=>$item->statuss]) }}
+                            @else
+                                 {{$list}}}
+                            @endif
                              @else
                          {{$list}}
                              @endif
@@ -203,11 +207,7 @@
         $("#pse").click(function () {
             var vals = $("#sval").val()
             var times = $(".time").val()
-            if(vals==""){
-                location.href="{{route('shop.orders')}}";return;
-            }
             location.href="{{route('shop.orders')}}?num="+vals +"&mobiles="+ vals+"&names="+vals+"&times="+times
-
         })
 
 
