@@ -840,7 +840,8 @@ class FoodsController extends BaseController
                 // 执行修改操作
 
                 // 判断数据库是否存在同样的规格
-                $m = DB::table("foods_spec")->where('id','!=',$all['spec_id'])->where('name',$all['name']) -> first();
+//                print_r($all['spec_id']);die();
+                $m = DB::table("foods_spec")->where('id','!=',$all['id'])->where('name',$all['name']) -> first();
                 if(empty($m)){
 
                     // 数据库不存在该值,则进行修改操作

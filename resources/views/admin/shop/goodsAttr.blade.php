@@ -13,7 +13,7 @@
                 <h5>属性列表</h5>
             </div>
             <div class="ibox-content">
-                <button type="button" class="btn btn-primary btn-xl" data-toggle="modal" data-target="#addMyModal">新增模板</button>
+                <button type="button" class="btn btn-primary btn-xl" data-toggle="modal" id="addmuban">新增模板</button>
                 <table class="table table-striped table-bordered table-hover m-t-md">
                     <thead>
                     <tr>
@@ -57,6 +57,7 @@
                         <thead>
                         <tr>
                             <td>
+                                <input type="hidden" id="flag_id" name="id" value="">
                                 <span><em style="margin-right:5px;vertical-align: middle;color: #fe0000;">*</em>模板名称：<input type="text" name="specNmae" id="specNmae" required /></span>
                             </td>
                             <td>
@@ -89,6 +90,12 @@
 
 <script src="{{loadEdition('/js/jquery.min.js')}}"></script>
 <script>
+    $(document).on('click','#addmuban',function () {
+        // 清空addspec中的内容
+        $('#addspec').empty();
+        document.getElementById("specNmae").value="";
+        $('#addMyModal').modal("show");
+    })
     //添加规格
     $(document).on('click', '#add_spec', function () {
         var spec_list = $('#addspec');
@@ -211,9 +218,12 @@
                 $('#addspec').empty();
                 // 获取模板名称
                 var spec_name = strToObj.data.name;
+                var spec_id = strToObj.data.id;
                 // 向模板名称添加数据
                 document.getElementById("specNmae").value=spec_name;
+                document.getElementById("flag_id").value=spec_id;
                 var goods_attr_value_data = strToObj.goods_attr_value_data;
+                console.log(strToObj);
                 // 判断商品规格属性是否存在
                 if(strToObj.goods_attr_value_data.length){
                     // 存在规格属性
@@ -225,25 +235,37 @@
                             layer.open({icon: 2, content: '规格最多可添加3个'});
                             return;
                         }
+                        var attr = goods_attr_value_data[i].spec_value;
+                        var attr_value = JSON.parse(attr);
+                        console.log(attr_value);
+                        var str = ""
+                        for(var j=0;j<attr_value.length;j++){
+                            str += '<div class="spec_item_button_div" style="float: left">'+
+                                '<input type="text" class="w70" name="spec['+i+'][item]['+j+'][item]" value="'+attr_value[j]+'" style="display: block;float: left;"> ' +
+                                '<span class="ys-btn-close delete_spec_item" style="cursor: pointer">×</span> </div>';
+                        }
+
                         var spec_item_div = '<tr data-index='+spec_length+'>' +
                             '<td> <div style="width: 100px;"><input type="text" class="w80" name="spec['+spec_length+'][name]" value="'+goods_attr_value_data[i].spec+'"></div> </td> ' +
-                            '<td> <div style=""> ' +
+                            '<td> <div style=""> ' +str+
                             '<input type="text" maxlength="25" placeholder="点击添加保存" autocomplete="off" class="spec_item_name" autocomplete="off" style="display: block;float: left;">' +
                             '<a href="javascript:void(0);" class="add_spec_item" style="display: block;float: right">添加</a> </div> </td> <td class="handle-s"> <div style="text-align: center; width: 60px;">' +
                             '<a href="javascript:void(0);" class="btn red delete_spec" ><i class="fa fa-trash-o"></i>删除</a></div> </td></tr>';
                         spec_list.append(spec_item_div);
 
+
+
                         // js 新增属性
                         // 获取属性值
-                        var attr = goods_attr_value_data[i].spec_value;
-                        // 将属性值转换成数组
-                        var attr_value = JSON.parse(attr);
-                        console.log(attr_value);
+                        // var attr = goods_attr_value_data[i].spec_value;
+                        // // 将属性值转换成数组
+                        // var attr_value = JSON.parse(attr);
+                        // console.log(attr_value);
                         // for (var j = 0;j<attr_value.length;j++){
-                        //     var html = '<div class="spec_item_button_div" style="float: left"> ' +
+                        //     var html = ' ' +
                         //         '<input type="text" class="w70" name="spec['+i+'][item]['+j+'][item]" value="'+attr_value[j]+'" style="display: block;float: left;"> ' +
                         //         '<span class="ys-btn-close delete_spec_item" style="cursor: pointer">×</span> ' +
-                        //         '</div>';
+                        //         '';
                         //     // $(".clas").find(".spec_item_name").before(html).val('');
                         //     spec_list.children(".spec_item_name").append(html);
                         // }

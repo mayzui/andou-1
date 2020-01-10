@@ -1678,50 +1678,97 @@ class ShopController extends BaseController
         ]);
         $all = \request() -> all();
         // 判断新增的模板是否存在
-        $data = DB::table('goods_attr') -> where('name',$all['specNmae']) -> first();
+        $data = DB::table('goods_attr') -> where('id','!=',$all['id']) -> where('name',$all['specNmae']) -> first();
         if(!empty($data)){
-            flash("该商品模板已存在，不能新增。") -> error();
+            flash("该商品模板已存在，不能重复。") -> error();
             return redirect()->route('shop.goodsAttr');
         }
-        DB::beginTransaction();
-        try{
-            // 新增模板表
-            $goods_attr_data = [
-                'merchant_id' => 1,
-                'name' => $all['specNmae']
-            ];
-            $id = DB::table('goods_attr') -> insertGetId($goods_attr_data);
-            // 获取上传的规格
-            foreach ($all['spec'] as $v){
-                // 新增规格属性表
-                $item = $v['item'];
-                $arr_push = [];
-                foreach ($item as $m){
-                    array_push($arr_push,$m['item']);
-                }
-                $spec_value = json_encode($arr_push,JSON_UNESCAPED_UNICODE);
-                $goods_attr_value_data = [
-                    'goods_attr_id' => $id,
-                    'spec' => $v['name'],
-                    'spec_value' => $spec_value
+
+        if (empty($all['id'])){
+            DB::beginTransaction();
+            try{
+                // 新增模板表
+                $goods_attr_data = [
+                    'merchant_id' => 1,
+                    'name' => $all['specNmae']
                 ];
-                // 向规格属性表中添加内容
-                $i = DB::table('goods_attr_value') -> insert($goods_attr_value_data);
-            }
-            if ($i) {
-                DB::commit();
-                flash("商品参数模板添加成功") -> success();
-                return redirect()->route('shop.goodsAttr');
-            }else{
+                $id = DB::table('goods_attr') -> insertGetId($goods_attr_data);
+                // 获取上传的规格
+                foreach ($all['spec'] as $v){
+                    // 新增规格属性表
+                    $item = $v['item'];
+                    $arr_push = [];
+                    foreach ($item as $m){
+                        array_push($arr_push,$m['item']);
+                    }
+                    $spec_value = json_encode($arr_push,JSON_UNESCAPED_UNICODE);
+                    $goods_attr_value_data = [
+                        'goods_attr_id' => $id,
+                        'spec' => $v['name'],
+                        'spec_value' => $spec_value
+                    ];
+                    // 向规格属性表中添加内容
+                    $i = DB::table('goods_attr_value') -> insert($goods_attr_value_data);
+                }
+                if ($i) {
+                    DB::commit();
+                    flash("商品参数模板添加成功") -> success();
+                    return redirect()->route('shop.goodsAttr');
+                }else{
+                    DB::rollBack();
+                    flash("添加失败，请稍后重试") -> error();
+                    return redirect()->route('shop.goodsAttr');
+                }
+            }catch (\Exception $e){
                 DB::rollBack();
-                flash("添加失败，请稍后重试") -> error();
+                flash("添加失败，错误码：201") -> error();
                 return redirect()->route('shop.goodsAttr');
             }
-        }catch (\Exception $e){
-            DB::rollBack();
-            flash("添加失败，错误码：201") -> error();
-            return redirect()->route('shop.goodsAttr');
+        }else{
+            DB::beginTransaction();
+            try{
+                // 修改模板表
+                $goods_attr_data = [
+                    'merchant_id' => 1,
+                    'name' => $all['specNmae']
+                ];
+                $flag_up = DB::table('goods_attr') ->where('id',$all['id'])-> update($goods_attr_data);
+
+                //清除旧规格
+                $flag_del = DB::table('goods_attr_value') ->where('goods_attr_id',$all['id'])-> delete();
+
+                foreach ($all['spec'] as $v){
+                    // 重新录入规格属性表
+                    $item = $v['item'];
+                    $arr_push = [];
+                    foreach ($item as $m){
+                        array_push($arr_push,$m['item']);
+                    }
+                    $spec_value = json_encode($arr_push,JSON_UNESCAPED_UNICODE);
+                    $goods_attr_value_data = [
+                        'goods_attr_id' => $all['id'],
+                        'spec' => $v['name'],
+                        'spec_value' => $spec_value
+                    ];
+                    // 向规格属性表中添加内容
+                    $i = DB::table('goods_attr_value') -> insert($goods_attr_value_data);
+                }
+                if ($i) {
+                    DB::commit();
+                    flash("商品参数模板修改成功") -> success();
+                    return redirect()->route('shop.goodsAttr');
+                }else{
+                    DB::rollBack();
+                    flash("修改失败，请稍后重试") -> error();
+                    return redirect()->route('shop.goodsAttr');
+                }
+            }catch (\Exception $e){
+                DB::rollBack();
+                flash("修改失败，错误码：201") -> error();
+                return redirect()->route('shop.goodsAttr');
+            }
         }
+
 
 
     }
