@@ -73,7 +73,8 @@ Route::group(['namespace' => 'Api'], function () {
      Route::any('common/wxnotify', 'CommonController@wxnotify');
      Route::any('common/district', 'CommonController@district');
      Route::any('common/wxnotifyhotel', 'CommonController@wxnotifyhotel');
-
+     Route::post('common/qrcode', 'CommonController@qrcode');
+     
      Route::post('order/details', 'OrderController@details');
 
      Route::post('cart/index', 'CartController@index');

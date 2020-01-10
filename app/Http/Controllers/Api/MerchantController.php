@@ -348,12 +348,25 @@ class MerchantController extends Controller
             $all['token']=$token;
         }
         $check=$this->checktoten($all['uid'],$all['token']);
-        if ($check['code']==201) {
+        if ($check['code']==202) {
             return $this->rejson($check['code'],$check['msg']);
         }
         $data = DB::table('merchant_type')
             -> select('id','type_name','remak','img')
             -> get();
+        foreach ($data as $k=>$v){
+            $re=DB::table("merchants")
+                ->select("id")
+                ->where("user_id",$all['uid'])
+                ->where('merchant_type_id',$v->id)
+                ->where('is_reg',0)
+                ->first();
+            if (empty($re)){
+               $data[$k]->is_reg=0;
+            }else{
+                $data[$k]->is_reg=1;
+            }
+        }
         return $this->rejson('200','查询成功',$data);
 
     }
