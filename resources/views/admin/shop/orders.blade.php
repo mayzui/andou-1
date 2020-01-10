@@ -202,10 +202,11 @@
 
         $("#pse").click(function () {
             var vals = $("#sval").val()
+            var times = $(".time").val()
             if(vals==""){
                 location.href="{{route('shop.orders')}}";return;
             }
-            location.href="{{route('shop.orders')}}?num="+vals +"&mobiles="+ vals+"&names="+vals
+            location.href="{{route('shop.orders')}}?num="+vals +"&mobiles="+ vals+"&names="+vals+"&times="+times
 
         })
 
