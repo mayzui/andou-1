@@ -1053,6 +1053,24 @@ class ShopController extends BaseController
             -> where('user_id',$id)
             -> where('is_reg',1)
             -> first();
+        if($i){
+            $data =Ogoods::with("users")->where(['is_del'=>0,'user_id'=>$id,'status'=>10])->get(['id'])->toArray();
+            $data1 =Ogoods::with("users")->where(['is_del'=>0,'user_id'=>$id,'status'=>20])->get(['id'])->toArray();
+            $data2 =Ogoods::with("users")->where(['is_del'=>0,'user_id'=>$id,'status'=>40])->get(['id'])->toArray();
+            $data3 =Ogoods::with("users")->where(['is_del'=>0,'user_id'=>$id,'status'=>50])->get(['id'])->toArray();
+            $data4 =Ogoods::with("users")->where(['is_del'=>0,'user_id'=>$id,'status'=>60])->get(['id'])->toArray();
+            $data5 =Ogoods::with("users")->where(['is_del'=>0,'user_id'=>$id])->get(['id'])->toArray();
+
+        }else{
+            $data =Ogoods::with("users")->where(['is_del'=>0,'status'=>10])->get(['id'])->toArray();
+            $data1 =Ogoods::with("users")->where(['is_del'=>0,'status'=>20])->get(['id'])->toArray();
+            $data2 =Ogoods::with("users")->where(['is_del'=>0,'status'=>40])->get(['id'])->toArray();
+            $data3 =Ogoods::with("users")->where(['is_del'=>0,'status'=>50])->get(['id'])->toArray();
+            $data4 =Ogoods::with("users")->where(['is_del'=>0,'status'=>60])->get(['id'])->toArray();
+            $data5 =Ogoods::with("users")->where(['is_del'=>0])->get(['id'])->toArray();
+        }
+
+        $count = ['data'=>$data,'data1'=>$data1,'data2'=>$data2,'data3'=>$data3,'data4'=>$data4,'data5'=>$data5];
         if(empty($input['status']))
         {
             $status=80;
@@ -1296,7 +1314,6 @@ class ShopController extends BaseController
 //                    if($i){
 //                        $list = DB::table('orders')
 //                            -> join('order_goods','orders.order_sn','=','order_goods.order_id')
-////            -> join('merchants','order_goods.merchant_id','=','merchants.id')
 //                            -> join('users','orders.user_id','=','users.id')
 //                            -> where('order_goods.is_del',0)
 //                            -> where('order_goods.merchant_id',$id)
@@ -1318,36 +1335,75 @@ class ShopController extends BaseController
 //            }
 //        }
          //订单编号搜索
-//        if(empty($input['keyword'])){
-//
-//        }else{
-//            if ($input['sta']=="1"){
-//                // 如果当前用户是商家，则查询当前商户的商品
-//                if($i){
-//                    $list = DB::table('orders')
-//                        -> join('order_goods','orders.order_sn','=','order_goods.order_id')
-//                        -> join('users','orders.user_id','=','users.id')
-//                        -> where('order_goods.is_del',0)
-//                        -> where('order_goods.merchant_id',$id)
-//                        ->where('order_id','like','%'.$input["keyword"].'%')
-//                        -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
-//                            'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num'])
-//                        -> paginate(10);
-//                }else{
-//                    $list = DB::table('orders')
-//                        -> join('order_goods','orders.order_sn','=','order_goods.order_id')
-//                        -> join('users','orders.user_id','=','users.id')
-//                        ->join('goods','order_goods.goods_id','=','goods.id')
-//                        -> where('order_goods.is_del',0)
-//                        ->where('order_id','like','%'.$input["keyword"].'%')
-//                        -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
-//                            'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num','goods.good_num'])
-//                        -> paginate(10);
-////                    var_dump($list);die;
-//
-//                }
-//            }
-//        }
+        if(empty($input['keyword']) && empty($input['uname']) && empty($input['pho'])){
+
+        }else{
+            if ($input['sta']=="1"){
+                // 如果当前用户是商家，则查询当前商户的商品
+                if($i){  //订单编号
+                    $list = DB::table('orders')
+                        -> join('order_goods','orders.order_sn','=','order_goods.order_id')
+                        -> join('users','orders.user_id','=','users.id')
+                        -> where('order_goods.is_del',0)
+                        -> where('order_goods.merchant_id',$id)
+                        ->where('order_id','like','%'.$input["keyword"].'%')
+                        -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
+                            'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num'])
+                        -> paginate(10);
+                    if(empty($list[0]->id)){  //手机号
+                        $list = DB::table('orders')
+                            -> join('order_goods','orders.order_sn','=','order_goods.order_id')
+                            -> join('users','order_goods.user_id','=','users.id')
+                            -> where('order_goods.is_del',0)
+                            ->where('users.mobile','=',$input["pho"])
+                            -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
+                                'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num'])
+                            -> paginate(10);
+                        return $this->view('orders',['list'=>$list,'count'=>$count]);
+                    }else{
+
+                    }
+                }else{  //订单编号
+                    $list = DB::table('orders')
+                        -> join('order_goods','orders.order_sn','=','order_goods.order_id')
+                        -> join('users','orders.user_id','=','users.id')
+                        ->join('goods','order_goods.goods_id','=','goods.id')
+                        -> where('order_goods.is_del',0)
+                        ->where('order_id','like','%'.$input["keyword"].'%')
+                        -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
+                            'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num','goods.good_num'])
+                        -> paginate(10);
+                    if(empty($list[0]->id)){  //手机号
+                     $list = DB::table('orders')
+                            -> join('order_goods','orders.order_sn','=','order_goods.order_id')
+                            -> join('users','order_goods.user_id','=','users.id')
+                            -> where('order_goods.is_del',0)
+                            ->where('users.mobile','=',$input["pho"])
+                            -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
+                                'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num'])
+                            -> paginate(10);
+                     if(empty($list[0]->id)){
+                         $list = DB::table('orders')
+                             -> join('order_goods','orders.order_sn','=','order_goods.order_id')
+                             -> join('users','orders.user_id','=','users.id')
+                             ->join('goods','order_goods.goods_id','=','goods.id')
+                             ->join('user_address','order_goods.user_id','=','user_address.user_id')
+                             -> where('order_goods.is_del',0)
+                             ->where('user_address.name','=',$input["uname"])
+                             -> where('order_goods.merchant_id',$id)
+                             -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
+                                 'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num','goods.good_num'])
+                             -> paginate(10);
+                     }else{
+
+                     }
+                        return $this->view('orders',['list'=>$list,'count'=>$count,'unamess'=>$input['uname'],'phoss'=>$input['pho'],'keyword'=>$input['keyword']]);
+                    }else{
+
+                    }
+                }
+            }
+        }
 
 
         //时间搜索
@@ -1460,7 +1516,7 @@ class ShopController extends BaseController
                     }else{
                     }
                 }
-                return $this->view('orders',['list'=>$list,'namess'=>$input['names'],'timess'=>$input['times'],'mobiless'=>$input['mobiles'],'numss'=>$input['num']]);
+                return $this->view('orders',['list'=>$list,'namess'=>$input['names'],'timess'=>$input['times'],'mobiless'=>$input['mobiles'],'numss'=>$input['num'],'count'=>$count]);
             } else{
                 $ids=  DB::table("users")->where("name","=",$input['names'])->first(['id']);
                 if($i){ //手机号码查询
@@ -1496,7 +1552,6 @@ class ShopController extends BaseController
                                 -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
                                     'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num','goods.good_num'])
                                 -> paginate(10);
-//                                 var_dump($list);die;
                         }else{
 
                         }
@@ -1533,20 +1588,19 @@ class ShopController extends BaseController
                                 -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
                                     'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num','goods.good_num'])
                                 -> paginate(10);
-//                                 var_dump($list);die;
                         }else{
 
                         }
                     }else{
                     }
                 }
-                return $this->view('orders',['list'=>$list,'namess'=>$input['names'],'timess'=>$input['times'],'mobiless'=>$input['mobiles'],'numss'=>$input['num']]);
+                $count = ['data'=>$data,'data1'=>$data1,'data2'=>$data2,'data3'=>$data3,'data4'=>$data4,'data5'=>$data5];
+                return $this->view('orders',['list'=>$list,'namess'=>$input['names'],'timess'=>$input['times'],'mobiless'=>$input['mobiles'],'numss'=>$input['num'],'count'=>$count]);
             }
 
               }else{
 
             //时间搜索
-
             if (empty($input['num']) && empty($input['mobiles']) && empty($input['names']) && !empty($input['times'])){
                 if($i){
                     $list = DB::table('orders')
@@ -1571,25 +1625,6 @@ class ShopController extends BaseController
             }else{
             }
            }
-
-
-        // 如果当前用户是商家，则查询当前商户的商品
-        if($i){
-            $data =Ogoods::with("users")->where(['is_del'=>0,'user_id'=>$id,'status'=>10])->get(['id'])->toArray();
-            $data1 =Ogoods::with("users")->where(['is_del'=>0,'user_id'=>$id,'status'=>20])->get(['id'])->toArray();
-            $data2 =Ogoods::with("users")->where(['is_del'=>0,'user_id'=>$id,'status'=>40])->get(['id'])->toArray();
-            $data3 =Ogoods::with("users")->where(['is_del'=>0,'user_id'=>$id,'status'=>50])->get(['id'])->toArray();
-            $data4 =Ogoods::with("users")->where(['is_del'=>0,'user_id'=>$id,'status'=>60])->get(['id'])->toArray();
-            $data5 =Ogoods::with("users")->where(['is_del'=>0,'user_id'=>$id])->get(['id'])->toArray();
-
-        }else{
-            $data =Ogoods::with("users")->where(['is_del'=>0,'status'=>10])->get(['id'])->toArray();
-            $data1 =Ogoods::with("users")->where(['is_del'=>0,'status'=>20])->get(['id'])->toArray();
-            $data2 =Ogoods::with("users")->where(['is_del'=>0,'status'=>40])->get(['id'])->toArray();
-            $data3 =Ogoods::with("users")->where(['is_del'=>0,'status'=>50])->get(['id'])->toArray();
-            $data4 =Ogoods::with("users")->where(['is_del'=>0,'status'=>60])->get(['id'])->toArray();
-            $data5 =Ogoods::with("users")->where(['is_del'=>0])->get(['id'])->toArray();
-        }
 
         $count = ['data'=>$data,'data1'=>$data1,'data2'=>$data2,'data3'=>$data3,'data4'=>$data4,'data5'=>$data5];
         $model = Order::get(['order_goods_id'])->toArray();

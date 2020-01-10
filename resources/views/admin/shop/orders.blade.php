@@ -147,9 +147,14 @@
                        @if(count($list)>0)
                          @if(empty($item->order_show))
                              @if(empty($timess) && empty($namess) && empty($mobiless) && empty($numss))
-                                { $list->appends(['status'=>$item->statuss]) }}
-                            @else
-                                 {{$list}}}
+                                {{ $list->appends(['status'=>$item->statuss]) }}
+                                @if(empty($unamess) && empty($phoss) && empty($keyword))
+                                    {{ $list->appends(['status'=>$item->statuss]) }}
+                                    @else
+                                    {{$list}}
+                                    @endif
+                                @else
+                                 {{$list}}
                             @endif
                              @else
                          {{$list}}
@@ -175,7 +180,8 @@
         function search() {
             var keyword = $("#sval").val()
             if (event.keyCode==13){
-                location.href="{{route('shop.orders')}}?keyword="+keyword +"&sta="+"1"+ "&good_num="+keyword;
+                // keyword 订单编号  uname 用户名  pho手机号
+                location.href="{{route('shop.orders')}}?keyword="+keyword +"&sta="+"1"+ "&uname="+keyword+"&pho="+keyword;
             }
         }
        //搜索收货人
