@@ -608,13 +608,17 @@ class ShopController extends BaseController
 //                 ->where('id',$goods[0]->user_id)
 //                 ->get(['mobile']);
 //             var_dump($user);die;
-
-
-        return $this->view('ordersUpd',['id'=>$ids,'data'=>$data,'address'=>$address,'uid'=>$uid,'good'=>$goodInfo,'num'=>$sumNum]);
+        if(empty($all['status'])){
+            $status = 0;
+        }else{
+            $status = $all['status'];
+        }
+        return $this->view('ordersUpd',['id'=>$ids,'data'=>$data,'address'=>$address,'uid'=>$uid,'good'=>$goodInfo,'num'=>$sumNum,'status'=> $status]);
     }
     //订单修改提交
     public function ordersUpds()
     {
+
         $status = input::post('status');
         $id = input::post('id');
         $res = Orders::where('id',$id)->update(['status' => $status]);
@@ -1413,7 +1417,7 @@ class ShopController extends BaseController
         }
 
         if(empty($input['name'])){
-        }else{ 
+        }else{
             //手机号 用户名搜索
             if ($input['sta']=="2"){
                 // 如果当前用户是商家，则查询当前商户的商品
