@@ -348,12 +348,25 @@ class MerchantController extends Controller
             $all['token']=$token;
         }
         $check=$this->checktoten($all['uid'],$all['token']);
-        if ($check['code']==201) {
+        if ($check['code']==202) {
             return $this->rejson($check['code'],$check['msg']);
         }
         $data = DB::table('merchant_type')
             -> select('id','type_name','remak','img')
             -> get();
+        foreach ($data as $k=>$v){
+            $re=DB::table("merchants")
+                ->select("id")
+                ->where("user_id",$all['uid'])
+                ->where('merchant_type_id',$v->id)
+                ->where('is_reg',0)
+                ->first();
+            if (empty($re)){
+               $data[$k]->is_reg=0;
+            }else{
+                $data[$k]->is_reg=1;
+            }
+        }
         return $this->rejson('200','查询成功',$data);
 
     }
@@ -375,7 +388,6 @@ class MerchantController extends Controller
      * @apiParam {string} banner_img 商家海报图（必填）
      * @apiParam {string} logo_img 商家Logo图（必填）
      * @apiParam {string} management_img 营业执照（必填）
-     * @apiParam {string} door_img 商家门头图（商城商家：不填）
      * @apiParam {string} goods_img 食品经营许可证（饭店商家：必填）
      * @apiParam {string} management_type_id 经营品种id（饭店商家：必填）
      * @apiSuccessExample 参数返回:
@@ -442,9 +454,7 @@ class MerchantController extends Controller
                 'created_at' => date("Y-m-d H:i:s"),
             ];
         }else if($all['type_id'] ==  3){  // 入驻酒店商家
-            if(empty($all['door_img'])){
-                return $this->rejson(201,'商家门头图不能为空');
-            }
+
             $data = [
                 'user_id' => $all['uid'],
                 'merchant_type_id' => $all['type_id'],
@@ -452,7 +462,7 @@ class MerchantController extends Controller
                 'banner_img' => $all['banner_img'],
                 'logo_img' => $all['logo_img'],
                 'management_img' => $all['management_img'],
-                'goods_img' => $all['goods_img'],
+
 
                 'desc' => $all['desc'],
                 'province_id' => $all['province_id'],
@@ -464,13 +474,6 @@ class MerchantController extends Controller
                 'created_at' => date("Y-m-d H:i:s"),
             ];
         }else if($all['type_id'] == 4){   // 入驻饭店商家
-            if(empty($all['door_img'])){
-                return $this->rejson(201,'商家门头图不能为空');
-            }else if(empty($all['goods_img'])){
-                return $this->rejson(201,'食品经营许可证不能为空');
-            }else if(empty($all['management_type_id'])){
-                return $this->rejson(201,'经营品种id不能为空');
-            }
             $data = [
                 'user_id' => $all['uid'],
                 'merchant_type_id' => $all['type_id'],
@@ -478,17 +481,17 @@ class MerchantController extends Controller
                 'banner_img' => $all['banner_img'],
                 'logo_img' => $all['logo_img'],
                 'management_img' => $all['management_img'],
-                'door_img' => $all['door_img'],
-                'goods_img' => $all['goods_img'],
+
 
                 'desc' => $all['desc'],
                 'province_id' => $all['province_id'],
                 'city_id' => $all['city_id'],
                 'area_id' => $all['area_id'],
                 'address' => $all['address'],
+                'goods_img' => '0',
+                'management_type' => '0',
                 'tel' => $all['tel'],
                 'user_name' => $all['user_name'],
-                'management_type' => $all['management_type_id'],
                 'created_at' => date("Y-m-d H:i:s"),
             ];
         }

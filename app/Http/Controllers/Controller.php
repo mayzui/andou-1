@@ -145,11 +145,13 @@ class Controller extends BaseController
      */
     public function checktoten($id,$token){
         $tokens=md5('andou'.$id.$token);
+
         $user=Db::table('users')->select('token')->where('id',$id)->first();
+        
         if(empty($user->token)){
             return array('code'=>202,'msg'=>'登陆失效');
         }
-        if ($tokens!=$user->token) {
+        if ($tokens!==$user->token) {
             return array('code'=>202,'msg'=>'登陆失效');
         }
     }

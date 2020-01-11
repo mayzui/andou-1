@@ -73,7 +73,8 @@ Route::group(['namespace' => 'Api'], function () {
      Route::any('common/wxnotify', 'CommonController@wxnotify');
      Route::any('common/district', 'CommonController@district');
      Route::any('common/wxnotifyhotel', 'CommonController@wxnotifyhotel');
-
+     Route::post('common/qrcode', 'CommonController@qrcode');
+     
      Route::post('order/details', 'OrderController@details');
 
      Route::post('cart/index', 'CartController@index');
@@ -159,5 +160,7 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('gourmet/shopping_num','GourmetController@shopping_num');
      Route::post('gourmet/add_foods','GourmetController@add_foods');
      Route::post('gourmet/search','GourmetController@search');
+     //饭店添加预约
+     Route::post('gourmet/reserve','GourmetController@reserve');
 
 });

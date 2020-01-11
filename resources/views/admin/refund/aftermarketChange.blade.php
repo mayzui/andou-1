@@ -41,7 +41,7 @@
                         <div class="form-group">
                             <label class="col-sm-2 control-label">商品图片：</label>
                             <div class="layui-upload-list">
-                                    <img class="layui-upload-img" id="goods_img" src="{{ $v->goods_img or '' }}" style="width: 60%;height: 30%">
+                                    <img class="layui-upload-img" id="goods_img" src="{{ $v->goods_img or '' }}" style="width: 80px;height: 80px">
                                 <p id="demoText"></p>
                             </div>
                         </div>
