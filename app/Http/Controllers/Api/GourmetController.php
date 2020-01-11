@@ -114,8 +114,10 @@ class GourmetController extends Controller
      * {
     "code":"200",
      *      "data":{
+     *               "id":"商铺id"，
      *               "name":"商家名称",
      *               "door_img":"商家门头图",
+     *               "logo_img":"商家logo",
      *               "praise_num":"点赞数量",
      *               "address":"商家地址",
      *               "desc":"商家简介",
@@ -131,7 +133,7 @@ class GourmetController extends Controller
         $all=\request()->all();
         $data=DB::table("merchants as m")
             ->leftJoin("merchant_stores as s","m.id","=","s.merchant_id")
-            ->select('m.name','m.door_img','m.praise_num','m.address','m.desc','m.tel','m.stars_all','s.business_start','s.business_end')
+            ->select('m.name','m.id','m.logo_img','m.door_img','m.praise_num','m.address','m.desc','m.tel','m.stars_all','s.business_start','s.business_end')
             ->where('m.id',$all['id'])
             ->first();
         if($data){

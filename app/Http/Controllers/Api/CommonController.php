@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
-use Endroid\QrCode\QrCode;
 class CommonController extends Controller
 {
 
@@ -32,28 +31,8 @@ class CommonController extends Controller
         $data = DB::table('express')->select('id','name')->get();
         return $this->rejson('200','查询成功',$data);
     }
-    /**
-     * @api {post} /api/common/qrcode 获取邀请二维码
-     * @apiName qrcode
-     * @apiGroup common
-     * @apiSuccessExample 参数返回:
-     *     {
-     *       "code": "200",
-     *       "data": "",
-     *       "msg":"查询成功"
-     *     }
-     */
-    public  function qrcode(){
-        $img = new QRcode();
-        $value = '154545'; //二维码内容 
-        $errorCorrectionLevel = 'L';//容错级别 
-        $matrixPointSize = 6; // 生成图片大小 
-        //生成二维码图片 
-        $img->png($value, 'qrcode.png', $errorCorrectionLevel, $matrixPointSize, 2); 
-        $QR = 'qrcode.png'; //已经生成的原始二维码图 
-        echo '<img src="'.$QR.'">'; 
-    }
-
+    
+    
 
     /**
      * @api {post} /api/common/pay_ways 支付方式
