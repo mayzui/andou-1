@@ -1412,7 +1412,7 @@ class ShopController extends BaseController
         }else{
             if ($input['sta']=="1"){
                 // 如果当前用户是商家，则查询当前商户的商品
-                if($i){  //订单编号
+                if($i){   //订单编号
                     $list = DB::table('orders')
                         -> join('order_goods','orders.order_sn','=','order_goods.order_id')
                         -> join('users','orders.user_id','=','users.id')
