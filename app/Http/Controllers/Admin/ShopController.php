@@ -1409,6 +1409,7 @@ class ShopController extends BaseController
          //订单编号搜索
         if(empty($input['keyword']) && empty($input['uname']) && empty($input['pho'])){
 
+            
         }else{
             if ($input['sta']=="1"){
                 // 如果当前用户是商家，则查询当前商户的商品
