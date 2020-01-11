@@ -22,6 +22,55 @@ class OrderController extends Controller
            return $this->rejson($check['code'],$check['msg']);
         }
     }
+
+    /**
+     * @api {post} /api/order/orderReturn 申请退款列表
+     * @apiName orderReturn
+     * @apiGroup order
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} token 验证登陆
+     * @apiParam {string} id 订单子id
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": [
+    {
+    "img": "商品图",
+    "name": "商品名字",
+    "desc": "商品简介",
+    "num": "数量",
+    "price": "单价",
+    "attr_value": [
+    "4G+32G",
+    "纸包装",
+    "白"
+    ]
+    }
+    ],
+     *       "msg":"查询成功"
+     *     }
+     */
+
+    public function orderReturn()
+    {
+        $all = request()->all();
+        if(empty($all['id'])){
+            return $this->rejson('201','缺少参数');
+        }
+        $data = DB::table('order_goods')
+            ->join('goods','order_goods.goods_id','=','goods.id')
+            ->join('goods_sku as s','s.id','=','order_goods.goods_sku_id')
+            ->where('order_goods.id',$all['id'])
+            ->select('order_goods.num','goods.name','goods.desc','goods.img','s.attr_value','s.price')
+            ->get();
+        foreach ($data as $k => $v) {
+            $data[$k]->attr_value=json_decode($v->attr_value,1)[0]['value'];
+        }
+        return $this->rejson('200','查询成功',$data);
+
+
+    }
+
     /**
      * @api {post} /api/order/index 订单列表 
      * @apiName index
