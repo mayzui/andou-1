@@ -26,6 +26,152 @@ use Auth;
 
 class ShopController extends BaseController
 {
+    // 回复评论
+    public function commnetReply(){
+        $all = \request() -> all();
+        // 获取提交内容
+        $data = [
+            'merchant_content' => $all['replyName']
+        ];
+        // 新增商户评论
+        $i = DB::table('order_commnets') -> where('id',$all['id']) -> update($data);
+        if($i){
+            flash('回复成功') -> success();
+            return redirect()->route('shop.commnets');
+        }else{
+            flash('回复失败，请稍后重试') -> error();
+            return redirect()->route('shop.commnets');
+        }
+    }
+
+    // 商城商户
+    public function mall_merchants(){
+        $all = request()->all();
+        $id = \Auth::id();
+        // 判断该用户，是否开店 并且已经认证通过
+        $i = DB::table('merchants') -> where("user_id",$id) -> where("is_reg",1) -> first();
+        if(!empty($i)) {
+            // 如果开店，则查询当前商户的信息
+            $where[]=['id','>','0'];
+            $where[]=['merchant_type_id',2];
+            $screen['merchant_type_id'] = 2;
+            if (!empty($all['name'])) {
+                $where[]=['name', 'like', '%'.$all['name'].'%'];
+                $screen['name']=$all['name'];
+            }else{
+                $screen['name']='';
+            }
+            if(!empty($all['status'])){
+                $status = $all['status'];
+                if($all['status'] == 2){            // 待审核
+                    $where[] = ['merchants.is_reg',0];
+                }elseif ($all['status'] == 1){      // 已审核
+                    $where[] = ['merchants.is_reg',1];
+                }elseif ($all['status'] == 3){      // 已禁用
+                    $where[] = ['merchants.status',0];
+                }elseif ($all['status'] == 4){      // 已启用
+                    $where[] = ['merchants.status',1];
+                }else{
+
+                }
+            }else{
+                $status = 0;
+            }
+            $data=DB::table('merchants')
+                -> where('user_id',$id)
+                -> where($where)
+                -> orderBy('is_reg','desc')
+                -> paginate(10);
+            foreach ($data as $key => $value) {
+                $merchant_type=Db::table('merchant_type')->where('id',$value->merchant_type_id)->pluck('type_name');
+                if (!empty($merchant_type[0])) {
+                    $data[$key]->merchant_type_id=$merchant_type[0];
+                }else{
+                    $data[$key]->merchant_type_id='';
+                }
+                $username=Db::table('users')->where('id',$value->user_id)->pluck('name');
+                if (!empty($username[0])) {
+                    $data[$key]->username=$username[0];
+                }else{
+                    $data[$key]->username='';
+                }
+            }
+            $wheres['type']=DB::table('merchant_type')->get();
+            $wheres['where']=$screen;
+        }else{
+            $where[]=['id','>','0'];
+            $where[]=['merchant_type_id',2];
+            $screen['merchant_type_id'] = 2;
+            if (!empty($all['name'])) {
+                $where[]=['name', 'like', '%'.$all['name'].'%'];
+                $screen['name']=$all['name'];
+            }else{
+                $screen['name']='';
+            }
+            if(!empty($all['status'])){
+                $status = $all['status'];
+                if($all['status'] == 2){            // 待审核
+                    $where[] = ['merchants.is_reg',0];
+                }elseif ($all['status'] == 1){      // 已审核
+                    $where[] = ['merchants.is_reg',1];
+                }elseif ($all['status'] == 3){      // 已禁用
+                    $where[] = ['merchants.status',0];
+                }elseif ($all['status'] == 4){      // 已启用
+                    $where[] = ['merchants.status',1];
+                }else{
+
+                }
+            }else{
+                $status = 0;
+            }
+            $data=DB::table('merchants')
+                ->where($where)
+                -> orderBy('is_reg','desc')
+                ->paginate(10);
+            foreach ($data as $key => $value) {
+                $merchant_type=Db::table('merchant_type')->where('id',$value->merchant_type_id)->pluck('type_name');
+                if (!empty($merchant_type[0])) {
+                    $data[$key]->merchant_type_id=$merchant_type[0];
+                }else{
+                    $data[$key]->merchant_type_id='';
+                }
+                $username=Db::table('users')->where('id',$value->user_id)->pluck('name');
+                if (!empty($username[0])) {
+                    $data[$key]->username=$username[0];
+                }else{
+                    $data[$key]->username='';
+                }
+            }
+            $wheres['type']=DB::table('merchant_type')->get();
+            $wheres['where']=$screen;
+        }
+        return $this->view('',['data'=>$data,'i'=>$i,'status' => $status],['wheres'=>$wheres]);
+    }
+
+    // 修改状态
+    public function shopStatus(){
+        $all = \request() -> all();
+        // 根据当前id 查询当前商户的状态
+        $data = DB::table('merchants') -> where('id',$all['id']) ->first();
+        if($data -> status == 1){
+            $arr = [
+                'status' => 0
+            ];
+        }else{
+            $arr = [
+                'status' => 1
+            ];
+        }
+        $i = DB::table('merchants') -> where('id',$all['id']) -> update($arr);
+        if($i){
+            flash("状态更新成功") -> success();
+            return redirect()->route('shop.mall_merchants');
+        }else{
+            flash("状态更新失败") -> error();
+            return redirect()->route('shop.mall_merchants');
+        }
+    }
+
     // 排序
     public function sort(){
         $all = \request() -> all();
@@ -34,6 +180,8 @@ class ShopController extends BaseController
             $sort = "volume";
         }else if($all['id'] == 2){ // 价格
             $sort = "price";
+        }else if($all['id'] == 0){ // 价格
+            $sort = "goods.id";
         }
         $id = Auth::id();     // 当前登录用户的id
         // 判断当前用户是否是商家
@@ -44,11 +192,14 @@ class ShopController extends BaseController
             -> first();
         if(!empty($all['status']))
         {
+            $status = $all['status'];
             if($all['status'] == 2){
                 $where[] = ['goods.is_sale',0];
             }else{
                 $where[] = ['goods.is_sale',$all['status']];
             }
+        }else{
+            $status = 0;
         }
         $where[] = ['goods.is_del',0];
         // 如果当前用户是商家，则查询当前商户的商品
@@ -109,9 +260,10 @@ class ShopController extends BaseController
                 -> select('merchants_goods_type.id','merchants.name as merchants_name','merchants_goods_type.name as name','pid','num')
                 -> get();
         }
+//        $datas -> statuss = $all['status'];
         $data = Tree::tree(json_decode(json_encode($datas),true),'name','id','pid');
         $goods_sku = DB::select("select goods_id,SUM(store_num) as total from `goods_sku` group by `goods_id`");
-        return $this->view('goods',['list'=>$goods,'data'=>$data,'goods_sku'=>json_decode(json_encode($goods_sku),true)]);
+        return $this->view('goods',['list'=>$goods,'data'=>$data,'goods_sku'=>json_decode(json_encode($goods_sku),true),'sort' => $all['id'],'status' => $status]);
     }
     // 批量删除商品
     public function deleteAll(){
@@ -382,6 +534,7 @@ class ShopController extends BaseController
     //查看订单
     public function ordersUpd()
     {
+
         $id = Auth::id();     // 当前登录用户的id
         // 判断当前用户是否是商家
         $i = DB::table('merchants')
@@ -540,6 +693,7 @@ class ShopController extends BaseController
     //订单修改提交
     public function ordersUpds()
     {
+
         $status = input::post('status');
         $id = input::post('id');
         $res = Orders::where('id',$id)->update(['status' => $status]);
@@ -1011,7 +1165,9 @@ class ShopController extends BaseController
                 -> where('type',2)
                 -> where('merchants_id',$id)
                 -> where('order_commnets.is_del',0)
-                -> select(['order_commnets.id','users.name as username','goods.name as goodsname','stars','order_commnets.content','order_commnets.created_at'])
+                -> select(['order_commnets.id','users.name as username','goods.name as goodsname','stars',
+                    'order_commnets.content','order_commnets.merchant_content',
+                    'order_commnets.created_at'])
                 -> paginate(10);
         }else{
             // 反之则为。管理员
@@ -1021,7 +1177,8 @@ class ShopController extends BaseController
                 -> join('goods','order_commnets.goods_id','=','goods.id')     // 链接商品表
                 -> where('type',2)
                 -> where('order_commnets.is_del',0)
-                -> select(['order_commnets.id','users.name as username','goods.name as goodsname','stars','order_commnets.content','order_commnets.created_at'])
+                -> select(['order_commnets.id','users.name as username','goods.name as goodsname','stars','order_commnets.content','order_commnets.merchant_content',
+                    'order_commnets.created_at'])
                 -> paginate(10);
         }
         return $this->view('',['data' => $data]);
@@ -1118,7 +1275,7 @@ class ShopController extends BaseController
     public function orders(Request $request)
     {
         $input = $request->all();
-//        var_dump($input);die;
+
         $id = Auth::id();     // 当前登录用户的id
         // 判断当前用户是否是商家
         $i = DB::table('merchants')
@@ -1157,7 +1314,6 @@ class ShopController extends BaseController
                 if($i){
                     $list = DB::table('orders')
                         -> join('order_goods','orders.order_sn','=','order_goods.order_id')
-//            -> join('merchants','order_goods.merchant_id','=','merchants.id')
                         -> join('users','orders.user_id','=','users.id')
                         -> where('order_goods.is_del',0)
                         -> where('order_goods.merchant_id',$id)
@@ -1175,140 +1331,139 @@ class ShopController extends BaseController
                         -> paginate(10);
                 }
             }
-
         }else{
             $status = $input['status'];
             switch($status){
-                    case 10:
+                case 10:
 //                        var_dump($input);die;
-                        $id = Auth::id();     // 当前登录用户的id
-                        // 判断当前用户是否是商家
-                        $i = DB::table('merchants')
-                            -> where('user_id',$id)
-                            -> where('is_reg',1)
-                            -> first();
-                        // 如果当前用户是商家，则查询当前商户的商品
-                        if($i){
-                            $list = DB::table('orders')
-                                -> join('order_goods','orders.order_sn','=','order_goods.order_id')
+                    $id = Auth::id();     // 当前登录用户的id
+                    // 判断当前用户是否是商家
+                    $i = DB::table('merchants')
+                        -> where('user_id',$id)
+                        -> where('is_reg',1)
+                        -> first();
+                    // 如果当前用户是商家，则查询当前商户的商品
+                    if($i){
+                        $list = DB::table('orders')
+                            -> join('order_goods','orders.order_sn','=','order_goods.order_id')
 //            -> join('merchants','order_goods.merchant_id','=','merchants.id')
-                                -> join('users','orders.user_id','=','users.id')
-                                -> where('order_goods.is_del',0)
-                                -> where('order_goods.merchant_id',$id)
-                                ->where('order_goods.status',$status)
-                                -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
-                                    'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num'])
-                                -> paginate(10);
+                            -> join('users','orders.user_id','=','users.id')
+                            -> where('order_goods.is_del',0)
+                            -> where('order_goods.merchant_id',$id)
+                            ->where('order_goods.status',$status)
+                            -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
+                                'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num'])
+                            -> paginate(10);
 
-                        }else{
-                            $list = DB::table('orders')
-                                -> join('order_goods','orders.order_sn','=','order_goods.order_id')
-                                -> join('users','orders.user_id','=','users.id')
-                                -> where('order_goods.is_del',0)
-                                ->where('order_goods.status',$status)
-                                -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
-                                    'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num'])
-                                -> paginate(10);
-                        }
-                        break;
-                    case 20:
-                        // 如果当前用户是商家，则查询当前商户的商品
-                        if($i){
-                            $list = DB::table('orders')
-                                -> join('order_goods','orders.order_sn','=','order_goods.order_id')
-                                -> join('users','orders.user_id','=','users.id')
-                                -> where('order_goods.is_del',0)
-                                -> where('order_goods.merchant_id',$id)
-                                ->where('order_goods.status',$status)
-                                -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
-                                    'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num'])
-                                -> paginate(10);
+                    }else{
+                        $list = DB::table('orders')
+                            -> join('order_goods','orders.order_sn','=','order_goods.order_id')
+                            -> join('users','orders.user_id','=','users.id')
+                            -> where('order_goods.is_del',0)
+                            ->where('order_goods.status',$status)
+                            -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
+                                'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num'])
+                            -> paginate(10);
+                    }
+                    break;
+                case 20:
+                    // 如果当前用户是商家，则查询当前商户的商品
+                    if($i){
+                        $list = DB::table('orders')
+                            -> join('order_goods','orders.order_sn','=','order_goods.order_id')
+                            -> join('users','orders.user_id','=','users.id')
+                            -> where('order_goods.is_del',0)
+                            -> where('order_goods.merchant_id',$id)
+                            ->where('order_goods.status',$status)
+                            -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
+                                'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num'])
+                            -> paginate(10);
 
-                        }else{
-                            $list = DB::table('orders')
-                                -> join('order_goods','orders.order_sn','=','order_goods.order_id')
-                                -> join('users','orders.user_id','=','users.id')
-                                -> where('order_goods.is_del',0)
-                                ->where('order_goods.status',$status)
-                                -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
-                                    'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num'])
-                                -> paginate(10);
-                        }
-                        break;
-                    case 40:
-                        // 如果当前用户是商家，则查询当前商户的商品
-                        if($i){
-                            $list = DB::table('orders')
-                                -> join('order_goods','orders.order_sn','=','order_goods.order_id')
+                    }else{
+                        $list = DB::table('orders')
+                            -> join('order_goods','orders.order_sn','=','order_goods.order_id')
+                            -> join('users','orders.user_id','=','users.id')
+                            -> where('order_goods.is_del',0)
+                            ->where('order_goods.status',$status)
+                            -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
+                                'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num'])
+                            -> paginate(10);
+                    }
+                    break;
+                case 40:
+                    // 如果当前用户是商家，则查询当前商户的商品
+                    if($i){
+                        $list = DB::table('orders')
+                            -> join('order_goods','orders.order_sn','=','order_goods.order_id')
 //            -> join('merchants','order_goods.merchant_id','=','merchants.id')
-                                -> join('users','orders.user_id','=','users.id')
-                                -> where('order_goods.is_del',0)
-                                -> where('order_goods.merchant_id',$id)
-                                ->where('order_goods.status',$status)
-                                -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
-                                    'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num'])
-                                -> paginate(10);
+                            -> join('users','orders.user_id','=','users.id')
+                            -> where('order_goods.is_del',0)
+                            -> where('order_goods.merchant_id',$id)
+                            ->where('order_goods.status',$status)
+                            -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
+                                'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num'])
+                            -> paginate(10);
 
-                        }else{
-                            $list = DB::table('orders')
-                                -> join('order_goods','orders.order_sn','=','order_goods.order_id')
-                                -> join('users','orders.user_id','=','users.id')
-                                -> where('order_goods.is_del',0)
-                                ->where('order_goods.status',$status)
-                                -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
-                                    'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num'])
-                                -> paginate(10);
-                        }
-                        break;
-                    case 50:
-                        // 如果当前用户是商家，则查询当前商户的商品
-                        if($i){
-                            $list = DB::table('orders')
-                                -> join('order_goods','orders.order_sn','=','order_goods.order_id')
+                    }else{
+                        $list = DB::table('orders')
+                            -> join('order_goods','orders.order_sn','=','order_goods.order_id')
+                            -> join('users','orders.user_id','=','users.id')
+                            -> where('order_goods.is_del',0)
+                            ->where('order_goods.status',$status)
+                            -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
+                                'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num'])
+                            -> paginate(10);
+                    }
+                    break;
+                case 50:
+                    // 如果当前用户是商家，则查询当前商户的商品
+                    if($i){
+                        $list = DB::table('orders')
+                            -> join('order_goods','orders.order_sn','=','order_goods.order_id')
 //            -> join('merchants','order_goods.merchant_id','=','merchants.id')
-                                -> join('users','orders.user_id','=','users.id')
-                                -> where('order_goods.is_del',0)
-                                -> where('order_goods.merchant_id',$id)
-                                ->where('order_goods.status',$status)
-                                -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
-                                    'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num'])
-                                -> paginate(10);
+                            -> join('users','orders.user_id','=','users.id')
+                            -> where('order_goods.is_del',0)
+                            -> where('order_goods.merchant_id',$id)
+                            ->where('order_goods.status',$status)
+                            -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
+                                'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num'])
+                            -> paginate(10);
 
-                        }else{
-                            $list = DB::table('orders')
-                                -> join('order_goods','orders.order_sn','=','order_goods.order_id')
-                                -> join('users','orders.user_id','=','users.id')
-                                -> where('order_goods.is_del',0)
-                                ->where('order_goods.status',$status)
-                                -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
-                                    'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num'])
-                                -> paginate(10);
-                        }
-                        break;
-                    case 60:
-                        // 如果当前用户是商家，则查询当前商户的商品
-                        if($i){
-                            $list = DB::table('orders')
-                                -> join('order_goods','orders.order_sn','=','order_goods.order_id')
-                                -> join('users','orders.user_id','=','users.id')
-                                -> where('order_goods.is_del',0)
-                                -> where('order_goods.merchant_id',$id)
-                                ->where('order_goods.status',$status)
-                                -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
-                                    'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num'])
-                                -> paginate(10);
+                    }else{
+                        $list = DB::table('orders')
+                            -> join('order_goods','orders.order_sn','=','order_goods.order_id')
+                            -> join('users','orders.user_id','=','users.id')
+                            -> where('order_goods.is_del',0)
+                            ->where('order_goods.status',$status)
+                            -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
+                                'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num'])
+                            -> paginate(10);
+                    }
+                    break;
+                case 60:
+                    // 如果当前用户是商家，则查询当前商户的商品
+                    if($i){
+                        $list = DB::table('orders')
+                            -> join('order_goods','orders.order_sn','=','order_goods.order_id')
+                            -> join('users','orders.user_id','=','users.id')
+                            -> where('order_goods.is_del',0)
+                            -> where('order_goods.merchant_id',$id)
+                            ->where('order_goods.status',$status)
+                            -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
+                                'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num'])
+                            -> paginate(10);
 
-                        }else{
-                            $list = DB::table('orders')
-                                -> join('order_goods','orders.order_sn','=','order_goods.order_id')
-                                -> join('users','orders.user_id','=','users.id')
-                                -> where('order_goods.is_del',0)
-                                ->where('order_goods.status',$status)
-                                -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
-                                    'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num'])
-                                -> paginate(10);
-                        }
-                        break;
+                    }else{
+                        $list = DB::table('orders')
+                            -> join('order_goods','orders.order_sn','=','order_goods.order_id')
+                            -> join('users','orders.user_id','=','users.id')
+                            -> where('order_goods.is_del',0)
+                            ->where('order_goods.status',$status)
+                            -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
+                                'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num'])
+                            -> paginate(10);
+                    }
+                    break;
                 case 70:
                     // 如果当前用户是商家，则查询当前商户的商品
                     if($i){
@@ -1331,82 +1486,35 @@ class ShopController extends BaseController
                             -> paginate(10);
                     }
                     break;
-                    default:
-                        if($i){
-                            $list = DB::table('orders')
-                                -> join('order_goods','orders.order_sn','=','order_goods.order_id')
+                default:
+                    if($i){
+                        $list = DB::table('orders')
+                            -> join('order_goods','orders.order_sn','=','order_goods.order_id')
 //            -> join('merchants','order_goods.merchant_id','=','merchants.id')
-                                -> join('users','orders.user_id','=','users.id')
-                                -> where('order_goods.is_del',0)
-                                -> where('order_goods.merchant_id',$id)
-                                -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
-                                    'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num'])
-                                -> paginate(10);
-                        }else{
-                            $list = DB::table('orders')
-                                -> join('order_goods','orders.order_sn','=','order_goods.order_id')
-                                -> join('users','orders.user_id','=','users.id')
-                                -> where('order_goods.is_del',0)
-                                -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
-                                    'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num'])
-                                -> paginate(10);
-                        }
-                }
+                            -> join('users','orders.user_id','=','users.id')
+                            -> where('order_goods.is_del',0)
+                            -> where('order_goods.merchant_id',$id)
+                            -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
+                                'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num'])
+                            -> paginate(10);
+                    }else{
+                        $list = DB::table('orders')
+                            -> join('order_goods','orders.order_sn','=','order_goods.order_id')
+                            -> join('users','orders.user_id','=','users.id')
+                            -> where('order_goods.is_del',0)
+                            -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
+                                'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num'])
+                            -> paginate(10);
+                    }
+            }
         }
-
-//        if(empty($input['name'])){
-//        }else{
-//            //手机号 用户名搜索
-//            if ($input['sta']=="2"){
-//                // 如果当前用户是商家，则查询当前商户的商品
-//                $ids=  DB::table("users")->where("name","=",$input['name'])->first(['id']);
-//                if (empty($ids)){
-//                    if($i){
-//                        $list = DB::table('orders')
-//                            -> join('order_goods','orders.order_sn','=','order_goods.order_id')
-//                            -> join('users','order_goods.user_id','=','users.id')
-//                            -> where('order_goods.is_del',0)
-//                            -> where('order_goods.merchant_id',$id)
-//                            ->where('users.mobile','=',$input["user"])
-//                            -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
-//                                'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num'])
-//                            -> paginate(10);
-//                    }else{
-//                        $list = DB::table('orders')
-//                            -> join('order_goods','orders.order_sn','=','order_goods.order_id')
-//                            -> join('users','order_goods.user_id','=','users.id')
-//                            -> where('order_goods.is_del',0)
-//                            ->where('users.mobile','=',$input["user"])
-////                        ->orWhere('order_goods.user_id','=',$ids->id)
-//                            -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
-//                                'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num'])
-//                            -> paginate(10);
-//                    }
-//                }else{
-//                    if($i){
-//                        $list = DB::table('orders')
-//                            -> join('order_goods','orders.order_sn','=','order_goods.order_id')
-//                            -> join('users','orders.user_id','=','users.id')
-//                            -> where('order_goods.is_del',0)
-//                            -> where('order_goods.merchant_id',$id)
-//                            ->where('order_goods.user_id','=',$ids->id)
-//                            -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
-//                                'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num'])
-//                            -> paginate(10);
-//                    }else{
-//                        $list = DB::table('orders')
-//                            -> join('order_goods','orders.order_sn','=','order_goods.order_id')
-//                            -> join('users','orders.user_id','=','users.id')
-//                            -> where('order_goods.is_del',0)
-//                            ->where('order_goods.user_id','=',$ids->id)
-//                            -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
-//                                'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num'])
-//                            -> paginate(10);
-//                    }
-//                }
-//            }
-//        }
-         //订单编号搜索
+        if(empty($input['keyword'])){
+            $find = '';
+        }else{
+            $find = $input['keyword'];
+        }
+//        return dd($input);
+        //订单编号搜索
         if(empty($input['keyword']) && empty($input['uname']) && empty($input['pho'])){
 
         }else{
@@ -1422,15 +1530,30 @@ class ShopController extends BaseController
                         -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
                             'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num'])
                         -> paginate(10);
-                    if(empty($list[0]->id)){  //手机号
+                    if(empty($list[0]->id)){  // 手机号
                         $list = DB::table('orders')
                             -> join('order_goods','orders.order_sn','=','order_goods.order_id')
                             -> join('users','order_goods.user_id','=','users.id')
                             -> where('order_goods.is_del',0)
-                            ->where('users.mobile','=',$input["pho"])
+                            ->where('users.mobile','like','%'.$input["pho"].'%')
                             -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
                                 'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num'])
                             -> paginate(10);
+                        if(empty($list[0]->id)){
+                            $list = DB::table('orders')
+                                -> join('order_goods','orders.order_sn','=','order_goods.order_id')
+                                -> join('users','orders.user_id','=','users.id')
+                                ->join('goods','order_goods.goods_id','=','goods.id')
+                                ->join('user_address','order_goods.user_id','=','user_address.user_id')
+                                -> where('order_goods.is_del',0)
+                                ->where('user_address.name','like','%',$input["uname"],'%')
+                                -> where('order_goods.merchant_id',$id)
+                                -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
+                                    'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num','goods.good_num'])
+                                -> paginate(10);
+                        }else{
+
+                        }
                         return $this->view('orders',['list'=>$list,'count'=>$count]);
                     }else{
 
@@ -1446,30 +1569,29 @@ class ShopController extends BaseController
                             'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num','goods.good_num'])
                         -> paginate(10);
                     if(empty($list[0]->id)){  //手机号
-                     $list = DB::table('orders')
+                        $list = DB::table('orders')
                             -> join('order_goods','orders.order_sn','=','order_goods.order_id')
                             -> join('users','order_goods.user_id','=','users.id')
                             -> where('order_goods.is_del',0)
-                            ->where('users.mobile','=',$input["pho"])
+                            ->where('users.mobile','like','%'.$input["pho"].'%')
                             -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
                                 'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num'])
                             -> paginate(10);
-                     if(empty($list[0]->id)){
-                         $list = DB::table('orders')
-                             -> join('order_goods','orders.order_sn','=','order_goods.order_id')
-                             -> join('users','orders.user_id','=','users.id')
-                             ->join('goods','order_goods.goods_id','=','goods.id')
-                             ->join('user_address','order_goods.user_id','=','user_address.user_id')
-                             -> where('order_goods.is_del',0)
-                             ->where('user_address.name','=',$input["uname"])
-                             -> where('order_goods.merchant_id',$id)
-                             -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
-                                 'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num','goods.good_num'])
-                             -> paginate(10);
-                     }else{
+                        if(empty($list[0]->id)){
+                            $list = DB::table('orders')
+                                -> join('order_goods','orders.order_sn','=','order_goods.order_id')
+                                -> join('users','orders.user_id','=','users.id')
+                                ->join('goods','order_goods.goods_id','=','goods.id')
+                                ->join('user_address','order_goods.user_id','=','user_address.user_id')
+                                -> where('order_goods.is_del',0)
+                                ->where('user_address.name','like','%'.$input["uname"].'%')
+                                -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
+                                    'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num','goods.good_num'])
+                                -> paginate(10);
+                        }else{
 
-                     }
-                        return $this->view('orders',['list'=>$list,'count'=>$count,'unamess'=>$input['uname'],'phoss'=>$input['pho'],'keyword'=>$input['keyword']]);
+                        }
+                        return $this->view('orders',['list'=>$list,'count'=>$count,'unamess'=>$input['uname'],'phoss'=>$input['pho'],'find'=>$find]);
                     }else{
 
                     }
@@ -1480,7 +1602,7 @@ class ShopController extends BaseController
 
         //时间搜索
         if(empty($input['time'])){
-           }else{
+        }else{
             if($i){
                 $list = DB::table('orders')
                     -> join('order_goods','orders.order_sn','=','order_goods.order_id')
@@ -1670,7 +1792,7 @@ class ShopController extends BaseController
                 return $this->view('orders',['list'=>$list,'namess'=>$input['names'],'timess'=>$input['times'],'mobiless'=>$input['mobiles'],'numss'=>$input['num'],'count'=>$count]);
             }
 
-              }else{
+        }else{
 
             //时间搜索
             if (empty($input['num']) && empty($input['mobiles']) && empty($input['names']) && !empty($input['times'])){
@@ -1696,7 +1818,7 @@ class ShopController extends BaseController
                 }
             }else{
             }
-           }
+        }
 
         $count = ['data'=>$data,'data1'=>$data1,'data2'=>$data2,'data3'=>$data3,'data4'=>$data4,'data5'=>$data5];
         $model = Order::get(['order_goods_id'])->toArray();
@@ -1826,6 +1948,7 @@ class ShopController extends BaseController
     // 跳转商品界面
     public function goods(Request $request ,Auth $auth)
     {
+
         $id = Auth::id();     // 当前登录用户的id
         // 判断当前用户是否是商家
         $i = DB::table('merchants')
@@ -1834,56 +1957,122 @@ class ShopController extends BaseController
             -> select('id')
             -> first();
         $all = $request->all();
+        // 上架/下架
         if(!empty($all['status']))
         {
+            $status = $all['status'];
             if($all['status'] == 2){
                 $where[] = ['goods.is_sale',0];
             }else{
                 $where[] = ['goods.is_sale',$all['status']];
             }
+        }else{
+            $status = 0;
+        }
+        // 模糊查询产品名称
+        if (!empty($all['product_name'])) {
+            $where[]=['goods.name', 'like', '%'.$all['product_name'].'%'];
+            $product_name=$all['product_name'];
+        }else{
+            $product_name='';
         }
         $where[] = ['goods.is_del',0];
-        // 如果当前用户是商家，则查询当前商户的商品
-        if($i){
-            $goods = DB::table('goods')
-                -> join('merchants','goods.merchant_id','=','merchants.id')
-                -> where('goods.merchant_id',$i -> id)
-                -> where($where)
-                -> select(['merchants.name as merchant_name','goods.id','goods.pv','goods.created_at','goods.updated_at',
-                    'goods.goods_cate_id','goods.name as goods_name','goods.img','goods.desc','goods.is_hot','goods.is_recommend','goods.is_sale',
-                    'goods.is_bargain','goods.dilivery','goods.volume','goods.price'])
-                -> orderBy('goods.id','desc')
-                -> paginate(10);
-            foreach ($goods as $k => $v){
-                $goods_cate_id  = explode(',',$v->goods_cate_id);
-                unset($goods_cate_id[0]);
-                array_pop($goods_cate_id);
-                $name=[];
-                foreach ($goods_cate_id as $item) {
-                    $name[]=Db::table('goods_cate')->select('name')->where('id',$item)->first()->name ?? '';
+        // 判断是否上传时间
+        if(!empty($all['one_time'])){
+            // 判断是否上传结束时间
+            if(!empty($all['two_time'])){
+                $end_time = $all['two_time'];
+            }else{
+                $end_time = date("Y-m-d h:i:s");
+            }
+            // 如果当前用户是商家，则查询当前商户的商品
+            if($i){
+                $goods = DB::table('goods')
+                    -> join('merchants','goods.merchant_id','=','merchants.id')
+                    -> where('goods.merchant_id',$i -> id)
+                    -> where($where)
+                    -> whereDate('goods.created_at','>=',$all['one_time'])
+                    -> whereDate('goods.created_at','<=',$all['two_time'])
+                    -> select(['merchants.name as merchant_name','goods.id','goods.pv','goods.created_at','goods.updated_at',
+                        'goods.goods_cate_id','goods.name as goods_name','goods.img','goods.desc','goods.is_hot','goods.is_recommend','goods.is_sale',
+                        'goods.is_bargain','goods.dilivery','goods.volume','goods.price'])
+                    -> orderBy('goods.id','desc')
+                    -> paginate(10);
+                foreach ($goods as $k => $v){
+                    $goods_cate_id  = explode(',',$v->goods_cate_id);
+                    unset($goods_cate_id[0]);
+                    array_pop($goods_cate_id);
+                    $name=[];
+                    foreach ($goods_cate_id as $item) {
+                        $name[]=Db::table('goods_cate')->select('name')->where('id',$item)->first()->name ?? '';
+                    }
+                    $goods[$k]->goods_cate_id=implode(',',$name);
                 }
-                $goods[$k]->goods_cate_id=implode(',',$name);
+            }else{
+                $goods = DB::table('goods')
+                    -> join('merchants','goods.merchant_id','=','merchants.id')
+                    -> where($where)
+                    -> whereBetween('goods.created_at',[$all['one_time'],$end_time])
+                    -> select(['merchants.name as merchant_name','goods.id','goods.name as goods_name','goods.pv',
+                        'goods.created_at','goods.name as goods_name','goods.updated_at','goods.goods_cate_id','goods.img','goods.desc','goods.is_hot',
+                        'goods.is_recommend','goods.is_sale','goods.is_bargain','goods.dilivery','goods.volume','goods.price'])
+                    -> orderBy('goods.id','desc')
+                    -> paginate(10);
+                foreach ($goods as $k => $v){
+                    $goods_cate_id  = explode(',',$v->goods_cate_id);
+                    unset($goods_cate_id[0]);
+                    array_pop($goods_cate_id);
+                    $name=[];
+                    foreach ($goods_cate_id as $item) {
+                        $name[]=Db::table('goods_cate')->select('name')->where('id',$item)->first()->name ?? '';
+                    }
+                    $goods[$k]->goods_cate_id=implode(',',$name);
+                }
             }
         }else{
-            $goods = DB::table('goods')
-                -> join('merchants','goods.merchant_id','=','merchants.id')
-                -> where($where)
-                -> select(['merchants.name as merchant_name','goods.id','goods.name as goods_name','goods.pv',
-                    'goods.created_at','goods.name as goods_name','goods.updated_at','goods.goods_cate_id','goods.img','goods.desc','goods.is_hot',
-                    'goods.is_recommend','goods.is_sale','goods.is_bargain','goods.dilivery','goods.volume','goods.price'])
-                -> orderBy('goods.id','desc')
-                -> paginate(10);
-            foreach ($goods as $k => $v){
-                $goods_cate_id  = explode(',',$v->goods_cate_id);
-                unset($goods_cate_id[0]);
-                array_pop($goods_cate_id);
-                $name=[];
-                foreach ($goods_cate_id as $item) {
-                    $name[]=Db::table('goods_cate')->select('name')->where('id',$item)->first()->name ?? '';
+            // 如果当前用户是商家，则查询当前商户的商品
+            if($i){
+                $goods = DB::table('goods')
+                    -> join('merchants','goods.merchant_id','=','merchants.id')
+                    -> where('goods.merchant_id',$i -> id)
+                    -> where($where)
+                    -> select(['merchants.name as merchant_name','goods.id','goods.pv','goods.created_at','goods.updated_at',
+                        'goods.goods_cate_id','goods.name as goods_name','goods.img','goods.desc','goods.is_hot','goods.is_recommend','goods.is_sale',
+                        'goods.is_bargain','goods.dilivery','goods.volume','goods.price'])
+                    -> orderBy('goods.id','desc')
+                    -> paginate(10);
+                foreach ($goods as $k => $v){
+                    $goods_cate_id  = explode(',',$v->goods_cate_id);
+                    unset($goods_cate_id[0]);
+                    array_pop($goods_cate_id);
+                    $name=[];
+                    foreach ($goods_cate_id as $item) {
+                        $name[]=Db::table('goods_cate')->select('name')->where('id',$item)->first()->name ?? '';
+                    }
+                    $goods[$k]->goods_cate_id=implode(',',$name);
                 }
-                $goods[$k]->goods_cate_id=implode(',',$name);
+            }else{
+                $goods = DB::table('goods')
+                    -> join('merchants','goods.merchant_id','=','merchants.id')
+                    -> where($where)
+                    -> select(['merchants.name as merchant_name','goods.id','goods.name as goods_name','goods.pv',
+                        'goods.created_at','goods.name as goods_name','goods.updated_at','goods.goods_cate_id','goods.img','goods.desc','goods.is_hot',
+                        'goods.is_recommend','goods.is_sale','goods.is_bargain','goods.dilivery','goods.volume','goods.price'])
+                    -> orderBy('goods.id','desc')
+                    -> paginate(10);
+                foreach ($goods as $k => $v){
+                    $goods_cate_id  = explode(',',$v->goods_cate_id);
+                    unset($goods_cate_id[0]);
+                    array_pop($goods_cate_id);
+                    $name=[];
+                    foreach ($goods_cate_id as $item) {
+                        $name[]=Db::table('goods_cate')->select('name')->where('id',$item)->first()->name ?? '';
+                    }
+                    $goods[$k]->goods_cate_id=implode(',',$name);
+                }
             }
         }
+
         if(!empty($i)) {
             // 如果开店，则查询当前商户的信息
             // 链接数据库，查询商户的商品分类
@@ -1906,7 +2095,7 @@ class ShopController extends BaseController
 //        return dd();
         $data = Tree::tree(json_decode(json_encode($datas),true),'name','id','pid');
         $goods_sku = DB::select("select goods_id,SUM(store_num) as total from `goods_sku` group by `goods_id`");
-        return $this->view('goods',['list'=>$goods,'data'=>$data,'goods_sku'=>json_decode(json_encode($goods_sku),true)]);
+        return $this->view('goods',['list'=>$goods,'data'=>$data,'product_name'=>$product_name,'goods_sku'=>json_decode(json_encode($goods_sku),true),'sort'=>0,'status' => $status]);
     }
 
     // 跳转商品新增界面
@@ -2146,50 +2335,97 @@ class ShopController extends BaseController
         ]);
         $all = \request() -> all();
         // 判断新增的模板是否存在
-        $data = DB::table('goods_attr') -> where('name',$all['specNmae']) -> first();
+        $data = DB::table('goods_attr') -> where('id','!=',$all['id']) -> where('name',$all['specNmae']) -> first();
         if(!empty($data)){
-            flash("该商品模板已存在，不能新增。") -> error();
+            flash("该商品模板已存在，不能重复。") -> error();
             return redirect()->route('shop.goodsAttr');
         }
-        DB::beginTransaction();
-        try{
-            // 新增模板表
-            $goods_attr_data = [
-                'merchant_id' => 1,
-                'name' => $all['specNmae']
-            ];
-            $id = DB::table('goods_attr') -> insertGetId($goods_attr_data);
-            // 获取上传的规格
-            foreach ($all['spec'] as $v){
-                // 新增规格属性表
-                $item = $v['item'];
-                $arr_push = [];
-                foreach ($item as $m){
-                    array_push($arr_push,$m['item']);
-                }
-                $spec_value = json_encode($arr_push,JSON_UNESCAPED_UNICODE);
-                $goods_attr_value_data = [
-                    'goods_attr_id' => $id,
-                    'spec' => $v['name'],
-                    'spec_value' => $spec_value
+
+        if (empty($all['id'])){
+            DB::beginTransaction();
+            try{
+                // 新增模板表
+                $goods_attr_data = [
+                    'merchant_id' => 1,
+                    'name' => $all['specNmae']
                 ];
-                // 向规格属性表中添加内容
-                $i = DB::table('goods_attr_value') -> insert($goods_attr_value_data);
-            }
-            if ($i) {
-                DB::commit();
-                flash("商品参数模板添加成功") -> success();
-                return redirect()->route('shop.goodsAttr');
-            }else{
+                $id = DB::table('goods_attr') -> insertGetId($goods_attr_data);
+                // 获取上传的规格
+                foreach ($all['spec'] as $v){
+                    // 新增规格属性表
+                    $item = $v['item'];
+                    $arr_push = [];
+                    foreach ($item as $m){
+                        array_push($arr_push,$m['item']);
+                    }
+                    $spec_value = json_encode($arr_push,JSON_UNESCAPED_UNICODE);
+                    $goods_attr_value_data = [
+                        'goods_attr_id' => $id,
+                        'spec' => $v['name'],
+                        'spec_value' => $spec_value
+                    ];
+                    // 向规格属性表中添加内容
+                    $i = DB::table('goods_attr_value') -> insert($goods_attr_value_data);
+                }
+                if ($i) {
+                    DB::commit();
+                    flash("商品参数模板添加成功") -> success();
+                    return redirect()->route('shop.goodsAttr');
+                }else{
+                    DB::rollBack();
+                    flash("添加失败，请稍后重试") -> error();
+                    return redirect()->route('shop.goodsAttr');
+                }
+            }catch (\Exception $e){
                 DB::rollBack();
-                flash("添加失败，请稍后重试") -> error();
+                flash("添加失败，错误码：201") -> error();
                 return redirect()->route('shop.goodsAttr');
             }
-        }catch (\Exception $e){
-            DB::rollBack();
-            flash("添加失败，错误码：201") -> error();
-            return redirect()->route('shop.goodsAttr');
+        }else{
+            DB::beginTransaction();
+            try{
+                // 修改模板表
+                $goods_attr_data = [
+                    'merchant_id' => 1,
+                    'name' => $all['specNmae']
+                ];
+                $flag_up = DB::table('goods_attr') ->where('id',$all['id'])-> update($goods_attr_data);
+
+                //清除旧规格
+                $flag_del = DB::table('goods_attr_value') ->where('goods_attr_id',$all['id'])-> delete();
+
+                foreach ($all['spec'] as $v){
+                    // 重新录入规格属性表
+                    $item = $v['item'];
+                    $arr_push = [];
+                    foreach ($item as $m){
+                        array_push($arr_push,$m['item']);
+                    }
+                    $spec_value = json_encode($arr_push,JSON_UNESCAPED_UNICODE);
+                    $goods_attr_value_data = [
+                        'goods_attr_id' => $all['id'],
+                        'spec' => $v['name'],
+                        'spec_value' => $spec_value
+                    ];
+                    // 向规格属性表中添加内容
+                    $i = DB::table('goods_attr_value') -> insert($goods_attr_value_data);
+                }
+                if ($i) {
+                    DB::commit();
+                    flash("商品参数模板修改成功") -> success();
+                    return redirect()->route('shop.goodsAttr');
+                }else{
+                    DB::rollBack();
+                    flash("修改失败，请稍后重试") -> error();
+                    return redirect()->route('shop.goodsAttr');
+                }
+            }catch (\Exception $e){
+                DB::rollBack();
+                flash("修改失败，错误码：201") -> error();
+                return redirect()->route('shop.goodsAttr');
+            }
         }
+
 
 
     }

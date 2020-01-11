@@ -117,7 +117,7 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
 
 
 
-        Route::get('shop/orders?status=70','ShopController@sort')->name('shop.orders');
+//        Route::get('shop/orders?status=70','ShopController@sort')->name('shop.orders');
     });
 });
 ?>

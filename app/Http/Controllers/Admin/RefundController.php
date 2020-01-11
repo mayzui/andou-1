@@ -10,13 +10,14 @@ class RefundController extends BaseController
     // 跳转售后服务界面
     public function aftermarket(){
         $id = \Auth::id();
+        $all = \request() -> all();
         $where[]=['order_goods.id','>','0'];
         // 判断条件搜索
-        if (!empty($all['name'])) {
-            $where[]=['name', 'like', '%'.$all['name'].'%'];
-            $screen['name']=$all['name'];
+        if (!empty($all['order_num'])) {
+            $order_num = $all['order_num'];
+            $where[]=['order_goods.order_id', 'like', '%'.$all['order_num'].'%'];
         }else{
-            $screen['name']='';
+            $order_num = '';
         }
         // 判断条件查询
         if(!empty($all['status'])){
@@ -46,7 +47,7 @@ class RefundController extends BaseController
                 -> join('refund_reason','order_returns.reason_id','=','refund_reason.id')
                 -> where('order_goods.merchant_id',$id)
                 -> where($where)
-                -> select('order_goods.id','order_goods.order_id','users.name as user_name','refund_reason.name as retun_name',
+                -> select('order_goods.id','order_goods.express_id','order_goods.courier_num','order_goods.order_id','users.name as user_name','refund_reason.name as retun_name',
                     'order_returns.content','order_returns.is_reg','order_returns.status')
                 -> paginate(10);
         }else{
@@ -56,42 +57,43 @@ class RefundController extends BaseController
                 -> join('users','order_goods.user_id','=','users.id')
                 -> join('refund_reason','order_returns.reason_id','=','refund_reason.id')
                 -> where($where)
-                -> select('order_goods.id','order_goods.order_id','users.name as user_name','refund_reason.name as retun_name',
+                -> select('order_goods.id','order_goods.express_id','order_goods.courier_num','order_goods.order_id','users.name as user_name','refund_reason.name as retun_name',
                     'order_returns.content','order_returns.is_reg','order_returns.status')
                 -> paginate(10);
         }
-        return $this->view('',['data'=>$data,'status' => $status]);
+        return $this->view('',['data'=>$data,'status' => $status,"order_num" => $order_num]);
     }
     // 修改审核状态
     public function aftermarketChange(){
         $all = \request() -> all();
         if(empty($all['ids'])){
             // 根据当前提交的id 查询数据库中值
-            $data = \DB::table('order_returns') -> where('id',$all['id']) -> select('is_reg','status')->first();
-            if($data -> is_reg == 0){
-                $data = [
-                    'is_reg' => 1,
-                    'handling_time' => date("Y-m-d H:i:s")
-                ];
-            }else if($data -> is_reg == 1){
-                if($data -> status == 1){
-                    $data =[
+            $data = \DB::table('order_returns') -> where('order_goods_id',$all['id']) -> select('is_reg','status')->first();
+            // 判断售后类型
+            if($data -> status == 1){
+                // 退货退款
+                if($data -> is_reg == 0){
+                    $data = [
                         'is_reg' => 2,
                         'handling_time' => date("Y-m-d H:i:s")
                     ];
-                }else{
-                    $data =[
+                }else if($data -> is_reg == 2){
+                    $data = [
                         'is_reg' => 3,
                         'handling_time' => date("Y-m-d H:i:s")
                     ];
                 }
-            }else if($data -> is_reg == 2){
-                $data = [
-                    'is_reg' => 3,
-                    'handling_time' => date("Y-m-d H:i:s")
-                ];
+            }else{
+                // 仅退款
+                if($data -> is_reg == 0){
+                    $data = [
+                        'is_reg' => 3,
+                        'handling_time' => date("Y-m-d H:i:s")
+                    ];
+                }
             }
-            $i = \DB::table('order_returns') -> where('id',$all['id']) -> update($data);
+
+            $i = \DB::table('order_returns') -> where('order_goods_id',$all['id']) -> update($data);
             if($i){
                 flash("更新成功") -> success();
                 return redirect()->route('refund.aftermarket');
@@ -100,45 +102,18 @@ class RefundController extends BaseController
                 return redirect()->route('refund.aftermarket');
             }
         }else{
-            // 根据传入的ids 查询数据库中的内容
-            $order_id = \DB::table('order_returns') -> where('order_goods_id',$all['ids']) -> select('order_goods_id') -> first();
-//            return dd($order_id);
-//            $goodsdata = \DB::table('order_goods') -> where('order_id',$order_id -> order_id) -> get();
-            // 查询商品名称、商品图片、商品价格、商品数量
-            $goodsdata = \DB::table('order_goods')
-                -> join('goods_sku','order_goods.goods_sku_id','=','goods_sku.id')
-                -> join('goods','order_goods.goods_id','=','goods.id')
-                -> select(['goods.name as goods_name','goods.img as goods_img','goods_sku.price as goods_price','order_goods.num'])
-                -> where('order_goods.id',$order_id -> order_goods_id)
-                -> get();
-            // 查询商品规格
-            $attr_value = \DB::table('order_goods')
-                -> join('goods_sku','order_goods.goods_sku_id','=','goods_sku.id')
-                -> select(['goods_sku.attr_value'])
-                -> where('order_goods.id',$order_id -> order_goods_id)
-                -> get();
-            foreach ($attr_value as $v){
-                $datas[] = implode(json_decode($v -> attr_value)[0] -> value,',');
-            }
-            // 将商品规格添加到data中
-            foreach ($datas as $k => $v){
-                $goodsdata[$k] -> attr_value = $v;
-            }
-//            return dd($goodsdata);
-            // 获取订单数据
-            $orderdata = \DB::table('order_returns')
-                -> join('express','order_returns.express_id','=','express.id')
-                -> select('order_returns.consignee_realname','order_returns.consignee_telphone','order_returns.consignee_address','express.name as express_company')
-                -> where('order_goods_id',$all['ids']) -> first();
-            // 获取订单总金额
-            $order_money = \DB::table('order_goods') -> where('id',$order_id -> order_goods_id) -> select('pay_money','order_id') -> first();
-            $arr = [
-                'goodsdata' => $goodsdata,
-                'order_money' => $order_money,
-                'orderdata' => $orderdata
+            $data = [
+                'is_reg' => 4,
+                'handling_time' => date("Y-m-d H:i:s")
             ];
-//            return dd($arr);
-            return $this->view('',$arr);
+            $i = \DB::table('order_returns') -> where('order_goods_id',$all['ids']) -> update($data);
+            if($i){
+                flash("更新成功") -> success();
+                return redirect()->route('refund.aftermarket');
+            }else{
+                flash("更新失败") -> success();
+                return redirect()->route('refund.aftermarket');
+            }
         }
     }
 
