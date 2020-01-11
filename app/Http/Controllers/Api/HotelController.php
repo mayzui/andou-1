@@ -24,7 +24,7 @@ class HotelController extends Controller
         "book_sn":"订单编号",
         "logo_img":"商家logo图",
         "merchants_name":"商家名称",
-        "status":"订单状态（0-取消订单 10-未支付订单 20-已支付(待入住) 30 已入住 40-已完成(离店) 50-已评价）",
+        "status":"订单状态（100-全部订单 0-取消订单 10-未支付订单 20-已支付(待入住) 30 已入住 40-已完成(离店) 50-已评价）",
         "img":"房间图片",
         "house_name":"房间名称",
         "price":"房间价格"
@@ -52,7 +52,7 @@ class HotelController extends Controller
             return $this->rejson($check['code'],$check['msg']);
         }
         $where[]=['books.user_id',$all['uid']];
-        if (!empty($all['type'])) {
+        if (isset($all['type']) && $all['type']==100) {
             $where[]=['books.status',$all['type']];
         }
         // 查询酒店订单

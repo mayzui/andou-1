@@ -269,6 +269,7 @@ class GourmetController extends Controller
      * @apiName booking
      * @apiGroup gourmet
      * @apiParam {string} user_id 用户id
+     * @apiParam {string} token 用户token
      * @apiParam {string} merchant_id 商户id
      * @apiSuccessExample 参数返回：
      * {
@@ -278,7 +279,8 @@ class GourmetController extends Controller
      *	                "id":"id",
      *                  "name":"菜品名称",
      *                  "price":"菜品价格",
-     *                  "num":"菜品数量"
+     *                  "num":"菜品数量",
+     *                  "image":"菜品图片"
      *                  }
      *                  ],
      *    "msg":"查询成功"
@@ -286,9 +288,22 @@ class GourmetController extends Controller
      */
     public function booking(){
         $all=\request()->all();
+        $token=request()->header('token')??'';
+        if ($token!='') {
+            $all['token']=$token;
+        }
+        if (empty($all['user_id'])||empty($all['token'])) {
+           return $this->rejson(202,'登陆失效');
+        }
+        $check=$this->checktoten($all['user_id'],$all['token']);
+        if ($check['code']==202) {
+           return $this->rejson($check['code'],$check['msg']);
+        }
         $data=DB::table("foods_cart as c")
             ->join("merchants as m",'c.merchant_id','=','m.id')
-            ->select(['c.name','c.price','c.num','c.id'])
+            ->join("foods_information as f","c.foods_id","=","f.id")
+            ->join("foods_spec as s","c.spec_id","=","s.id")
+            ->select(['f.name','s.price','c.num','c.id','f.image'])
             ->where(['c.user_id'=>['user_id'],'m.id'=>$all['merchant_id']])
             ->get();
         if($data){
@@ -348,6 +363,17 @@ class GourmetController extends Controller
      */
     public function add_foods(){
         $all=request()->all();
+        $token=request()->header('token')??'';
+        if ($token!='') {
+            $all['token']=$token;
+        }
+        if (empty($all['uid'])||empty($all['token'])) {
+            return $this->rejson(202,'登陆失效');
+        }
+        $check=$this->checktoten($all['uid'],$all['token']);
+        if ($check['code']==202) {
+            return $this->rejson($check['code'],$check['msg']);
+        }
         if (empty($all['foods_id'])||empty($all['merchant_id'])){
             return $this->rejson(201,"缺少参数");
         }
@@ -371,7 +397,87 @@ class GourmetController extends Controller
             return $this->rejson(201,'添加失败');
         }
     }
-
+    /**
+     * @api {post} /api/gourmet/del_foods 删除购物车
+     * @apiName del_foods
+     * @apiGroup gourmet
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} token 验证登陆
+     * @apiParam {string} id 购物车id
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": "",
+     *       "msg":"删除成功"
+     *     }
+     */
+    public function del_foods(){
+        $all=\request()->all();
+        
+        $token=request()->header('token')??'';
+        if ($token!='') {
+            $all['token']=$token;
+        }
+        if (empty($all['uid'])||empty($all['token'])) {
+            return $this->rejson(202,'登陆失效');
+        }
+        $check=$this->checktoten($all['uid'],$all['token']);
+        if ($check['code']==202) {
+            return $this->rejson($check['code'],$check['msg']);
+        }
+        if(empty($all['id'])){
+            return $this->rejson(201,"请选择要删除的id");
+        }
+        $res=DB::table("foods_cart")->where('user_id',$all['uid'])->where('id',$all['id'])->delete();
+        if($res){
+            return $this->rejson(200,'删除成功');
+        }else{
+            return $this->rejson(201,'删除失败');
+        }
+    }
+    /**
+     * @api {post} /api/gourmet/upd_foods 修改购物车
+     * @apiName upd_foods
+     * @apiGroup gourmet
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} token 验证登陆
+     * @apiParam {string} id 购物车id
+     * @apiParam {string} type 修改的方式(1自动加1 0自动减1)
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": "",
+     *       "msg":"删除成功"
+     *     }
+     */
+    public function upd_foods(){
+        $all=request()->all();
+        $token=request()->header('token')??'';
+        if ($token!='') {
+            $all['token']=$token;
+        }
+        if (empty($all['uid'])||empty($all['token'])) {
+            return $this->rejson(202,'登陆失效');
+        }
+        $check=$this->checktoten($all['uid'],$all['token']);
+        if ($check['code']==202) {
+            return $this->rejson($check['code'],$check['msg']);
+        }
+        if (empty($all['id']) || !isset($all['type'])) {
+            return $this->rejson(201,'缺少参数');
+        }
+        $data=DB::table("foods_cart")->select('num')->where('id',$all['id'])->first();
+        if($all['type'] == 1){
+            $res=DB::table('foods_cart')->where('id',$all['id'])->increment('num');
+        }else if ($all['type'] == 0 ){
+            if($data->num <= 1){
+                $res=DB::table('foods_cart')->where(['id'=>$all['id'],'user_id'=>$all['uid']])->delete();
+            }else{
+                $res=DB::table('foods_cart')->where(['id'=>$all['id'],'user_id'=>$all['uid']])->decrement('num');
+            }
+        }
+        return $this->rejson(200,'修改成功');
+    }
     /**
      * @api {post} /api/gourmet/reserve 预定
      * @apiName reserve

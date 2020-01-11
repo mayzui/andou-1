@@ -162,6 +162,9 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('gourmet/shopping_num','GourmetController@shopping_num');
      Route::post('gourmet/add_foods','GourmetController@add_foods');
      Route::post('gourmet/search','GourmetController@search');
+     Route::post('gourmet/del_foods','GourmetController@del_foods');
+     Route::post('gourmet/upd_foods','GourmetController@upd_foods');
+     
      //饭店添加预约
      Route::post('gourmet/reserve','GourmetController@reserve');
 
