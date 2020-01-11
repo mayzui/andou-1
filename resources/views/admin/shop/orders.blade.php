@@ -145,22 +145,18 @@
                         <tbody>
                     </table>
                        @if(count($list)>0)
-                         @if(empty($item->order_show))
-                             @if(empty($timess) && empty($namess) && empty($mobiless) && empty($numss))
+
+                        @if(empty($timess) && empty($namess) && empty($mobiless) && empty($numss) && empty($unamess) && empty($phoss) && empty($keyword) && empty($item->order_show))
                                 {{ $list->appends(['status'=>$item->statuss]) }}
-                                @if(empty($unamess) && empty($phoss) && empty($keyword))
-                                    {{ $list->appends(['status'=>$item->statuss]) }}
-                                    @else
-                                    {{$list}}
-                                    @endif
+                            @else
+                            @if(empty($timess) && empty($namess) && empty($mobiless) && empty($numss) && empty($unamess) && empty($phoss) && empty($keyword))
+                                {{$list}}
                                 @else
-                                 {{$list}}
+                                  {{$list}}
+                                @endif
                             @endif
-                             @else
-                         {{$list}}
-                             @endif
-                           @else
-                           @endif
+                       @else
+                       @endif
 
                 </form>
             </div>

@@ -390,65 +390,136 @@ class ShopController extends BaseController
             -> first();
         $all = \request()-> all();
         $ids= $all['id'];
-        $courier_num = $all['courier_num'];  //快递公司
-        $express_id = $all['express_id'];    //快递单号
-        // 如果当前用户是商家，则查询当前商户的商品  基本信息
-        if($i){
-            $data = DB::table('order_goods')
-                -> join('users','order_goods.user_id','=','users.id')
-                -> where('order_goods.is_del',0)
-                -> where('order_goods.merchant_id',$id)
-                ->where('order_goods.id',$ids)
-                ->first(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total',
-                    'order_goods.pay_way','order_goods.status as statuss','users.name as user_name','users.mobile','order_goods.order_source','order_goods.express_id','order_goods.courier_num','order_goods.order_id','order_goods.order_types'
-                ]);
-        }else{
-            $data = DB::table('order_goods')
-                -> join('users','order_goods.user_id','=','users.id')
-                -> where('order_goods.is_del',0)
-                ->where('order_goods.id',$ids)
-                ->first(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total',
-                    'order_goods.pay_way','order_goods.status as statuss','users.name as user_name','users.mobile','order_goods.order_source','order_goods.express_id','order_goods.courier_num','order_goods.order_id','order_goods.order_types'
-                ]);
-        }
+        if(empty($all['courier_num'] && empty($all['express_id']))){
+            if($i){
+                $data = DB::table('order_goods')
+                    -> join('users','order_goods.user_id','=','users.id')
+                    -> where('order_goods.is_del',0)
+                    -> where('order_goods.merchant_id',$id)
+                    ->where('order_goods.id',$ids)
+                    ->first(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total',
+                        'order_goods.pay_way','order_goods.status as statuss','users.name as user_name','users.mobile','order_goods.order_source','order_goods.express_id','order_goods.courier_num','order_goods.order_id','order_goods.order_types'
+                    ]);
+            }else{
+                $data = DB::table('order_goods')
+                    -> join('users','order_goods.user_id','=','users.id')
+                    -> where('order_goods.is_del',0)
+                    ->where('order_goods.id',$ids)
+                    ->first(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total',
+                        'order_goods.pay_way','order_goods.status as statuss','users.name as user_name','users.mobile','order_goods.order_source','order_goods.express_id','order_goods.courier_num','order_goods.order_id','order_goods.order_types'
+                    ]);
+            }
 
 //        //收货人信息
-        if($i){
-            $uid = DB::table('order_goods')
-                ->where('id',$ids)
-                ->first(['user_id','order_id','express_id']);
-            $address =DB::table("user_address")
-                ->where('user_id',$uid->user_id)
-                ->first(['name','mobile','address']);
-        }else{
-            $uid = DB::table('order_goods')
-                ->where('id',$ids)
-                ->first(['user_id','express_id','order_id']);  //快递公司
-            //收货人
-            $address =DB::table("user_address")
-                ->where('user_id',$uid->user_id)
-                ->first(['name','mobile','address']);
-        }
-        //商品信息
-        $goodInfo = DB::table("order_goods")
-            ->join('goods','order_goods.goods_id','=','goods.id')
-            ->join('goods_sku','order_goods.goods_id','=','goods_sku.goods_id')
-            ->where('order_goods.goods_id',18)
-            ->get(['goods.img','goods.name','goods.price','goods.good_num','order_goods.num','goods_sku.attr_value','goods_sku.store_num','goods.good_num']);
-        //总计
-        $sum = DB::table("order_goods")
-            ->join('goods','order_goods.goods_id','=','goods.id')
-            ->join('goods_sku','order_goods.goods_id','=','goods_sku.goods_id')
-            ->where('order_goods.goods_id',18)
-            ->get(['goods.price']);
-        $json =json_encode($sum);
-        $sumPrice = json_decode($json,true);
-        $sumNum = array_column($sumPrice,'price');
+            if($i){
+                $uid = DB::table('order_goods')
+                    ->where('id',$ids)
+                    ->first(['user_id','order_id','express_id']);
+                $address =DB::table("user_address")
+                    ->where('user_id',$uid->user_id)
+                    ->first(['name','mobile','address']);
+            }else{
+                $uid = DB::table('order_goods')
+                    ->where('id',$ids)
+                    ->first(['user_id','express_id','order_id']);  //快递公司
+                //收货人
+                $address =DB::table("user_address")
+                    ->where('user_id',$uid->user_id)
+                    ->first(['name','mobile','address']);
+            }
+            //商品信息
+            $goodInfo = DB::table("order_goods")
+                ->join('goods','order_goods.goods_id','=','goods.id')
+                ->join('goods_sku','order_goods.goods_id','=','goods_sku.goods_id')
+                ->where('order_goods.goods_id',18)
+                ->get(['goods.img','goods.name','goods.price','goods.good_num','order_goods.num','goods_sku.attr_value','goods_sku.store_num','goods.good_num']);
+            //总计
+            $sum = DB::table("order_goods")
+                ->join('goods','order_goods.goods_id','=','goods.id')
+                ->join('goods_sku','order_goods.goods_id','=','goods_sku.goods_id')
+                ->where('order_goods.goods_id',18)
+                ->get(['goods.price']);
+            $json =json_encode($sum);
+            $sumPrice = json_decode($json,true);
+            $sumNum = array_column($sumPrice,'price');
 
-             //发票信息
-              $tick = DB::table("order_invoice")
-                  ->where('order_id',$uid->order_id)
-                  ->get(['is_vat','invoice_title','invoice_content','order_id']);
+            //发票信息
+            $tick = DB::table("order_invoice")
+                ->where('order_id',$uid->order_id)
+                ->get(['is_vat','invoice_title','invoice_content','order_id']);
+//              var_dump($tick);die;
+            if(!empty($tick[0]->order_id)){
+                $goods =  DB::table("order_goods")
+                    ->where('order_id',$tick[0]->order_id)
+                    ->get(['user_id']);
+
+                $user = DB::table("users")
+                    ->where('id',$goods[0]->user_id)
+                    ->get(['mobile']);
+            }else{
+                $user=null;
+            }
+            return $this->view('ordersUpd',['id'=>$ids,'data'=>$data,'address'=>$address,'uid'=>$uid,'good'=>$goodInfo,'num'=>$sumNum,'user'=>$user,'tick'=>$tick,'status'=>$all['status']]);
+        } else{
+            $courier_num = $all['courier_num'];  //快递公司
+            $express_id = $all['express_id'];    //快递单号
+            // 如果当前用户是商家，则查询当前商户的商品  基本信息
+            if($i){
+                $data = DB::table('order_goods')
+                    -> join('users','order_goods.user_id','=','users.id')
+                    -> where('order_goods.is_del',0)
+                    -> where('order_goods.merchant_id',$id)
+                    ->where('order_goods.id',$ids)
+                    ->first(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total',
+                        'order_goods.pay_way','order_goods.status as statuss','users.name as user_name','users.mobile','order_goods.order_source','order_goods.express_id','order_goods.courier_num','order_goods.order_id','order_goods.order_types'
+                    ]);
+            }else{
+                $data = DB::table('order_goods')
+                    -> join('users','order_goods.user_id','=','users.id')
+                    -> where('order_goods.is_del',0)
+                    ->where('order_goods.id',$ids)
+                    ->first(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total',
+                        'order_goods.pay_way','order_goods.status as statuss','users.name as user_name','users.mobile','order_goods.order_source','order_goods.express_id','order_goods.courier_num','order_goods.order_id','order_goods.order_types'
+                    ]);
+            }
+
+//        //收货人信息
+            if($i){
+                $uid = DB::table('order_goods')
+                    ->where('id',$ids)
+                    ->first(['user_id','order_id','express_id']);
+                $address =DB::table("user_address")
+                    ->where('user_id',$uid->user_id)
+                    ->first(['name','mobile','address']);
+            }else{
+                $uid = DB::table('order_goods')
+                    ->where('id',$ids)
+                    ->first(['user_id','express_id','order_id']);  //快递公司
+                //收货人
+                $address =DB::table("user_address")
+                    ->where('user_id',$uid->user_id)
+                    ->first(['name','mobile','address']);
+            }
+            //商品信息
+            $goodInfo = DB::table("order_goods")
+                ->join('goods','order_goods.goods_id','=','goods.id')
+                ->join('goods_sku','order_goods.goods_id','=','goods_sku.goods_id')
+                ->where('order_goods.goods_id',18)
+                ->get(['goods.img','goods.name','goods.price','goods.good_num','order_goods.num','goods_sku.attr_value','goods_sku.store_num','goods.good_num']);
+            //总计
+            $sum = DB::table("order_goods")
+                ->join('goods','order_goods.goods_id','=','goods.id')
+                ->join('goods_sku','order_goods.goods_id','=','goods_sku.goods_id')
+                ->where('order_goods.goods_id',18)
+                ->get(['goods.price']);
+            $json =json_encode($sum);
+            $sumPrice = json_decode($json,true);
+            $sumNum = array_column($sumPrice,'price');
+
+            //发票信息
+            $tick = DB::table("order_invoice")
+                ->where('order_id',$uid->order_id)
+                ->get(['is_vat','invoice_title','invoice_content','order_id']);
 //              var_dump($tick);die;
             if(!empty($tick[0]->order_id)){
                 $goods =  DB::table("order_goods")
@@ -462,9 +533,9 @@ class ShopController extends BaseController
                 $user=null;
             }
 
+            return $this->view('ordersUpd',['id'=>$ids,'data'=>$data,'address'=>$address,'uid'=>$uid,'good'=>$goodInfo,'num'=>$sumNum,'courier_num'=>$courier_num,'express_id'=>$express_id,'user'=>$user,'tick'=>$tick,'status'=>$all['status']]);
+        }
 
-
-        return $this->view('ordersUpd',['id'=>$ids,'data'=>$data,'address'=>$address,'uid'=>$uid,'good'=>$goodInfo,'num'=>$sumNum,'courier_num'=>$courier_num,'express_id'=>$express_id,'user'=>$user,'tick'=>$tick]);
     }
     //订单修改提交
     public function ordersUpds()
@@ -1047,6 +1118,7 @@ class ShopController extends BaseController
     public function orders(Request $request)
     {
         $input = $request->all();
+//        var_dump($input);die;
         $id = Auth::id();     // 当前登录用户的id
         // 判断当前用户是否是商家
         $i = DB::table('merchants')
