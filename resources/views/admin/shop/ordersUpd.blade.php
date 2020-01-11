@@ -6,7 +6,7 @@
         .animated{-webkit-animation-fill-mode: none;}
     </style>
 @endsection
-
+ 
 @section('content')
     <div class="row">
         <div class="col-sm-12">
