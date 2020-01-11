@@ -204,7 +204,7 @@
                         <td>{{$tick[0]->invoice_title}}</td>
                         <td>{{$tick[0]->invoice_content}}</td>
                         <td>{{$user[0]->mobile}}</td>
-                    </tr>
+                    </tr> 
                     @else
                         <tr>
                             <td colspan="11">没有查询到相关数据</td>
