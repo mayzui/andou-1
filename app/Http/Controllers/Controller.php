@@ -8,6 +8,7 @@ use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\DB;
+use Endroid\QrCode\QrCode;
 class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
@@ -123,6 +124,40 @@ class Controller extends BaseController
         }
         return $suiji;
     }
+    function code(){
+        $c= "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz123456789";
+        $suiji = '';
+        for($i = 0;$i<6;$i++){
+            $c = str_shuffle($c);
+            $suiji .= substr($c, 0,1);
+        }
+        $re=DB::table('users')->where('invitation',$suiji)->first();
+        if (!empty($re)) {
+            $this->code();
+        }
+        return $suiji;
+    }
+    //生成邀请码
+    function invitation($id){
+            $data['invitation']=$this->code();
+            Db::table('users')->where('id',$id)->update($data);
+            return $data['invitation'];
+    }
+    //生成邀请二维码
+    function qrcode($id){
+        $re=Db::table('users')->where('id',$id)->select('invitation')->first();
+        $qrCode = new QrCode();
+        $qrCode->setText($re->invitation)
+            ->setSize(300)
+            ->setForegroundColor(array('r' => 0, 'g' => 0, 'b' => 0, 'a' => 0))
+            ->setBackgroundColor(array('r'=>255,'g'=>255,'b'=>255,'a'=>0))
+            ->setLabelFontSize(16);
+        $filename = 'uploads/qrcode/'.$id.'.png';
+        $qrCode->writeFile($filename);
+        $data['qrcode']=$filename;
+        Db::table('users')->where('id',$id)->update($data);
+        return $filename;  
+    }
     /**随机生成token
      * [token description]
      * @param  [type] $id [description]
@@ -145,11 +180,13 @@ class Controller extends BaseController
      */
     public function checktoten($id,$token){
         $tokens=md5('andou'.$id.$token);
+
         $user=Db::table('users')->select('token')->where('id',$id)->first();
+        
         if(empty($user->token)){
             return array('code'=>202,'msg'=>'登陆失效');
         }
-        if ($tokens!=$user->token) {
+        if ($tokens!==$user->token) {
             return array('code'=>202,'msg'=>'登陆失效');
         }
     }

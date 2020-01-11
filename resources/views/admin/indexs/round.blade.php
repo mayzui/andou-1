@@ -70,13 +70,13 @@
                 radius : ['30%', '50%'],
                 center: ['50%', '30%'],
                 data:[
-                    {value:152400, name:'152400'},
-                    {value:35465, name:'35465'},
-                    {value:92584, name:'92584'},
-                    {value:152400, name:'15240'},
-                    {value:35465, name:'30546'},
-                    {value:92584, name:'52584'},
-                    {value:92584, name:'41584'},
+                    {value:152400, name:'0'},
+                    {value:35465, name:'1'},
+                    {value:92584, name:'2'},
+                    {value:152400, name:'3'},
+                    {value:35465, name:'4'},
+                    {value:92584, name:'5'},
+                    {value:92584, name:'6'},
                 ],
                 itemStyle: {
                     emphasis: {

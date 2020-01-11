@@ -238,9 +238,10 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('refund/indexDel','RefundController@indexDel')->name('refund.indexDel');
 
         // 售后服务
-        Route::get('refund/aftermarket','RefundController@aftermarket')->name('refund.aftermarket');
+        Route::match(['get','post'],'refund/aftermarket','RefundController@aftermarket')->name('refund.aftermarket');
         Route::match(['get','post'],'refund/aftermarketChange','RefundController@aftermarketChange')->name('refund.aftermarketChange');
-
+        // 商品评论回复
+        Route::post('shop/commnetReply','ShopController@commnetReply')->name('shop.commnetReply');
 
 
 

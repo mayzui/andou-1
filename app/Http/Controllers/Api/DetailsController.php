@@ -45,7 +45,9 @@ class DetailsController extends Controller
             ->select(['id','name','tel','door_img','stars_all','address','praise_num','desc','facilities'])
             ->where('id', $all['id'])
             ->first();
+
         if ($data) {
+            $data->facilities=json_decode($data->facilities,1);
             return $this->rejson(200,'查询成功',$data);
         } else {
             return $this->rejson(201, '查询失败');
@@ -56,6 +58,7 @@ class DetailsController extends Controller
      * @apiName room_list
      * @apiGroup details
      * @apiParam {int} merchant_id 商户id
+     * @apiParam {int} page 分页页码page
      * @apiSuccessExample 返回参数：
      *     {
      *        "code":"200",
@@ -197,6 +200,7 @@ class DetailsController extends Controller
      * @apiParam {string} content 评价内容（非必填）
      * @apiParam {string} stars 评价星级（必填）
      * @apiParam {string} image 商品图片（非必填）
+     * @apiParam {string} dianzhan 是否点赞(0未点赞 1点赞)
      * @apiSuccessExample 参数返回:
      *     {
      *       "code": "200",
@@ -239,6 +243,17 @@ class DetailsController extends Controller
             'created_at' => date('Y-m-d H:i:s'),
             'type' => 1,
         ];
+
+        if(empty($all['dianzhan']==1)){
+            $da['user_id']=$all['uid'];
+            $da['pid']=$all['id'];
+            $da['created_at']=date('Y-m-d H:i:s',time());
+            $re=Db::table('fabulous')->insert($da);
+            $res=DB::table('merchants')->where('id',$all['id'])->increment('praise_num');
+
+        }
+
+
         $i = DB::table('order_commnets') -> insert($data);
         if($i){
             return $this->rejson(200,'添加成功');

@@ -5,7 +5,7 @@
     <div class="row">
         <div class="col-sm-12">
             <div class="ibox-title">
-                <h5>添加商户分类</h5>
+                <h5>编辑热门搜索</h5>
             </div>
             <div class="ibox-content">
                 <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>

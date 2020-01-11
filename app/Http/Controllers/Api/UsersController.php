@@ -68,6 +68,68 @@ class UsersController extends Controller
         return $this->rejson(200,'查询成功',$data);
     }
     /**
+     * @api {post} /api/users/invitations 邀请码 邀请二维码
+     * @apiName invitations
+     * @apiGroup users
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} token 验证登陆
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data":  [
+                {
+                    "id": "商户id",
+                    "invitation": "邀请码",
+                    "qrcode": "邀请二维码" 
+                }
+            ],     
+     *       "msg":"查询成功"
+     *     }
+     */
+    public function invitations(){
+        $all=request()->all();
+        $id=$all['uid'];
+        $data=Db::table('users')->where('id',$id)->select('id','invitation','qrcode')->first();
+        if ($data->invitation=='0') {
+            $data->invitation=$this->invitation($data->id);
+        }
+        if (empty($data->qrcode)) {
+            $data->qrcode=$this->qrcode($data->id);
+        }
+        return $this->rejson(200,'查询成功',$data);
+    }
+     /**
+     * @api {post} /api/users/binding 绑定上级
+     * @apiName binding
+     * @apiGroup users
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} token 验证登陆
+     * @apiParam {string} code 上级邀请码
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": "",     
+     *       "msg":"查询成功"
+     *     }
+     */
+    public function binding(){
+        $all=request()->all();
+        if (empty($all['code'])) {
+            return $this->rejson(201,'缺少参数');
+        }
+        $re=Db::table('users')->where('invitation',$all['code'])->select('id')->first();
+        if (empty($re)) {
+            return $this->rejson(201,'邀请码不存在');
+        }
+        $data['guide_puser_id']=$re->id;
+        $res=Db::table('users')->where('id',$all['uid'])->update($data);
+        if ($res) {
+           return $this->rejson(200,'绑定成功');
+        }else{
+           return $this->rejson(201,'绑定失败'); 
+        }
+    }
+    /**
      * @api {post} /api/users/collection 商品收藏记录
      * @apiName collection
      * @apiGroup users
