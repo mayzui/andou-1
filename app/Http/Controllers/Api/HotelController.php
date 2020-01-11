@@ -192,7 +192,7 @@ class HotelController extends Controller
         if (!empty($all['area_id'])) {
             $where[]=['m.area_id',$all['area_id']];
         }
-        $data['merchants']=Db::table('merchants as m')
+        $data=Db::table('merchants as m')
         ->join('hotel_room as h','h.merchant_id','=','m.id')
         ->where($where)
         ->select('m.id','m.created_at','m.address','m.tel','m.stars_all','m.praise_num','m.logo_img','m.name',DB::raw('min(h.price) as price'))

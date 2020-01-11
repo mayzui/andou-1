@@ -31,7 +31,8 @@ class CommonController extends Controller
         $data = DB::table('express')->select('id','name')->get();
         return $this->rejson('200','查询成功',$data);
     }
-
+    
+    
 
     /**
      * @api {post} /api/common/pay_ways 支付方式

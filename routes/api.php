@@ -66,14 +66,17 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('users/upmodel', 'UsersController@upmodel');
      Route::post('users/collection', 'UsersController@collection');
      Route::post('users/follow', 'UsersController@follow');
-     
+     Route::post('users/invitations', 'UsersController@invitations');
+     Route::post('users/binding', 'UsersController@binding');
+          
      Route::post('common/uploads','CommonController@uploads');
      Route::post('common/pay_ways', 'CommonController@payWays');
      Route::post('common/merchant_type', 'CommonController@merchantType');
      Route::any('common/wxnotify', 'CommonController@wxnotify');
      Route::any('common/district', 'CommonController@district');
      Route::any('common/wxnotifyhotel', 'CommonController@wxnotifyhotel');
-
+     Route::post('common/qrcode', 'CommonController@qrcode');
+     
      Route::post('order/details', 'OrderController@details');
 
      Route::post('cart/index', 'CartController@index');

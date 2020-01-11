@@ -252,13 +252,7 @@
                             '<a href="javascript:void(0);" class="add_spec_item" style="display: block;float: right">添加</a> </div> </td> <td class="handle-s"> <div style="text-align: center; width: 60px;">' +
                             '<a href="javascript:void(0);" class="btn red delete_spec" ><i class="fa fa-trash-o"></i>删除</a></div> </td></tr>';
                         spec_list.append(spec_item_div);
-
-
-
-
-
                     }
-                    console.log(goods_attr_value_data);
                 }
             }else{
                 console.log("no");

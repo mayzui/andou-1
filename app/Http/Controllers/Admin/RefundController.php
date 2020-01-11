@@ -10,6 +10,31 @@ class RefundController extends BaseController
     // 跳转售后服务界面
     public function aftermarket(){
         $id = \Auth::id();
+        $where[]=['order_goods.id','>','0'];
+        // 判断条件搜索
+        if (!empty($all['name'])) {
+            $where[]=['name', 'like', '%'.$all['name'].'%'];
+            $screen['name']=$all['name'];
+        }else{
+            $screen['name']='';
+        }
+        // 判断条件查询
+        if(!empty($all['status'])){
+            $status = $all['status'];
+            if($all['status'] == 2){            // 待处理
+                $where[] = ['order_returns.is_reg',0];
+            }elseif ($all['status'] == 1){      // 已完成
+                $where[] = ['order_returns.is_reg',3];
+            }elseif ($all['status'] == 3){      // 退货中
+                $where[] = ['order_returns.is_reg',2];
+            }elseif ($all['status'] == 4){      // 已拒绝
+                $where[] = ['order_returns.is_reg',4];
+            }else{
+
+            }
+        }else{
+            $status = 0;
+        }
         // 判断该用户，是否开店 并且已经认证通过
         $i = \DB::table('merchants') -> where("user_id",$id) -> where("is_reg",1) -> first();
         if(!empty($i)) {
@@ -20,6 +45,7 @@ class RefundController extends BaseController
                 -> join('users','order_goods.user_id','=','users.id')
                 -> join('refund_reason','order_returns.reason_id','=','refund_reason.id')
                 -> where('order_goods.merchant_id',$id)
+                -> where($where)
                 -> select('order_goods.id','order_goods.order_id','users.name as user_name','refund_reason.name as retun_name',
                     'order_returns.content','order_returns.is_reg','order_returns.status')
                 -> paginate(10);
@@ -29,11 +55,12 @@ class RefundController extends BaseController
                 -> join('order_returns','order_goods.id','=','order_returns.order_goods_id')
                 -> join('users','order_goods.user_id','=','users.id')
                 -> join('refund_reason','order_returns.reason_id','=','refund_reason.id')
+                -> where($where)
                 -> select('order_goods.id','order_goods.order_id','users.name as user_name','refund_reason.name as retun_name',
                     'order_returns.content','order_returns.is_reg','order_returns.status')
                 -> paginate(10);
         }
-        return $this->view('',['data'=>$data]);
+        return $this->view('',['data'=>$data,'status' => $status]);
     }
     // 修改审核状态
     public function aftermarketChange(){

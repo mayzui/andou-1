@@ -170,7 +170,8 @@ class LogisticsController extends BaseController
 
             return $this->view('',['data' => $data,'id'=>$all['id'],'state'=>$state]);
         } else {
-            return "no";
+            flash("请先发货") -> error();
+            return redirect()->route('shop.orders');
         }
 
     }

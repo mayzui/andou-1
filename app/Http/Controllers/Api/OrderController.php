@@ -414,7 +414,8 @@ class OrderController extends Controller
      * @apiGroup order
      * @apiParam {string} uid 用户id
      * @apiParam {string} token 验证登陆
-     * @apiParam {array}  order_sn 订单编号
+     * @apiParam {string}  order_sn 订单编号
+     * @apiParam {string}  did 子订单id
      * @apiSuccessExample 参数返回:
      *     {
      *       "code": "200",
@@ -478,11 +479,15 @@ class OrderController extends Controller
         $city=DB::table('districts')->where('id',$address->city_id)->first()->name ?? '';
         $area=DB::table('districts')->where('id',$address->area_id)->first()->name ?? '';
         $data->userinfo=array('name'=>$address->name,'address'=>$address->address,'mobile'=>$address->mobile,'province'=>$province,'city'=>$city,'area'=>$area);
+        $where[]=["o.order_id",$all['order_sn']];
+        if (isset($all['did'])) {
+            $where[]=["o.id",$all['did']];
+        }
         $data->details=DB::table('order_goods as o')
         ->join('goods as g','g.id','=','o.goods_id')
         ->join('goods_sku as s','s.id','=','o.goods_sku_id')
-        ->where('o.order_id',$all['order_sn'])
-        ->select('o.id','g.img','g.name','o.num','shipping_free','s.price','s.attr_value')
+        ->where($where)
+        ->select('o.id','g.img','o.status','g.name','o.num','shipping_free','s.price','s.attr_value')
         ->get();
         $data->shipping_free=0;
         $data->allnum=0;

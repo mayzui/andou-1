@@ -18,7 +18,7 @@
             <div class="ibox-content">
                 <div class="col-sm-3" style="padding-left: 0px; width: 100%;">
                     <div class="input-group">
-                        <a href="{{url("/admin/shop/orders")}}">
+                        <a href="{{url("/admin/shop/orders?status=70")}}">
                             <button class="btn btn-primary " type="button"><i class="fa fa-paste">全部订单@php if(empty($count)){echo 0;}else {echo (count($count['data5']));} @endphp</i></button>
                         </a>
                         <a href="{{url("/admin/shop/orders?status=10")}}">
@@ -41,12 +41,13 @@
                             <button class="btn btn-primary " type="button"><i class="fa fa-paste">已关闭@php if(empty($count)){echo 0;}else {echo (count($count['data4']));} @endphp</i></button>
                         </a>
 
-                        输入搜索:<input type="text" style="height: 25px;margin-left: 10px;" id="sval" onkeydown="search()" placeholder="订单编号/商品货号">
+                        {{--                        收货人:<input type="text" style="height: 25px;margin-left: 10px;" class="userval" onkeydown="user()" placeholder="收货人姓名/手号码">--}}
 
-                        收货人:<input type="text" style="height: 25px;margin-left: 10px;" class="userval" onkeydown="user()" placeholder="收货人姓名/手号码">
+                        输入搜索:<input type="text" style="height: 25px;margin-left: 10px; width: 200px;" name="search" id="sval" onkeydown="search()" placeholder="订单编号/收货人姓名/手号码">
 
-                        提交时间:<input type="date"  style="height: 25px;margin-left: 10px;" class="time" onkeydown="time()" placeholder="请选择时间">&nbsp
+                        提交时间:<input type="date"  class="time" onkeydown="time()" placeholder="请选择时间">
 
+                         <button class="btn btn-primary " type="button"><i class="fa fa-search" id="pse">搜索</i></button>
                     </div>
                 </div>
                 <style>
@@ -118,19 +119,17 @@
                                 </td>
                                 <td class="text-center">
                                     <div class="btn-group">
-                                                <a href="{{url("/admin/shop/ordersUpd?id=$item->id&status=$item->statuss")}}">
+                                                <a href="{{url("/admin/shop/ordersUpd?id=$item->id&status=$item->statuss&express_id=$item->express_id&courier_num=$item->courier_num")}}">
                                                     <button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i>查看订单</button>
                                                 </a>
                                         @if($item->statuss == 0)
                                             <font color="880000">已取消</font>
-                                        @elseif($item->statuss == 10)
-                                            <a onclick="del({{$item->id}})"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o"></i> 关闭订单</button></a>
                                         @elseif($item->statuss == 20)
-                                            <a href="{{url("/admin/logistics/indexs")}}" ><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-check" ></i> 订单发货</button></a>
+                                            <a href="{{url("/admin/logistics/goGoods?id=$item->id")}}" ><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-check" ></i> 订单发货</button></a>
                                         @elseif($item->statuss == 40)
-                                            <a href="{{url("/admin/logistics/readLogistics?id=$item->id&express_id=$item->express_id&courier_num=$item->courier_num")}}" ><button class="btn btn-xs" type="button"><i class="fa fa-trash-o" ></i> 订单跟踪</button></a>
+                                            <a href="{{url("/admin/logistics/readLogistics?id=$item->id&express_id=$item->express_id&courier_num=$item->courier_num")}}" ><button class= "btn btn-danger btn-xs"type="button"><i class="fa fa-check" ></i> 订单跟踪</button></a>
                                         @elseif($item->statuss == 50)
-                                            <a href="{{url("/admin/logistics/readLogistics?id=$item->id&express_id=$item->express_id&courier_num=$item->courier_num")}}" ><button class="btn btn-xs" type="button"><i class="fa fa-trash-o" ></i> 订单跟踪</button></a>
+                                            <a href="{{url("/admin/logistics/readLogistics?id=$item->id&express_id=$item->express_id&courier_num=$item->courier_num")}}" ><button class= "btn btn-danger btn-xs"type="button"><i class="fa fa-check" ></i> 订单跟踪</button></a>
                                         @elseif($item->statuss == 60)
                                             <a onclick="del({{$item->id}})"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o"></i> 删除订单</button></a>
                                         @endif
@@ -146,9 +145,19 @@
                         <tbody>
                     </table>
                        @if(count($list)>0)
-                           {{ $list->appends(['status'=>$item->statuss]) }}
-                           @else
+
+                        @if(empty($timess) && empty($namess) && empty($mobiless) && empty($numss) && empty($unamess) && empty($phoss) && empty($keyword) && empty($item->order_show))
+                                {{ $list->appends(['status'=>$item->statuss]) }}
+                            @else
+                            @if(empty($timess) && empty($namess) && empty($mobiless) && empty($numss) && empty($unamess) && empty($phoss) && empty($keyword))
+                                {{$list}}
+                                @else
+                                  {{$list}}
+                                @endif
+                            @endif
+                       @else
                        @endif
+
                 </form>
             </div>
         </div>
@@ -167,7 +176,8 @@
         function search() {
             var keyword = $("#sval").val()
             if (event.keyCode==13){
-                location.href="{{route('shop.orders')}}?keyword="+keyword +"&sta="+"1" ;
+                // keyword 订单编号  uname 用户名  pho手机号
+                location.href="{{route('shop.orders')}}?keyword="+keyword +"&sta="+"1"+ "&uname="+keyword+"&pho="+keyword;
             }
         }
        //搜索收货人
@@ -194,7 +204,13 @@
             }
         })
 
+        //搜索
 
+        $("#pse").click(function () {
+            var vals = $("#sval").val()
+            var times = $(".time").val()
+            location.href="{{route('shop.orders')}}?num="+vals +"&mobiles="+ vals+"&names="+vals+"&times="+times
+        })
 
 
     </script>
