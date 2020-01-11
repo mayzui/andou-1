@@ -38,13 +38,13 @@
                                 <td>{{$item->created_at}}</td>
                                 <td>
                                     @if(empty($item -> merchant_content))
-                                        未回复
+                                        <span style="color: blue">未回复</span>
                                         @else
                                         {{ $item -> merchant_content }}
                                     @endif
                                 </td>
                                 <td>
-                                    <button type="button" class="btn btn-primary btn-xs type_info" data-id="{{$item->id}}" data-toggle="modal" data-target="#myModal"><i class="fa fa-comment-o"></i> 回复</button>
+                                    <button type="button" class="btn btn-primary btn-xs type_info" data-id="{{$item->id}}" data-content="{{ $item -> merchant_content }}" data-toggle="modal" data-target="#myModal"><i class="fa fa-comment-o"></i> 回复</button>
                                     <a onclick="del({{$item->id}})"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o"></i> 删除</button></a>
                                 </td>
                             </tr>
@@ -75,7 +75,7 @@
                                 <input type="hidden" id="flag_id" name="id" value="">
                                 <label class="col-sm-2 control-label">回复内容：</label>
                                 <div class="input-group col-sm-8">
-                                    <input type="text" class="form-control replyName" name="replyName" value="{{ $item -> merchant_content or '' }}" required data-msg-required="请输入商品名称" style="height: 40px">
+                                    <input type="text" class="form-control replyName" name="replyName" id="replyName" value="{{ $item -> merchant_content or '' }}" required data-msg-required="请输入商品名称" style="height: 40px">
                                 </div>
                             </div>
                             </tbody>
@@ -101,7 +101,9 @@
         // 获取当前id
         $(document).on('click', '.type_info', function () {
             var type_id = $(this).data('id');
+            var type_content = $(this).data('content');
             document.getElementById("flag_id").value=type_id;
+            document.getElementById("replyName").value=type_content;
         });
     </script>
 @endsection
