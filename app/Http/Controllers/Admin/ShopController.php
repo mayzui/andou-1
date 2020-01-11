@@ -1413,7 +1413,7 @@ class ShopController extends BaseController
         }
 
         if(empty($input['name'])){
-        }else{
+        }else{ 
             //手机号 用户名搜索
             if ($input['sta']=="2"){
                 // 如果当前用户是商家，则查询当前商户的商品
