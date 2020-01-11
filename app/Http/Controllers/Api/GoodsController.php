@@ -60,6 +60,7 @@ class GoodsController extends Controller
         ->select('id','img','name')
         ->where(['pid'=>0])
         ->orderBy('sort','ASC')
+        ->limit(8)
         ->get();
         $data['recommend_goods']=Db::table('goods')
         ->select('id','img','name','price')

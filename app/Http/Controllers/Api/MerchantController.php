@@ -238,6 +238,7 @@ class MerchantController extends Controller
      * @apiParam {string} type_id 分类id查询(非必传)
      * @apiParam {string} price_sort 价格排序(非必传1为倒序,0为正序)
      * @apiParam {string} volume_sort 销量排序(非必传1为倒序,0为正序)
+     * @apiParam {string} page 商品分页页码
      * @apiSuccessExample 参数返回:
      *     {
      *       "code": "200",
