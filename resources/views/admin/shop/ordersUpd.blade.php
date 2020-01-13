@@ -79,7 +79,7 @@
                         <th>收货地址</th>
                     </tr>
                     </thead>
-                    @if(empty($uid->express_id))
+                    @if(!empty($uid->express_id))
                     <tr>
                         <td>{{$address->name}}</td>
                         <td>{{$address->mobile}}</td>
@@ -136,18 +136,18 @@
                         <th>小计</th>
                     </tr>
                     </thead>
-                    @if(count($good) > 0)
-                        @foreach($good as $k => $item)
+                    @if(!empty($good))
+{{--                        @foreach($good as $k => $item)--}}
                     <tr>
-                        <td><img src="{{ env('IMAGE_PATH_PREFIX')}}{{$item->img}}" alt="" style="width: 55px;height: 55px;"></td>
-                        <td>{{$item->name}}</td>
+                        <td><img src="{{ env('IMAGE_PATH_PREFIX')}}{{$good->img}}" alt="" style="width: 55px;height: 55px;"></td>
+                        <td>{{$good->name}}</td>
                         <td>
-                            <p>价格:{{$item->price}}</p>
-                            <p>货号:{{$item->good_num}}</p>
+                            <p>价格:{{$good->price}}</p>
+                            <p>货号:{{$good->good_num}}</p>
                         </td>
                         <td>
                             @php
-                                $arr = json_decode($item->attr_value);
+                                $arr = json_decode($good->attr_value);
                                 $dou = $arr[0]->name;
                                 $val = $arr[0]->value;
                                      for($i=0;$i<count($dou);$i++){
@@ -156,13 +156,13 @@
                             @endphp
                         </td>
 
-                        <td>{{$item->num}}</td>
+                        <td>{{$good->num}}</td>
                         <td>
-                            {{$item->store_num}}
+                            {{$good->store_num}}
                         </td>
-                        <td>{{$item->price}}</td>
+                        <td>{{$good->price}}</td>
                     </tr>
-                        @endforeach
+{{--                        @endforeach--}}
                     @else
                         <tr>
                             <td colspan="11">没有查询到相关数据</td>
@@ -171,15 +171,7 @@
                     <tbody>
                 </table>
 
-                <span style="margin-left: 95%">合计:<font style="color:red">
-                        @php
-                            $sum=0;
-                          foreach ($num as &$value)
-                          {
-                            $sum+=$value;
-                            }
-                          echo $sum
-                        @endphp</font></span>
+                <span style="margin-left: 95%">合计:<font style="color:red">{{$good->price}}</font></span>
 
 {{--                        发票信息--}}
                 <table class="table table-striped table-bordered table-hover m-t-md">
