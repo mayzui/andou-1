@@ -302,12 +302,13 @@ class CommonController extends Controller
             $trade_no = $values['transaction_id'];
             $total=$values['total_fee'];
             $datas = array('status' => 20, 'pay_way' => 1, 'out_trade_no' => $trade_no,'pay_time'=>date('Y-m-d H:i:s',time()),'pay_money'=>$total);
+            $datass = array('status' => 20, 'method' => 1, 'out_trade_no' => $trade_no,'pay_time'=>date('Y-m-d H:i:s',time()),'pay_money'=>$total);
             $out_trade_no = $values['out_trade_no'];
 
             $ress=Db::table('orders')->where(['order_sn' => $out_trade_no, 'status' =>10])->first();
             if (!empty($ress)) {
                 $re = Db::table('orders')->where('order_sn', $out_trade_no)->update($datas);
-                $res = Db::table('foods_user_ordering')->where('order_sn', $out_trade_no)->update($datas);
+                $res = Db::table('foods_user_ordering')->where('order_sn', $out_trade_no)->update($datass);
                 if ($re && $res) {
                     $str='<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>';  
                     echo $str;
