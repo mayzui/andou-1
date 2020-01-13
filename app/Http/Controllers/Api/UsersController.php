@@ -119,6 +119,10 @@ class UsersController extends Controller
         if (empty($all['code'])) {
             return $this->rejson(201,'缺少参数');
         }
+        $ress=Db::table('users')->where('id',$all['uid'])->select('guide_puser_id')->first();
+        if ($ress->guide_puser_id>0) {
+           return $this->rejson(201,'你已经存在上级用户');
+        }
         $re=Db::table('users')->where('invitation',$all['code'])->select('id')->first();
         if (empty($re)) {
             return $this->rejson(201,'邀请码不存在');
@@ -379,7 +383,28 @@ class UsersController extends Controller
             return $this->rejson(201,'暂未开通');
         }
     }
-
+    /**
+     * @api {post} /api/users/vip_rote 会员规者和金额
+     * @apiName vip_rote
+     * @apiGroup users
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} token 验证登陆
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": "",
+     *       "msg":"修改成功"
+     *     }
+     */
+    public function vipRote(){
+        $all=request()->all();
+        $data['price']=Db::table('config')->where('key','vipRecharge')->first()->value ?? 0;
+        if (!$data['price']) {
+            return $this->rejson(201,'后台未设置会员开通价格');
+        }
+        $data['vip_rote']=Db::table('vip_equity')->first()->content ?? 0;
+        return $this->rejson(200,'获取成功',$data);
+    }
     public function wxPay($sNo){
         require_once base_path()."/wxpay/lib/WxPay.Api.php";
         require_once base_path()."/wxpay/example/WxPay.NativePay.php";

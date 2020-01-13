@@ -30,12 +30,12 @@ class Controller extends BaseController
         ['id'=>5,'name'=>'豪华五星']
     ];
     public $price_range=[
-        ['start'=>0,'end'=>100],
-        ['start'=>100,'end'=>200],
-        ['start'=>200,'end'=>300],
-        ['start'=>300,'end'=>400],
-        ['start'=>500,'end'=>600],
-        ['start'=>500,'end'=>''],
+        ['start'=>0,'end'=>100,'id'=>1,'name'=>"0-100"],
+        ['start'=>100,'end'=>200,'id'=>2,'name'=>"100-200"],
+        ['start'=>200,'end'=>300,'id'=>3,'name'=>"200-300"],
+        ['start'=>300,'end'=>400,'id'=>4,'name'=>"300-400"],
+        ['start'=>500,'end'=>600,'id'=>5,'name'=>"400-500"],
+        ['start'=>500,'end'=>'','id'=>6,'name'=>"500+"],
     ];
     public function rejson($code = 0, $msg = '', $data = '')
     {

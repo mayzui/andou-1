@@ -70,6 +70,7 @@ class OpinionController extends Controller
         "name":'昵称',
         "mobile":'电话',
         "password":'密码',
+        "edition":"版本号"
      }
      */
     public function set(){
@@ -78,11 +79,11 @@ class OpinionController extends Controller
         if(empty($all['uid'])){
             return $this->rejson(201,'请输入用户id');
         }
-        $data['information'] = DB::table('users')
+        $data = DB::table('users')
             -> where('id',$all['uid'])
             -> select(['avator','name','mobile','password'])
             -> first();
-        $data['edition'] = DB::table('config') -> where('id',9) -> select('value') -> first() -> value ?? '';
+        $data->edition = DB::table('config') -> where('id',9) -> select('value') -> first() -> value ?? '';
 
         if(!empty($data)){
             return $this->rejson(200,'查询成功',$data);
