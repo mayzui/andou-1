@@ -352,7 +352,6 @@ class GourmetController extends Controller
      * @apiParam {string} uid 用户id
      * @apiParam {string} token 验证登陆
      * @apiParam {string} foods_id 菜品id
-     * @apiParam {string} spec_id 规格id
      * @apiParam {string} merchant_id 商户id
      * @apiSuccessExample 参数返回:
      *     {
@@ -379,7 +378,6 @@ class GourmetController extends Controller
         }
         $data['foods_id']=$all['foods_id'];
         $data['merchant_id']=$all['merchant_id'];
-        $data['spec_id']=$all['spec_id'];
         $data['num']=1;
         $data['user_id']=$all['uid'];
         $where[]=['foods_id',$data['foods_id']];
