@@ -340,4 +340,75 @@ class UsersController extends Controller
        $re=Db::table('users')->where('id',$all['uid'])->update($data);
        return $this->rejson('200',"修改手机号成功");
     }
+    /**
+     * @api {post} /api/users/vip_recharge vip购买
+     * @apiName vip_recharge
+     * @apiGroup users
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} token 验证登陆
+     * @apiParam {string} pay_id 支付方式id
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": "",
+     *       "msg":"修改成功"
+     *     }
+     */
+    public function vipRecharge(){
+        $all=request()->all();
+        $price=Db::table('config')->where('key','vipRecharge')->first()->value ?? 0;
+        if (!$price) {
+            return $this->rejson(201,'后台未设置会员开通价格');
+        }
+        $data['user_id']=$all['uid'];
+        $data['price']=$price;
+        $data['created_at']=$data['updated_at']=date('Y-m-d H:i:s',time());
+        $data['order_sn']=$this->suiji();
+        $re=Db::table('vip_recharge')->insert($data);
+        if ($all['pay_id']==1) {//微信支付
+            $this->wxpay($data['order_sn']);
+        }else if($all['pay_id']==2){//支付宝支付
+            return $this->rejson(201,'暂未开通');
+        }else if($all['pay_id']==3){//银联支付
+            return $this->rejson(201,'暂未开通');
+        }else if($all['pay_id']==5){//其他支付
+            return $this->rejson(201,'暂未开通');
+        }else{
+            return $this->rejson(201,'暂未开通');
+        }
+    }
+
+    public function wxPay($sNo){
+        require_once base_path()."/wxpay/lib/WxPay.Api.php";
+        require_once base_path()."/wxpay/example/WxPay.NativePay.php";
+        $orders = Db::table('vip_recharge')
+        ->where('order_sn',$sNo)
+        ->first();
+        if (empty($orders)) {
+            return $this->rejson(201,'订单不存在');
+        }
+        $pay_money = 100*$orders->price;
+        $input = new \WxPayUnifiedOrder();
+        $input->SetBody("安抖商城平台");
+        $input->SetOut_trade_no($sNo);
+        // $input->SetTotal_fee($pay_money);
+        $input->SetTotal_fee(1);
+        $input->SetNotify_url("http://andou.zhuosongkj.com/api/common/wxrecharge");
+        $input->SetTrade_type("APP");
+        $input->SetSpbill_create_ip($_SERVER['REMOTE_ADDR']);
+//        $input->SetAttach($uid);
+        $config = new \WxPayConfig();
+        $order = \WxPayApi::unifiedOrder($config, $input);
+         // var_dump($order);exit();
+        if($order['return_code']=="SUCCESS"){
+            $time = time();
+            $string = "appid=".$order['appid']."&noncestr=".$order['nonce_str']."&package="."Sign=WXPay"."&partnerid=".$order['mch_id']."&prepayid=".$order['prepay_id']."&timestamp=".$time."&key=AndoubendishenghuoXIdoukeji66888";
+            $string = md5($string);
+            $order['sign'] = strtoupper($string);
+            $order['timestamp'] = $time;
+            return  $this->rejson(200,'获取支付信息成功！',$order);
+        }else{
+            return  $this->rejson(201,'获取支付信息失败！');
+        }
+    }
 }
