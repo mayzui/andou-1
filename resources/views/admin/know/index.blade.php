@@ -22,7 +22,7 @@
                 <body>
 
                 <div style="margin-top: 50px;margin-left: 400px;">
-                    <script type="text/plain" id="myEditor" style="width:600px;height:200px;">
+                    <script type="text/plain" id="myEditor" style="width:60%;height:50%;">
     <p>{{ $data->need_content or '尊敬的客户您好:' }}</p>
 
 </script>
