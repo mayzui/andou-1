@@ -18,7 +18,7 @@
                         <th>登录手机</th>
                         <th>用户权限</th>
                         <th class="text-center">最后登录IP</th>
-                        <th class="text-center" width="150">最后登录时间</th>
+                        <th class="text-center" width="150">创建时间</th>
                         <th class="text-center" width="80">登录次数</th>
                         <th class="text-center" width="80">状态</th>
                         <th class="text-center" width="80">后台权限</th>
@@ -38,7 +38,7 @@
                                 @endforeach
                             </td>
                             <td class="text-center">{{$item->last_login_ip}}</td>
-                            <td class="text-center">{{$item->created_at->diffForHumans()}}</td>
+                            <td class="text-center">{{$item->created_at}}</td>
                             <td class="text-center">{{$item->login_count}}</td>
                             <td class="text-center">
                                 @if($item->status == 1)

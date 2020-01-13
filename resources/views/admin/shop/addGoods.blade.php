@@ -333,7 +333,7 @@
                                                         <div class="radio i-checks checkbox">
                                                             @foreach($attrvalueData as $m)
                                                                 @if($v -> id == $m -> goods_attr_id)
-                                                                    <label><input type="checkbox" name="attrvalue_{{ $v -> id }}[]" value="{{$m -> value}}" @if(in_array($m -> value,$goodssku)) checked @endif />{{$m -> value}} </label>
+                                                                    <label><input type="checkbox" name="attrvalue_{{ $v -> id }}[]" value="{{$m -> spec}}" @if(in_array($m -> spec,$goodssku)) checked @endif />{{$m -> spec}} </label>
                                                                 @endif
                                                             @endforeach
                                                         </div>

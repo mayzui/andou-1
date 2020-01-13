@@ -114,10 +114,8 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('shop/mall_merchants','ShopController@mall_merchants')->name('shop.mall_merchants');
         Route::get('shop/shopStatus','ShopController@shopStatus')->name('shop.shopStatus'); // 修改状态
 
-
-
-
-//        Route::get('shop/orders?status=70','ShopController@sort')->name('shop.orders');
+        // 语音提醒
+        Route::post('indexs/voice_play','IndexsController@voice_play')->name('indexs.voice_play'); // 语音提醒
     });
 });
 ?>
