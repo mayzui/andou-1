@@ -723,4 +723,160 @@ class GourmetController extends Controller
         }
     }
 
+    /**
+     * @api {post} /api/gourmet/order 饭店订单
+     * @apiName order
+     * @apiGroup gourmet
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} token 验证登陆
+     * @apiParam {string} page 分页页码
+     * @apiParam {string} status 10未支付，20已支付,30已使用,待评价,40已评价
+     * @apiSuccessExample 参数返回:
+     * {
+     *      "code":"200",
+     *         "data":[
+     *              {
+     *                  "name":"饭店名称",
+     *                  "logo_img":"商家logo图",
+     *                  "prices":"订单总金额",
+     *                  "merchant_id":"商户id",
+     *                  "id":"订单id",
+     *                  "order_sn":"订单编号",
+     *                  "status":"订单状态 (10未支付，20已支付,30已使用,待评价,40已评价)",
+     *                  "foods":[
+     *                                {
+     *                                  "id":"菜品id",
+     *                                  "name":"菜品名称",
+     *                                  "price":"菜品价格",
+     *                                  "num":"数量"
+     *                                }
+     *                                ]
+     *              }
+     *              ],
+     * "msg":"查询成功"
+     * }
+     */
+    public function order(){
+        $all=\request()->all();
+        $num=8;
+        if (empty($all['page'])) {
+            $pages=0;
+        }else{
+            $pages=($all['page']-1)*$num;
+        }
+
+        $token=request()->header('token')??'';
+        if ($token!='') {
+            $all['token']=$token;
+        }
+        if (empty($all['uid'])||empty($all['token'])) {
+            return $this->rejson(202,'登陆失效');
+        }
+        $check=$this->checktoten($all['uid'],$all['token']);
+        if ($check['code']==202) {
+            return $this->rejson($check['code'],$check['msg']);
+        }
+        $where[]=['o.user_id',$all['uid']];
+        if (!empty($all['status'])) {
+            $where[]=['o.status',$all['status']];
+        }
+        $data=DB::table("foods_user_ordering as o")
+            ->join("merchants as m","o.merchant_id","=","m.id")
+            ->select(['m.name','o.foods_id','m.logo_img','o.prices','o.id','o.merchant_id','o.order_sn','o.status'])
+            ->where($where)
+            ->offset($pages)
+            ->limit($num)
+            ->get();
+        foreach ($data as $key => $value) {
+            $foods=json_decode($value->foods_id,1);
+//            var_dump($foods);exit();
+            foreach ($foods as $k=>$v){
+                $data[$key]->foods[$k]['id']=$v['id'];
+                $data[$key]->foods[$k]['num']=$v['num'];
+                $information=DB::table('foods_information')
+                    ->select(['name','price'])
+                    ->where('id',$v['id'])
+                    ->first();
+                $data[$key]->foods[$k]['name']=$information->name ?? '';
+                $data[$key]->foods[$k]['price']=$information->price ?? '';
+            }
+        }
+        if($data){
+            return $this->rejson(200,"查询成功",$data);
+        }else{
+            return $this->rejson(201,"查询失败");
+        }
+    }
+    /**
+     * @api {post} /api/gourmet/order_details 饭店订单详情
+     * @apiName order_details
+     * @apiGroup gourmet
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} id 订单id
+     * @apiParam {string} token 验证登陆
+     * @apiSuccessExample 参数返回:
+     * {
+     *        "code":"200"
+     *            "data":{
+     *                    "id":"订单id"
+     *                    "order_sn":"订单编号",
+     *                    "orderingtime":"下单时间",
+     *                    "people":"用餐人数",
+     *                    "prices":"总金额",
+     *                    "dinnertime":"预约到店时间",
+     *                    "method":"支付方式",
+     *                    "remark":"备注",
+     *                    "integral":"积分",
+     *                    "pay_money":"支付总金额",
+     *                    "name":"饭店名称",
+     *                    "logo_img":"商家logo图",
+     *                    "foods":[
+     *                            {
+     *                              "id":"菜品id",
+     *                              "name":"菜品名称",
+     *                              "price":"菜品价格",
+     *                              "num":"数量"
+     *                            }
+     *                            ]
+     *                   }
+     * }
+     */
+    public function order_details(){
+        $all=\request()->all();
+        $token=request()->header('token')??'';
+        if ($token!='') {
+            $all['token']=$token;
+        }
+        if (empty($all['uid'])||empty($all['token'])) {
+            return $this->rejson(202,'登陆失效');
+        }
+        $check=$this->checktoten($all['uid'],$all['token']);
+        if ($check['code']==202) {
+            return $this->rejson($check['code'],$check['msg']);
+        }
+        $data=DB::table("foods_user_ordering as o")
+            ->join("merchants as m","o.merchant_id","=","m.id")
+            ->select('o.order_sn','o.people','o.prices','o.dinnertime','o.method','o.remark','o.integral','o.pay_money','o.orderingtime','o.foods_id','o.id','m.name','m.logo_img')
+            ->where('o.id',$all['id'])
+            ->first();
+
+            $foods=json_decode($data->foods_id,1);
+            foreach ($foods as $k=>$v){
+                $data->foods[$k]['id']=$v['id'];
+                $data->foods[$k]['num']=$v['num'];
+                $information=DB::table('foods_information')
+                    ->select(['name','price'])
+                    ->where('id',$v['id'])
+                    ->first();
+                $data->foods[$k]['name']=$information->name ?? '';
+                $data->foods[$k]['price']=$information->price ?? '';
+            }
+
+        if($data){
+            return $this->rejson(200,"查询成功",$data);
+        }else{
+            return $this->rejson(201,"查询失败");
+        }
+    }
+
 }

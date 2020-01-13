@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Input;
 class CouponController extends BaseController
 {
-    public function list ()
+    public function list()
     {
         $data=Db::table('coupons')->paginate(20);
         return $this->view('',['data'=>$data]);
@@ -19,6 +19,63 @@ class CouponController extends BaseController
     public function create ()
     {
 
+    }
+
+    public function list_change(){
+        $all = \request() -> all();
+        if(\request() -> isMethod("get")){
+            if(empty($all['id'])){
+                // 跳转新增界面
+                return $this->view('');
+            }else{
+                // 跳转修改界面
+                // 根据提交的id 查询数据库的值
+                $data = DB::table('coupons') -> where('id',$all['id']) -> first();
+//                str_replace(' ', 'T', $date->format('Y-m-d H:i:00'));
+                $data -> start_at = str_replace(' ', 'T', $data -> start_at);
+                $data -> end_at = str_replace(' ', 'T', $data -> end_at);
+                return $this->view('',['data' => $data]);
+            }
+        }else{
+            if(empty($all['id'])){
+                // 执行新增方法
+                $data = [
+                    'coupon_name' => $all['coupon_name'],
+                    'coupon_type_id' => $all['coupon_type_id'],
+                    'start_at' => $all['start_at'],
+                    'end_at' => $all['end_at'],
+                    'max_mun' => $all['max_mun'],
+                    'rest_num' => $all['max_mun'],
+                    'money' => $all['money']
+                ];
+                $i = DB::table('coupons') -> insert($data);
+                if($i){
+                    flash('新增成功')->success();
+                    return redirect()->route('coupon.list');
+                }else{
+                    flash('新增失败')->error();
+                    return redirect()->route('coupon.list');
+                }
+            }else{
+                // 执行修改方法
+                $data = [
+                    'coupon_name' => $all['coupon_name'],
+                    'coupon_type_id' => $all['coupon_type_id'],
+                    'start_at' => $all['start_at'],
+                    'end_at' => $all['end_at'],
+                    'max_mun' => $all['max_mun'],
+                    'money' => $all['money']
+                ];
+                $i = DB::table('coupons') -> where('id',$all['id']) -> update($data);
+                if($i){
+                    flash('修改成功')->success();
+                    return redirect()->route('coupon.list');
+                }else{
+                    flash('修改失败，请稍后重试')->error();
+                    return redirect()->route('coupon.list');
+                }
+            }
+        }
     }
 
     public function update ()

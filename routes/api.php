@@ -69,6 +69,7 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('users/invitations', 'UsersController@invitations');
      Route::post('users/binding', 'UsersController@binding');
      Route::post('users/vip_recharge', 'UsersController@vipRecharge');
+     Route::post('users/vip_rote', 'UsersController@vipRote');
 
      Route::post('common/uploads','CommonController@uploads');
      Route::post('common/pay_ways', 'CommonController@payWays');
@@ -78,7 +79,8 @@ Route::group(['namespace' => 'Api'], function () {
      Route::any('common/wxnotifyhotel', 'CommonController@wxnotifyhotel');
      Route::post('common/qrcode', 'CommonController@qrcode');
      Route::any('common/gourmet', 'CommonController@gourmet');
-     
+     //vip充值回调
+     Route::post('common/viprecharge','CommonController@viprecharge');
      
      Route::post('order/details', 'OrderController@details');
 
@@ -168,6 +170,8 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('gourmet/del_foods','GourmetController@del_foods');
      Route::post('gourmet/upd_foods','GourmetController@upd_foods');
      Route::post('gourmet/timely','GourmetController@timely');
+     Route::post('gourmet/order','GourmetController@order');
+     Route::post('gourmet/order_details','GourmetController@order_details');
      //饭店添加预约
      Route::post('gourmet/reserve','GourmetController@reserve');
 

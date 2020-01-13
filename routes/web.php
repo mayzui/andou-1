@@ -185,6 +185,8 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('coupon/useLogDel','CouponController@useLogDel')->name('coupon.useLogDel');
         Route::get('coupon/getLogDel','CouponController@getLogDel')->name('coupon.getLogDel');
         Route::get('member/index','MemberController@index')->name('member.index');
+        // 新增 amd 修改优惠券
+        Route::match(['get','post'],'coupon/list_change','CouponController@list_change')->name('coupon.list_change');
 
         // 财务中心
         Route::get('finance/integral','FinanceController@integral')->name('finance.integral');
@@ -244,6 +246,9 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         // 商品评论回复
         Route::post('shop/commnetReply','ShopController@commnetReply')->name('shop.commnetReply');
 
+        // 会员管理
+        Route::match(['get','post'],'member/index','MemberController@index')->name('member.index');
+        Route::match(['get','post'],'member/indexChange','MemberController@indexChange')->name('member.indexChange');
 
 
         Route::match(['get','post'],'know/index','RefundController@aftermarketChange')->name('know.index');
