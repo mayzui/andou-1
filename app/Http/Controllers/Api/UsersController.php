@@ -346,7 +346,7 @@ class UsersController extends Controller
      * @apiGroup users
      * @apiParam {string} uid 用户id
      * @apiParam {string} token 验证登陆
-     * 
+     * @apiParam {string} pay_id 支付方式id
      * @apiSuccessExample 参数返回:
      *     {
      *       "code": "200",
@@ -355,6 +355,7 @@ class UsersController extends Controller
      *     }
      */
     public function vipRecharge(){
+        $all=request()->all();
         $price=Db::table('config')->where('key','vipRecharge')->first()->value ?? 0;
         if (!$price) {
             return $this->rejson(201,'后台未设置会员开通价格');
