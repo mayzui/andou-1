@@ -13,27 +13,24 @@
                 <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
                 <meta name="csrf-token" content="{{ csrf_token() }}" />
                 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-                <link rel="stylesheet" href="/umeditor1_2_3-utf8-php/utf8-php/themes/default/css/umeditor.css">
-                <script type="text/javascript" src="/umeditor1_2_3-utf8-php/utf8-php/third-party/jquery.min.js"></script>
-                <script type="text/javascript" charset="utf-8" src="/umeditor1_2_3-utf8-php/utf8-php/umeditor.config.js"></script>
-                <script type="text/javascript" charset="utf-8" src="/umeditor1_2_3-utf8-php/utf8-php/umeditor.min.js"></script>
-                <script type="text/javascript" src="/umeditor1_2_3-utf8-php/utf8-php/lang/zh-cn/zh-cn.js"></script>
+                <script type="text/javascript" charset="utf-8" src="/ueditor1_4_3_3-utf8-php/utf8-php/ueditor.config.js"></script>
+                <script type="text/javascript" charset="utf-8" src="/ueditor1_4_3_3-utf8-php/utf8-php/ueditor.all.min.js"> </script>
+                <script type="text/javascript" charset="utf-8" src="/ueditor1_4_3_3-utf8-php/utf8-php/lang/zh-cn/zh-cn.js"></script>
                 </head>
                 <body>
-
-                <div style="margin-top: 50px;margin-left: 400px;">
-                    <script type="text/plain" id="myEditor" style="width:60%;height:50%;">
-    <p>{{ $data->need_content or '尊敬的客户您好:' }}</p>
-
+                <div style="margin-top: 50px;margin-left: 700px;">
+                    <script id="container" name="content" type="text/plain" style="width: 70%;height: 30%;">
+尊敬的客户您好:
 </script>
-
+                    <script type="text/javascript" src="/ueditor1_4_3_3-utf8-php/utf8-php/ueditor.config.js"></script>
+                    <script type="text/javascript" src="/ueditor1_4_3_3-utf8-php/utf8-php/ueditor.all.js"></script>
                 </div>
                 <div class="clear"></div>
                 <div id="btns">
                     <table>
                         <tr>
                             <td>
-                                <button class="btn btn-primary" onclick="getContentTxt()"   style="margin-left: 670px;margin-top: 30px;" ><i class="fa fa-check"></i>&nbsp;保 存</button>　
+                                <button class="btn btn-primary" onclick="getContentTxt()"   style="margin-left: 1050px;margin-top: 30px;" ><i class="fa fa-check"></i>&nbsp;保 存</button>　
                             </td>
                         </tr>
                     </table>
@@ -43,10 +40,10 @@
                 </div>
                 <script type="text/javascript">
                     //实例化编辑器
-                    var um = UM.getEditor('myEditor');
+                    var um = UE.getEditor('container');
                     function getContentTxt() {
                         var arr = [];
-                        arr.push(UM.getEditor('myEditor').getContentTxt());
+                        arr.push(UE.getEditor('container').getContentTxt());
                         var content  = arr.join("\n");
                             location.href="{{route('know.add')}}?content="+content
                     }
