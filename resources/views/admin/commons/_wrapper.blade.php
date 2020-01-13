@@ -8,6 +8,12 @@
 <link href="{{loadEdition('/admin/css/style.css')}}" rel="stylesheet">
 <div class="ad-right">
     <div class="sign layui-nav">
+        <div style="display: none;" id="voice_play">
+            <audio id="play">
+                <source src="{{loadEdition('/admin/yinxiao1323.mp3')}}" type="audio/mp3"/>
+                <source src="{{loadEdition('/admin/yinxiao1323.mp3')}}" type="audio/mpeg"/>
+            </audio>
+        </div>
         <a href="{{route('admin.logout')}}" class="a">
             <i class="sign-out"></i>
             <span>退出</span>
@@ -107,11 +113,37 @@
         });
 
     </script>
-
     <div class="ad-wrapper  J_mainContent" id="content-main">
         <iframe class="J_iframe" name="iframe0" width="100%" height="100%" src="{{route('index.main')}}" frameborder="0" data-id="index_v1.html" seamless></iframe>
     </div>
 </div>
+<script type="text/javascript">
+    setInterval("voice_play()",3000);
+    function voice_play(){
+        $.ajax({
+            type:'post',
+            url:'{{route('indexs.voice_play')}}',
+            timeout:3000,
+            data : {_token:'{{ csrf_token() }}'},
+            async : true,
+            dataType:'json',
+            success : function (data) {
+                var leng = data.length;
+                var num = 0;
+                for (var i = 0;i<leng;i++){
+                    var num = num+data[i].length;
+                }
+                // 判断是否有新订单生成
+                // console.log(num);
+                if(num != 0){
+                    // 如果有新订单，则提醒
+                    var audio  = document.getElementById('play');
+                    audio.play();
+                }
+            }
+        });
+    }
+</script>
 
 
 
