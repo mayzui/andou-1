@@ -276,11 +276,11 @@ class GourmetController extends Controller
     "code":"200",
      *           "data":[
      *                  {
-     *	                "id":"id",
-     *                  "name":"菜品名称",
-     *                  "price":"菜品价格",
+     *                 "id":"菜品id",
      *                  "num":"菜品数量",
-     *                  "image":"菜品图片"
+     *                  "name":"菜品名称",
+     *                  "image":"菜品图片",
+     *                  "price":"菜品价格"
      *                  }
      *                  ],
      *    "msg":"查询成功"
@@ -299,13 +299,12 @@ class GourmetController extends Controller
         if ($check['code']==202) {
            return $this->rejson($check['code'],$check['msg']);
         }
-        $data=DB::table("foods_cart as c")
-            ->join("merchants as m",'c.merchant_id','=','m.id')
-            ->join("foods_information as f","c.foods_id","=","f.id")
-            ->join("foods_spec as s","c.spec_id","=","s.id")
-            ->select(['f.name','s.price','c.num','c.id','f.image'])
-            ->where(['c.user_id'=>['user_id'],'m.id'=>$all['merchant_id']])
-            ->get();
+       $data=DB::table("foods_cart as c")
+           ->join("merchants as m","c.merchant_id","=","m.id")
+           ->join("foods_information as f","c.foods_id","=","f.id")
+           ->select(['c.num','f.id','f.name','f.image','f.price'])
+           ->where(['m.id'=>$all['merchant_id'],'c.user_id'=>$all['user_id']])
+           ->get();
         if($data){
             return $this->rejson(200,"查询成功",$data);
         }else{
@@ -439,7 +438,8 @@ class GourmetController extends Controller
      * @apiGroup gourmet
      * @apiParam {string} uid 用户id
      * @apiParam {string} token 验证登陆
-     * @apiParam {string} id 购物车id
+     * @apiParam {string} id 食品id
+     * @apiParam {string} merchant_id 商户id
      * @apiParam {string} type 修改的方式(1自动加1 0自动减1)
      * @apiSuccessExample 参数返回:
      *     {
@@ -464,14 +464,25 @@ class GourmetController extends Controller
         if (empty($all['id']) || !isset($all['type'])) {
             return $this->rejson(201,'缺少参数');
         }
-        $data=DB::table("foods_cart")->select('num')->where('id',$all['id'])->first();
+        $data=DB::table("foods_cart")->select('num')->where('merchant_id',$all['merchant_id'])->where('foods_id',$all['id'])->where('user_id',$all['uid'])->first();
+        if (empty($data)) {
+            if ($all['type'] != 1) {
+               return $this->rejson(201,'购物车不存在该商品');
+            }
+            $data['foods_id']=$all['id'];
+            $data['merchant_id']=$all['merchant_id'];
+            $data['num']=1;
+            $data['user_id']=$all['uid'];
+            $data=DB::table("foods_cart")->insert($data);
+            return $this->rejson(200,'新增成功');
+        }
         if($all['type'] == 1){
-            $res=DB::table('foods_cart')->where('id',$all['id'])->increment('num');
+            $res=DB::table('foods_cart')->where('foods_id',$all['id'])->increment('num');
         }else if ($all['type'] == 0 ){
             if($data->num <= 1){
-                $res=DB::table('foods_cart')->where(['id'=>$all['id'],'user_id'=>$all['uid']])->delete();
+                $res=DB::table('foods_cart')->where(['foods_id'=>$all['id'],'user_id'=>$all['uid']])->delete();
             }else{
-                $res=DB::table('foods_cart')->where(['id'=>$all['id'],'user_id'=>$all['uid']])->decrement('num');
+                $res=DB::table('foods_cart')->where(['foods_id'=>$all['id'],'user_id'=>$all['uid']])->decrement('num');
             }
         }
         return $this->rejson(200,'修改成功');
@@ -483,33 +494,49 @@ class GourmetController extends Controller
      * @apiParam {string} uid 用户id
      * @apiParam {string} token 验证登陆
      * @apiParam {string} merchant_id 商户id
-     * @apiParam {string} id 购物车列表id
      * @apiSuccessExample 参数返回:
      *     {
      *       "code": "200",
-     *       "data": "",
-     *       "msg":"添加成功"
+     *       "data": {
+                "logo_img": "酒店图片",
+                "name": "酒店名字",
+                "foods": [
+                    {
+                        "name": "名字",
+                        "price": "单价",
+                        "num": "数量",
+                        "image": "商品图片"
+                    }
+                ],
+                "all": "总价格",
+                "integral": "需要使用的积分"
+            },
+     *       "msg":"查询成功"
      *     }
      */
 
     public function reserve()
     {
         $all = request()->all();
-        if(empty($all['id']) || empty($all['food_id']) || empty($all['merchant_id']))
+        if(empty($all['merchant_id']))
         {
             return $this->rejson('201','缺少参数');
         }
-        $data = DB::table('merchants')->where('id',$all['merchant_id'])->select('name')->first();
+        $data = DB::table('merchants')->where('id',$all['merchant_id'])->select('logo_img','name')->first();
         $data->foods = DB::table("foods_cart")
             ->join('foods_information','foods_cart.foods_id','=','foods_information.id')
-            ->where('foods_cart.id',$all['id'])
-            ->select(['foods_cart.name','foods_cart.price','foods_cart.num','foods_information.image'])
+            ->where('foods_cart.merchant_id',$all['merchant_id'])
+            ->where('foods_cart.user_id',$all['uid'])
+            ->select(['foods_information.name','foods_information.price','foods_cart.num','foods_information.image'])
             ->get();
         $all = 0;
         foreach ($data->foods as $value){
-            $all += $value->price;
+            $all += $value->price*$value->num;
         }
         $data->all = $all;
+        $allintegral=DB::table('users')->where('id',$all['uid'])->first()->integral ?? 0;
+        $integrals=DB::table('config')->where('key','integral')->first()->value;
+        $data->integral=floor($all*$integrals);
         return $this->rejson('200','查询成功',$data);
     }
     /**
@@ -521,73 +548,155 @@ class GourmetController extends Controller
      * @apiParam {string} merchant_id 商家id
      * @apiParam {string} people 用餐人数
      * @apiParam {string} remark 备注
-     * @apiParam {string} orderingtime 下单时间
-     * @apiParam {string} prices 订单总金额
-     * @apiParam {string} method 支付方式（1微信，2支付宝，3银联）
+     * @apiParam {string} dinnertime 用餐时间
+     * @apiParam {string} method 支付方式的id
+     * @apiParam {string} is_integral 是否使用积分（1使用 0不使用）
      * @apiSuccessExample 参数返回:
      *     {
      *       "code": "200",
      *       "data": "",
-     *       "msg":"添加成功"
+     *       "msg":"预定成功"
      *     }
      */
 
     public function timely()
     {
         $all = request()->all();
+
         if(empty($all['merchant_id']) ||
             empty($all['people']) ||
-            empty($all['remark']) ||
-            empty($all['prices']) ||
-            empty($all['orderingtime']) ||
-            empty($all['method'])){
+            empty($all['dinnertime'])){
             return $this->rejson('201','缺少参数');
+        }
+        $foods = DB::table("foods_cart")
+            ->join('foods_information','foods_cart.foods_id','=','foods_information.id')
+            ->where('foods_cart.merchant_id',$all['merchant_id'])
+            ->where('foods_cart.user_id',$all['uid'])
+            ->select(['foods_information.id','foods_information.price','foods_cart.num'])
+            ->get();
+        $prices = 0;
+        $foodss=[];
+        foreach ($foods as $key=>$value){
+            $prices += $value->price*$value->num;
+            $foodss[$key]['id']=$value->id;
+            $foodss[$key]['num']=$value->num;
+        }
+        $integrals=DB::table('config')->where('key','integral')->first()->value;
+        $integral=floor($prices*$integrals);
+        if ($prices==0) {
+            return $this->rejson('201','商品价格出错');
+        }
+        $users=Db::table('users')->where('id',$all['uid'])->select('name','mobile','integral')->first();
+        if ($all['is_integral']==1) {
+            if ($users->integral < $integral) {
+                return $this->rejson('201','积分不足');
+            }
+        }else{
+           $integral=0; 
         }
         $res = [
             'user_id'=>$all['uid'],
             'merchant_id'=>$all['merchant_id'],
-            'orderingtime'=>$all['orderingtime'],
+            'foods_id'=>json_encode($foodss,1),
+            'dinnertime'=>$all['dinnertime'],
+            'orderingtime'=>date('Y-m-d H:i:s',time()),
             'remark'=>$all['remark'],
-            'phone'=>'165894685',
+            'status'=>10,
+            'phone'=>$users->mobile,
+            'user_name'=>$users->name,
             'people'=>$all['people'],
-            'prices'=>$all['prices'],
+            'prices'=>$prices,
             'order_sn'=>$this->suiji(),
             'method'=>$all['method'],
+            'integral'=>$integral
         ];
+
+        $alldata['status']=10;
+        $alldata['order_money']=$prices;
+        $alldata['type']=3;
+        $alldata['remark']=$all['remark']??'';
+        $alldata['order_sn']=$res['order_sn'];
+        $alldata['user_id']=$all['uid'];
+        $alldata['shipping_free']=0;
+        $alldata['created_at'] = $alldata['updated_at']=$res['orderingtime'];
+        $alldata['auto_receipt']=$all['auto_receipt']??0;
+        $alldata['shipping_free']=0;
+        $alldata['integral']=$integral;
         $sNo = $res['order_sn'];
+        $datas = Db::table('orders')->insert($alldata);
         $data = DB::table('foods_user_ordering')->insert($res);
+        $resss = DB::table("foods_cart")->where('user_id',$all['uid'])->where('merchant_id',$all['merchant_id'])->delete();
         if($data){
             if ($all['method']==1) {//微信支付
-                $this->wxPay($sNo);
+                $this->wxpay($sNo);
             }else if($all['method']==2){//支付宝支付
-                return $this->rejson('201','暂未开通');
-            }else if($all['method']==0){//银联支付
-                return $this->rejson('201','暂未开通');
+                return $this->rejson(201,'暂未开通');
+            }else if($all['method']==3){//银联支付
+                return $this->rejson(201,'暂未开通');
+            }else if($all['method']==4){//余额支付
+                $this->balancePay($sNo);
+            }else if($all['method']==5){//其他支付
+                return $this->rejson(201,'暂未开通');
             }else{
-                return $this->rejson('201','暂未开通');
+                return $this->rejson(201,'暂未开通');
             }
             return $this->rejson('200','下单成功');
         }else{
             return $this->rejson('201','添加失败');
         }
     }
+    public function balancePay($sNo){
+        $all=request()->all();
+        $orders = Db::table('orders')
+        ->where(['order_sn'=>$sNo,'status'=>10])
+        ->first();
+        $data['user_id']=$all['uid'];
+        $data['describe']='订单：'.$sNo.'消费';
+        $data['create_time']=date('Y-m-d H:i:s',time());
+        $data['type_id']=2;
+        $data['price']=$orders->order_money - $orders->integral;
+        $data['state']=2;
+        $data['is_del']=0;
+        $status['status']=20;
+        $status['pay_money']=$orders->order_money-$orders->integral;
+        $status['pay_time']=date('Y-m-d H:i:s',time());
 
+        DB::beginTransaction(); //开启事务
+        $re=DB::table('user_logs')->insert($data);
+        $ress=DB::table('orders')->where('order_sn',$sNo)->update($status);
+        $ress=DB::table('foods_user_ordering')->where('order_sn',$sNo)->update($status);
+        $res=DB::table('users')->where('id',$all['uid'])->decrement('money',$data['price']);
+        if ($orders->integral>0) {
+            $addintegral=$data;
+            $addintegral['price']=$orders->integral;
+            $addintegral['type_id']=1;
+            $rei=DB::table('user_logs')->insert($addintegral);
+            $resi=DB::table('users')->where('id',$all['uid'])->decrement('integral',$orders->integral);
+        }
+        if ($res&&$re&&$ress) {
+            DB::commit();
+            return $this->rejson(200,'预定成功');
+        }else{
+            DB::rollback();
+            return $this->rejson(201,'支付失败');
+        }
+
+     }
     public function wxPay($sNo){
         require_once base_path()."/wxpay/lib/WxPay.Api.php";
         require_once base_path()."/wxpay/example/WxPay.NativePay.php";
-
         if (empty($sNo)) {
             return $this->rejson(201,'参数错误');
         }
         //查找表里是否有此订单
-        $orders = Db::table('foods_user_ordering')
+        $orders = Db::table('orders')
             ->where('order_sn',$sNo)
             ->first();
         if (empty($orders)) {
             return $this->rejson(201,'订单不存在');
         }
 
-        $pay_money = 100*($orders->price);
+        $pay_money = 100*($orders->order_money-$orders->integral);
 
         $input = new \WxPayUnifiedOrder();
 

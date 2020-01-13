@@ -73,7 +73,7 @@
 
                                 <td class="text-center">
                                     <div class="btn-group">
-                                        <a href="{{url("/admin/shop/ordersUpd?id=$item->id&status=0&express_id=$item->express_id&courier_num=$item->courier_num")}}"><button class="btn btn-primary btn-xs" type="button" ><i class="fa fa-clone"></i> 查看详情</button></a>
+                                        <a href="{{url("/admin/shop/ordersUpd?id=$item->id&status=0&express_id=$item->express_id&courier_num=$item->courier_num&gid=1")}}"><button class="btn btn-primary btn-xs" type="button" ><i class="fa fa-clone"></i> 查看详情</button></a>
                                         {{--<a href=""><button class="btn btn-primary btn-xs" type="button" ><i class="fa fa-clone"></i> 查看详情</button></a>--}}
                                             {{--判断退货状态--}}
                                         @if($item->status == 1)

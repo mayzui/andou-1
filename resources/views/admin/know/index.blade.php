@@ -21,12 +21,11 @@
                 </head>
                 <body>
 
-                <div style="margin-top: 300px;margin-left: 400px;">
-                    <script type="text/plain" id="myEditor" style="width:600px;height:200px;">
+                <div style="margin-top: 50px;margin-left: 400px;">
+                    <script type="text/plain" id="myEditor" style="width:60%;height:50%;">
     <p>{{ $data->need_content or '尊敬的客户您好:' }}</p>
 
 </script>
-
 
                 </div>
                 <div class="clear"></div>
@@ -49,26 +48,7 @@
                         var arr = [];
                         arr.push(UM.getEditor('myEditor').getContentTxt());
                         var content  = arr.join("\n");
-                        $.ajax({
-                            url:'{{url('admin/know/www')}}',
-                            type:"post",
-                            data:{
-                                '_token':'{{csrf_token()}}',
-                                'content':content
-                            },
-                            success:function (e) {
-                                var code = JSON.parse(e)
-                                if(code.code == 0){
-                                    alert(code.msg)
-                                }
-                                if(code.code == 1){
-                                    alert(code.msg)
-                                }
-                                if(code.code == 2){
-                                    alert(code.msg)
-                                }
-                            }
-                        })
+                            location.href="{{route('know.add')}}?content="+content
                     }
                 </script>
             </div>

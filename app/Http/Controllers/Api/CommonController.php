@@ -279,7 +279,7 @@ class CommonController extends Controller
     }
 
     /**
-     * @api {post} /api/common/gourmet 微信充值支付回调
+     * @api {post} /api/common/gourmet 饭店预定回调
      * @apiName gourmet
      * @apiGroup common
      * @apiSuccessExample 参数返回:
@@ -300,41 +300,24 @@ class CommonController extends Controller
         if ($values['trade_status'] == 'TRADE_SUCCESS' || $values['trade_status'] == 'TRADE_FINISHED' || $values['return_code']=='SUCCESS') {
             //这里根据项目需求来写你的操作 如更新订单状态等信息 更新成功返回'success'即可
             $trade_no = $values['transaction_id'];
-            $total=$values['total_fee']/100;
-            $datas = array('status' => 1, 'method' => 1, 'trade_no' => $trade_no,'price'=>$total);
+            $total=$values['total_fee'];
+            $datas = array('status' => 20, 'pay_way' => 1, 'out_trade_no' => $trade_no,'pay_time'=>date('Y-m-d H:i:s',time()),'pay_money'=>$total);
             $out_trade_no = $values['out_trade_no'];
-            $ress=Db::table('recharge')->where(['order_sn' =>$out_trade_no])->where('status',0)->first();
-            if (!empty($ress)) {
-                $re = Db::table('recharge')->where('order_sn', $out_trade_no)->update($datas);
-                $arr = [
-                    'user_id'=>$ress->user_id,
-                    'price'=>$ress->price,
-                    'describe'=>'充值',
-                    'create_time' => date('Y-m-d H:i:s'),
-                    'type_id' => 2,
-                    'state' => 1,
-                    'phone' => $ress->phone,
-                    'method' => 1,
-                ];
-                $res = DB::table('user_logs')->insert($arr);
-                $pic = DB::table('users')->where('id',$ress->user_id)->select('money')->first();
-//                return var_dump($pic);
-                $money = [
-                    'money'=>$pic->money+$arr['price']
-                ];
-                $r = DB::table('users')->where('id',$ress->user_id)->update($money);
-//                var_dump($r);die;
-                if ($re && $res && $r) {
-                    $str='<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>';
-                    return $str;
 
+            $ress=Db::table('orders')->where(['order_sn' => $out_trade_no, 'status' =>10])->first();
+            if (!empty($ress)) {
+                $re = Db::table('orders')->where('order_sn', $out_trade_no)->update($datas);
+                $res = Db::table('foods_user_ordering')->where('order_sn', $out_trade_no)->update($datas);
+                if ($re && $res) {
+                    $str='<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>';  
+                    echo $str;
+                    
                 } else {
-                    return 'fail1';
+                    exit('fail');
                 }
             }else{
-                return 'fail2';
+                exit('fail2');
             }
-
         } else {
             return 'fail3';
         }

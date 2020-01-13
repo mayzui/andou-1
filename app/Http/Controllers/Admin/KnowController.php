@@ -32,16 +32,19 @@ class KnowController extends Controller
                 'need_content'=>$data['content']
             ]);
             if ($insertKnow) {
-                $this->rejson(0,'添加成功','');die;
+                flash('添加成功') -> success();
+                return redirect()->route('know.index');
             }
         }
         $updKnow  = \DB::table("hotel_need")->update([
             'need_content'=>$data['content']
         ]);
         if($updKnow){
-            $this->rejson(0,'修改成功','');die;
+            flash('修改成功') -> success();
+            return redirect()->route('know.index');
         }
-        $this->rejson(2,'已经是最新内容','');
+        flash('已经是最新内容') -> error();
+        return redirect()->route('know.index');
     }
 
 

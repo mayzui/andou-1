@@ -78,7 +78,9 @@ class UsersController extends Controller
      *       "code": "200",
      *       "data":  [
                 {
-                    "id": "商户id",
+                    "id": "用户id",
+                    "name": "用户名字",
+                    "avator": "用户头像",
                     "invitation": "邀请码",
                     "qrcode": "邀请二维码" 
                 }
@@ -89,7 +91,7 @@ class UsersController extends Controller
     public function invitations(){
         $all=request()->all();
         $id=$all['uid'];
-        $data=Db::table('users')->where('id',$id)->select('id','invitation','qrcode')->first();
+        $data=Db::table('users')->where('id',$id)->select('id','name','avator','invitation','qrcode')->first();
         if ($data->invitation=='0') {
             $data->invitation=$this->invitation($data->id);
         }

@@ -135,7 +135,7 @@ class FoodsController extends BaseController
                 -> where('merchant_id',$id)
                 -> where('is_del',0)
                 -> where($where)
-                -> select(['foods_set_meal.id','foods_set_meal.name as set_meal_name','image','price','num','room','room_price','status','merchants.name as merchants_name'])
+                -> select(['foods_set_meal.id','foods_set_meal.name as set_meal_name','image','price','num','room','room_price','foods_set_meal.status','merchants.name as merchants_name'])
                 -> paginate(10);
         }else{
             // 管理员
@@ -144,7 +144,7 @@ class FoodsController extends BaseController
                 -> join('merchants','foods_set_meal.merchant_id','=','merchants.id')
                 -> where('is_del',0)
                 -> where($where)
-                -> select(['foods_set_meal.id','foods_set_meal.name as set_meal_name','image','price','num','room','room_price','status','merchants.name as merchants_name'])
+                -> select(['foods_set_meal.id','foods_set_meal.name as set_meal_name','image','price','num','room','room_price','foods_set_meal.status','merchants.name as merchants_name'])
                 -> paginate(10);
         }
         return $this->view('',['data'=>$data,'name'=>$name]);

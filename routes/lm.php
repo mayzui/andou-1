@@ -107,17 +107,15 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::match(['get','post'],'shop/hotkeywordsedit','ShopController@hotkeywordsedit')->name('shop.hotkeywordsedit');
         //入住需知
         Route::any('know/index','KnowController@index')->name('know.index');
-        Route::post('know/www','KnowController@www')->name('know.add');
+        Route::any('know/www','KnowController@www')->name('know.add');
         // 排序
         Route::get('shop/sort','ShopController@sort')->name('shop.sort');
         // 商城商户
         Route::get('shop/mall_merchants','ShopController@mall_merchants')->name('shop.mall_merchants');
         Route::get('shop/shopStatus','ShopController@shopStatus')->name('shop.shopStatus'); // 修改状态
 
-
-
-
-//        Route::get('shop/orders?status=70','ShopController@sort')->name('shop.orders');
+        // 语音提醒
+        Route::post('indexs/voice_play','IndexsController@voice_play')->name('indexs.voice_play'); // 语音提醒
     });
 });
 ?>

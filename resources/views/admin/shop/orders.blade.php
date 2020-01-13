@@ -64,8 +64,7 @@
                             <th>提交时间</th>
                             <th>用户账号</th>
                             <th>订单金额</th>
-                            <th>支付方式</th>
-                            <th>订单来源</th>
+                            <th>商品名称</th>
                             <th>订单状态</th>
                             <th>操作</th>
                         </tr>
@@ -79,27 +78,7 @@
                                 <td>{{$item->created_at}}</td>
                                 <td>{{$item->mobile}}</td>
                                 <td>{{$item->pay_money}}</td>
-                                <td>
-                                    @if($item->pay_way == 1)
-                                        微信支付
-                                    @elseif($item->pay_way == 2)
-                                        支付宝支付
-                                    @elseif($item->pay_way == 4)
-                                        平台余额支付
-                                    @elseif($item->pay_way == 3)
-                                        银联支付
-                                    @elseif($item->pay_way == 0)
-                                        未选择支付方式
-                                        @else
-                                        其他方式
-                                    @endif
-                                </td>
-                                <td>
-                                    @if($item->order_source==1)
-                                        APP订单
-                                    @else
-                                    @endif
-                                </td>
+                                <td>{{$item->name}}</td>
                                 <td>
                                     @if($item->statuss == 0)
                                         <font color="880000">已取消</font>
@@ -117,7 +96,7 @@
                                 </td>
                                 <td class="text-center">
                                     <div class="btn-group">
-                                                <a href="{{url("/admin/shop/ordersUpd?id=$item->id&status=$item->statuss&express_id=$item->express_id&courier_num=$item->courier_num")}}">
+                                                <a href="{{url("/admin/shop/ordersUpd?id=$item->id&status=$item->statuss&express_id=$item->express_id&courier_num=$item->courier_num&gid=$item->gid")}}">
                                                     <button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i>查看订单</button>
                                                 </a>
                                         @if($item->statuss == 0)
@@ -143,7 +122,6 @@
                         <tbody>
                     </table>
                        @if(count($list)>0)
-
                         @if(empty($timess) && empty($namess) && empty($mobiless) && empty($numss) && empty($unamess) && empty($phoss) && empty($keyword) && empty($item->order_show))
                                 {{ $list->appends(['status'=>$item->statuss]) }}
                             @else
