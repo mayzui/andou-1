@@ -43,22 +43,24 @@ class RefundController extends BaseController
             // 查询数据库内容
             $data = \DB::table('order_goods')
                 -> join('order_returns','order_goods.id','=','order_returns.order_goods_id')
+                ->join('goods','order_goods.goods_id','=','goods.id')
                 -> join('users','order_goods.user_id','=','users.id')
                 -> join('refund_reason','order_returns.reason_id','=','refund_reason.id')
                 -> where('order_goods.merchant_id',$id)
                 -> where($where)
                 -> select('order_goods.id','order_goods.express_id','order_goods.courier_num','order_goods.order_id','users.name as user_name','refund_reason.name as retun_name',
-                    'order_returns.content','order_returns.is_reg','order_returns.status')
+                    'order_returns.content','order_returns.is_reg','order_returns.status','goods.id as gid')
                 -> paginate(10);
         }else{
             // 查询数据库内容
             $data = \DB::table('order_goods')
                 -> join('order_returns','order_goods.id','=','order_returns.order_goods_id')
+                ->join('goods','order_goods.goods_id','=','goods.id')
                 -> join('users','order_goods.user_id','=','users.id')
                 -> join('refund_reason','order_returns.reason_id','=','refund_reason.id')
                 -> where($where)
                 -> select('order_goods.id','order_goods.express_id','order_goods.courier_num','order_goods.order_id','users.name as user_name','refund_reason.name as retun_name',
-                    'order_returns.content','order_returns.is_reg','order_returns.status')
+                    'order_returns.content','order_returns.is_reg','order_returns.status','goods.id as gid')
                 -> paginate(10);
         }
         return $this->view('',['data'=>$data,'status' => $status,"order_num" => $order_num]);

@@ -31,6 +31,7 @@
                         <th>订单来源</th>
                         <th>订单类型</th>
                     </tr>
+                      @if(!empty($data))
                     </thead>
                             <tr>
                                 <td>{{$data->order_id}}</td>
@@ -64,6 +65,11 @@
                                     @endif
                                 </td>
                             </tr>
+                    @else
+                        <tr>
+                            <td colspan="11">没有查询到相关数据</td>
+                        </tr>
+                    @endif
                     <tbody>
                 </table>
 
@@ -170,8 +176,11 @@
                     @endif
                     <tbody>
                 </table>
-
+                 @if(!empty($good))
                 <span style="margin-left: 95%">合计:<font style="color:red">{{$good->price}}</font></span>
+                @else
+                    <span style="margin-left: 95%">合计:<font style="color:red">0</font></span>
+                     @endif
 
 {{--                        发票信息--}}
                 <table class="table table-striped table-bordered table-hover m-t-md">
