@@ -482,8 +482,6 @@ class GourmetController extends Controller
      * @apiGroup gourmet
      * @apiParam {string} uid 用户id
      * @apiParam {string} token 验证登陆
-     * @apiParam {string} foods_id 菜品id
-     * @apiParam {string} spec_id 规格id
      * @apiParam {string} merchant_id 商户id
      * @apiParam {string} id 购物车列表id
      * @apiSuccessExample 参数返回:
