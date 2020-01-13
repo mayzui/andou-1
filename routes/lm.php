@@ -107,7 +107,7 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::match(['get','post'],'shop/hotkeywordsedit','ShopController@hotkeywordsedit')->name('shop.hotkeywordsedit');
         //入住需知
         Route::any('know/index','KnowController@index')->name('know.index');
-        Route::post('know/www','KnowController@www')->name('know.add');
+        Route::any('know/www','KnowController@www')->name('know.add');
         // 排序
         Route::get('shop/sort','ShopController@sort')->name('shop.sort');
         // 商城商户

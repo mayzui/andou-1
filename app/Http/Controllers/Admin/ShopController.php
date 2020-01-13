@@ -652,7 +652,6 @@ class ShopController extends BaseController
                     ->where('user_id',$uid->user_id)
                     ->first(['name','mobile','address']);
             }
-//            var_dump($address);die;
             //商品信息
             $goodInfo = DB::table("order_goods")
                 ->join('goods','order_goods.goods_id','=','goods.id')
