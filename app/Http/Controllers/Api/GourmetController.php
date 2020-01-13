@@ -776,9 +776,9 @@ class GourmetController extends Controller
         if ($check['code']==202) {
             return $this->rejson($check['code'],$check['msg']);
         }
-        $where[]=['o.user_id'=>$all['uid']];
+        $where[]=['o.user_id',$all['uid']];
         if (!empty($all['status'])) {
-            $where[]=['o.status'=>$all['status']];
+            $where[]=['o.status',$all['status']];
         }
         $data=DB::table("foods_user_ordering as o")
             ->join("merchants as m","o.merchant_id","=","m.id")
@@ -801,6 +801,77 @@ class GourmetController extends Controller
                 $data[$key]->foods[$k]['price']=$information->price ?? '';
             }
         }
+        if($data){
+            return $this->rejson(200,"查询成功",$data);
+        }else{
+            return $this->rejson(201,"查询失败");
+        }
+    }
+    /**
+     * @api {post} /api/gourmet/order_details 饭店订单详情
+     * @apiName order_details
+     * @apiGroup gourmet
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} id 订单id
+     * @apiParam {string} token 验证登陆
+     * @apiSuccessExample 参数返回:
+     * {
+     *        "code":"200"
+     *            "data":{
+     *                    "id":"订单id"
+     *                    "order_sn":"订单编号",
+     *                    "orderingtime":"下单时间",
+     *                    "people":"用餐人数",
+     *                    "prices":"总金额",
+     *                    "dinnertime":"预约到店时间",
+     *                    "method":"支付方式",
+     *                    "remark":"备注",
+     *                    "integral":"积分",
+     *                    "pay_money":"支付总金额",
+     *                    "name":"饭店名称",
+     *                    "logo_img":"商家logo图",
+     *                    "foods":[
+     *                            {
+     *                              "id":"菜品id",
+     *                              "name":"菜品名称",
+     *                              "price":"菜品价格",
+     *                              "num":"数量"
+     *                            }
+     *                            ]
+     *                   }
+     * }
+     */
+    public function order_details(){
+        $all=\request()->all();
+        $token=request()->header('token')??'';
+        if ($token!='') {
+            $all['token']=$token;
+        }
+        if (empty($all['uid'])||empty($all['token'])) {
+            return $this->rejson(202,'登陆失效');
+        }
+        $check=$this->checktoten($all['uid'],$all['token']);
+        if ($check['code']==202) {
+            return $this->rejson($check['code'],$check['msg']);
+        }
+        $data=DB::table("foods_user_ordering as o")
+            ->join("merchants as m","o.merchant_id","=","m.id")
+            ->select('o.order_sn','o.people','o.prices','o.dinnertime','o.method','o.remark','o.integral','o.pay_money','o.orderingtime','o.foods_id','o.id','m.name','m.logo_img')
+            ->where('o.id',$all['id'])
+            ->first();
+
+            $foods=json_decode($data->foods_id,1);
+            foreach ($foods as $k=>$v){
+                $data->foods[$k]['id']=$v['id'];
+                $data->foods[$k]['num']=$v['num'];
+                $information=DB::table('foods_information')
+                    ->select(['name','price'])
+                    ->where('id',$v['id'])
+                    ->first();
+                $data->foods[$k]['name']=$information->name ?? '';
+                $data->foods[$k]['price']=$information->price ?? '';
+            }
+
         if($data){
             return $this->rejson(200,"查询成功",$data);
         }else{

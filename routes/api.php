@@ -171,6 +171,7 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('gourmet/upd_foods','GourmetController@upd_foods');
      Route::post('gourmet/timely','GourmetController@timely');
      Route::post('gourmet/order','GourmetController@order');
+     Route::post('gourmet/order_details','GourmetController@order_details');
      //饭店添加预约
      Route::post('gourmet/reserve','GourmetController@reserve');
 
