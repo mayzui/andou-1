@@ -170,5 +170,7 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('gourmet/timely','GourmetController@timely');
      //饭店添加预约
      Route::post('gourmet/reserve','GourmetController@reserve');
+    //vip充值回调
+     Route::post('common/viprecharge','CommonController@viprecharge');
 
 });

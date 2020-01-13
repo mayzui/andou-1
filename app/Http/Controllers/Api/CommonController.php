@@ -324,4 +324,53 @@ class CommonController extends Controller
 
     }
 
+    /**
+     * @api {post} /api/common/viprecharge vip充值回调
+     * @apiName viprecharge
+     * @apiGroup common
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data":"",
+     *       "msg":"查询成功"
+     *     }
+     */
+
+    public function viprecharge() {
+        $xml=file_get_contents('php://input');
+
+        libxml_disable_entity_loader(true);
+        $values = json_decode(json_encode(simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA)), true);
+        $values['trade_status']=$values['trade_status']??'';
+        $values['return_code']=$values['return_code']??'';
+        if ($values['trade_status'] == 'TRADE_SUCCESS' || $values['trade_status'] == 'TRADE_FINISHED' || $values['return_code']=='SUCCESS') {
+            //这里根据项目需求来写你的操作 如更新订单状态等信息 更新成功返回'success'即可
+            $trade_no = $values['transaction_id'];
+            $total=$values['total_fee']/100;
+            $out_trade_no = $values['out_trade_no'];
+            $ress=Db::table('vip_recharge')->where(['order_sn' =>$out_trade_no])->where('status',0)->first();
+            if (!empty($ress)) {
+                $arr = [
+                    'user_id'=>$ress->user_id,
+                    'grade'=>1,
+                    'is_del'=>0
+                ];
+                $res = DB::table('vip')->insert($arr);
+                $r = DB::table('vip_recharge')->where(['order_sn' =>$out_trade_no])->update(['status'=>1,'out_trade_no'=>$out_trade_no]);
+                if ($res && $r) {
+                    $str='<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>';
+                    return $str;
+                } else {
+                    return 'fail1';
+                }
+            }else{
+                return 'fail2';
+            }
+
+        } else {
+            return 'fail3';
+        }
+
+    }
+
 }

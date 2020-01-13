@@ -22,6 +22,7 @@
                             <th width="100">ID</th>
                             <th>用户名字</th>
                             <th>联系电话</th>
+                            <th>会员</th>
                             <th>创建时间</th>
                             <th>更新时间</th>
                             <th>操作</th>
@@ -33,6 +34,13 @@
                                 <td>{{$item->id}}</td>
                                 <td>{{$item->name}}</td>
                                 <td>{{$item->mobile}}</td>
+                                <td>
+                                    @if($item -> grade != null)
+                                        <p style="color: green">会员PULS</p>
+                                    @else
+                                        <p style="color: red">普通会员</p>
+                                    @endif
+                                </td>
                                 <td>{{$item->created_at}}</td>
                                 <td>{{$item->updated_at}}</td>
                                 <td class="text-center">

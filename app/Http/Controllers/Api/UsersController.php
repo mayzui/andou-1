@@ -395,7 +395,7 @@ class UsersController extends Controller
         $input->SetOut_trade_no($sNo);
         // $input->SetTotal_fee($pay_money);
         $input->SetTotal_fee(1);
-        $input->SetNotify_url("http://andou.zhuosongkj.com/api/common/wxrecharge");
+        $input->SetNotify_url("http://andou.zhuosongkj.com/api/common/viprecharge");
         $input->SetTrade_type("APP");
         $input->SetSpbill_create_ip($_SERVER['REMOTE_ADDR']);
 //        $input->SetAttach($uid);

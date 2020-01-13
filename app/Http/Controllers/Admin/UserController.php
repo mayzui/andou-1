@@ -115,9 +115,12 @@ class UserController extends BaseController
     public function user_list(){
         // 链接数据库，查询用户表
         $data = DB::table("users")
-            -> where("source",0)
-            -> where('is_del',0)
+            ->leftJoin('vip','users.id','=','vip.user_id')
+            ->select('users.id','users.name','users.mobile','users.created_at','users.updated_at','vip.grade')
+            -> where("users.source",0)
+            -> where('users.is_del',0)
             -> paginate(10);
+//        dd($data);die;
         return $this->view('',['data'=>$data]);
     }
     // 新增 用户
