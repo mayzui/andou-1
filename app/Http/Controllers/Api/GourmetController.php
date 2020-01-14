@@ -645,16 +645,42 @@ class GourmetController extends Controller
             return $this->rejson('201','添加失败');
         }
     }
-    public function balancePay($sNo){
+    /**
+     * @api {post} /api/gourmet/balancePay 饭店订单余额支付
+     * @apiName balancePay
+     * @apiGroup gourmet
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} token 验证登陆
+     * @apiParam {string} sNo 验证登陆
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": "",
+     *       "msg":"预定成功"
+     *     }
+     */
+    public function balancePay($sNo=''){
         $all=request()->all();
+        if (!empty($all['sNo'])) {
+           $sNo=$all['sNo'];
+        }
         $orders = Db::table('orders')
         ->where(['order_sn'=>$sNo,'status'=>10])
+        ->first();
+        $users = Db::table('users')
+        ->where('id',$all['uid'])
         ->first();
         $data['user_id']=$all['uid'];
         $data['describe']='订单：'.$sNo.'消费';
         $data['create_time']=date('Y-m-d H:i:s',time());
         $data['type_id']=2;
         $data['price']=$orders->order_money - $orders->integral;
+        if ($data['price']>$users->money) {
+           return $this->rejson(201,'余额不足');
+        }
+        if ($orders->integral>$users->integral) {
+           return $this->rejson(201,'积分不足');
+        }
         $data['state']=2;
         $data['is_del']=0;
         $status['status']=20;
@@ -682,16 +708,41 @@ class GourmetController extends Controller
         }
 
      }
-    public function wxPay($sNo){
+    /**
+     * @api {post} /api/gourmet/wxPay 饭店订单微信支付
+     * @apiName wxPay
+     * @apiGroup gourmet
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} token 验证登陆
+     * @apiParam {string} sNo 验证登陆
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": "",
+     *       "msg":"预定成功"
+     *     }
+     */
+    public function wxPay($sNo=''){
+        $all=request()->all();
+
         require_once base_path()."/wxpay/lib/WxPay.Api.php";
         require_once base_path()."/wxpay/example/WxPay.NativePay.php";
+        if (!empty($all['sNo'])) {
+           $sNo=$all['sNo'];
+        }
         if (empty($sNo)) {
             return $this->rejson(201,'参数错误');
         }
+        $users = Db::table('users')
+        ->where('id',$all['uid'])
+        ->first();
         //查找表里是否有此订单
         $orders = Db::table('orders')
             ->where('order_sn',$sNo)
             ->first();
+        if ($orders->integral>$users->integral) {
+           return $this->rejson(201,'积分不足');
+        }    
         if (empty($orders)) {
             return $this->rejson(201,'订单不存在');
         }
@@ -876,6 +927,43 @@ class GourmetController extends Controller
             return $this->rejson(200,"查询成功",$data);
         }else{
             return $this->rejson(201,"查询失败");
+        }
+    }
+     /**
+     * @api {post} /api/htorder/refund 饭店退款
+     * @apiName refund
+     * @apiGroup gourmet
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} token 验证登陆
+     * @apiParam {array}  order_sn 订单编号
+     * @apiParam {array}  refund_msg 退款备注
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": "",
+     *       "msg":"申请成功"
+     *     }
+     */
+    public function refund(){
+        $all=request()->all();
+        if (empty($all['refund_msg'])||empty($all['order_sn'])) {
+           return $this->rejson(201,'缺少参数');
+        }
+        $re=Db::table('foods_user_ordering')->where(['order_sn'=>$all['order_sn'],'status'=>20])->select('id')->first();
+        if (empty($re)) {
+            return $this->rejson(201,'订单编号错误');
+        }
+        $data['status']=60;
+        $data['refund_msg']=$all['refund_msg'];
+        DB::beginTransaction(); //开启事务
+        $res=Db::table('foods_user_ordering')->where('order_sn',$all['order_sn'])->update($data);
+        $ress=Db::table('orders')->where('order_sn',$all['order_sn'])->update(array('status'=>60));
+        if ($res&&$ress) {
+            DB::commit();
+            return $this->rejson(200,'申请成功');
+        }else{
+            DB::rollback();
+            return $this->rejson(201,'申请失败');
         }
     }
 

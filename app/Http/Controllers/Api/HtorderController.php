@@ -192,12 +192,37 @@ class HtorderController extends Controller
             return $this->rejson(201,'下单失败');
         }
     }
-
-    public function balancePay($sNo){
+    /**
+     * @api {post} /api/htorder/balancePay 酒店订单余额支付
+     * @apiName balancePay
+     * @apiGroup htorder
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} token 验证登陆
+     * @apiParam {string} sNo 验证登陆
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": "",
+     *       "msg":"预定成功"
+     *     }
+     */
+    public function balancePay($sNo=''){
         $all=request()->all();
+        if (!empty($all['sNo'])) {
+           $sNo=$all['sNo'];
+        }
         $orders = Db::table('orders')
         ->where(['order_sn'=>$sNo,'status'=>10])
         ->first();
+        $users = Db::table('users')
+        ->where('id',$all['uid'])
+        ->first();
+        if ($data['price']>$users->money) {
+           return $this->rejson(201,'余额不足');
+        }
+        if ($orders->integral>$users->integral) {
+           return $this->rejson(201,'积分不足');
+        }
         $data['user_id']=$all['uid'];
         $data['describe']='订单：'.$sNo.'消费';
         $data['create_time']=date('Y-m-d H:i:s',time());
@@ -230,16 +255,40 @@ class HtorderController extends Controller
         }
 
      }
-
-     public function wxPay($sNo){
+     /**
+     * @api {post} /api/htorder/wxPay 酒店订单微信支付
+     * @apiName wxPay
+     * @apiGroup htorder
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} token 验证登陆
+     * @apiParam {string} sNo 验证登陆
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": "",
+     *       "msg":"预定成功"
+     *     }
+     */
+     public function wxPay($sNo=''){
         require_once base_path()."/wxpay/lib/WxPay.Api.php";
         require_once base_path()."/wxpay/example/WxPay.NativePay.php";
         $all=request()->all();
-        //$sNo=$all['sNo'];
-        
-        $orders = Db::table('orders')
-        ->where('order_sn',$sNo)
+        if (!empty($all['sNo'])) {
+           $sNo=$all['sNo'];
+        }
+        if (empty($sNo)) {
+            return $this->rejson(201,'参数错误');
+        }
+        $users = Db::table('users')
+        ->where('id',$all['uid'])
         ->first();
+        //查找表里是否有此订单
+        $orders = Db::table('orders')
+            ->where('order_sn',$sNo)
+            ->first();
+        if ($orders->integral>$users->integral) {
+           return $this->rejson(201,'积分不足');
+        }
         
         $pay_money = 100*($orders->order_money-$orders->integral);
         
@@ -370,12 +419,12 @@ class HtorderController extends Controller
         if (empty($re)) {
             return $this->rejson(201,'订单编号错误');
         }
-        $data['status']=50;
+        $data['status']=60;
         $data['refund_msg']=$all['refund_msg'];
-        $data['book_sn']=$all['book_sn'];
+        $data['book_sn']=$all['refund_id'];
         DB::beginTransaction(); //开启事务
         $res=Db::table('books')->where('book_sn',$all['book_sn'])->update($data);
-        $ress=Db::table('orders')->where('order_sn',$all['order_sn'])->update(array('status'=>50));
+        $ress=Db::table('orders')->where('order_sn',$all['order_sn'])->update(array('status'=>60));
         if ($res&&$ress) {
             DB::commit();
             return $this->rejson(200,'申请成功');
