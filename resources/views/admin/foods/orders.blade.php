@@ -14,14 +14,11 @@
                     <a href="{{url('/admin/foods/orders')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
                             全部</button>
                     </a>
-                    <a href="{{url('/admin/foods/orders?status=10')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
-                            未支付</button>
-                    </a>
                     <a href="{{url('/admin/foods/orders?status=30')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
-                            已到店</button>
+                            已使用</button>
                     </a>
                     <a href="{{url('/admin/foods/orders?status=20')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
-                            未到店</button>
+                            未使用</button>
                     </a>
                     <a href="{{url('/admin/foods/orders?status=60')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
                             申请退款</button>
@@ -72,11 +69,9 @@
                                         @elseif($v->status == 10)
                                         <span style="color: red">未支付</span>
                                         @elseif($v->status == 20)
-                                        <span style="color: green">已支付(未到店)</span>
+                                        <span style="color: green">未使用</span>
                                         @elseif($v->status == 30)
-                                        <span style="color: green">已到店</span>
-                                        @elseif($v->status == 40)
-                                        <span style="color: green">已完成</span>
+                                        <span style="color: green">已使用</span>
                                         @elseif($v->status == 50)
                                         <span style="color: blue">已评价</span>
                                         @elseif($v->status == 60)
@@ -110,6 +105,11 @@
                                             <a onclick="return_refuse({{$v->id}})"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-close"></i> 拒绝</button></a>
                                         </div>
                                     @endif
+                                    @if($v->status == 20)
+                                        <div class="btn-group">
+                                            <a onclick="return_money({{$v->id}})"><button class="btn btn-success btn-xs" type="button"><i class="fa fa-check"></i> 退款</button></a>
+                                        </div>
+                                    @endif
                                 </td>
                             </tr>
                         @endforeach
@@ -136,7 +136,7 @@
         }
         function return_money(e) {
             var id = e;
-            layer.alert("是否同意退款？",{icon:3},function (index) {
+            layer.alert("是否退款？",{icon:3},function (index) {
                 location.href="{{route('foods.return_money')}}?id="+id;
                 layer.close(index);
             });
