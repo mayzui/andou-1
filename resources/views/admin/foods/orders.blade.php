@@ -94,8 +94,10 @@
                                         支付宝
                                         @elseif($v->method == 3)
                                         银联
-                                        @else
+                                        @elseif($v->method == 4)
                                         余额
+                                        @else
+                                        <span style="color: red;">未支付</span>
                                     @endif
                                 </th>
                                 <td class="text-center">
