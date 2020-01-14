@@ -622,13 +622,23 @@ class FoodsController extends BaseController
                  $information = DB::table("foods_information") -> get();
                  // 根据提交的id，查询数据库订单表中的内容
                  $order = DB::table("foods_user_ordering") -> where('id',$all['id']) -> first();
+                 $order_goods = json_decode($order -> foods_id,true);
+                 // 根据id 查询菜品信息
+                 foreach ($order_goods as $k =>$v) {
+                     $goods_information[]  = DB::table('foods_information')->where('id', $v['id'])->first();
+                     if(!empty($goods_information[$k])){
+                         $goods_information[$k] -> shuliang = $v['num'];
+                     }
+                 }
                  // 根据提交的id，查询数据库订单菜品表中的内容
                  $particulars = DB::table("foods_order_particulars") -> where('order_id',$all['id']) -> get();
                  $arr = [
                      'order' => $order,
+                     'goods_information' => $goods_information,
                      'particulars' => $particulars,
                      'information' => $information
                  ];
+//                 return dd($goods_information);
                  // 跳转修改界面
                  return $this -> view('',$arr);
              }
