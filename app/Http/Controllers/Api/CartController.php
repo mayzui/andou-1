@@ -28,6 +28,7 @@ class CartController extends Controller
      * @apiGroup cart
      * @apiParam {string} uid 用户id
      * @apiParam {string} token 验证登陆
+     * @apiParam {string} page 分页参数
      * @apiSuccessExample 参数返回:
      *     {
      *       "code": "200",
@@ -50,6 +51,12 @@ class CartController extends Controller
      */
     public function index(){
         $all=request()->all();
+        $num=10;
+        if (isset($all['page'])) {
+            $pages=($all['page']-1)*$num;
+        }else{
+            $pages=0;
+        }
         $data=Db::table('cart as c')
         ->join("goods as g","c.goods_id","=","g.id")
         ->join("goods_sku as s","c.goods_sku_id","=","s.id")
@@ -57,6 +64,8 @@ class CartController extends Controller
         ->select('c.id','c.goods_id','c.goods_sku_id','c.merchant_id','c.num','g.name as goods_name','g.img','s.price','m.name as merchant_name','m.logo_img')
         ->where(['c.user_id'=>$all['uid'],'c.type'=>1])
         ->orderBy('c.created_at','DESC')
+        ->offset($pages)
+        ->limit($num)
         ->get();
         return $this->rejson(200,'查询成功',$data);
     }
