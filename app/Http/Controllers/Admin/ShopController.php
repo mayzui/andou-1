@@ -611,7 +611,7 @@ class ShopController extends BaseController
             }else{
                 $user=null;
             }
-            return $this->view('ordersUpd',['id'=>$ids,'data'=>$data,'address'=>$address,'uid'=>$uid,'good'=>$goodInfo,'num'=>$sum,'courier_num'=>$courier_num,'express_id'=>$express_id,'user'=>$user,'tick'=>$tick,'status'=>$all['status']]);
+            return $this->view('ordersUpd',['id'=>$ids,'data'=>$data,'address'=>$address,'uid'=>$uid,'good'=>$goodInfo,'num'=>$sum,'courier_num'=>'','express_id'=>'','user'=>$user,'tick'=>$tick,'status'=>$all['status']]);
         } else{
             $courier_num = $all['courier_num'];  //快递公司
             $express_id = $all['express_id'];    //快递单号

@@ -71,16 +71,19 @@ class RefundController extends BaseController
         if(empty($all['ids'])){
             // 根据当前提交的id 查询数据库中值
             $data = \DB::table('order_returns') -> where('order_goods_id',$all['id']) -> select('is_reg','status')->first();
+            // 根据当前传入id 查询商品详情表中,用户支付的金额
+            $order_goods_data = \DB::table('order_goods') -> where('id',$all['id']) -> select('pay_money','user_id') -> first();
+
             // 判断售后类型
             if($data -> status == 1){
                 // 退货退款
                 if($data -> is_reg == 0){
-                    $data = [
+                    $datas = [
                         'is_reg' => 2,
                         'handling_time' => date("Y-m-d H:i:s")
                     ];
                 }else if($data -> is_reg == 2){
-                    $data = [
+                    $datas = [
                         'is_reg' => 3,
                         'handling_time' => date("Y-m-d H:i:s")
                     ];
@@ -88,21 +91,50 @@ class RefundController extends BaseController
             }else{
                 // 仅退款
                 if($data -> is_reg == 0){
-                    $data = [
+                    $datas = [
                         'is_reg' => 3,
                         'handling_time' => date("Y-m-d H:i:s")
                     ];
                 }
             }
-
-            $i = \DB::table('order_returns') -> where('order_goods_id',$all['id']) -> update($data);
-            if($i){
-                flash("更新成功") -> success();
-                return redirect()->route('refund.aftermarket');
-            }else{
-                flash("更新失败") -> success();
+            \DB::beginTransaction();
+            try{
+                // 更新退货表
+                $i = \DB::table('order_returns') -> where('order_goods_id',$all['id']) -> update($datas);
+                $data = \DB::table('order_returns') -> where('order_goods_id',$all['id']) -> select('is_reg','status')->first();
+                if($data -> is_reg == 3){
+                    // 将用户支付的金额退还给用户
+                    $user_data = \DB::table('users') -> where('id',$order_goods_data -> user_id) -> first();
+                    $money = $user_data ->money + $order_goods_data -> pay_money;
+                    // 更新用户表
+                    $m = \DB::table('users') -> where('id',$order_goods_data -> user_id) -> update(['money' => $money]);
+                    if($m){
+                        \DB::commit();
+                        flash("更新成功") -> success();
+                        return redirect()->route('refund.aftermarket');
+                    }else{
+                        \DB::rollBack();
+                        flash("更新失败") -> success();
+                        return redirect()->route('refund.aftermarket');
+                    }
+                }else{
+                    if($i){
+                        \DB::commit();
+                        flash("更新成功") -> success();
+                        return redirect()->route('refund.aftermarket');
+                    }else{
+                        \DB::rollBack();
+                        flash("更新失败") -> success();
+                        return redirect()->route('refund.aftermarket');
+                    }
+                }
+            }catch (\Exception $exception){
+                \DB::rollBack();
+                flash("更新失败,请稍后重试") -> success();
                 return redirect()->route('refund.aftermarket');
             }
+
+
         }else{
             $data = [
                 'is_reg' => 4,
