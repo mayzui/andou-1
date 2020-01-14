@@ -14,11 +14,20 @@
                     <a href="{{url('/admin/foods/orders')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
                             全部</button>
                     </a>
+                    <a href="{{url('/admin/foods/orders?status=10')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
+                            未支付</button>
+                    </a>
                     <a href="{{url('/admin/foods/orders?status=30')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
                             已到店</button>
                     </a>
                     <a href="{{url('/admin/foods/orders?status=20')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
                             未到店</button>
+                    </a>
+                    <a href="{{url('/admin/foods/orders?status=60')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
+                            申请退款</button>
+                    </a>
+                    <a href="{{url('/admin/foods/orders?status=70')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
+                            退款成功</button>
                     </a>
                 </form>
 
@@ -104,7 +113,7 @@
                         @endforeach
                     @else
                         <tr>
-                            <th colspan="11">暂时还没有数据</th>
+                            <th colspan="12">暂时还没有数据</th>
                         </tr>
                     @endif
                     </tbody>

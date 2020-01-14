@@ -589,6 +589,12 @@ class FoodsController extends BaseController
                 $where[] = ['status',20];
             }elseif ($all['status'] == 30){      // 已入住
                 $where[] = ['status',30];
+            }elseif ($all['status'] == 60){      // 申请退款
+                $where[] = ['status',60];
+            }elseif ($all['status'] == 10){      // 未支付
+                $where[] = ['status',10];
+            }elseif ($all['status'] == 70){      // 已退款
+                $where[] = ['status',70];
             }
         }else{
             $status = 0;
