@@ -11,8 +11,7 @@
                 {{ csrf_field() }}
                 <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>
                 <input type="text" style="height: 25px;margin-left: 10px;" value="{{$wheres['book_sn'] or ''}}" name="book_sn" placeholder="预订编号/姓名/电话">
-                
-                <button style="height: 25px;margin-left: 10px;" type="submit">按条件查询</button>
+                    <button class="btn btn-primary btn-sm" type="submit"><i class="fa fa-search"></i> 查询</button>
                     <a href="{{url('/admin/hotel/books')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
                             全部</button>
                     </a>

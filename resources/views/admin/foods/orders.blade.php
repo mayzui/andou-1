@@ -10,7 +10,7 @@
                     {{ csrf_field() }}
                     <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>
                     <input type="text" style="height: 25px;margin-left: 10px;" value="{{ $name or '' }}" name="name" placeholder="电话/姓名/订单编号">
-                    <button style="height: 25px;margin-left: 10px;" type="submit">按条件查询</button>
+                    <button class="btn btn-primary btn-sm" type="submit"><i class="fa fa-search"></i> 查询</button>
                     <a href="{{url('/admin/foods/orders')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
                             全部</button>
                     </a>
