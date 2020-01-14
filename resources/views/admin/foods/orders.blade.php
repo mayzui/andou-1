@@ -9,15 +9,17 @@
                 <form method="post" action="{{route('foods.orders')}}" name="form">
                     {{ csrf_field() }}
                     <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>
-                    {{--判断用户是否是超级管理员，超级管理员不能新增规格--}}
-                    {{--@if($id)--}}
-                    <a href="{{route('foods.orderschange')}}" link-url="javascript:void(0)">
-                        <button class="btn btn-primary btn-sm" type="button">
-                            <i class="fa fa-plus-circle"></i> 新增点餐订单</button>
-                    </a>
-                    {{--@endif--}}
-                    <input type="text" style="height: 25px;margin-left: 10px;" value="{{ $name or '' }}" name="name" placeholder="客户电话">
+                    <input type="text" style="height: 25px;margin-left: 10px;" value="{{ $name or '' }}" name="name" placeholder="电话/姓名/订单编号">
                     <button style="height: 25px;margin-left: 10px;" type="submit">按条件查询</button>
+                    <a href="{{url('/admin/foods/orders')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
+                            全部</button>
+                    </a>
+                    <a href="{{url('/admin/foods/orders?status=30')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
+                            已到店</button>
+                    </a>
+                    <a href="{{url('/admin/foods/orders?status=20')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
+                            未到店</button>
+                    </a>
                 </form>
 
                 <style>
@@ -29,6 +31,7 @@
                     <thead>
                     <tr>
                         <th width="100">ID</th>
+                        <th>订单编号</th>
                         <th>客户名称</th>
                         <th>客户电话</th>
                         <th>下单时间</th>
@@ -46,6 +49,7 @@
                         @foreach($data as $v)
                             <tr>
                                 <th>{{ $v->id }}</th>
+                                <th>{{ $v->order_sn }}</th>
                                 <th>{{ $v->user_name }}</th>
                                 <th>{{ $v->phone }}</th>
                                 <th>{{ $v->orderingtime }}</th>
@@ -53,7 +57,27 @@
                                 <th>{{ $v->people }}</th>
                                 <th><p style="width: 200px;overflow: hidden;white-space: nowrap;text-overflow: ellipsis;">{{ $v->remark }}</p></th>
                                 <th>{{ $v->prices }}</th>
-                                <th style="color: blue;">{{ $v->status == 0 ? "未支付" : "已支付" }}</th>
+                                <th>
+                                    @if($v->status == 0)
+                                        <span style="color: red">已取消</span>
+                                        @elseif($v->status == 10)
+                                        <span style="color: red">未支付</span>
+                                        @elseif($v->status == 20)
+                                        <span style="color: green">已支付(未到店)</span>
+                                        @elseif($v->status == 30)
+                                        <span style="color: green">已到店</span>
+                                        @elseif($v->status == 40)
+                                        <span style="color: green">已完成</span>
+                                        @elseif($v->status == 50)
+                                        <span style="color: blue">已评价</span>
+                                        @elseif($v->status == 60)
+                                        <span style="color: blue">申请退款</span>
+                                        @elseif($v->status == 70)
+                                        <span style="color: green">退款成功</span>
+                                        @elseif($v->status == 80)
+                                        <span style="color: red">拒绝退款</span>
+                                    @endif
+                                </th>
                                 <th style="color: blue;">
                                     @if($v->method == 1)
                                         微信
@@ -82,7 +106,7 @@
                     @endif
                     </tbody>
                 </table>
-
+                {{ $data->appends(['status'=>$status]) }}
             </div>
         </div>
         <div class="clearfix"></div>

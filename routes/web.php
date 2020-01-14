@@ -220,7 +220,6 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::any('banner/store','BannerController@store')->name('banner.store');
         Route::get('banner/update/{id}','BannerController@update')->name('banner.update');
         Route::get('banner/delete/{id}','BannerController@delete')->name('banner.delete');
-        Route::get('banner/delete/{id}','BannerController@delete')->name('banner.delete');
         Route::get('foods/cart','FoodsController@cart')->name('foods.cart');
         Route::get('user/merchant_detailed','UserController@merchant_detailed')->name('user.merchant_detailed');
         Route::get('user/users_detailed','UserController@users_detailed')->name('user.users_detailed');

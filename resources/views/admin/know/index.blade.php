@@ -7,7 +7,6 @@
 <link rel="stylesheet" href="{{loadEdition('/assets/css/animate.css')}}">
 <link rel="stylesheet" href="{{loadEdition('/assets/css/main.css')}}">
 
-<script src="{{loadEdition('/assets/js/jquery.min.js')}}"></script>
 <script src="https://cdn.bootcss.com/webuploader/0.1.1/webuploader.js"></script>
 <script src="{{loadEdition('/assets/plugins/bootstrap/js/bootstrap.min.js')}}"></script>
 <script src="{{loadEdition('/assets/plugins/waypoints/waypoints.min.js')}}"></script>

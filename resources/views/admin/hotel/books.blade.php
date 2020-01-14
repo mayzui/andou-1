@@ -10,9 +10,18 @@
                 <form method="post" action="{{route('hotel.books')}}" name="form">
                 {{ csrf_field() }}
                 <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>
-                <input type="text" style="height: 25px;margin-left: 10px;" value="{{$wheres['book_sn'] or ''}}" name="book_sn" placeholder="预订编号">
+                <input type="text" style="height: 25px;margin-left: 10px;" value="{{$wheres['book_sn'] or ''}}" name="book_sn" placeholder="预订编号/姓名/电话">
                 
                 <button style="height: 25px;margin-left: 10px;" type="submit">按条件查询</button>
+                    <a href="{{url('/admin/hotel/books')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
+                            全部</button>
+                    </a>
+                    <a href="{{url('/admin/hotel/books?status=30')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
+                            已入住</button>
+                    </a>
+                    <a href="{{url('/admin/hotel/books?status=20')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
+                            待入住</button>
+                    </a>
                 </form>
                     <style>
                         th ,td{ 
@@ -42,6 +51,7 @@
                         </tr>
                         </thead>
                         <tbody>
+                        @if(count($data) > 0)
                         @foreach($data as $k => $item)
                             <tr>
                                 <td>{{$item->id}}</td>
@@ -79,9 +89,14 @@
                                 </td>
                             </tr>
                         @endforeach
+                            @else
+                            <tr>
+                                <td colspan="17">对不起，没有查询到相关内容</td>
+                            </tr>
+                        @endif
                         </tbody>
                     </table>
-                    {{$data}}
+                {{ $data->appends(['status'=>$status]) }}
             </div>
         </div>
         <div class="clearfix"></div>

@@ -538,29 +538,63 @@ class FoodsController extends BaseController
             -> where("user_id",$id)
             -> where("is_reg",1)
             -> first();
-        // 判断是否执行条件查询
-        if(!empty($all['name'])){
-            // 条件查询
-            $where[] = ['phone', 'like', '%'.$all['name'].'%'];
-            $name = $all['name'];
+        $where=[];
+
+        // 判断条件查询
+        if(!empty($all['status'])){
+            $status = $all['status'];
+            if($all['status'] == 20){            // 待入住
+                $where[] = ['status',20];
+            }elseif ($all['status'] == 30){      // 已入住
+                $where[] = ['status',30];
+            }
         }else{
-            // 跳转页面
-            $where[] = ['phone', 'like', '%'."".'%'];
-            $name = "";
+            $status = 0;
         }
         if(!empty($i)){
             // 如果开店，则能够看到当前店铺用户订单信息
             // 查询数据库数据
-            $data = DB::table("foods_user_ordering")-> where($where) -> where('merchant_id',$id) -> paginate(10);
+            if(!empty($all['name'])){
+                // 条件查询
+                $data=Db::table('foods_user_ordering') -> where('phone','like','%'.$all['name'].'%') -> where('merchant_id',$id) ->paginate(10);
+                if(count($data) == 0){
+                    $data=Db::table('foods_user_ordering')-> where('user_name','like','%'.$all['name'].'%') -> where('merchant_id',$id) ->paginate(10);
+                    if(count($data) == 0){
+                        $data=Db::table('foods_user_ordering') -> where('order_sn','like','%'.$all['name'].'%') -> where('merchant_id',$id) ->paginate(10);
+                    }
+                }
+                $name = $all['name'];
+                $id = "";
+            }else{
+                // 跳转页面
+                $data=Db::table('foods_user_ordering')->where($where) -> where('merchant_id',$id)->paginate(10);
+                $name = "";
+                $id = "";
+            }
         }else{
             // 如果未开店，则为超级管理员，能够看见所有的数据
             // 查询数据库数据
-            $data = DB::table("foods_user_ordering")
-                -> where($where)
-                -> paginate(10);
-            $id = "";
+            // 判断是否执行条件查询
+            if(!empty($all['name'])){
+                // 条件查询
+                $data=Db::table('foods_user_ordering') -> where('phone','like','%'.$all['name'].'%') ->paginate(10);
+                if(count($data) == 0){
+                    $data=Db::table('foods_user_ordering')-> where('user_name','like','%'.$all['name'].'%') ->paginate(10);
+                    if(count($data) == 0){
+                        $data=Db::table('foods_user_ordering') -> where('order_sn','like','%'.$all['name'].'%') ->paginate(10);
+                    }
+                }
+                $name = $all['name'];
+                $id = "";
+            }else{
+                // 跳转页面
+                $data=Db::table('foods_user_ordering')->where($where)->paginate(10);
+                $name = "";
+                $id = "";
+            }
         }
-        return $this -> view('',['data'=>$data,'id'=>$id,'name'=>$name]);
+
+        return $this -> view('',['data'=>$data,'id'=>$id,'name'=>$name,'status'=>$status]);
     }
 
     // 新增 and 修改订单
