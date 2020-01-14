@@ -96,9 +96,6 @@
                                 </td>
                             </tr>
                         @endforeach
-                        <tr style="height: 35px">
-                            <td  colspan="11" style="text-align: center;">{{$data}}</td>
-                        </tr>
                     @else
                         <tr>
                             <th colspan="11">暂时还没有数据</th>
