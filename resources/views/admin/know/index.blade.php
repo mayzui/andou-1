@@ -39,7 +39,7 @@
                     <h3 id="focush2"></h3>
                 </div>
                 <script type="text/javascript">
-                    //实例化编辑器
+                    //实例化编辑器 
                     var um = UE.getEditor('container');
                     function getContentTxt() {
                         var arr = [];
