@@ -19,6 +19,48 @@ class FoodsController extends BaseController
      * @return \Illuminate\Http\Response
      */
     /*
+     *      拒绝退款
+     * */
+    public function return_refuse(){
+        $all = \request() -> all();
+        // 拒绝退款，将状态修改为拒绝退款
+        $i = DB::table('foods_user_ordering') -> where('id',$all['id']) -> update(['status'=>80]);
+        if($i){
+            flash("已拒绝退款") -> success();
+            return redirect()->route('foods.orders');
+        }else{
+            flash("失败，请稍后重试") -> error();
+            return redirect()->route('foods.orders');
+        }
+    }
+    /*
+     *      同意退款
+     * */
+    public function return_money(){
+        $all = \request() -> all();
+        // 同意退款，1.将金额返还用户，2.将状态修改为同意退款
+        // 根据当前订单id，获取当前订单信息
+        $data = DB::table('foods_user_ordering') -> where('id',$all['id']) -> first();
+        // 获取用户信息
+        $user_data = DB::table('users') -> where('id',$data -> user_id) -> first();
+        $money = $user_data -> money + $data -> pay_money;
+        DB::beginTransaction();
+        try{
+            // 修改用户金额
+            $m = DB::table('users') -> where('id',$data -> user_id) -> update(['money' => $money]);
+            // 修改订单状态
+            $n = DB::table('foods_user_ordering') -> where('id',$all['id']) -> update(['status'=>70]);
+            DB::commit();
+            flash("退款成功") -> success();
+            return redirect()->route('foods.orders');
+        }catch (\Exception $exception){
+            DB::rollBack();
+            flash("退款失败，请稍后重试") -> error();
+            return redirect()->route('foods.orders');
+        }
+    }
+
+    /*
      *      评论
      * */
     // 商品评论

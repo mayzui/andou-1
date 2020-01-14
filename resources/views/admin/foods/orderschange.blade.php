@@ -10,42 +10,17 @@
             </div>
             <div class="ibox-content">
                 <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>
+                @if($order->status == 60)
+                    <div class="btn-group">
+                        <a onclick="return_money({{$order->id}})"><button class="btn btn-success btn-sm" type="button"><i class="fa fa-check"></i> 同意</button></a>
+                        <a onclick="return_refuse({{$order->id}})"><button class="btn btn-danger btn-sm" type="button"><i class="fa fa-close"></i> 拒绝</button></a>
+                    </div>
+                @endif
 
                 <div class="hr-line-dashed m-t-sm m-b-sm"></div>
                 <form class="form-horizontal m-t-md" action="{{route('foods.orderschange')}}" method="post" accept-charset="UTF-8">
                     {!! csrf_field() !!}
                     <input type="hidden" name="id" value="{{ $order -> id or '' }}" />
-                    {{--@if(!empty($information))--}}
-                        {{--@foreach($information as $v)--}}
-                            {{--<input type="hidden" name="ids[]" value="{{ $v ->id }}">--}}
-                            {{--<div class="form-group">--}}
-                                {{--<label class="col-sm-2 control-label">菜品名称：</label>--}}
-                                {{--<div class="input-group col-sm-2">--}}
-                                    {{--<input type="text" class="form-control" name="name[]" value="{{$v -> name or ''}}" readonly required placeholder="请输入菜品名称">--}}
-                                {{--</div>--}}
-                            {{--</div>--}}
-                            {{--<div class="form-group">--}}
-                                {{--<label class="col-sm-2 control-label">菜品单价：</label>--}}
-                                {{--<div class="input-group col-sm-2">--}}
-                                    {{--<input type="text" class="form-control" name="price[]" onblur="calculation()" value="{{$v -> price or ''}}" readonly required placeholder="请输入菜品单价">--}}
-                                {{--</div>--}}
-                            {{--</div>--}}
-                            {{--<div class="form-group">--}}
-                                {{--<label class="col-sm-2 control-label">菜品数量：</label>--}}
-                                {{--<div class="input-group col-sm-2">--}}
-                                    {{--@if(!empty($particulars))--}}
-                                        {{--@foreach($particulars as $m)--}}
-                                            {{--@if($v ->id == $m ->foods_id)--}}
-                                                {{--<input type="text" class="form-control" name="num[]" onblur="calculation()" value="{{ $m ->num or '' }}" placeholder="请输入菜品数量">--}}
-                                            {{--@endif--}}
-                                        {{--@endforeach--}}
-                                        {{--@else--}}
-                                        {{--<input type="text" class="form-control" name="num[]" onblur="calculation()" value="" placeholder="请输入菜品数量">--}}
-                                    {{--@endif--}}
-                                {{--</div>--}}
-                            {{--</div>--}}
-                        {{--@endforeach--}}
-                    {{--@endif--}}
                     <table class="table table-striped table-bordered table-hover m-t-md">
                         <h3>客户信息</h3>
                         <thead>
@@ -181,7 +156,20 @@
                 ,type: 'datetime'
             });
         });
-
+        function return_money(e) {
+            var id = e;
+            layer.alert("是否同意退款？",{icon:3},function (index) {
+                location.href="{{route('foods.return_money')}}?id="+id;
+                layer.close(index);
+            });
+        }
+        function return_refuse(e) {
+            var id = e;
+            layer.alert("是否拒绝退款？",{icon:3},function (index) {
+                location.href="{{route('foods.return_refuse')}}?id="+id;
+                layer.close(index);
+            });
+        }
 
     </script>
 @endsection

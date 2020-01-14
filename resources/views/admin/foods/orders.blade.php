@@ -93,6 +93,12 @@
                                     <div class="btn-group">
                                         <a href="{{route('foods.orderschange')}}?id={{$v->id}}"><button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 详情</button></a>
                                     </div>
+                                    @if($v->status == 60)
+                                        <div class="btn-group">
+                                            <a onclick="return_money({{$v->id}})"><button class="btn btn-success btn-xs" type="button"><i class="fa fa-check"></i> 同意</button></a>
+                                            <a onclick="return_refuse({{$v->id}})"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-close"></i> 拒绝</button></a>
+                                        </div>
+                                    @endif
                                 </td>
                             </tr>
                         @endforeach
@@ -114,6 +120,20 @@
             var id = e;
             layer.alert("是否删除该数据？",{icon:3},function (index) {
                 location.href="{{route('foods.ordersdel')}}?id="+id;
+                layer.close(index);
+            });
+        }
+        function return_money(e) {
+            var id = e;
+            layer.alert("是否同意退款？",{icon:3},function (index) {
+                location.href="{{route('foods.return_money')}}?id="+id;
+                layer.close(index);
+            });
+        }
+        function return_refuse(e) {
+            var id = e;
+            layer.alert("是否拒绝退款？",{icon:3},function (index) {
+                location.href="{{route('foods.return_refuse')}}?id="+id;
                 layer.close(index);
             });
         }
