@@ -66,6 +66,7 @@ class IndexController extends Controller
         $data['notice']=Db::table('notice')
         ->select('id','content','updated_at')
         ->where('status',1)
+        ->where('send','all')
         ->orderBy('updated_at','DESC')
         ->get();
         return $this->rejson(200,'查询成功',$data);

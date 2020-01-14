@@ -47,7 +47,7 @@ class DetailsController extends Controller
             ->first();
 
         if ($data) {
-            $data->facilities=json_decode($data->facilities,1);
+            $data->facilities=json_decode($data->facilities,1)??[];
             return $this->rejson(200,'查询成功',$data);
         } else {
             return $this->rejson(201, '查询失败');

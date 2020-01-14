@@ -18,10 +18,10 @@ class modificationController extends Controller
         if (!empty($token)) {
             $all['token']=$token;
         }
-        if (empty($all['uid'])||empty($all['token'])) {
+        if (empty($all['id'])||empty($all['token'])) {
            return $this->rejson(202,'登陆失效');
         }
-        $check=$this->checktoten($all['uid'],$all['token']);
+        $check=$this->checktoten($all['id'],$all['token']);
         if ($check['code']==202) {
            return $this->rejson($check['code'],$check['msg']);
         }

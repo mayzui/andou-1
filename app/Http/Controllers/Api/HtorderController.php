@@ -139,9 +139,10 @@ class HtorderController extends Controller
             return $this->rejson('201','房间错误');
         }
         $data['money']=$price*$all['day_num'];
-        $all['is_integral']=1;
+        
         $data['status']=10;
         if($all['is_integral']==1){
+            
             $integrals=DB::table('config')->where('key','integral')->first()->value;
             $integral=floor($price*$all['day_num']*$integrals);
             if ($users->integral<$integral) {
@@ -220,9 +221,7 @@ class HtorderController extends Controller
         if ($data['price']>$users->money) {
            return $this->rejson(201,'余额不足');
         }
-        if ($orders->integral>$users->integral) {
-           return $this->rejson(201,'积分不足');
-        }
+       
         $data['user_id']=$all['uid'];
         $data['describe']='订单：'.$sNo.'消费';
         $data['create_time']=date('Y-m-d H:i:s',time());
@@ -286,10 +285,7 @@ class HtorderController extends Controller
         $orders = Db::table('orders')
             ->where('order_sn',$sNo)
             ->first();
-        if ($orders->integral>$users->integral) {
-           return $this->rejson(201,'积分不足');
-        }
-        
+       
         $pay_money = 100*($orders->order_money-$orders->integral);
         
         $input = new \WxPayUnifiedOrder();
