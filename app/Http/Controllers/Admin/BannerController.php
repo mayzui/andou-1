@@ -204,7 +204,7 @@ class BannerController extends BaseController
     }
 
     public function notice(){
-        $data=Db::table('notice')->paginate(10);
+        $data=Db::table('notice')-> where('send','all')->paginate(10);
         return $this->view('',['data'=>$data]);
     }
     public function noticeedit(){
@@ -212,6 +212,7 @@ class BannerController extends BaseController
         if (request()->isMethod('post')) {
             $save['title']=$all['title'];
             $save['content']=$all['content'];
+            $save['send']="all";
             if (empty($all['id'])) {
                 $save['status']=0;
                 $save['auther']=Auth::id();
