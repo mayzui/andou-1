@@ -180,4 +180,6 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('gourmet/wxPay','GourmetController@wxPay');
      Route::post('gourmet/addcomment','GourmetController@addcomment');
      
+     Route::Post('modification/user_head','modificationController@user_head');
+     Route::Post('modification/user_pictures','modificationController@user_pictures');
 });
