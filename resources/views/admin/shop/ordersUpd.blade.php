@@ -22,7 +22,7 @@
                     @if($status==20)
                         <a href="{{url("/admin/logistics/goGoods?id=$id")}}" ><button class="btn btn-danger btn-sm" type="button"><i class="fa fa-check" ></i> 订单发货</button></a>
                     @elseif($status==40)
-                        <a href="{{url("/admin/logistics/readLogistics?id=$id&express_id=$express_id&courier_num=$courier_num")}}" ><button class= "btn btn-danger btn-xs"type="button"><i class="fa fa-check" ></i> 订单跟踪</button></a>
+                        <a href="{{url("/admin/logistics/readLogistics?id=$id&express_id=$express_id&courier_num=$courier_num")}}" ><button class= "btn btn-danger btn-sm"type="button"><i class="fa fa-check" ></i> 订单跟踪</button></a>
                     @endif
                     @endif
 
