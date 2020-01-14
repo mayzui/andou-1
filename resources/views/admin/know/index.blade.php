@@ -41,7 +41,7 @@
                 <script type="text/javascript">
                     //实例化编辑器
                     var um = UE.getEditor('container');
-                    function getContentTxt() {  
+                    function getContentTxt() {
                         var arr = [];
                         arr.push(UE.getEditor('container').getContentTxt());
                         var content  = arr.join("\n");
