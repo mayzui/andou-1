@@ -852,6 +852,9 @@ class OrderController extends Controller
             'created_at' => date('Y-m-d H:i:s'),
             'type' => 2,
         ];
+        $status['status']=60;
+        $re=DB::table('orders')->where('order_sn',$all['order_id'])->update($status);
+        $res=DB::table('order_goods')->where('order_id',$all['order_id'])->update($status);
         $i = DB::table('order_commnets') -> insert($data);
         if($i){
             return $this->rejson(200,'添加成功');

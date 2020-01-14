@@ -793,6 +793,9 @@ class GourmetController extends Controller
      *                  "merchant_id":"商户id",
      *                  "id":"订单id",
      *                  "order_sn":"订单编号",
+     *                  "people":"用餐人数",
+     *                  "dinnertime":"用餐时间",
+     *                  "remark":"备注",
      *                  "status":"订单状态 (10未支付，20已支付,30已使用,待评价,40已评价)",
      *                  "foods":[
      *                                {
@@ -833,7 +836,7 @@ class GourmetController extends Controller
         }
         $data=DB::table("foods_user_ordering as o")
             ->join("merchants as m","o.merchant_id","=","m.id")
-            ->select(['m.name','o.foods_id','m.logo_img','o.prices','o.id','o.merchant_id','o.order_sn','o.status'])
+            ->select(['m.name','o.foods_id','m.logo_img','o.prices','o.remark','o.dinnertime','o.people','o.id','o.merchant_id','o.order_sn','o.status'])
             ->where($where)
             ->offset($pages)
             ->limit($num)
@@ -930,7 +933,7 @@ class GourmetController extends Controller
         }
     }
      /**
-     * @api {post} /api/htorder/refund 饭店退款
+     * @api {post} /api/gourmet/refund 饭店退款
      * @apiName refund
      * @apiGroup gourmet
      * @apiParam {string} uid 用户id
@@ -964,6 +967,75 @@ class GourmetController extends Controller
         }else{
             DB::rollback();
             return $this->rejson(201,'申请失败');
+        }
+    }
+
+    /**
+     * @api {post} /api/gourmet/addcomment 添加饭店评论
+     * @apiName addcomment
+     * @apiGroup gourmet
+     * @apiParam {string} uid 用户id（必填）
+     * @apiParam {string} token 用户验证（必填）
+     * @apiParam {string} order_id 订单号（必填）
+     * @apiParam {string} merchants_id 商户id（必填）
+     * @apiParam {string} content 评价内容（非必填）
+     * @apiParam {string} stars 评价星级（必填）
+     * @apiParam {string} image 商品图片（非必填）
+     * @apiParam {string} dianzhan 是否点赞(0未点赞 1点赞)
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "msg":"查询成功",
+     *       "data": "",
+     *     }
+     */
+    public function addcomment(){
+        $all=request()->all();
+        if (!isset($all['uid']) ||
+            !isset($all['token']) ||
+            !isset($all['stars']) ||
+            !isset($all['order_id']) ||
+            !isset($all['merchants_id']) ){
+            return $this->rejson(201,'缺少参数');
+        }
+        if(!empty($all['image'])){
+            $image = json_encode($all['image']);
+        }else{
+            $image = '';
+        }
+        if(!empty($all['content'])){
+            $content = $all['content'];
+        }else{
+            $content = '此用户没有评论任何内容';
+        }
+        $data = [
+            'user_id' => $all['uid'],
+            'order_id' => $all['order_id'],
+            'goods_id' => $all['goods_id'],
+            'merchants_id' => $all['merchants_id'],
+            'content' => $content,
+            'stars' => $all['stars'],
+            'image' => $image,
+            'created_at' => date('Y-m-d H:i:s'),
+            'type' => 3,
+        ];
+
+        if(empty($all['dianzhan']==1)){
+            $da['user_id']=$all['uid'];
+            $da['pid']=$all['id'];
+            $da['created_at']=date('Y-m-d H:i:s',time());
+            $re=Db::table('fabulous')->insert($da);
+            $res=DB::table('merchants')->where('id',$all['id'])->increment('praise_num');
+
+        }
+        $status['status']=40;
+        $re=DB::table('orders')->where('order_sn',$all['order_id'])->update($status);
+        $res=DB::table('foods_user_ordering')->where('order_sn',$all['order_id'])->update($status);
+        $i = DB::table('order_commnets') -> insert($data);
+        if($i){
+            return $this->rejson(200,'添加成功');
+        }else{
+            return $this->rejson(201,'添加失败');
         }
     }
 

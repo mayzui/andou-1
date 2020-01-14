@@ -178,5 +178,6 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('gourmet/refund','GourmetController@refund');
      Route::post('gourmet/balancePay','GourmetController@balancePay');
      Route::post('gourmet/wxPay','GourmetController@wxPay');
+     Route::post('gourmet/addcomment','GourmetController@addcomment');
      
 });
