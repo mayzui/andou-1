@@ -18,9 +18,9 @@
                 <script type="text/javascript" charset="utf-8" src="/ueditor1_4_3_3-utf8-php/utf8-php/lang/zh-cn/zh-cn.js"></script>
                 </head>
                 <body>
-                <div style="margin-top: 50px;margin-left: 700px;">
-                    <script id="container" name="content" type="text/plain" style="width: 70%;height: 30%;">
-尊敬的客户您好:
+                <div style="margin-top: 40px;margin-left: 500px;">
+                    <script id="container" name="content" type="text/plain" style="width: 80%;height: 40%;">
+<span>{{ $data->need_content or '尊敬的客户您好:'}}</span>
 </script>
                     <script type="text/javascript" src="/ueditor1_4_3_3-utf8-php/utf8-php/ueditor.config.js"></script>
                     <script type="text/javascript" src="/ueditor1_4_3_3-utf8-php/utf8-php/ueditor.all.js"></script>
@@ -30,7 +30,7 @@
                     <table>
                         <tr>
                             <td>
-                                <button class="btn btn-primary" onclick="getContentTxt()"   style="margin-left: 1050px;margin-top: 30px;" ><i class="fa fa-check"></i>&nbsp;保 存</button>　
+                                <button class="btn btn-primary" onclick="getContentTxt()"   style="margin-left: 890px;margin-top: 30px;" ><i class="fa fa-check"></i>&nbsp;保 存</button>　
                             </td>
                         </tr>
                     </table>
