@@ -889,7 +889,7 @@ class GourmetController extends Controller
      *                    "logo_img":"商家logo图",
      *                    "status":"订单状态",
      *                    "address":"详细地址",
-     *                    "phone":"客户电话",
+     *                    "tel":"商铺电话",
      *                    "foods":[
      *                            {
      *                              "id":"菜品id",
@@ -916,7 +916,7 @@ class GourmetController extends Controller
         }
         $data=DB::table("foods_user_ordering as o")
             ->join("merchants as m","o.merchant_id","=","m.id")
-            ->select('o.order_sn','o.people','o.prices','o.phone','o.dinnertime','o.method','o.remark','o.integral','o.pay_money','o.orderingtime','o.foods_id','o.id','o.status','m.name','m.logo_img','m.address')
+            ->select('o.order_sn','o.people','o.prices','o.dinnertime','o.method','o.remark','o.integral','o.pay_money','o.orderingtime','o.foods_id','o.id','o.status','m.name','m.logo_img','m.address','m.tel')
             ->where('o.id',$all['id'])
             ->first();
 
