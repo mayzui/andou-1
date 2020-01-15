@@ -18,6 +18,35 @@ class FoodsController extends BaseController
      *
      * @return \Illuminate\Http\Response
      */
+
+    /*
+     *      修改状态
+     * */
+    public function informationStatus(){
+        $all = \request() -> all();
+        // 根据获取的id 查询状态
+        $foods_information_data = DB::table('foods_information') -> where('id',$all['id']) -> first();
+        // 判断当前状态
+        if($foods_information_data -> status == 1){
+            $data = [
+                'status' => 0
+            ];
+        }else{
+            $data = [
+                'status' => 1
+            ];
+        }
+        // 执行修改操作
+        $i = DB::table('foods_information') -> where('id',$all['id']) -> update($data);
+        if($i){
+            flash('更新成功') -> success();
+            return redirect()->route('foods.information');
+        }else{
+            flash('更新失败') -> error();
+            return redirect()->route('foods.information');
+        }
+    }
+
     /*
      *      拒绝退款
      * */
@@ -779,8 +808,9 @@ class FoodsController extends BaseController
                 -> join('foods_classification','foods_information.classification_id','=','foods_classification.id')
                 -> join('merchants','foods_information.merchant_id','=','merchants.id')
                 -> where('merchant_id',$i->id)
+                -> where('merchants.merchant_type_id',4)
                 -> where($where)
-                -> select(['foods_information.id','merchants.name as merchants_name','foods_classification.name as class_name','foods_information.name as info_name','price','image','specifications','remark','quantitySold','num'])
+                -> select(['foods_information.id','foods_information.status','merchants.name as merchants_name','foods_classification.name as class_name','foods_information.name as info_name','price','image','specifications','remark','quantitySold','num'])
                 -> paginate(10);
         }else{
             // 如果开店，则为超级管理员，能够看见所有的数据
@@ -789,7 +819,8 @@ class FoodsController extends BaseController
                 -> join('foods_classification','foods_information.classification_id','=','foods_classification.id')
                 -> join('merchants','foods_information.merchant_id','=','merchants.id')
                 -> where($where)
-                -> select(['foods_information.id','merchants.name as merchants_name','foods_classification.name as class_name','foods_information.name as info_name','price','image','specifications','remark','quantitySold','num'])
+                -> where('merchants.merchant_type_id',4)
+                -> select(['foods_information.id','foods_information.status','merchants.name as merchants_name','foods_classification.name as class_name','foods_information.name as info_name','price','image','specifications','remark','quantitySold','num'])
                 -> paginate(10);
             $id = "";
         }
@@ -1146,7 +1177,7 @@ class FoodsController extends BaseController
                 // 新增操作
                 // 判断数据库是否存在同样的菜品分类
                 $m = DB::table("foods_classification") -> where("name",$name) -> first();
-                $id = DB::table('merchants') -> where("user_id",Auth::id()) -> first();
+                $id = DB::table('merchants') -> where("user_id",Auth::id()) -> where('type',4) -> first();
                 if(empty($m)){
                     // 该分类不存在可以新增
                     // 定义一个数组存放获取的值
