@@ -95,6 +95,7 @@ class GourmetController extends Controller
             $data[$key]->cai=DB::table('foods_information')
                 ->select(['id','image'])
                 ->where('merchant_id',$value->id)
+                ->where('status',1)
                 ->offset(0)
                 ->limit(3)
                 ->get();
@@ -177,6 +178,7 @@ class GourmetController extends Controller
             $data[$key]->information=DB::table('foods_information')
                 ->select(['id','image','name','remark','price'])
                 ->where('classification_id',$value->id)
+                ->where('status',1)
                 ->get();
         }
         if($data){
@@ -211,6 +213,7 @@ class GourmetController extends Controller
             ->join("foods_spec as s","f.classification_id","=","s.id")
             ->select('f.id','f.image','f.name','f.remark','f.price','s.name','s.id')
             ->where('f.id',$all['id'])
+            ->where('f.status',1)
             ->first();
         if($data){
             return $this->rejson(200,"查询成功",$data);
@@ -993,7 +996,6 @@ class GourmetController extends Controller
     public function addcomment(){
         $all=request()->all();
         if (!isset($all['uid']) ||
-            !isset($all['token']) ||
             !isset($all['stars']) ||
             !isset($all['order_id']) ||
             !isset($all['merchants_id']) ){

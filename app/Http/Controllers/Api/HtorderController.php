@@ -201,7 +201,7 @@ class HtorderController extends Controller
      * @apiParam {string} token 验证登陆
      * @apiParam {string} sNo 验证登陆
      * @apiSuccessExample 参数返回:
-     *     {
+     *     {status
      *       "code": "200",
      *       "data": "",
      *       "msg":"预定成功"
@@ -218,7 +218,7 @@ class HtorderController extends Controller
         $users = Db::table('users')
         ->where('id',$all['uid'])
         ->first();
-        if ($data['price']>$users->money) {
+        if ($orders->order_money - $orders->integral>$users->money) {
            return $this->rejson(201,'余额不足');
         }
        
