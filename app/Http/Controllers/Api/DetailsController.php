@@ -122,7 +122,7 @@ class DetailsController extends Controller
      *                  "areas":"面积",
      *                  "has_window":"窗户",
      *                  "wifi":"wifi",
-     *                  "num":"可住人数",
+     *                  "num_people":"可住人数",
      *                  "has_breakfast":"有无早餐",
      *                  "bed_type":"床型",
      *                  "other_sets":"配套设置"
@@ -139,7 +139,7 @@ class DetailsController extends Controller
 
         $data = DB::table("hotel_room as r")
             ->join("hotel_attr_value as a","r.id","=","a.hotel_room_id")
-            ->select(['r.id', 'r.img', 'r.price', 'r.house_name','a.areas','a.has_window','a.wifi','a.num','a.has_breakfast','a.bed_type','a.other_sets'])
+            ->select(['r.id', 'r.img', 'r.price', 'r.house_name','a.areas','a.has_window','a.wifi','a.num_people','a.has_breakfast','a.bed_type','a.other_sets'])
             ->where('r.id', $all['id'])
             ->where('r.status',1)
             ->first();
