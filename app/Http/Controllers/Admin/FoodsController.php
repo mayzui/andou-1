@@ -249,9 +249,10 @@ class FoodsController extends BaseController
                 }else{
                     $room = 1;
                 }
+                $merchants_data = DB::table('merchants') -> where("user_id",Auth::id())-> where('merchant_type_id',4) -> first();
                 // 获取提交的数据
                 $data = [
-                    'merchant_id' => Auth::id(),
+                    'merchant_id' => $merchants_data -> id,
                     'name' => $all['name'],
                     'image' => $all['img'],
                     'price' => $all['price'],
@@ -277,9 +278,10 @@ class FoodsController extends BaseController
                 }else{
                     $room = 1;
                 }
+                $merchants_data = DB::table('merchants') -> where("user_id",Auth::id())-> where('merchant_type_id',4) -> first();
                 // 获取提交的数据
                 $data = [
-                    'merchant_id' => Auth::id(),
+                    'merchant_id' => $merchants_data -> id,
                     'name' => $all['name'],
                     'image' => $all['img'],
                     'price' => $all['price'],
@@ -789,7 +791,8 @@ class FoodsController extends BaseController
         $all = \request() -> all();
         $id = Auth::id();
         // 判断该用户，是否开店
-        $i = DB::table('merchants') -> where("user_id",$id) -> first();
+        $i = DB::table('merchants') -> where("user_id",$id)
+            -> where('merchant_type_id',4) -> first();
         // 判断是否执行条件查询
         if(!empty($all['name'])){
             // 条件查询
@@ -808,7 +811,6 @@ class FoodsController extends BaseController
                 -> join('foods_classification','foods_information.classification_id','=','foods_classification.id')
                 -> join('merchants','foods_information.merchant_id','=','merchants.id')
                 -> where('merchant_id',$i->id)
-                -> where('merchants.merchant_type_id',4)
                 -> where($where)
                 -> select(['foods_information.id','foods_information.status','merchants.name as merchants_name','foods_classification.name as class_name','foods_information.name as info_name','price','image','specifications','remark','quantitySold','num'])
                 -> paginate(10);
@@ -819,7 +821,6 @@ class FoodsController extends BaseController
                 -> join('foods_classification','foods_information.classification_id','=','foods_classification.id')
                 -> join('merchants','foods_information.merchant_id','=','merchants.id')
                 -> where($where)
-                -> where('merchants.merchant_type_id',4)
                 -> select(['foods_information.id','foods_information.status','merchants.name as merchants_name','foods_classification.name as class_name','foods_information.name as info_name','price','image','specifications','remark','quantitySold','num'])
                 -> paginate(10);
             $id = "";
@@ -830,14 +831,14 @@ class FoodsController extends BaseController
     public function informationadd(){
         // 获取当前商户id
         $id = Auth::id();
-        $data = DB::table('merchants') -> where("user_id",$id) -> first();
+        $data = DB::table('merchants') -> where("user_id",$id)-> where('merchant_type_id',4) -> first();
         if(\request()->isMethod("get")){
             $all = \request() -> all();
             // 判断跳转新增界面还是修改界面
             if(empty($all['id'])) {
                 // 跳转新增界面
                 // 链接数据库，查询菜品分类
-                $type = DB::table("foods_classification") -> get();
+                $type = DB::table("foods_classification") ->where('merchants_id',$data -> id) -> get();
                 // 链接数据库，查询菜品规格
                 if(!empty($i)){
                     $spec = DB::table("foods_spec") ->where('merchant_id',$data -> id) -> get();
@@ -1117,7 +1118,7 @@ class FoodsController extends BaseController
         // 判断当前用户是否是酒店用户
         $id = Auth::id();
         // 判断该用户，是否开店
-        $i = DB::table('merchants') -> where("user_id",$id) -> first();
+        $i = DB::table('merchants') -> where("user_id",$id)-> where('merchant_type_id',4) -> first();
         // 判断是否执行条件查询
         if(!empty($all['name'])){
             // 条件查询
@@ -1175,9 +1176,9 @@ class FoodsController extends BaseController
             // 判断用户执行的是新增操作还是修改操作
             if(empty($all['id'])){
                 // 新增操作
+                $id = DB::table('merchants') -> where("user_id",Auth::id()) -> where('merchant_type_id',4) -> first();
                 // 判断数据库是否存在同样的菜品分类
-                $m = DB::table("foods_classification") -> where("name",$name) -> first();
-                $id = DB::table('merchants') -> where("user_id",Auth::id()) -> where('type',4) -> first();
+                $m = DB::table("foods_classification") -> where("name",$name) -> where('merchants_id',$id -> id) -> first();
                 if(empty($m)){
                     // 该分类不存在可以新增
                     // 定义一个数组存放获取的值
