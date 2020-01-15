@@ -87,6 +87,7 @@ class DetailsController extends Controller
         $data['hotel_room']=DB::table("hotel_room")
             ->select(['id','house_name','price','img','desc'])
             ->where('merchant_id',$all['merchant_id'])
+            ->where('status',1)
             ->offset($pages)
             ->limit($num)
             ->get();
@@ -140,6 +141,7 @@ class DetailsController extends Controller
             ->join("hotel_attr_value as a","r.id","=","a.hotel_room_id")
             ->select(['r.id', 'r.img', 'r.price', 'r.house_name','a.areas','a.has_window','a.wifi','a.num','a.has_breakfast','a.bed_type','a.other_sets'])
             ->where('r.id', $all['id'])
+            ->where('r.status',1)
             ->first();
         return $this->rejson(200, '查询成功', $data);
     }

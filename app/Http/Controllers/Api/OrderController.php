@@ -133,6 +133,8 @@ class OrderController extends Controller
         ->where($where)
         ->select('g.img','g.name','o.goods_id','o.merchant_id','o.order_id','o.status','m.name as mname','m.logo_img','o.num','o.id','shipping_free','o.express_id','o.courier_num','s.price','pay_money','s.attr_value')
         ->orderBy('o.created_at','DESC')
+        ->offset($pages)
+        ->limit($num)
         ->get();
         foreach ($data as $k => $v) {
         $data[$k]->attr_value=json_decode($v->attr_value,1)[0]['value'];
@@ -777,8 +779,8 @@ class OrderController extends Controller
         
         $input->SetBody("安抖商城平台");
         $input->SetOut_trade_no($sNo);
-        // $input->SetTotal_fee($pay_money);
-        $input->SetTotal_fee(1);
+        $input->SetTotal_fee($pay_money);
+        // $input->SetTotal_fee(1);
         $input->SetNotify_url("http://andou.zhuosongkj.com/api/common/wxnotify");
         $input->SetTrade_type("APP");
         $input->SetSpbill_create_ip($_SERVER['REMOTE_ADDR']);
