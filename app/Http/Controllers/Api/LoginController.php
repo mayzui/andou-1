@@ -283,16 +283,14 @@ class LoginController extends Controller
        $new_password=$all['new_password'];
        $datas['password']=Hash::make($new_password);
        $re=Db::table('users')->where('mobile',$mobile)->update($datas);
-       $data = DB::table('notice')->where('id',3)->first();
-        $send = json_decode($data -> send) ?? [];
-        if(!in_array($all['uid'],$send)){
-            $send[] = $all['uid'];
-        }
-        $send = json_encode($send);
         $datas = [
-            'send' => $send
+            'title'=> '账户安全通知',
+            'content'=>'密码被修改为了您的账户安全请及时查验',
+            'status'=>$all['uid'],
+            'created_at'=>date('Y-m-d H:i:s',time()),
+            'send' => $all['id'],
         ];
-        DB::table('notice')->where('id',$all['id'])->update($datas);
+        DB::table('notice')->where('id',$all['id'])->insert($datas);
        return $this->rejson('200',"修改密码成功",array('password'=>$new_password));
     }
     /**

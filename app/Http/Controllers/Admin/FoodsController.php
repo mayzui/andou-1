@@ -74,9 +74,9 @@ class FoodsController extends BaseController
                 -> join('users','order_commnets.user_id','=','users.id')     // 链接用户表
                 -> join('foods_information','order_commnets.goods_id','=','foods_information.id')     // 链接商品表
                 -> where('type',3)
-                -> where('merchants_id',$id)
+                -> where('merchants_id',$i->id)
                 -> where('order_commnets.is_del',0)
-                -> select(['order_commnets.id','users.name as username','foods_information.name as foods_informationname','stars','order_commnets.content','order_commnets.created_at'])
+                -> select(['order_commnets.id','users.name as username','foods_information.name as goodsname','stars','order_commnets.content','order_commnets.created_at'])
                 -> paginate(10);
         }else{
             // 反之则为。管理员
@@ -576,6 +576,7 @@ class FoodsController extends BaseController
         // 判断该用户，是否申请饭店 并且已经认证通过
         $i = DB::table('merchants')
             -> join("merchant_type","merchants.merchant_type_id","=","merchant_type.id")
+            ->select('merchants.id')
             -> where("role_id",5)
             -> where("user_id",$id)
             -> where("is_reg",1)
@@ -604,18 +605,18 @@ class FoodsController extends BaseController
             // 查询数据库数据
             if(!empty($all['name'])){
                 // 条件查询
-                $data=Db::table('foods_user_ordering') -> where('phone','like','%'.$all['name'].'%') -> where('merchant_id',$id) ->paginate(10);
+                $data=Db::table('foods_user_ordering') -> where('phone','like','%'.$all['name'].'%') -> where('merchant_id',$i->id) ->paginate(10);
                 if(count($data) == 0){
-                    $data=Db::table('foods_user_ordering')-> where('user_name','like','%'.$all['name'].'%') -> where('merchant_id',$id) ->paginate(10);
+                    $data=Db::table('foods_user_ordering')-> where('user_name','like','%'.$all['name'].'%') -> where('merchant_id',$i->id) ->paginate(10);
                     if(count($data) == 0){
-                        $data=Db::table('foods_user_ordering') -> where('order_sn','like','%'.$all['name'].'%') -> where('merchant_id',$id) ->paginate(10);
+                        $data=Db::table('foods_user_ordering') -> where('order_sn','like','%'.$all['name'].'%') -> where('merchant_id',$i->id) ->paginate(10);
                     }
                 }
                 $name = $all['name'];
                 $id = "";
             }else{
                 // 跳转页面
-                $data=Db::table('foods_user_ordering')->where($where) -> where('merchant_id',$id)->paginate(10);
+                $data=Db::table('foods_user_ordering')->where($where) -> where('merchant_id',$i->id)->paginate(10);
                 $name = "";
                 $id = "";
             }
@@ -777,7 +778,7 @@ class FoodsController extends BaseController
             $data = DB::table("foods_information")
                 -> join('foods_classification','foods_information.classification_id','=','foods_classification.id')
                 -> join('merchants','foods_classification.merchants_id','=','merchants.id')
-                -> where('merchant_id',$id)
+                -> where('merchant_id',$i->id)
                 -> where($where)
                 -> select(['foods_information.id','merchants.name as merchants_name','foods_classification.name as class_name','foods_information.name as info_name','price','image','specifications','remark','quantitySold','num'])
                 -> paginate(10);
@@ -787,7 +788,7 @@ class FoodsController extends BaseController
             $data = DB::table("foods_information")
                 -> join('foods_classification','foods_information.classification_id','=','foods_classification.id')
                 -> join('merchants','foods_classification.merchants_id','=','merchants.id')
-                -> where('merchant_id',$id)
+                -> where('merchant_id',$i->id)
                 -> where($where)
                 -> select(['foods_information.id','merchants.name as merchants_name','foods_classification.name as class_name','foods_information.name as info_name','price','image','specifications','remark','quantitySold','num'])
                 -> paginate(10);
@@ -852,13 +853,13 @@ class FoodsController extends BaseController
             // 判断用户执行的是新增操作还是修改操作
             if(empty($all['id'])){
                 // 执行新增操作
-                $spec = $all['specifications'];
-                // 根据获取的id查询规格表中数据库
-                foreach ($spec as $v){
-                    $specdata[] = json_decode(json_encode(DB::table('foods_spec') -> where('id',$v)->select(['name']) -> first()),true);
-                }
-                // 将数组转换成字符串
-                $specs = implode(",",array_column($specdata,'name'));
+//                $spec = $all['specifications'];
+//                // 根据获取的id查询规格表中数据库
+//                foreach ($spec as $v){
+//                    $specdata[] = json_decode(json_encode(DB::table('foods_spec') -> where('id',$v)->select(['name']) -> first()),true);
+//                }
+//                 将数组转换成字符串
+//                $specs = implode(",",array_column($specdata,'name'));
                 // 定义一个数组用于接收需要上传数据库的值
                 $data = [
                     "merchant_id" => $data -> id,
@@ -866,7 +867,7 @@ class FoodsController extends BaseController
                     "name" => $all['name'],
                     "price" => $all['price'],
                     "image" => $all['img'],
-                    "specifications" => $specs,
+//                    "specifications" => $specs,
                     "remark" => $all['remark']
                 ];
                 // 链接数据库，新增数据
@@ -881,13 +882,13 @@ class FoodsController extends BaseController
             }else{
                 // 执行修改操作
                 // 获取提交的值
-                $spec = $all['specifications'];
-                // 根据获取的id查询规格表中数据库
-                foreach ($spec as $v){
-                    $specdata[] = json_decode(json_encode(DB::table('foods_spec') -> where('id',$v)->select(['name']) -> first()),true);
-                }
-                // 将数组转换成字符串
-                $specs = implode(",",array_column($specdata,'name'));
+//                $spec = $all['specifications'];
+//                // 根据获取的id查询规格表中数据库
+//                foreach ($spec as $v){
+//                    $specdata[] = json_decode(json_encode(DB::table('foods_spec') -> where('id',$v)->select(['name']) -> first()),true);
+//                }
+//                // 将数组转换成字符串
+//                $specs = implode(",",array_column($specdata,'name'));
                 // 定义一个数组用于接收需要上传数据库的值
                 $data = [
                     "merchant_id" => $data -> id,
@@ -895,7 +896,7 @@ class FoodsController extends BaseController
                     "name" => $all['name'],
                     "price" => $all['price'],
                     "image" => $all['img'],
-                    "specifications" => $specs,
+//                    "specifications" => $specs,
                     "remark" => $all['remark'],
                     "quantitySold" => $all['quantitySold'],
                     "num" => $all['num']
