@@ -19,6 +19,48 @@ class FoodsController extends BaseController
      * @return \Illuminate\Http\Response
      */
     /*
+     *      拒绝退款
+     * */
+    public function return_refuse(){
+        $all = \request() -> all();
+        // 拒绝退款，将状态修改为拒绝退款
+        $i = DB::table('foods_user_ordering') -> where('id',$all['id']) -> update(['status'=>80]);
+        if($i){
+            flash("已拒绝退款") -> success();
+            return redirect()->route('foods.orders');
+        }else{
+            flash("失败，请稍后重试") -> error();
+            return redirect()->route('foods.orders');
+        }
+    }
+    /*
+     *      同意退款
+     * */
+    public function return_money(){
+        $all = \request() -> all();
+        // 同意退款，1.将金额返还用户，2.将状态修改为同意退款
+        // 根据当前订单id，获取当前订单信息
+        $data = DB::table('foods_user_ordering') -> where('id',$all['id']) -> first();
+        // 获取用户信息
+        $user_data = DB::table('users') -> where('id',$data -> user_id) -> first();
+        $money = $user_data -> money + $data -> pay_money;
+        DB::beginTransaction();
+        try{
+            // 修改用户金额
+            $m = DB::table('users') -> where('id',$data -> user_id) -> update(['money' => $money]);
+            // 修改订单状态
+            $n = DB::table('foods_user_ordering') -> where('id',$all['id']) -> update(['status'=>70]);
+            DB::commit();
+            flash("退款成功") -> success();
+            return redirect()->route('foods.orders');
+        }catch (\Exception $exception){
+            DB::rollBack();
+            flash("退款失败，请稍后重试") -> error();
+            return redirect()->route('foods.orders');
+        }
+    }
+
+    /*
      *      评论
      * */
     // 商品评论
@@ -538,29 +580,69 @@ class FoodsController extends BaseController
             -> where("user_id",$id)
             -> where("is_reg",1)
             -> first();
-        // 判断是否执行条件查询
-        if(!empty($all['name'])){
-            // 条件查询
-            $where[] = ['phone', 'like', '%'.$all['name'].'%'];
-            $name = $all['name'];
+        $where=[];
+
+        // 判断条件查询
+        if(!empty($all['status'])){
+            $status = $all['status'];
+            if($all['status'] == 20){            // 待入住
+                $where[] = ['status',20];
+            }elseif ($all['status'] == 30){      // 已入住
+                $where[] = ['status',30];
+            }elseif ($all['status'] == 60){      // 申请退款
+                $where[] = ['status',60];
+            }elseif ($all['status'] == 10){      // 未支付
+                $where[] = ['status',10];
+            }elseif ($all['status'] == 70){      // 已退款
+                $where[] = ['status',70];
+            }
         }else{
-            // 跳转页面
-            $where[] = ['phone', 'like', '%'."".'%'];
-            $name = "";
+            $status = 0;
         }
         if(!empty($i)){
             // 如果开店，则能够看到当前店铺用户订单信息
             // 查询数据库数据
-            $data = DB::table("foods_user_ordering")-> where($where) -> where('merchant_id',$id) -> paginate(10);
+            if(!empty($all['name'])){
+                // 条件查询
+                $data=Db::table('foods_user_ordering') -> where('phone','like','%'.$all['name'].'%') -> where('merchant_id',$id) ->paginate(10);
+                if(count($data) == 0){
+                    $data=Db::table('foods_user_ordering')-> where('user_name','like','%'.$all['name'].'%') -> where('merchant_id',$id) ->paginate(10);
+                    if(count($data) == 0){
+                        $data=Db::table('foods_user_ordering') -> where('order_sn','like','%'.$all['name'].'%') -> where('merchant_id',$id) ->paginate(10);
+                    }
+                }
+                $name = $all['name'];
+                $id = "";
+            }else{
+                // 跳转页面
+                $data=Db::table('foods_user_ordering')->where($where) -> where('merchant_id',$id)->paginate(10);
+                $name = "";
+                $id = "";
+            }
         }else{
             // 如果未开店，则为超级管理员，能够看见所有的数据
             // 查询数据库数据
-            $data = DB::table("foods_user_ordering")
-                -> where($where)
-                -> paginate(10);
-            $id = "";
+            // 判断是否执行条件查询
+            if(!empty($all['name'])){
+                // 条件查询
+                $data=Db::table('foods_user_ordering') -> where('phone','like','%'.$all['name'].'%') ->paginate(10);
+                if(count($data) == 0){
+                    $data=Db::table('foods_user_ordering')-> where('user_name','like','%'.$all['name'].'%') ->paginate(10);
+                    if(count($data) == 0){
+                        $data=Db::table('foods_user_ordering') -> where('order_sn','like','%'.$all['name'].'%') ->paginate(10);
+                    }
+                }
+                $name = $all['name'];
+                $id = "";
+            }else{
+                // 跳转页面
+                $data=Db::table('foods_user_ordering')->where($where)->paginate(10);
+                $name = "";
+                $id = "";
+            }
         }
-        return $this -> view('',['data'=>$data,'id'=>$id,'name'=>$name]);
+
+        return $this -> view('',['data'=>$data,'id'=>$id,'name'=>$name,'status'=>$status]);
     }
 
     // 新增 and 修改订单
@@ -588,13 +670,23 @@ class FoodsController extends BaseController
                  $information = DB::table("foods_information") -> get();
                  // 根据提交的id，查询数据库订单表中的内容
                  $order = DB::table("foods_user_ordering") -> where('id',$all['id']) -> first();
+                 $order_goods = json_decode($order -> foods_id,true);
+                 // 根据id 查询菜品信息
+                 foreach ($order_goods as $k =>$v) {
+                     $goods_information[]  = DB::table('foods_information')->where('id', $v['id'])->first();
+                     if(!empty($goods_information[$k])){
+                         $goods_information[$k] -> shuliang = $v['num'];
+                     }
+                 }
                  // 根据提交的id，查询数据库订单菜品表中的内容
                  $particulars = DB::table("foods_order_particulars") -> where('order_id',$all['id']) -> get();
                  $arr = [
                      'order' => $order,
+                     'goods_information' => $goods_information,
                      'particulars' => $particulars,
                      'information' => $information
                  ];
+//                 return dd($goods_information);
                  // 跳转修改界面
                  return $this -> view('',$arr);
              }

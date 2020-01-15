@@ -52,7 +52,7 @@ class HotelController extends Controller
             return $this->rejson($check['code'],$check['msg']);
         }
         $where[]=['books.user_id',$all['uid']];
-        if (isset($all['type']) && $all['type']==100) {
+        if (isset($all['type']) && $all['type']!=100) {
             $where[]=['books.status',$all['type']];
         }
         // 查询酒店订单

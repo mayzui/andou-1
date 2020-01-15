@@ -683,15 +683,20 @@ class OrderController extends Controller
         if (empty($orders)) {
             return $this->rejson(201,'订单不存在');
         }
-        $merchant_id=Db::table('order_goods')->where('order_id',$sNo)->first()->merchant_id ?? '';
+        $order_goods=Db::table('order_goods')->where('order_id',$sNo)->get();
         if($all['is_integral']==1){
             $integrals=DB::table('config')->where('key','integral')->first()->value;
             $integral=floor(($orders->order_money-$orders->shipping_free)*$integrals);
             if ($users->integral<$integral) {
                 return $this->rejson(201,'积分不足');
             }else{
+                foreach ($order_goods as $key => $value) {
+                    $uporder['integral']=floor(($value->pay_money-$value->shipping_free)*$integrals);
+                    $uporder['pay_money']=$value->pay_money-$uporder['integral'];
+                    Db::table('order_goods')->where('id',$value->id)->update($uporder);
+                }
                 $dataintegral['integral']=$integral;
-                Db('orders')->where('order_sn',$sNo)->update($dataintegral);
+                Db::table('orders')->where('order_sn',$sNo)->update($dataintegral);
             }
         }else{
             $integral=0;
@@ -711,7 +716,6 @@ class OrderController extends Controller
         $status['pay_way']=$all['pay_id'];
         $status['pay_time']=date('Y-m-d H:i:s',time());
         DB::beginTransaction(); //开启事务
-        $data['merchant_id']=$merchant_id;
         $re=DB::table('user_logs')->insert($data);
         $ress=DB::table('orders')->where('order_sn',$sNo)->update($status);
         $ress=DB::table('order_goods')->where('order_id',$sNo)->update(array('status'=>20));
@@ -720,7 +724,6 @@ class OrderController extends Controller
             $addintegral=$data;
             $addintegral['price']=$integral;
             $addintegral['type_id']=1;
-            $addintegral['merchant_id']=$merchant_id;
             $rei=DB::table('user_logs')->insert($addintegral);
             $resi=DB::table('users')->where('id',$all['uid'])->decrement('integral',$integral);
         }
@@ -749,6 +752,7 @@ class OrderController extends Controller
         if (empty($orders)) {
             return $this->rejson(201,'订单不存在');
         }
+        $order_goods=Db::table('order_goods')->where('order_id',$sNo)->get();
         if($all['is_integral']==1){
             $allintegral=DB::table('users')->where('id',$all['uid'])->first()->integral;
             $integrals=DB::table('config')->where('key','integral')->first()->value;
@@ -756,8 +760,13 @@ class OrderController extends Controller
             if ($allintegral<$integral) {
                 return $this->rejson(201,'积分不足');
             }else{
+                foreach ($order_goods as $key => $value) {
+                    $uporder['integral']=floor(($value->pay_money-$value->shipping_free)*$integrals);
+                    $uporder['pay_money']=$value->pay_money-$uporder['integral'];
+                    Db::table('order_goods')->where('id',$value->id)->update($uporder);
+                }
                 $dataintegral['integral']=$integral;
-                Db('orders')->where('order_sn',$sNo)->update($dataintegral);
+                Db::table('orders')->where('order_sn',$sNo)->update($dataintegral);
             }
         }else{
             $integral=0;
@@ -843,6 +852,9 @@ class OrderController extends Controller
             'created_at' => date('Y-m-d H:i:s'),
             'type' => 2,
         ];
+        $status['status']=60;
+        $re=DB::table('orders')->where('order_sn',$all['order_id'])->update($status);
+        $res=DB::table('order_goods')->where('order_id',$all['order_id'])->update($status);
         $i = DB::table('order_commnets') -> insert($data);
         if($i){
             return $this->rejson(200,'添加成功');

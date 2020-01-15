@@ -427,9 +427,11 @@ class HotelController extends BaseController
      */
     public function books($value='')
     {
+        $all = \request() -> all();
         $admin = Auth::guard('admin')->user();
         $user_id=$admin->id;
-        $datas=Db::table('merchants')->where('user_id',$user_id)->first();
+        $datas=Db::table('merchants')->where('user_id',$user_id) -> where('user_id','!=','1') ->first();
+
         $where=[];
         if (!empty($datas)) {
             $wheres['role']=$datas->id;
@@ -438,16 +440,33 @@ class HotelController extends BaseController
          }else{
             $wheres['role']=0;    
         }
-        $all = request()->all();
+        // 判断条件查询
+        if(!empty($all['status'])){
+            $status = $all['status'];
+            if($all['status'] == 20){            // 待入住
+                $where[] = ['status',20];
+            }elseif ($all['status'] == 30){      // 已入住
+                $where[] = ['status',30];
+            }
+        }else{
+            $status = 0;
+        }
         if (!empty($all['merchant_id'])) {
             $where[]=['merchant_id',$all['merchant_id']];
             $wheres['merchant_id']=$all['merchant_id'];
         }
         if(!empty($all['book_sn'])){
-            $where[]=['book_sn','like','%'.$all['book_sn'].'%'];
             $wheres['book_sn']=$all['book_sn'];
+            $data=Db::table('books')-> where('book_sn','like','%'.$all['book_sn'].'%') ->paginate(10);
+            if(count($data) == 0){
+                $data=Db::table('books')-> where('real_name','like','%'.$all['book_sn'].'%') ->paginate(10);
+                if(count($data) == 0){
+                    $data=Db::table('books') -> where('mobile','like','%'.$all['book_sn'].'%') ->paginate(10);
+                }
+            }
+        }else{
+            $data=Db::table('books')->where($where)->paginate(10);
         }
-        $data=Db::table('books')->where($where)->paginate(20);
         if (!empty($data)) {
              foreach ($data as $key => $value) {
                  $user=Db::table('users')->where('id',$value->user_id)->first();
@@ -470,7 +489,7 @@ class HotelController extends BaseController
                  }
              }
          } 
-        return $this->view('',['data'=>$data],['wheres'=>$wheres]);
+        return $this->view('',['data'=>$data,'status'=>$status],['wheres'=>$wheres]);
     }
     // 跳转酒店商户
     public function merchant()

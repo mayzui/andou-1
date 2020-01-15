@@ -86,7 +86,7 @@ class IndexsController extends Controller
                 -> where('order_commnets.type',2)
 //                -> where('order_commnets.is_del',0)
 //                -> select(['order_commnets.id','users.name as username','goods.name as goodsname','stars','order_commnets.content','order_commnets.created_at'])
-                -> paginate(10);
+                -> get();
             // 查询商品个数
             $merchants_goods = \DB::table('goods')
                 -> join('merchants','goods.merchant_id','=','merchants.id')
@@ -101,7 +101,7 @@ class IndexsController extends Controller
                 -> where('orders.is_del',0)
                 -> where('orders.user_id',$id)
                 -> select(['orders.id','orders.order_sn','orders.pay_way','orders.pay_money','orders.order_money','orders.status','orders.shipping_free','orders.remark','orders.auto_receipt','orders.pay_time','users.name'])
-                -> paginate(10);
+                -> get();
             // 查询售后服务
             $merchants_returns =\DB::table('order_goods')
                 -> join('order_returns','order_goods.id','=','order_returns.order_goods_id')
@@ -110,18 +110,14 @@ class IndexsController extends Controller
                 -> where('order_goods.merchant_id',$id)
                 -> select('order_goods.id','order_goods.order_id','users.name as user_name','refund_reason.name as retun_name',
                     'order_returns.content','order_returns.is_reg','order_returns.status')
-                -> paginate(10);
+                -> get();
 
         }else{
             // 反之则为。管理员
             // 查询，商城评论
             $merchants_comments = \DB::table('order_commnets')
-//                -> join('users','order_commnets.user_id','=','users.id')     // 链接用户表
-//                -> join('goods','order_commnets.goods_id','=','goods.id')     // 链接商品表
                 -> where('type',2)
-//                -> where('order_commnets.is_del',0)
-//                -> select(['order_commnets.id','users.name as username','goods.name as goodsname','stars','order_commnets.content','order_commnets.created_at'])
-                -> paginate(10);
+                -> get();
             // 查询商品个数
             $merchants_goods = \DB::table('goods')
                 -> join('merchants','goods.merchant_id','=','merchants.id')
@@ -131,10 +127,8 @@ class IndexsController extends Controller
                 -> get();
             // 查询订单个数
             $merchants_order = \DB::table('orders')
-                -> join('users','orders.user_id','=','users.id')
                 -> where('orders.is_del',0)
-                -> select(['orders.id','orders.order_sn','orders.pay_way','orders.pay_money','orders.order_money','orders.status','orders.shipping_free','orders.remark','orders.auto_receipt','orders.pay_time','users.name'])
-                -> paginate(10);
+                -> get();
             // 查询售后服务
             $merchants_returns =\DB::table('order_goods')
                 -> join('order_returns','order_goods.id','=','order_returns.order_goods_id')
@@ -142,7 +136,7 @@ class IndexsController extends Controller
                 -> join('refund_reason','order_returns.reason_id','=','refund_reason.id')
                 -> select('order_goods.id','order_goods.order_id','users.name as user_name','refund_reason.name as retun_name',
                     'order_returns.content','order_returns.is_reg','order_returns.status')
-                -> paginate(10);
+                -> get();
         }
         // 查询商城商家个数
         $merchants_num = \DB::table('merchants')
@@ -163,7 +157,7 @@ class IndexsController extends Controller
             -> where('type',1)
             -> where('order_commnets.is_del',0)
             -> select(['order_commnets.id','users.name as username','hotel_room.house_name as goodsname','stars','order_commnets.content','order_commnets.created_at'])
-            -> paginate(10);
+            -> get();
         // 查询饭店商家
         $goods_num = \DB::table('merchants')
             -> where('merchant_type_id',4)
@@ -177,7 +171,7 @@ class IndexsController extends Controller
             -> where('type',3)
             -> where('order_commnets.is_del',0)
             -> select(['order_commnets.id','users.name as username','foods_information.name as goodsname','stars','order_commnets.content','order_commnets.created_at'])
-            -> paginate(10);
+            -> get();
         $arr = [
             'merchants_num' => count($merchants_num),
             'merchants_goods' => count($merchants_goods),

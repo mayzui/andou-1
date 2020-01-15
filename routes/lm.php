@@ -49,6 +49,8 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::match(['get','post'],'foods/orders','FoodsController@orders')->name('foods.orders');
         Route::match(['get','post'],'foods/orderschange','FoodsController@orderschange')->name('foods.orderschange'); // 新增 and 修改
         Route::get('foods/ordersdel','FoodsController@ordersdel')->name('foods.ordersdel'); // 删除
+        Route::get('foods/return_money','FoodsController@return_money')->name('foods.return_money'); // 同意退款
+        Route::get('foods/return_refuse','FoodsController@return_refuse')->name('foods.return_refuse'); // 拒绝退款
         // 菜品详情
         Route::match(['get','post'],'foods/information','FoodsController@information')->name('foods.information');
         Route::match(['get','post'],'foods/informationadd','FoodsController@informationadd')->name('foods.informationadd'); // 新增 and 修改

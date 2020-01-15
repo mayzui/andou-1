@@ -645,16 +645,42 @@ class GourmetController extends Controller
             return $this->rejson('201','添加失败');
         }
     }
-    public function balancePay($sNo){
+    /**
+     * @api {post} /api/gourmet/balancePay 饭店订单余额支付
+     * @apiName balancePay
+     * @apiGroup gourmet
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} token 验证登陆
+     * @apiParam {string} sNo 验证登陆
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": "",
+     *       "msg":"预定成功"
+     *     }
+     */
+    public function balancePay($sNo=''){
         $all=request()->all();
+        if (!empty($all['sNo'])) {
+           $sNo=$all['sNo'];
+        }
         $orders = Db::table('orders')
         ->where(['order_sn'=>$sNo,'status'=>10])
+        ->first();
+        $users = Db::table('users')
+        ->where('id',$all['uid'])
         ->first();
         $data['user_id']=$all['uid'];
         $data['describe']='订单：'.$sNo.'消费';
         $data['create_time']=date('Y-m-d H:i:s',time());
         $data['type_id']=2;
         $data['price']=$orders->order_money - $orders->integral;
+        if ($data['price']>$users->money) {
+           return $this->rejson(201,'余额不足');
+        }
+        if ($orders->integral>$users->integral) {
+           return $this->rejson(201,'积分不足');
+        }
         $data['state']=2;
         $data['is_del']=0;
         $status['status']=20;
@@ -682,16 +708,41 @@ class GourmetController extends Controller
         }
 
      }
-    public function wxPay($sNo){
+    /**
+     * @api {post} /api/gourmet/wxPay 饭店订单微信支付
+     * @apiName wxPay
+     * @apiGroup gourmet
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} token 验证登陆
+     * @apiParam {string} sNo 验证登陆
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": "",
+     *       "msg":"预定成功"
+     *     }
+     */
+    public function wxPay($sNo=''){
+        $all=request()->all();
+
         require_once base_path()."/wxpay/lib/WxPay.Api.php";
         require_once base_path()."/wxpay/example/WxPay.NativePay.php";
+        if (!empty($all['sNo'])) {
+           $sNo=$all['sNo'];
+        }
         if (empty($sNo)) {
             return $this->rejson(201,'参数错误');
         }
+        $users = Db::table('users')
+        ->where('id',$all['uid'])
+        ->first();
         //查找表里是否有此订单
         $orders = Db::table('orders')
             ->where('order_sn',$sNo)
             ->first();
+        if ($orders->integral>$users->integral) {
+           return $this->rejson(201,'积分不足');
+        }    
         if (empty($orders)) {
             return $this->rejson(201,'订单不存在');
         }
@@ -742,6 +793,9 @@ class GourmetController extends Controller
      *                  "merchant_id":"商户id",
      *                  "id":"订单id",
      *                  "order_sn":"订单编号",
+     *                  "people":"用餐人数",
+     *                  "dinnertime":"用餐时间",
+     *                  "remark":"备注",
      *                  "status":"订单状态 (10未支付，20已支付,30已使用,待评价,40已评价)",
      *                  "foods":[
      *                                {
@@ -782,7 +836,7 @@ class GourmetController extends Controller
         }
         $data=DB::table("foods_user_ordering as o")
             ->join("merchants as m","o.merchant_id","=","m.id")
-            ->select(['m.name','o.foods_id','m.logo_img','o.prices','o.id','o.merchant_id','o.order_sn','o.status'])
+            ->select(['m.name','o.foods_id','m.logo_img','o.prices','o.remark','o.dinnertime','o.people','o.id','o.merchant_id','o.order_sn','o.status'])
             ->where($where)
             ->offset($pages)
             ->limit($num)
@@ -876,6 +930,112 @@ class GourmetController extends Controller
             return $this->rejson(200,"查询成功",$data);
         }else{
             return $this->rejson(201,"查询失败");
+        }
+    }
+     /**
+     * @api {post} /api/gourmet/refund 饭店退款
+     * @apiName refund
+     * @apiGroup gourmet
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} token 验证登陆
+     * @apiParam {array}  order_sn 订单编号
+     * @apiParam {array}  refund_msg 退款备注
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": "",
+     *       "msg":"申请成功"
+     *     }
+     */
+    public function refund(){
+        $all=request()->all();
+        if (empty($all['refund_msg'])||empty($all['order_sn'])) {
+           return $this->rejson(201,'缺少参数');
+        }
+        $re=Db::table('foods_user_ordering')->where(['order_sn'=>$all['order_sn'],'status'=>20])->select('id')->first();
+        if (empty($re)) {
+            return $this->rejson(201,'订单编号错误');
+        }
+        $data['status']=60;
+        $data['refund_msg']=$all['refund_msg'];
+        DB::beginTransaction(); //开启事务
+        $res=Db::table('foods_user_ordering')->where('order_sn',$all['order_sn'])->update($data);
+        $ress=Db::table('orders')->where('order_sn',$all['order_sn'])->update(array('status'=>60));
+        if ($res&&$ress) {
+            DB::commit();
+            return $this->rejson(200,'申请成功');
+        }else{
+            DB::rollback();
+            return $this->rejson(201,'申请失败');
+        }
+    }
+
+    /**
+     * @api {post} /api/gourmet/addcomment 添加饭店评论
+     * @apiName addcomment
+     * @apiGroup gourmet
+     * @apiParam {string} uid 用户id（必填）
+     * @apiParam {string} token 用户验证（必填）
+     * @apiParam {string} order_id 订单号（必填）
+     * @apiParam {string} merchants_id 商户id（必填）
+     * @apiParam {string} content 评价内容（非必填）
+     * @apiParam {string} stars 评价星级（必填）
+     * @apiParam {string} image 商品图片（非必填）
+     * @apiParam {string} dianzhan 是否点赞(0未点赞 1点赞)
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "msg":"查询成功",
+     *       "data": "",
+     *     }
+     */
+    public function addcomment(){
+        $all=request()->all();
+        if (!isset($all['uid']) ||
+            !isset($all['token']) ||
+            !isset($all['stars']) ||
+            !isset($all['order_id']) ||
+            !isset($all['merchants_id']) ){
+            return $this->rejson(201,'缺少参数');
+        }
+        if(!empty($all['image'])){
+            $image = json_encode($all['image']);
+        }else{
+            $image = '';
+        }
+        if(!empty($all['content'])){
+            $content = $all['content'];
+        }else{
+            $content = '此用户没有评论任何内容';
+        }
+        $data = [
+            'user_id' => $all['uid'],
+            'order_id' => $all['order_id'],
+            'goods_id' => $all['goods_id'],
+            'merchants_id' => $all['merchants_id'],
+            'content' => $content,
+            'stars' => $all['stars'],
+            'image' => $image,
+            'created_at' => date('Y-m-d H:i:s'),
+            'type' => 3,
+        ];
+
+        if(empty($all['dianzhan']==1)){
+            $da['user_id']=$all['uid'];
+            $da['pid']=$all['id'];
+            $da['created_at']=date('Y-m-d H:i:s',time());
+            $re=Db::table('fabulous')->insert($da);
+            $res=DB::table('merchants')->where('id',$all['id'])->increment('praise_num');
+
+        }
+        $status['status']=40;
+        $re=DB::table('orders')->where('order_sn',$all['order_id'])->update($status);
+        $res=DB::table('foods_user_ordering')->where('order_sn',$all['order_id'])->update($status);
+        $i = DB::table('order_commnets') -> insert($data);
+        if($i){
+            return $this->rejson(200,'添加成功');
+        }else{
+            return $this->rejson(201,'添加失败');
         }
     }
 

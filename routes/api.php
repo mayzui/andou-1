@@ -50,6 +50,8 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('htorder/orderdatails', 'HtorderController@orderdatails');
      Route::post('htorder/refund_reason', 'HtorderController@refundReason');
      Route::post('htorder/refund', 'HtorderController@refund');
+     Route::post('htorder/balancePay','HtorderController@balancePay');
+     Route::post('htorder/wxPay','HtorderController@wxPay');
 
      Route::post('Usersaddress/district', 'UsersaddressController@district');
      Route::post('Usersaddress/address_add', 'UsersaddressController@addressAdd');
@@ -97,7 +99,6 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('order/pay', 'OrderController@pay');
      Route::post('order/express', 'OrderController@express');
      Route::post('order/confirm', 'OrderController@confirm');
-     
 
      Route::post('login/login', 'LoginController@login');
      Route::post('login/send', 'LoginController@send');
@@ -174,5 +175,11 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('gourmet/order_details','GourmetController@order_details');
      //饭店添加预约
      Route::post('gourmet/reserve','GourmetController@reserve');
-
+     Route::post('gourmet/refund','GourmetController@refund');
+     Route::post('gourmet/balancePay','GourmetController@balancePay');
+     Route::post('gourmet/wxPay','GourmetController@wxPay');
+     Route::post('gourmet/addcomment','GourmetController@addcomment');
+     
+     Route::Post('modification/user_head','modificationController@user_head');
+     Route::Post('modification/user_pictures','modificationController@user_pictures');
 });

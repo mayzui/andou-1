@@ -283,6 +283,16 @@ class LoginController extends Controller
        $new_password=$all['new_password'];
        $datas['password']=Hash::make($new_password);
        $re=Db::table('users')->where('mobile',$mobile)->update($datas);
+       $data = DB::table('notice')->where('id',3)->first();
+        $send = json_decode($data -> send) ?? [];
+        if(!in_array($all['uid'],$send)){
+            $send[] = $all['uid'];
+        }
+        $send = json_encode($send);
+        $datas = [
+            'send' => $send
+        ];
+        DB::table('notice')->where('id',$all['id'])->update($datas);
        return $this->rejson('200',"修改密码成功",array('password'=>$new_password));
     }
     /**

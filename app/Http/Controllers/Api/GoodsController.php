@@ -164,6 +164,7 @@ class GoodsController extends Controller
      * @apiParam {string} is_bargain 查询特价产品传1(非必传)
      * @apiParam {string} price_sort 价格排序(非必传1为倒序,0为正序)
      * @apiParam {string} volume_sort 销量排序(非必传1为倒序,0为正序)
+     * @apiParam {string} page 分页参数
      * @apiSuccessExample 参数返回:
      *     {
      *       "code": "200",

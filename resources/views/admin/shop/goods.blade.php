@@ -119,7 +119,7 @@
                 {{--产品分类--}}
                 <div class="ibox-content tab-pane" id="profile">
                     <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>
-                    <button type="button" class="btn btn-danger btn-sm mdels" title="批量删除" ><i class="fa fa-trash-o"></i> 批量删除</button>
+                    <button type="button" class="btn btn-danger btn-sm mdelse" title="批量删除" ><i class="fa fa-trash-o"></i> 批量删除</button>
                     <a href="{{route('shop.merchants_goods_typeChange')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
                             <i class="fa fa-plus-circle"></i> 新增分类</button>
                     </a>
@@ -128,7 +128,7 @@
                         <table class="table table-striped table-bordered table-hover m-t-md">
                             <thead>
                             <tr>
-                                <th width="50px"><input type="checkbox" id="checkall" /></th>
+                                <th width="50px"><input type="checkbox" id="checkalls" /></th>
                                 <th width="150px">分类ID</th>
                                 <th width="250px">商家名称</th>
                                 <th>分类名称</th>
@@ -140,7 +140,7 @@
                             @if(count($data) > 0)
                                 @foreach($data as $k => $item)
                                     <tr>
-                                        <td><input type="checkbox" name="ids" value="{{$item['id']}}" /></td>
+                                        <td><input type="checkbox" name="idse" value="{{$item['id']}}" /></td>
                                         <td>{{$item['id']}}</td>
                                         <td>{{$item['merchants_name']}}</td>
                                         <td>{{$item['_name']}}</td>
@@ -149,7 +149,7 @@
                                             <a href="{{route('shop.merchants_goods_typeChange')}}?id={{$item['id']}}">
                                                 <button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 编辑</button>
                                             </a>
-                                            <a onclick="del({{$item['id']}})"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o"></i> 删除</button></a>
+                                            <a onclick="del_class({{$item['id']}})"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o"></i> 删除</button></a>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -181,7 +181,7 @@
                 layer.close(index);
             });
         }
-        //执行批量删除
+        //执行批量删除商品
         $(".mdels").click(function () {
             var obj = document.getElementsByName("ids");
             var check_val = [];
@@ -213,6 +213,48 @@
             }
         })
 
+        /*
+        *               商品分类
+        *
+        * */
 
+        //执行批量删除分类
+        $(".mdelse").click(function () {
+            var obj = document.getElementsByName("idse");
+            var check_val = [];
+            for(k in obj){
+                if(obj[k].checked)
+                    check_val.push(obj[k].value);
+            }
+            if(check_val==""){
+                layer.alert("请选择你需要删除的选项",{icon:2});
+            }else {
+                layer.confirm("是否删除这 "+check_val.length+" 项数据？", {icon: 3}, function (index) {
+                    $.post("{{route('shop.goodsAlldel')}}", {ids: check_val, _token: "{{csrf_token()}}"}, function (data) {
+                        if (data = 1) {
+                            layer.alert("删除成功", {icon: 1}, function (index) {
+                                window.location.href = "{{route('shop.merchants_goods_type')}}";
+                            });
+                        }
+                    })
+
+                })
+            }
+        })
+        function del_class(e) {
+            var id = e;
+            layer.alert("是否删除该数据？",{icon:3},function (index) {
+                location.href="{{route('shop.merchants_goods_typeDel')}}?id="+id;
+                layer.close(index);
+            });
+        }
+        // 实现全选
+        $("#checkalls").click(function () {
+            if(this.checked){
+                $("[name=idse]:checkbox").prop("checked",true);
+            }else{
+                $("[name=idse]:checkbox").prop("checked",false);
+            }
+        })
     </script>
 @endsection

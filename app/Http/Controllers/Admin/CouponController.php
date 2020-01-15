@@ -134,7 +134,7 @@ class CouponController extends BaseController
             -> join('users','uselog.user_id','=','users.id')
             -> select(['uselog.id','uselog.coupon_name','uselog.coupon_type_id','uselog.start_at','uselog.end_at','users.name'])
             -> paginate(10);
-        return $this->view('useLog',['data'=>$data]);
+        return $this->view('uselog',['data'=>$data]);
     }
     /*
     *添加测试数据

@@ -249,7 +249,7 @@ class ShopController extends BaseController
             $datas = DB::table('merchants_goods_type')
                 -> join('merchants','merchants_goods_type.merchant_id','=','merchants.id')
                 -> where('is_del',1)
-                -> where('merchants_goods_type,merchant_id',$i -> id)
+                -> where('merchants_goods_type.merchant_id',$i -> id)
                 -> select('merchants_goods_type.id','merchants.name as merchants_name','merchants_goods_type.name as name','pid','num')
                 -> get();
         }else{
@@ -2096,7 +2096,7 @@ class ShopController extends BaseController
             $datas = DB::table('merchants_goods_type')
                 -> join('merchants','merchants_goods_type.merchant_id','=','merchants.id')
                 -> where('is_del',1)
-                -> where('merchants_goods_type,merchant_id',$i -> id)
+                -> where('merchants_goods_type.merchant_id',$i -> id)
                 -> select('merchants_goods_type.id','merchants.name as merchants_name','merchants_goods_type.name as name','pid','num')
                 -> get();
         }else{

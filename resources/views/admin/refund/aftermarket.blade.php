@@ -112,7 +112,7 @@
                         @endif
                         </tbody>
                     </table>
-                    {{$data}}
+                {{ $data->appends(['status'=>$status]) }}
             </div>
         </div>
         <div class="clearfix"></div>

@@ -47,7 +47,7 @@ class DetailsController extends Controller
             ->first();
 
         if ($data) {
-            $data->facilities=json_decode($data->facilities,1);
+            $data->facilities=json_decode($data->facilities,1)??[];
             return $this->rejson(200,'查询成功',$data);
         } else {
             return $this->rejson(201, '查询失败');
@@ -252,7 +252,9 @@ class DetailsController extends Controller
             $res=DB::table('merchants')->where('id',$all['id'])->increment('praise_num');
 
         }
-
+        $status['status']=50;
+        $re=DB::table('orders')->where('order_sn',$all['order_id'])->update($status);
+        $res=DB::table('books')->where('book_sn',$all['order_id'])->update($status);
 
         $i = DB::table('order_commnets') -> insert($data);
         if($i){

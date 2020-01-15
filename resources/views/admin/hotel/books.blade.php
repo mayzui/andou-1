@@ -10,9 +10,17 @@
                 <form method="post" action="{{route('hotel.books')}}" name="form">
                 {{ csrf_field() }}
                 <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>
-                <input type="text" style="height: 25px;margin-left: 10px;" value="{{$wheres['book_sn'] or ''}}" name="book_sn" placeholder="预订编号">
-                
-                <button style="height: 25px;margin-left: 10px;" type="submit">按条件查询</button>
+                <input type="text" style="height: 25px;margin-left: 10px;" value="{{$wheres['book_sn'] or ''}}" name="book_sn" placeholder="预订编号/姓名/电话">
+                    <button class="btn btn-primary btn-sm" type="submit"><i class="fa fa-search"></i> 查询</button>
+                    <a href="{{url('/admin/hotel/books')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
+                            全部</button>
+                    </a>
+                    <a href="{{url('/admin/hotel/books?status=30')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
+                            已入住</button>
+                    </a>
+                    <a href="{{url('/admin/hotel/books?status=20')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
+                            待入住</button>
+                    </a>
                 </form>
                     <style>
                         th ,td{ 
@@ -42,6 +50,7 @@
                         </tr>
                         </thead>
                         <tbody>
+                        @if(count($data) > 0)
                         @foreach($data as $k => $item)
                             <tr>
                                 <td>{{$item->id}}</td>
@@ -58,18 +67,32 @@
                                 <td>{{$item->num}}</td>
                                 <td>{{$item->money}}</td>
                                 <td>{{$item->pay_money}}</td>
-                                <td>{{$item->pay_way}}</td>
+                                <td>
+                                    @if($item->pay_way == 0)
+                                        未支付
+                                        @elseif($item->pay_way == 1)
+                                        微信
+                                        @elseif($item->pay_way == 2)
+                                        支付宝
+                                        @elseif($item->pay_way == 3)
+                                        银联
+                                        @elseif($item->pay_way == 4)
+                                        余额
+                                        @elseif($item->pay_way == 5)
+                                        其他
+                                    @endif
+                                </td>
                                 <td>
                                 @if($item->status == 0)
-                                    已取消
+                                    <span style="color: red">已取消</span>
                                 @elseif($item->status == 10)
-                                    未支付
+                                        <span style="color: red">未支付</span>
                                 @elseif($item->status == 20)
-                                    已支付
+                                        <span style="color: blue">待入住</span>
                                 @elseif($item->status == 30)
-                                    入住中
+                                        <span style="color: blue">入住中</span>
                                 @elseif($item->status == 40)
-                                    已离店
+                                        <span style="color: green">已完成</span>
                                 @endif
                                 </td>
                                 <td class="text-center">    
@@ -79,9 +102,14 @@
                                 </td>
                             </tr>
                         @endforeach
+                            @else
+                            <tr>
+                                <td colspan="17">对不起，没有查询到相关内容</td>
+                            </tr>
+                        @endif
                         </tbody>
                     </table>
-                    {{$data}}
+                {{ $data->appends(['status'=>$status]) }}
             </div>
         </div>
         <div class="clearfix"></div>
