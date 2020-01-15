@@ -777,7 +777,7 @@ class FoodsController extends BaseController
             // 查询数据库数据
             $data = DB::table("foods_information")
                 -> join('foods_classification','foods_information.classification_id','=','foods_classification.id')
-                -> join('merchants','foods_classification.merchants_id','=','merchants.id')
+                -> join('merchants','foods_information.merchant_id','=','merchants.id')
                 -> where('merchant_id',$i->id)
                 -> where($where)
                 -> select(['foods_information.id','merchants.name as merchants_name','foods_classification.name as class_name','foods_information.name as info_name','price','image','specifications','remark','quantitySold','num'])
@@ -787,8 +787,7 @@ class FoodsController extends BaseController
             // 查询数据库数据
             $data = DB::table("foods_information")
                 -> join('foods_classification','foods_information.classification_id','=','foods_classification.id')
-                -> join('merchants','foods_classification.merchants_id','=','merchants.id')
-                -> where('merchant_id',$i->id)
+                -> join('merchants','foods_information.merchant_id','=','merchants.id')
                 -> where($where)
                 -> select(['foods_information.id','merchants.name as merchants_name','foods_classification.name as class_name','foods_information.name as info_name','price','image','specifications','remark','quantitySold','num'])
                 -> paginate(10);
@@ -1102,7 +1101,7 @@ class FoodsController extends BaseController
             // 如果是酒店用户，只能看见自己的菜品分类
             $data = DB::table("foods_classification")
                 -> join('merchants','foods_classification.merchants_id','=','merchants.id')
-                -> where('merchants_id',$id)
+                -> where('merchants_id',$i -> id)
                 -> where($where)
                 -> select(['foods_classification.id','foods_classification.name as class_name','merchants.name as merchants_name'])
                 -> paginate(10);
@@ -1147,11 +1146,12 @@ class FoodsController extends BaseController
                 // 新增操作
                 // 判断数据库是否存在同样的菜品分类
                 $m = DB::table("foods_classification") -> where("name",$name) -> first();
+                $id = DB::table('merchants') -> where("user_id",Auth::id()) -> first();
                 if(empty($m)){
                     // 该分类不存在可以新增
                     // 定义一个数组存放获取的值
                     $data = [
-                        "merchants_id" => Auth::id(),
+                        "merchants_id" => $id -> id,
                         "name" => $name
                     ];
                     // 链接数据库，新增数据

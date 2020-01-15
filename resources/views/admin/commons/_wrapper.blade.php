@@ -2,6 +2,8 @@
 @php
     $admin = Auth::guard('admin')->user();
     $sid =  Auth::id();
+    $data = DB::table("merchants") -> where('user_id',$sid) -> first();
+
 @endphp
 <link href="{{loadEdition('/admin/css/base.css')}}" rel="stylesheet">
 <link href="{{loadEdition('/admin/css/layui.css')}}" rel="stylesheet">
@@ -70,7 +72,9 @@
                         </div><!-- /.modal-content -->
                     </div>
                 </div>
-                <dd><a class="J_menuItem" href="{{route('merchants.information')}}?id=@php echo $sid; @endphp">修改商户信息</a></dd>
+                @if(!empty($data))
+                    <dd><a class="J_menuItem" href="{{route('merchants.information')}}?id={{ $data -> id }}">修改商户信息</a></dd>
+                @endif
             </dl>
         </div>
     </div>

@@ -8,10 +8,6 @@
             <div class="ibox-content">
                 <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>
 
-                <a href="{{route('foods.commnetsAdd')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
-                        <i class="fa fa-plus-circle"></i>新增评论</button>
-                </a>
-
                 <form method="post" action="{{route('shop.express')}}" name="form">
                     <style>
                         th ,td{
@@ -31,6 +27,7 @@
                         </tr>
                         </thead>
                         <tbody>
+                        @if(count($data) > 0)
                         @foreach($data as $k => $item)
                             <tr>
                                 <td>{{$item->id}}</td>
@@ -44,6 +41,11 @@
                                 </td>
                             </tr>
                         @endforeach
+                            @else
+                            <tr>
+                                <td colspan="7">对不起没有查询到相关数据</td>
+                            </tr>
+                        @endif
                         </tbody>
                     </table>
                     {{$data}}

@@ -142,9 +142,8 @@ class MerchantsController extends BaseController
                     'merchants.management_type','merchants.management_type',
                     'merchants.banner_img','merchants.logo_img',
                     'merchants.door_img','merchants.management_img',
-                    'merchants.goods_img','merchants.merchant_type_id'])
+                    'merchants.goods_img','merchants.merchant_type_id','merchants.return_address'])
                 -> first();
-//            return dd($data);
             return $this->view('',['data'=>$data]);
         }else{
             if(!empty($all['management_type'])){
@@ -157,7 +156,6 @@ class MerchantsController extends BaseController
                     'city_id' => $all['city_id'],
                     'area_id' => $all['area_id'],
                     'address' => $all['address'],
-                    'return_address' => $all['return_address'],
                     'desc' => $all['desc'],
                     'banner_img' => $all['banner_img'],
                     'logo_img' => $all['logo_img'],
@@ -169,6 +167,27 @@ class MerchantsController extends BaseController
                 ];
             }else{
                 // 获得提交的内容
+                $data = [
+                    'name' => $all['name'],
+                    'user_name' => $all['user_name'],
+                    'tel' => $all['tel'],
+                    'province_id' => $all['province_id'],
+                    'city_id' => $all['city_id'],
+                    'area_id' => $all['area_id'],
+                    'address' => $all['address'],
+
+                    'desc' => $all['desc'],
+                    'banner_img' => $all['banner_img'],
+                    'logo_img' => $all['logo_img'],
+                    'door_img' => $all['door_img'],
+                    'management_img' => $all['management_img'],
+                    'goods_img' => $all['goods_img'],
+                    'updated_at' => date("Y-m-d H:i:s")
+                ];
+            }
+            // 获取当前 商户类型
+            $merchants_data = DB::table('merchants') -> where('id',$all['id']) -> first();
+            if($merchants_data -> merchant_type_id == 2){
                 $data = [
                     'name' => $all['name'],
                     'user_name' => $all['user_name'],
@@ -191,10 +210,38 @@ class MerchantsController extends BaseController
             $i = DB::table('merchants') -> where('id',$all['id']) -> update($data);
             if($i){
                 flash("商户信息修改成功") -> success();
-                return redirect()->route('merchants.index');
+                $data = DB::table('merchants')
+                    -> join('merchant_type','merchants.merchant_type_id','=','merchant_type.id')
+                    -> where('merchants.id',$all['id'])
+                    -> select(['merchant_type.type_name','merchants.id',
+                        'merchants.name','merchants.desc',
+                        'merchants.province_id','merchants.city_id',
+                        'merchants.area_id','merchants.address',
+                        'merchants.tel','merchants.user_name',
+                        'merchants.management_type','merchants.management_type',
+                        'merchants.banner_img','merchants.logo_img',
+                        'merchants.door_img','merchants.management_img',
+                        'merchants.goods_img','merchants.merchant_type_id','merchants.return_address'])
+                    -> first();
+                return $this->view('',['data'=>$data]);
+//                flash("商户信息修改成功") -> success();
+//                return redirect()->route('merchants.index');
             }else{
                 flash("更新失败，请稍后重试") -> error();
-                return redirect()->route('merchants.index');
+                $data = DB::table('merchants')
+                    -> join('merchant_type','merchants.merchant_type_id','=','merchant_type.id')
+                    -> where('merchants.id',$all['id'])
+                    -> select(['merchant_type.type_name','merchants.id',
+                        'merchants.name','merchants.desc',
+                        'merchants.province_id','merchants.city_id',
+                        'merchants.area_id','merchants.address',
+                        'merchants.tel','merchants.user_name',
+                        'merchants.management_type','merchants.management_type',
+                        'merchants.banner_img','merchants.logo_img',
+                        'merchants.door_img','merchants.management_img',
+                        'merchants.goods_img','merchants.merchant_type_id','merchants.return_address'])
+                    -> first();
+                return $this->view('',['data'=>$data]);
             }
         }
     }

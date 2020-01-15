@@ -65,7 +65,8 @@
                                                 <a onclick="del({{$item->id}})"><button class="btn btn-success btn-xs" type="button"><i class="fa fa-check"></i> 设为推荐</button></a>
                                             @endif
                                         @endif
-                                        <a href="{{route('merchants.information')}}?id={{$item->id}}"><button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 详情</button></a>
+                                        <a href="{{route('merchants.information')}}?id={{$item->id}}">
+                                            <button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 详情</button></a>
 
                                         @if(empty($i))
                                         @if($item->is_reg==1)

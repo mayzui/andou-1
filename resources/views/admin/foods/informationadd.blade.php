@@ -42,14 +42,14 @@
                             <input type="text" class="form-control" name="price" id="price" value="{{$data->price or ''}}" required placeholder="请输入菜品价格">
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label">菜品规格：</label>
-                        <div class="input-group col-sm-2 checkbox">
-                            @foreach($spec as $k => $v)
-                                <label><input type="checkbox" @if(in_array($v->name,$data->specifications)) checked="checked" @endif name="specifications[]" value="{{ $v->id }}" />{{ $v->name }}</label>
-                            @endforeach
-                        </div>
-                    </div>
+                    {{--<div class="form-group">--}}
+                        {{--<label class="col-sm-2 control-label">菜品规格：</label>--}}
+                        {{--<div class="input-group col-sm-2 checkbox">--}}
+                            {{--@foreach($spec as $k => $v)--}}
+                                {{--<label><input type="checkbox" @if(in_array($v->name,$data->specifications)) checked="checked" @endif name="specifications[]" value="{{ $v->id }}" />{{ $v->name }}</label>--}}
+                            {{--@endforeach--}}
+                        {{--</div>--}}
+                    {{--</div>--}}
                     <div class="form-group">
                         <label class="col-sm-2 control-label">菜品介绍：</label>
                         <div class="input-group col-sm-2">
@@ -150,11 +150,11 @@
             // 获取菜品价格
             var price = document.getElementById('price').value;
             // 获取多选框中的数据
-            var obj = document.getElementsByName('specifications[]');
-            var s = "";
-            for (var i = 0; i < obj.length; i++) {
-                if (obj[i].checked) s += obj[i].value + ',';
-            }
+            // var obj = document.getElementsByName('specifications[]');
+            // var s = "";
+            // for (var i = 0; i < obj.length; i++) {
+            //     if (obj[i].checked) s += obj[i].value + ',';
+            // }
             // 获取文本域中的值
             var remark = document.getElementById('remark').value;
             // 判断
@@ -164,8 +164,6 @@
                 layer.alert("菜品名称不能为空",{icon:7})
             }else if(!price.trim()){
                 layer.alert("菜品价格不能为空",{icon:7})
-            }else if(s == "" || s == null){
-                layer.alert("请选择菜品规格",{icon:7})
             }else if(!remark.trim()){
                 layer.alert("菜品介绍不能为空",{icon:7})
             }else{

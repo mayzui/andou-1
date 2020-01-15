@@ -104,7 +104,7 @@
                     <div class="form-group">
                         <label class="col-sm-2 control-label">可住人数：</label>
                         <div class="input-group col-sm-2">
-                            <input type="number" class="form-control" name="num" value="{{$data->num or ''}}" required data-msg-required="可住人数">
+                            <input type="number" class="form-control" name="num_people" value="{{$data->num_people or ''}}" required data-msg-required="可住人数">
                         </div>
                     </div>
                     <div class="form-group">
