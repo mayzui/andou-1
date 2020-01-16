@@ -182,10 +182,9 @@ class FoodsController extends BaseController
         $id = Auth::id();
         // 判断该用户，是否申请饭店 并且已经认证通过
         $i = DB::table('merchants')
-            -> join("merchant_type","merchants.merchant_type_id","=","merchant_type.id")
-            -> where("role_id",5)
             -> where("user_id",$id)
             -> where("is_reg",1)
+            -> where("merchant_type_id",4)
             -> first();
         // 判断是否执行条件查询
         if(!empty($all['name'])){
@@ -203,7 +202,7 @@ class FoodsController extends BaseController
             // 查询数据库，套餐信息表内容
             $data = DB::table("foods_set_meal")
                 -> join('merchants','foods_set_meal.merchant_id','=','merchants.id')
-                -> where('merchant_id',$id)
+                -> where('foods_set_meal.merchant_id',$i -> id)
                 -> where('is_del',0)
                 -> where($where)
                 -> select(['foods_set_meal.id','foods_set_meal.name as set_meal_name','image','price','num','room','room_price','foods_set_meal.status','merchants.name as merchants_name'])
