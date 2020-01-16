@@ -8,21 +8,21 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 class WalletController extends Controller
 {
-//    public function __construct()
-//    {
-//        $all=request()->all();
-//        $token=request()->header('token')??'';
-//        if ($token!='') {
-//            $all['token']=$token;
-//        }
-//        if (empty($all['uid'])||empty($all['token'])) {
-//            return $this->rejson(202,'登陆失效');
-//        }
-//        $check=$this->checktoten($all['uid'],$all['token']);
-//        if ($check['code']==202) {
-//            return $this->rejson($check['code'],$check['msg']);
-//        }
-//    }
+   public function __construct()
+   {
+       $all=request()->all();
+       $token=request()->header('token')??'';
+       if ($token!='') {
+           $all['token']=$token;
+       }
+       if (empty($all['uid'])||empty($all['token'])) {
+           return $this->rejson(202,'登陆失效');
+       }
+       $check=$this->checktoten($all['uid'],$all['token']);
+       if ($check['code']==202) {
+           return $this->rejson($check['code'],$check['msg']);
+       }
+   }
     /**
      * @api {post} /api/wallet/index 余额明细
      * @apiName index
@@ -321,7 +321,7 @@ class WalletController extends Controller
     public function recharge(){
         $all = \request() -> all();
         // 根据获取的id
-        if (empty($all['money']) || empty($all['phone']) || empty($all['method'])) {
+        if (empty($all['money']) || empty($all['mobile']) || empty($all['method'])) {
             return $this->rejson(201,'缺少必填项');
         }
         DB::beginTransaction();

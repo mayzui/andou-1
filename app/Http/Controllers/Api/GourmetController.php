@@ -47,6 +47,8 @@ class GourmetController extends Controller
      * @apiName list
      * @apiGroup gourmet
      * @apiParam {string} name 关键字name
+     * @apiParam {string} cate_id 分类id
+     * @apiParam {string} page 分页参数
      * @apiSuccessExample 参数返回：
      *{
     "code":"200",
@@ -111,6 +113,7 @@ class GourmetController extends Controller
      * @apiName details
      * @apiGroup gourmet
      * @apiParam {string} id 商家id
+     * @apiParam {string} uid 用户id
      * @apiSuccessExample 参数返回：
      * {
     "code":"200",
@@ -125,7 +128,8 @@ class GourmetController extends Controller
      *               "stars_all":"商家星级",
      *               "business_start":"营业时间",
      *               "business_end":"结束时间",
-     *               "tel":"联系电话"
+     *               "tel":"联系电话",
+     *               "status": "是否关注 1已关注 0未关注"
      *             },
      *          "msg":"查询成功"
      * }
@@ -134,9 +138,15 @@ class GourmetController extends Controller
         $all=\request()->all();
         $data=DB::table("merchants as m")
             ->leftJoin("merchant_stores as s","m.id","=","s.merchant_id")
-            ->select('m.name','m.id','m.logo_img','m.door_img','m.praise_num','m.address','m.desc','m.tel','m.stars_all','s.business_start','s.business_end')
+            ->select('m.name','m.id','m.logo_img','m.banner_img as door_img','m.praise_num','m.address','m.desc','m.tel','m.stars_all','s.business_start','s.business_end')
             ->where('m.id',$all['id'])
             ->first();
+        $arr = DB::table('collection')->where('user_id',$all['uid'])->where('type',3)->where('pid',$all['id'])->first();
+        if($arr){
+            $data->status = 1;
+        }else{
+            $data->status = 0;
+        }
         if($data){
             return $this->rejson(200,"查询成功",$data);
         }else{
@@ -565,7 +575,17 @@ class GourmetController extends Controller
     public function timely()
     {
         $all = request()->all();
-
+        $token=request()->header('token')??'';
+        if ($token!='') {
+            $all['token']=$token;
+        }
+        if (empty($all['uid'])||empty($all['token'])) {
+            return $this->rejson(202,'登陆失效');
+        }
+        $check=$this->checktoten($all['uid'],$all['token']);
+        if ($check['code']==202) {
+            return $this->rejson($check['code'],$check['msg']);
+        }
         if(empty($all['merchant_id']) ||
             empty($all['people']) ||
             empty($all['dinnertime'])){
@@ -674,7 +694,7 @@ class GourmetController extends Controller
         ->where('id',$all['uid'])
         ->first();
         $data['user_id']=$all['uid'];
-        $data['describe']='订单：'.$sNo.'消费';
+        $data['describe']='饭店预定消费';
         $data['create_time']=date('Y-m-d H:i:s',time());
         $data['type_id']=2;
         $data['price']=$orders->order_money - $orders->integral;
@@ -839,10 +859,11 @@ class GourmetController extends Controller
         }
         $data=DB::table("foods_user_ordering as o")
             ->join("merchants as m","o.merchant_id","=","m.id")
-            ->select(['m.name','o.foods_id','m.logo_img','o.prices','o.remark','o.dinnertime','o.people','o.id','o.merchant_id','o.order_sn','o.status'])
+            ->select(['m.name','o.foods_id','m.logo_img','o.prices','o.remark','o.dinnertime','o.people','o.id','o.merchant_id','o.order_sn','o.status','o.orderingtime'])
             ->where($where)
             ->offset($pages)
             ->limit($num)
+            ->orderBy('o.orderingtime','DESC')
             ->get();
         foreach ($data as $key => $value) {
             $foods=json_decode($value->foods_id,1);

@@ -17,6 +17,7 @@ class DetailsController extends Controller
      * @apiName list
      * @apiGroup details
      * @apiParam {string} id 商家id
+     * @apiParam {string} uid 用户id
      * @apiSuccessExample 参数返回：
      * {
      * "code":"200",
@@ -29,7 +30,8 @@ class DetailsController extends Controller
      *             "tel":"商家电话",
      *             "id":"商户id",
      *             "desc":"商家简介",
-     *             "facilities":"商家环境设施"
+     *             "facilities":"商家环境设施",
+     *             "status": "是否关注 1已关注 0未关注"
      *          },
      *  "msg":"查询成功"
      * }
@@ -42,10 +44,15 @@ class DetailsController extends Controller
             return $this->rejson(201,"缺少参数");
         }
         $data = DB::table("merchants")
-            ->select(['id','name','tel','door_img','stars_all','address','praise_num','desc','facilities'])
+            ->select(['id','name','tel','banner_img as door_img','stars_all','address','praise_num','desc','facilities'])
             ->where('id', $all['id'])
             ->first();
-
+        $arr = DB::table('collection')->where('user_id',$all['uid'])->where('type',3)->where('pid',$all['id'])->first();
+        if($arr){
+            $data->status = 1;
+        }else{
+            $data->status = 0;
+        }
         if ($data) {
             $data->facilities=json_decode($data->facilities,1)??[];
             return $this->rejson(200,'查询成功',$data);

@@ -241,7 +241,7 @@ class CommonController extends Controller
             $total=$values['total_fee']/100;
             $datas = array('status' => 1, 'method' => 1, 'trade_no' => $trade_no,'price'=>$total);
             $out_trade_no = $values['out_trade_no'];
-            return 1;
+            
             $ress=Db::table('recharge')->where(['order_sn' =>$out_trade_no])->where('status',0)->first();
             if (!empty($ress)) {
                 $re = Db::table('recharge')->where('order_sn', $out_trade_no)->update($datas);

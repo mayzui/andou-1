@@ -61,9 +61,10 @@ class HotelController extends Controller
             -> join('hotel_room','books.hotel_room_id','=','hotel_room.id')
             -> where('hotel_room.status',1)
             -> where($where)
-            -> select(['merchants.id as merchants_id','hotel_room.id as hotel_room_id','books.book_sn','merchants.logo_img','merchants.name as merchants_name','books.status','hotel_room.img','hotel_room.house_name','hotel_room.price'])
+            -> select(['merchants.id as merchants_id','hotel_room.id as hotel_room_id','books.book_sn','merchants.logo_img','merchants.name as merchants_name','books.status','hotel_room.img','hotel_room.house_name','hotel_room.price','books.created_at'])
             ->offset($pages)
             ->limit($num)
+            ->orderBy('books.created_at','DESC')
             ->get();
         return $this->rejson(200,'查询成功',$data);
     }
@@ -154,9 +155,6 @@ class HotelController extends Controller
      *     {
      *       "code": "200",
      *       "data": {
-     *       
-               "merchants": [
-                    {
                         "id": "商户id",
                         "address": "商家详细地址",
                         "tel": "电话号码",
@@ -167,7 +165,6 @@ class HotelController extends Controller
                         "praise_num":"点赞数量"
                         "logo_img":"商家图片",
                         "name":"商家名字"
-                    }
                 ]
      *       },
      *       "msg":"查询成功"

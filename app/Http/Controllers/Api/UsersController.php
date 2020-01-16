@@ -43,7 +43,8 @@ class UsersController extends Controller
                     "logo_img":"商家图片",
                     "name":"商家名字",
                     "address":"商家地址",
-                    "tel":"商家电话"
+                    "tel":"商家电话",
+                    "merchant_type_id":"商户类型id"
                 }
             ],     
      *       "msg":"查询成功"
@@ -60,7 +61,7 @@ class UsersController extends Controller
         $data=Db::table('see_log as c')
         ->join('merchants as m','m.id','=','c.pid')
         ->where(['c.user_id'=>$all['uid'],'c.type'=>2])
-        ->select('m.id','m.address','m.tel','m.stars_all','m.praise_num','m.name','m.logo_img')
+        ->select('m.id','m.address','m.merchant_type_id','m.tel','m.stars_all','m.praise_num','m.name','m.logo_img')
         ->orderBy('c.id',"DESC")
         ->offset($start)
         ->limit($num)
