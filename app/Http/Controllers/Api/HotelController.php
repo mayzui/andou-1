@@ -61,9 +61,10 @@ class HotelController extends Controller
             -> join('hotel_room','books.hotel_room_id','=','hotel_room.id')
             -> where('hotel_room.status',1)
             -> where($where)
-            -> select(['merchants.id as merchants_id','hotel_room.id as hotel_room_id','books.book_sn','merchants.logo_img','merchants.name as merchants_name','books.status','hotel_room.img','hotel_room.house_name','hotel_room.price'])
+            -> select(['merchants.id as merchants_id','hotel_room.id as hotel_room_id','books.book_sn','merchants.logo_img','merchants.name as merchants_name','books.status','hotel_room.img','hotel_room.house_name','hotel_room.price','books.created_at'])
             ->offset($pages)
             ->limit($num)
+            ->orderBy('books.created_at','DESC')
             ->get();
         return $this->rejson(200,'查询成功',$data);
     }

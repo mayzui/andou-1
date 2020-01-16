@@ -47,6 +47,8 @@ class GourmetController extends Controller
      * @apiName list
      * @apiGroup gourmet
      * @apiParam {string} name 关键字name
+     * @apiParam {string} cate_id 分类id
+     * @apiParam {string} page 分页参数
      * @apiSuccessExample 参数返回：
      *{
     "code":"200",
@@ -134,7 +136,7 @@ class GourmetController extends Controller
         $all=\request()->all();
         $data=DB::table("merchants as m")
             ->leftJoin("merchant_stores as s","m.id","=","s.merchant_id")
-            ->select('m.name','m.id','m.logo_img','m.door_img','m.praise_num','m.address','m.desc','m.tel','m.stars_all','s.business_start','s.business_end')
+            ->select('m.name','m.id','m.logo_img','m.banner_img as door_img','m.praise_num','m.address','m.desc','m.tel','m.stars_all','s.business_start','s.business_end')
             ->where('m.id',$all['id'])
             ->first();
         if($data){
@@ -839,10 +841,11 @@ class GourmetController extends Controller
         }
         $data=DB::table("foods_user_ordering as o")
             ->join("merchants as m","o.merchant_id","=","m.id")
-            ->select(['m.name','o.foods_id','m.logo_img','o.prices','o.remark','o.dinnertime','o.people','o.id','o.merchant_id','o.order_sn','o.status'])
+            ->select(['m.name','o.foods_id','m.logo_img','o.prices','o.remark','o.dinnertime','o.people','o.id','o.merchant_id','o.order_sn','o.status','o.orderingtime'])
             ->where($where)
             ->offset($pages)
             ->limit($num)
+            ->orderBy('o.orderingtime','DESC')
             ->get();
         foreach ($data as $key => $value) {
             $foods=json_decode($value->foods_id,1);

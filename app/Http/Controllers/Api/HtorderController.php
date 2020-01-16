@@ -339,7 +339,8 @@ class HtorderController extends Controller
                     "end_time": "离开时间",
                     "day_num": "入住天数",
                     "real_name": "入住人",
-                    "mobile": "联系电话",
+                    "mobile": "联系人自己电话",
+                    "tel": "商家电话",
                     "pay_money":"支付金额"
      *       },
      *       "msg":"预定成功"
@@ -355,7 +356,7 @@ class HtorderController extends Controller
             -> join('merchants','books.merchant_id','=','merchants.id')
             -> join('hotel_room','books.hotel_room_id','=','hotel_room.id')
             -> where('books.book_sn',$all['book_sn'])
-            -> select(['books.book_sn','books.created_at','books.pay_way','hotel_room.id','hotel_room.merchant_id','merchants.name as merchants_name','books.status','hotel_room.img','hotel_room.house_name','hotel_room.price','books.integral','books.money','books.start_time','books.end_time','books.day_num','books.real_name','books.mobile'])
+            -> select(['books.book_sn','books.created_at','books.pay_way','hotel_room.id','hotel_room.merchant_id','merchants.name as merchants_name','books.status','hotel_room.img','hotel_room.house_name','hotel_room.price','books.integral','books.money','books.start_time','books.end_time','books.day_num','books.real_name','books.mobile','merchants.tel'])
             ->first();
         if (!empty($data)) {
             $data->pay_money=$data->money-$data->integral;

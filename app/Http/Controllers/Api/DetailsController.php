@@ -42,7 +42,7 @@ class DetailsController extends Controller
             return $this->rejson(201,"缺少参数");
         }
         $data = DB::table("merchants")
-            ->select(['id','name','tel','door_img','stars_all','address','praise_num','desc','facilities'])
+            ->select(['id','name','tel','banner_img as door_img','stars_all','address','praise_num','desc','facilities'])
             ->where('id', $all['id'])
             ->first();
 
