@@ -113,6 +113,7 @@ class GourmetController extends Controller
      * @apiName details
      * @apiGroup gourmet
      * @apiParam {string} id 商家id
+     * @apiParam {string} uid 用户id
      * @apiSuccessExample 参数返回：
      * {
     "code":"200",
@@ -127,7 +128,8 @@ class GourmetController extends Controller
      *               "stars_all":"商家星级",
      *               "business_start":"营业时间",
      *               "business_end":"结束时间",
-     *               "tel":"联系电话"
+     *               "tel":"联系电话",
+     *               "status": "是否关注 1已关注 0未关注"
      *             },
      *          "msg":"查询成功"
      * }
@@ -139,6 +141,12 @@ class GourmetController extends Controller
             ->select('m.name','m.id','m.logo_img','m.banner_img as door_img','m.praise_num','m.address','m.desc','m.tel','m.stars_all','s.business_start','s.business_end')
             ->where('m.id',$all['id'])
             ->first();
+        $arr = DB::table('collection')->where('user_id',$all['uid'])->where('type',3)->where('pid',$all['id'])->first();
+        if($arr){
+            $data->status = 1;
+        }else{
+            $data->status = 0;
+        }
         if($data){
             return $this->rejson(200,"查询成功",$data);
         }else{

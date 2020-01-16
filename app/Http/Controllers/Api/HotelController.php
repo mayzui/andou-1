@@ -155,9 +155,6 @@ class HotelController extends Controller
      *     {
      *       "code": "200",
      *       "data": {
-     *       
-               "merchants": [
-                    {
                         "id": "商户id",
                         "address": "商家详细地址",
                         "tel": "电话号码",
@@ -168,7 +165,6 @@ class HotelController extends Controller
                         "praise_num":"点赞数量"
                         "logo_img":"商家图片",
                         "name":"商家名字"
-                    }
                 ]
      *       },
      *       "msg":"查询成功"
