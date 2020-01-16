@@ -618,4 +618,24 @@ class HotelController extends BaseController
             return redirect()->route('hotel.merchant');
         }
     }
+
+    //环境设施
+    public function  decoration(){
+
+        $id = 13;     // 当前登录用户的id
+        // 判断当前用户是否是商家
+        $i = DB::table('merchants')
+            -> where('user_id',$id)
+            -> where('is_reg',1)
+            -> first();
+          if ($i){
+             $list = DB::table("merchants")
+             ->where('id',$id)
+             ->get();
+          }else{
+              $list = DB::table("merchants")
+                  ->get(['facilities','goods_img']);
+          }
+          return $this->view('decoration',['list'=>$list]);
+    }
 }

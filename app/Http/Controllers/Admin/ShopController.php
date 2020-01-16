@@ -996,13 +996,12 @@ class ShopController extends BaseController
         if(!empty($i)) {
             // 如果开店，则查询当前商户的信息
             // 链接数据库，查询商户的商品分类
-            $datas = GoodsType::where('is_del',1)->get(['id','merchants_name','name','pid','num'])->toArray();
+            $datas = GoodsType::where('is_del',1)->get(['id','merchants_name','name','num'])->toArray();
         }else{
             // 链接数据库，查询商户的商品分类
-            $datas = GoodsType::where('is_del',1)->get(['id','merchants_name','name','pid','num'])->toArray();
+            $datas = GoodsType::where('is_del',1)->get(['id','merchants_name','name','num'])->toArray();
         }
-        $data = Tree::tree($datas,'name','id','pid');
-        return $this->view('',['data'=>$data]);
+        return $this->view('',['data'=>$datas]);
 
     }
 
@@ -1053,78 +1052,52 @@ class ShopController extends BaseController
         $all = \request() -> all();
         if(\request() -> isMethod("get")){
             if(empty($all['id'])){
-            $list = GoodsType::where('is_del',1)->get(['pid','merchants_name','num','id','name'])->toArray();
-            $list = Tree::tree($list,'name','id','pid');
+            $list = GoodsType::where('is_del',1)->get(['merchants_name','num','id','name'])->toArray();
                 // 跳转新增界面
                 return $this->view('',['list'=>$list]);
             }else{
                 // 跳转修改界面
                 // 根据传入的id 查询数据库中的值
-//                $list = GoodsType::where('id',$all['id'])->get(['pid','merchants_name','num','id','name'])->toArray();
-                $list = GoodsType::where('is_del',1)->get(['id','merchants_name','name','pid','num'])->toArray();
-                $list = Tree::tree($list,'name','id','pid');
+
+                $list = GoodsType::where('is_del',1)->get(['id','merchants_name','name','num'])->toArray();
+
                 $model = new GoodsType();
-                $data = GoodsType::where('id',$all['id'])->first(['pid','merchants_name','num','id','name','roots','level'])->toArray();
+                $data = GoodsType::where('id',$all['id'])->first(['merchants_name','num','id','name'])->toArray();
                 return $this->view('',['data'=>$data,'list'=>$list]);
             }
         }else{
             if(empty($all['id'])){
                 // 执行新增操作
                 // 获取提交的内容
-                if ($all['pid']==0){
                     $data  = [
                         'name'        => $all['name'],
                         'merchant_id' => Auth::id(),
-                        'pid'         => $all['pid'],
-                        'roots'       => 0,
                         'num'         => $all['num']
                     ];
                     // 链接数据库，新增内容
                     $i = DB::table('merchants_goods_type') -> insert($data);
                     if($i){
                         flash('新增成功') -> success();
-                        return redirect()->route('shop.merchants_goods_type');
+                        return redirect()->route('shop.goods');
                     }else{
                         flash('新增失败') -> error();
-                        return redirect()->route('shop.merchants_goods_type');
+                        return redirect()->route('shop.goods');
                     }
-                }else{
-                    $data  = [
-                        'name'        => $all['name'],
-                        'merchant_id' => Auth::id(),
-                        'pid'         => $all['pid'],
-                        'roots'       =>"0".",".$all['pid'],
-                        'level'       => 2,
-                        'num'         => $all['num']
-                    ];
-                    // 链接数据库，新增内容
-                    $i = DB::table('merchants_goods_type') -> insert($data);
-                    if($i){
-                        flash('新增成功') -> success();
-                        return redirect()->route('shop.merchants_goods_type');
-                    }else{
-                        flash('新增失败') -> error();
-                        return redirect()->route('shop.merchants_goods_type');
-                    }
-                }
 
             }else{
                 // 执行修改操作
                 // 获取提交的内容
                 $data  = [
                     'name' => $all['name'],
-                    'num'  => $all['num'],
-                    'pid'  => $all['pid'],
-                    'roots'=>"0".",".$all['pid'],
-                    'level'=>2
+                    'num'  => $all['num']
                 ];
                 $i = DB::table('merchants_goods_type') -> where('id',$all['id']) -> update($data);
                 if($i){
                     flash('修改成功') -> success();
-                    return redirect()->route('shop.merchants_goods_type');
+                    return redirect()->route('shop.goods');
                 }else{
                     flash('修改失败，未修改任何内容。') -> error();
-                    return redirect()->route('shop.merchants_goods_type');
+                    return redirect()->route('shop.goods');
                 }
             }
 
@@ -1141,10 +1114,10 @@ class ShopController extends BaseController
         $i = DB::table('merchants_goods_type') -> where('id',$all['id']) -> update($data);
         if($i){
             flash('删除成功') -> success();
-            return redirect()->route('shop.merchants_goods_type');
+            return redirect()->route('shop.goods');
         }else{
             flash('删除失败') -> error();
-            return redirect()->route('shop.merchants_goods_type');
+            return redirect()->route('shop.goods');
         }
     }
 
@@ -1967,7 +1940,6 @@ class ShopController extends BaseController
     // 跳转商品界面
     public function goods(Request $request ,Auth $auth)
     {
-
         $id = Auth::id();     // 当前登录用户的id
         // 判断当前用户是否是商家
         $i = DB::table('merchants')
@@ -2096,23 +2068,23 @@ class ShopController extends BaseController
             // 如果开店，则查询当前商户的信息
             // 链接数据库，查询商户的商品分类
 //            $datas = GoodsType::where('is_del',1)->get(['id','merchants_name','name','pid','num'])->toArray();
-            $datas = DB::table('merchants_goods_type')
+            $data = DB::table('merchants_goods_type')
                 -> join('merchants','merchants_goods_type.merchant_id','=','merchants.id')
                 -> where('is_del',1)
                 -> where('merchants_goods_type.merchant_id',$i -> id)
-                -> select('merchants_goods_type.id','merchants.name as merchants_name','merchants_goods_type.name as name','pid','num')
+                -> select('merchants_goods_type.id','merchants.name as merchants_name','merchants_goods_type.name as name','num')
                 -> get();
         }else{
             // 链接数据库，查询商户的商品分类
 //            $datas = GoodsType::where('is_del',1)->get(['id','merchants_name','name','pid','num'])->toArray();
-            $datas = DB::table('merchants_goods_type')
+            $data = DB::table('merchants_goods_type')
                 -> join('merchants','merchants_goods_type.merchant_id','=','merchants.id')
                 -> where('is_del',1)
-                -> select('merchants_goods_type.id','merchants.name as merchants_name','merchants_goods_type.name as name','pid','num')
+                -> select('merchants_goods_type.id','merchants.name as merchants_name','merchants_goods_type.name as name','num')
                 -> get();
         }
 //        return dd();
-        $data = Tree::tree(json_decode(json_encode($datas),true),'name','id','pid');
+
         $goods_sku = DB::select("select goods_id,SUM(store_num) as total from `goods_sku` group by `goods_id`");
         return $this->view('goods',['list'=>$goods,'data'=>$data,'product_name'=>$product_name,'goods_sku'=>json_decode(json_encode($goods_sku),true),'sort'=>0,'status' => $status]);
     }
@@ -2175,10 +2147,10 @@ class ShopController extends BaseController
         // 链接数据库，执行删除操作
         $i = DB::table('goods') -> where('id',$all['id']) -> update($data);
         if ($i){
-            flash('修改成功') -> success();
+            flash('删除成功') -> success();
             return redirect()->route('shop.goods');
         }else{
-            flash('修改失败') -> error();
+            flash('删除失败') -> error();
             return redirect()->route('shop.goods');
         }
     }
