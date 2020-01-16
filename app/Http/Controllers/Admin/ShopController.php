@@ -1245,11 +1245,13 @@ class ShopController extends BaseController
                 -> join('users','statics.user_id','=','users.id')
                 -> join('merchants','statics.merchant_id','=','merchants.id')
                 -> where('merchants.user_id',$id)
+                ->where('statics.is_del',0)
                 -> select(['statics.id','statics.price','statics.describe','statics.state','statics.create_time','statics.type_id','users.name'])
                 -> paginate(10);
         }else{
             $data =  DB::table('statics')
                 -> join('users','statics.user_id','=','users.id')
+                ->where('statics.is_del',0)
                 -> select(['statics.id','statics.price','statics.describe','statics.state','statics.create_time','statics.type_id','users.name'])
                 -> paginate(10);
         }
@@ -1258,7 +1260,8 @@ class ShopController extends BaseController
 
     public function staticsDel (Request $request)
     {
-        $id = input::get('id');
+        $input = $request->all();
+        $id = $input['id'];
         $res = Statics::where('id',$id)->update(['is_del' => 1]);
         if ($res){
             return redirect()->route('shop.statics');

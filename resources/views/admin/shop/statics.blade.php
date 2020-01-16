@@ -46,7 +46,7 @@
                             </td>
                             <td>
                                 <div class="btn-group">
-                                    <a href="{{url("/admin/shop/staticsDel?id=$item->id")}}" onClick="delcfm()"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o" ></i> 删除</button></a>
+                                    <a onclick="del({{$item->id}})"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o"></i> 删除</button></a>
                                 </div>
                             </td>
                         </tr>
@@ -64,4 +64,15 @@
         </div>
         <div class="clearfix"></div>
     </div>
+    <script src="{{loadEdition('/js/jquery.min.js')}}"></script>
+    <script>
+        function del(e) {
+            var id = e;
+            layer.alert("是否删除该数据？",{icon:3},function (index) {
+                location.href="{{route('shop.staticsDel')}}?id="+id;
+                layer.close(index);
+            });
+        }
+    </script>
+
 @endsection
