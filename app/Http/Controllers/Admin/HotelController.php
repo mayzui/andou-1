@@ -385,7 +385,10 @@ class HotelController extends BaseController
     }
     public function faci()
     {
-        $data=Db::table('hotel_faci')->paginate(20);
+        $data=Db::table('hotel_faci')
+            ->join('merchants','hotel_faci.merchant_id','=','merchants.id')
+            ->select('hotel_faci.id','hotel_faci.name','merchants.name as nickname')
+            ->paginate(20);
         return $this->view('',['data'=>$data]);
     }
     /**新增修改酒店配置
@@ -393,10 +396,12 @@ class HotelController extends BaseController
      * @return [type] [description]
      */
     public function faciAdd()
-    {   
+    {
         $all = request()->all();
+        $user_id = Auth::id();
+        $arr = DB::Table('merchants')->where('user_id',$user_id)->where('merchant_type_id',3)->first();
         if (request()->isMethod('post')) {
-            $save['name']=$all['name'];
+            $save=['name'=>$all['name'],'merchant_id'=>$arr['id']];
             if (empty($all['id'])) {
                 $re=Db::table('hotel_faci')->insert($save);
             }else{
@@ -412,7 +417,7 @@ class HotelController extends BaseController
         }else{
             if (empty($all['id'])) {
                 $data = (object)[];
-                $data->type_name='';  
+                $data->type_name='';
             }else{
                 $data=Db::table('hotel_faci')->where('id',$all['id'])->first();
             }

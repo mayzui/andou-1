@@ -252,6 +252,9 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
 
 
         Route::match(['get','post'],'know/index','RefundController@aftermarketChange')->name('know.index');
+        Route::any('about/protocol','ProtocolController@index')->name('about.protocol');
+        Route::any('about/protocolAdd','ProtocolController@protocolAdd')->name('about.protocolAdd');
+        Route::any('about/upd','ProtocolController@upd')->name('about.upd');
     });
 
     // 图片上传

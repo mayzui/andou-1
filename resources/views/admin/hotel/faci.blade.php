@@ -20,6 +20,7 @@
                         <tr>
                             <th width="100">ID</th>
                             <th>配置名字</th>
+                            <th>商家名称</th>
                             <th>操作</th>
                         </tr>
                         </thead>
@@ -28,7 +29,8 @@
                             <tr>
                                 <td>{{$item->id}}</td>
                                 <td>{{$item->name}}</td>
-                                
+                                <td>{{$item->nickname}}</td>
+
                                 
                                 <td class="text-center">
                                     <div class="btn-group">
