@@ -37,6 +37,7 @@
                             <th style="width: 200px;">菜品介绍</th>
                             <th>每月销售数量</th>
                             <th>点赞</th>
+                            <th>状态</th>
                             <th>操作</th>
                         </tr>
                         </thead>
@@ -56,10 +57,22 @@
                                         <th><p style="width: 200px;overflow: hidden;white-space: nowrap;text-overflow: ellipsis;">{{ $v->remark }}</p></th>
                                         <th>{{ $v->quantitySold }}</th>
                                         <th>{{ $v->num }}</th>
+                                        <th>
+                                            @if($v->status == 1)
+                                                <span style="color: blue">上架中</span>
+                                                @else
+                                                <span style="color: red">未上架</span>
+                                            @endif
+                                        </th>
                                         <td class="text-center">
                                             <div class="btn-group">
                                                 <a href="{{route('foods.informationadd')}}?id={{$v->id}}"><button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 修改</button></a>
                                                 <a onclick="del({{$v->id}})"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-ban"></i> 删除</button></a>
+                                                @if($v -> status == 0)
+                                                    <a onclick="statuse({{$v->id}})"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-check"></i> 上架</button></a>
+                                                    @else
+                                                    <a onclick="statuse({{$v->id}})"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-check"></i> 下架</button></a>
+                                                @endif
                                             </div>
                                         </td>
                                     </tr>
@@ -69,7 +82,7 @@
                                 </tr>
                             @else
                             <tr>
-                                <th colspan="11">暂时还没有数据</th>
+                                <th colspan="12">暂时还没有数据</th>
                             </tr>
                         @endif
                         </tbody>
@@ -85,6 +98,13 @@
             var id = e;
             layer.alert("是否删除该数据？",{icon:3},function (index) {
                 location.href="{{route('foods.informationdel')}}?id="+id;
+                layer.close(index);
+            });
+        }
+        function statuse(e) {
+            var id = e;
+            layer.alert("是否修改该商品状态？",{icon:3},function (index) {
+                location.href="{{route('foods.informationStatus')}}?id="+id;
                 layer.close(index);
             });
         }

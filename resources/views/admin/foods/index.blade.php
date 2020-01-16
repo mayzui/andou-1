@@ -10,12 +10,12 @@
                     {{ csrf_field() }}
                     <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>
                     {{--判断用户是否是超级管理员，超级管理员不能新增菜品--}}
-                    {{--@if($id)--}}
+                    @if($id)
                     <a href="{{route('foods.add')}}" link-url="javascript:void(0)">
                         <button class="btn btn-primary btn-sm" type="button">
                             <i class="fa fa-plus-circle"></i> 新增分类</button>
                     </a>
-                    {{--@endif--}}
+                    @endif
                     <input type="text" style="height: 25px;margin-left: 10px;" value="{{ $name or '' }}" name="name" placeholder="商户名称">
                     <button style="height: 25px;margin-left: 10px;" type="submit">按条件查询</button>
                 </form>

@@ -24,10 +24,11 @@
                             <th>所属用户</th>
                             <th>房间价格</th>
                             <th>状态</th>
-                            <th>操作</th>
+                            <th width="250px">操作</th>
                         </tr>
                         </thead>
                         <tbody>
+                        @if(count($data) > 0)
                         @foreach($data as $k => $item)
                             <tr>
                                 <td>{{$item->id}}</td>
@@ -54,6 +55,11 @@
                                 </td>
                             </tr>
                         @endforeach
+                            @else
+                        <tr>
+                            <td colspan="7">对不起没有查询到相关内容</td>
+                        </tr>
+                        @endif
                         </tbody>
                     </table>
                     {{$data}}

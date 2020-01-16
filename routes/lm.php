@@ -55,6 +55,7 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::match(['get','post'],'foods/information','FoodsController@information')->name('foods.information');
         Route::match(['get','post'],'foods/informationadd','FoodsController@informationadd')->name('foods.informationadd'); // 新增 and 修改
         Route::get('foods/informationdel','FoodsController@informationdel')->name('foods.informationdel'); // 删除
+        Route::get('foods/informationStatus','FoodsController@informationStatus')->name('foods.informationStatus'); // 修改状态
         // 菜品分类
         Route::match(['get','post'],'foods/index','FoodsController@index')->name('foods.index');
         Route::match(['get','post'],'foods/add','FoodsController@add')->name('foods.add');  // 新增 and 修改

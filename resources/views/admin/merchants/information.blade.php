@@ -70,12 +70,14 @@
                             <input type="text" class="form-control" name="address" value="{{$data->address or ''}}" required data-msg-required="详细地址">
                         </div>
                     </div>
+                    @if($data -> merchant_type_id == 2)
                     <div class="form-group">
                         <label class="col-sm-2 control-label">退货地址：</label>
                         <div class="input-group col-sm-2">
                             <input type="text" class="form-control" name="return_address" value="{{$data->return_address or ''}}" required data-msg-required="退货地址">
                         </div>
                     </div>
+                    @endif
                     <div class="form-group">
                         <label class="col-sm-2 control-label">商家简介：</label>
                         <div class="input-group col-sm-2">

@@ -95,6 +95,7 @@ class GourmetController extends Controller
             $data[$key]->cai=DB::table('foods_information')
                 ->select(['id','image'])
                 ->where('merchant_id',$value->id)
+                ->where('status',1)
                 ->offset(0)
                 ->limit(3)
                 ->get();
@@ -177,6 +178,7 @@ class GourmetController extends Controller
             $data[$key]->information=DB::table('foods_information')
                 ->select(['id','image','name','remark','price'])
                 ->where('classification_id',$value->id)
+                ->where('status',1)
                 ->get();
         }
         if($data){
@@ -211,6 +213,7 @@ class GourmetController extends Controller
             ->join("foods_spec as s","f.classification_id","=","s.id")
             ->select('f.id','f.image','f.name','f.remark','f.price','s.name','s.id')
             ->where('f.id',$all['id'])
+            ->where('f.status',1)
             ->first();
         if($data){
             return $this->rejson(200,"查询成功",$data);
@@ -884,6 +887,9 @@ class GourmetController extends Controller
      *                    "pay_money":"支付总金额",
      *                    "name":"饭店名称",
      *                    "logo_img":"商家logo图",
+     *                    "status":"订单状态",
+     *                    "address":"详细地址",
+     *                    "tel":"商铺电话",
      *                    "foods":[
      *                            {
      *                              "id":"菜品id",
@@ -910,7 +916,7 @@ class GourmetController extends Controller
         }
         $data=DB::table("foods_user_ordering as o")
             ->join("merchants as m","o.merchant_id","=","m.id")
-            ->select('o.order_sn','o.people','o.prices','o.dinnertime','o.method','o.remark','o.integral','o.pay_money','o.orderingtime','o.foods_id','o.id','m.name','m.logo_img')
+            ->select('o.order_sn','o.people','o.prices','o.dinnertime','o.method','o.remark','o.integral','o.pay_money','o.orderingtime','o.foods_id','o.id','o.status','m.name','m.logo_img','m.address','m.tel')
             ->where('o.id',$all['id'])
             ->first();
 
@@ -992,7 +998,6 @@ class GourmetController extends Controller
     public function addcomment(){
         $all=request()->all();
         if (!isset($all['uid']) ||
-            !isset($all['token']) ||
             !isset($all['stars']) ||
             !isset($all['order_id']) ||
             !isset($all['merchants_id']) ){
@@ -1011,7 +1016,7 @@ class GourmetController extends Controller
         $data = [
             'user_id' => $all['uid'],
             'order_id' => $all['order_id'],
-            'goods_id' => $all['goods_id'],
+            
             'merchants_id' => $all['merchants_id'],
             'content' => $content,
             'stars' => $all['stars'],

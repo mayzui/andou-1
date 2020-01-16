@@ -266,7 +266,6 @@ class HotelController extends BaseController
         $all = request()->all();
         $admin = Auth::guard('admin')->user();
         if (request()->isMethod('post')) {
-
             $save['house_name']=$all['house_name'];
             if (!empty($all['desc'])) {
                 $save['desc']=implode(',',$all['desc']);
@@ -277,6 +276,7 @@ class HotelController extends BaseController
             $data['has_window']=$all['has_window'];
             $data['wifi']=$all['wifi'];
             $data['num']=$all['num'];
+            $data['num_people']=$all['num_people'];
             $data['has_breakfast']=$all['has_breakfast'];
             $data['bed_type']=$all['bed_type'];
             $data['other_sets']=$all['other_sets'];
@@ -285,11 +285,9 @@ class HotelController extends BaseController
             }else{
                 if (!empty($all['imgs'])) {
                     $save['img'] = $this->uploads($all['imgs']);
-                     // var_dump($save['img']);exit;
                     if ($save['img'] === 0) {
                         return json_encode(array('code'=>201,'msg'=>'文件格式错误'));
                     }
-                    // var_dump($save['img']);exit();
                 } 
             }
             if (empty($all['id'])) {
@@ -304,10 +302,10 @@ class HotelController extends BaseController
                 $re=Db::table('hotel_room')->where('id',$all['id'])->update($save);
                 $res=Db::table('hotel_attr_value')->where('hotel_room_id',$all['id'])->update($data);
             }
-            if ($re) {
+            if ($re || $res) {
                 return json_encode(array('code'=>200,'msg'=>'编辑成功'));  
             }else{
-                return json_encode(array('code'=>201,'msg'=>'编辑失败'));
+                return json_encode(array('code'=>201,'msg'=>'编辑失败,未修改任何内容'));
             }
         }else{
             if (empty($all['id'])) {
@@ -319,7 +317,8 @@ class HotelController extends BaseController
                 $data->img=array();  
             }else{
                 $data=Db::table('hotel_room as hr')
-                ->select('hr.*','hv.id as tid','hv.*')
+                ->select('hr.*','hv.id as tid','hv.hotel_room_id','hv.areas','hv.has_window','hv.wifi',
+                    'hv.num','hv.num_people','hv.has_breakfast','hv.bed_type','hv.other_sets')
                 ->join('hotel_attr_value as hv','hr.id','=','hv.hotel_room_id')
                 ->where('hr.id',$all['id'])
                 ->first();

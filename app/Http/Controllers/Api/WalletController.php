@@ -421,6 +421,9 @@ class WalletController extends Controller
         "collect":'商品收藏数',
         "focus":'关注店铺数',
         "record":'浏览记录数',
+        "goodordernum":"商城订单数",
+        "foodsordernum":"饭店订单数",
+        "booksordernum":"酒店订单数",
      }
      */
     public function personal(){
@@ -441,6 +444,9 @@ class WalletController extends Controller
         $data->collect = DB::table('collection')->where('user_id',$all['uid'])->where('type',1)->count();
         $data->focus = DB::table('collection')->where('user_id',$all['uid'])->where('type',3)->count();
         $data->record = DB::table('see_log')->where('user_id',$all['uid'])->where('type',2)->count();
+        $data->goodordernum=Db::table('order_goods')->where('user_id',$all['uid'])->whereIn('status',['10','50'])->count();
+        $data->booksordernum=Db::table('books')->where('user_id',$all['uid'])->whereIn('status',['20'])->count();
+        $data->foodsordernum=Db::table('foods_user_ordering')->where('user_id',$all['uid'])->whereIn('status',['20'])->count();
         if(empty($grade)){
             $data->status = 0;
             $data -> grade = 0;
