@@ -321,7 +321,7 @@ class WalletController extends Controller
     public function recharge(){
         $all = \request() -> all();
         // 根据获取的id
-        if (empty($all['money']) || empty($all['phone']) || empty($all['method'])) {
+        if (empty($all['money']) || empty($all['mobile']) || empty($all['method'])) {
             return $this->rejson(201,'缺少必填项');
         }
         DB::beginTransaction();

@@ -223,7 +223,7 @@ class HtorderController extends Controller
         }
        
         $data['user_id']=$all['uid'];
-        $data['describe']='订单：'.$sNo.'消费';
+        $data['describe']='酒店预定消费';
         $data['create_time']=date('Y-m-d H:i:s',time());
         $data['type_id']=2;
         $data['price']=$orders->order_money - $orders->integral;

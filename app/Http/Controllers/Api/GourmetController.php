@@ -567,7 +567,17 @@ class GourmetController extends Controller
     public function timely()
     {
         $all = request()->all();
-
+        $token=request()->header('token')??'';
+        if ($token!='') {
+            $all['token']=$token;
+        }
+        if (empty($all['uid'])||empty($all['token'])) {
+            return $this->rejson(202,'登陆失效');
+        }
+        $check=$this->checktoten($all['uid'],$all['token']);
+        if ($check['code']==202) {
+            return $this->rejson($check['code'],$check['msg']);
+        }
         if(empty($all['merchant_id']) ||
             empty($all['people']) ||
             empty($all['dinnertime'])){
@@ -676,7 +686,7 @@ class GourmetController extends Controller
         ->where('id',$all['uid'])
         ->first();
         $data['user_id']=$all['uid'];
-        $data['describe']='订单：'.$sNo.'消费';
+        $data['describe']='饭店预定消费';
         $data['create_time']=date('Y-m-d H:i:s',time());
         $data['type_id']=2;
         $data['price']=$orders->order_money - $orders->integral;
