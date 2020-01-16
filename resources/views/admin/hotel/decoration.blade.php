@@ -183,7 +183,7 @@
                 });
                 //$parent.remove()
             });
-     
+
             {{--$("#imageSub").on('click',function () {--}}
             {{--        var form = document.getElementById("imageSubForm");--}}
             {{--        var formData = new FormData(form);--}}
