@@ -72,20 +72,62 @@ class FoodsController extends BaseController
         $data = DB::table('foods_user_ordering') -> where('id',$all['id']) -> first();
         // 获取用户信息
         $user_data = DB::table('users') -> where('id',$data -> user_id) -> first();
-        $money = $user_data -> money + $data -> pay_money;
-        DB::beginTransaction();
-        try{
-            // 修改用户金额
-            $m = DB::table('users') -> where('id',$data -> user_id) -> update(['money' => $money]);
-            // 修改订单状态
-            $n = DB::table('foods_user_ordering') -> where('id',$all['id']) -> update(['status'=>70]);
-            DB::commit();
-            flash("退款成功") -> success();
-            return redirect()->route('foods.orders');
-        }catch (\Exception $exception){
-            DB::rollBack();
-            flash("退款失败，请稍后重试") -> error();
-            return redirect()->route('foods.orders');
+
+
+        // 判断用户支付方式
+        if($data -> method == 4){    // 余额支付
+            $money = $user_data -> money + $data -> pay_money;
+            DB::beginTransaction();
+            try{
+                // 修改用户金额
+                $m = DB::table('users') -> where('id',$data -> user_id) -> update(['money' => $money]);
+                // 修改订单状态
+                $n = DB::table('foods_user_ordering') -> where('id',$all['id']) -> update(['status'=>70]);
+                DB::commit();
+                flash("退款成功") -> success();
+                return redirect()->route('foods.orders');
+            }catch (\Exception $exception){
+                DB::rollBack();
+                flash("退款失败，请稍后重试") -> error();
+                return redirect()->route('foods.orders');
+            }
+        }else if($data -> method == 1){
+            // 微信退款
+            require_once base_path()."/wxpay/lib/WxPay.Api.php";
+            require_once base_path()."/wxpay/example/WxPay.NativePay.php";
+            //查询订单,根据订单里边的数据进行退款
+            $order = json_decode(json_encode(DB::table('foods_user_ordering') -> where('id',$all['id']) -> first()),true);
+            $merch = new \WxPayConfig();
+            $merchid = $merch->GetMerchantId();
+            if(!$order){
+                return false;
+            }
+            $suiji = $this -> suiji();
+            $input = new \WxPayRefund();
+            $input->SetOut_trade_no($order['order_sn']);   //自己的订单号
+            $input->SetTransaction_id($order['out_trade_no']);  //微信官方生成的订单流水号，在支付成功中有返回
+            $input->SetOut_refund_no($suiji);   //退款单号
+            $input->SetTotal_fee($order['pay_money']);   // 订单标价金额，单位为分
+            $input->SetRefund_fee($order['pay_money']);   // 退款总金额，订单总金额，单位为分，只能为整数
+            $input->SetOp_user_id($merchid);        // 商户号
+            $result = \WxPayApi::refund($merch,$input); //退款操作
+            // 这句file_put_contents是用来查看服务器返回的退款结果 测试完可以删除了
+            if(($result['return_code']=='SUCCESS') && ($result['result_code']=='SUCCESS')){
+                $n = DB::table('foods_user_ordering') -> where('id',$all['id']) -> update(['status'=>70]);
+                //退款成功
+                flash('退款成功') -> success();
+                return redirect()->route('foods.orders');
+            }else if(($result['return_code']=='FAIL') || ($result['result_code']=='FAIL')){
+                //退款失败
+                //原因
+                $reason = (empty($result['err_code_des'])?$result['return_msg']:$result['err_code_des']);
+                flash($reason) -> error();
+                return redirect()->route('foods.orders');
+            }else{
+                //失败
+                flash("退款失败请稍后重试") -> error();
+                return redirect()->route('foods.orders');
+            }
         }
     }
 
