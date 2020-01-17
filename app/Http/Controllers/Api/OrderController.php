@@ -720,7 +720,7 @@ class OrderController extends Controller
         DB::beginTransaction(); //开启事务
         $re=DB::table('user_logs')->insert($data);
         $ress=DB::table('orders')->where('order_sn',$sNo)->update($status);
-        $ress=DB::table('order_goods')->where('order_id',$sNo)->update(array('status'=>20));
+        $ress=DB::table('order_goods')->where('order_id',$sNo)->update($status);
         $res=DB::table('users')->where('id',$all['uid'])->decrement('money',$data['price']);
         if ($integral>0) {
             $addintegral=$data;
