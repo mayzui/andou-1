@@ -48,6 +48,7 @@ class GourmetController extends Controller
      * @apiGroup gourmet
      * @apiParam {string} name 关键字name
      * @apiParam {string} cate_id 分类id
+     * @apiParam {string} sort 排序方式 stars 信誉排序 volume 销量排序
      * @apiParam {string} page 分页参数
      * @apiSuccessExample 参数返回：
      *{
@@ -79,19 +80,33 @@ class GourmetController extends Controller
             $pages=0;
         }
         if (!empty($all['name'])) {
-            $where[]=['name', 'like', '%'.$all['name'].'%'];
+            $where[]=['m.name', 'like', '%'.$all['name'].'%'];
         }
         if(!empty($all['cate_id'])){
-            $where[]=['cate_id',$all['cate_id']];
+            $where[]=['m.cate_id',$all['cate_id']];
         }
-        $where[]=['status',1];
-        $where[]=['is_reg',1];
-        $where[]=['merchant_type_id',4];
-        $data=DB::table("merchants")
-            ->select('name','praise_num','stars_all','door_img','id')
+        if (!empty($all['sort'])) {
+           if ($all['sort']=='stars') {
+               $orderBy='m.stars_all';
+           }elseif ($all['sort']=='volume') {
+               $orderBy='volume';
+           }else{
+            $orderBy='m.praise_num';
+           }
+        }else{
+            $orderBy='m.praise_num';
+        }
+        $where[]=['m.status',1];
+        $where[]=['m.is_reg',1];
+        $where[]=['m.merchant_type_id',4];
+        $data=DB::table("merchants as m")
+            ->select('m.name','m.praise_num','m.stars_all','m.door_img','m.id',DB::raw("sum(f.quantitySold) as volume"))
+            ->leftJoin('foods_information as f','f.merchant_id','=','m.id')
             ->where($where)
             ->offset($pages)
             ->limit($num)
+            ->orderBy($orderBy,'DESC')
+            ->groupBy('m.id')
             ->get();
         foreach ($data as $key => $value) {
             $data[$key]->cai=DB::table('foods_information')
