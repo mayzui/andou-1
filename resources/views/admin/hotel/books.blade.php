@@ -93,6 +93,10 @@
                                         <span style="color: blue">入住中</span>
                                 @elseif($item->status == 40)
                                         <span style="color: green">已完成</span>
+                                @elseif($item->status == 60)
+                                        <span style="color: red">申请退款(未入住)</span>
+                                @elseif($item->status == 70)
+                                        <span style="color: green">退款成功</span>
                                 @endif
                                 </td>
                                 <td class="text-center">    
@@ -102,9 +106,13 @@
                                             <a onclick="return_money({{$item->id}});"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-close"></i> 退款</button></a>
                                             @elseif($item->status == 30)
                                             <a  onclick="write_off({{$item->id}});"><button class="btn btn-warning btn-xs" type="button"><i class="fa fa-paste"></i> 退房</button></a>
+                                            @elseif($item->status == 60)
+                                            <a onclick="return_money({{$item->id}});"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-check"></i> 确认退款</button></a>
                                             @elseif($item->status == 40)
                                             <a href="javascript:;"><button class="btn btn-primary btn-xs" type="button" disabled><i class="fa fa-paste"></i> 已完成</button></a>
                                             <a href="javascript:;"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o"></i> 删除</button></a>
+                                            @elseif($item->status == 70)
+                                            <a href="javascript:;"><button class="btn btn-primary btn-xs" type="button" disabled><i class="fa fa-paste"></i> 退款成功</button></a>
                                         @endif
                                     </div>
                                 </td>

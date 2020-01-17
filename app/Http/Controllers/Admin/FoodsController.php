@@ -72,8 +72,6 @@ class FoodsController extends BaseController
         $data = DB::table('foods_user_ordering') -> where('id',$all['id']) -> first();
         // 获取用户信息
         $user_data = DB::table('users') -> where('id',$data -> user_id) -> first();
-
-
         // 判断用户支付方式
         if($data -> method == 4){    // 余额支付
             $money = $user_data -> money + $data -> pay_money;
@@ -83,6 +81,14 @@ class FoodsController extends BaseController
                 $m = DB::table('users') -> where('id',$data -> user_id) -> update(['money' => $money]);
                 // 修改订单状态
                 $n = DB::table('foods_user_ordering') -> where('id',$all['id']) -> update(['status'=>70]);
+                // 修改主表订单状态
+                $j = DB::table('orders') -> where('order_sn',$data -> order_sn) -> first();
+                if(empty($j)){
+                    DB::rollBack();
+                    flash('退款失败，订单表中未查询到相关订单') -> error();
+                    return redirect()->route('foods.orders');
+                }
+                DB::table('orders') -> where('order_sn',$data -> order_sn) -> update(['status'=>70]);
                 DB::commit();
                 flash("退款成功") -> success();
                 return redirect()->route('foods.orders');

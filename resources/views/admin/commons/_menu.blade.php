@@ -7,6 +7,7 @@
     $admin = Auth::guard('admin')->user();
     $data = DB::table('merchants') -> where('is_reg',0) -> get();
     $counts = count($data);
+    $merchants_data = DB::table('merchants') -> where('user_id',Auth::id())-> where('is_reg',1) -> get();
 @endphp
         <div class="andou_left navbar-default">
             <div class="logo"><img class="transform" src="{{loadEdition('/admin/images/logo.png')}}" ></div>
@@ -30,11 +31,15 @@
                     <li class="layui-nav-item">
                         <i class="icon{{$key}}"></i>
                         <a href="javascript:;">
-                            @if($rule['name'] == "商户管理")
-                                @if($counts == 0)
-                                    {{$rule['name']}}
+                            @if(count($merchants_data) == 0)
+                                @if($rule['name'] == "商户管理")
+                                    @if($counts == 0)
+                                        {{$rule['name']}}
                                     @else
-                                {{$rule['name']}}&nbsp;<span class="label label-danger">{{ $counts }}</span>
+                                        {{$rule['name']}}&nbsp;<span class="label label-danger">{{ $counts }}</span>
+                                    @endif
+                                @else
+                                    {{$rule['name']}}
                                 @endif
                             @else
                                 {{$rule['name']}}

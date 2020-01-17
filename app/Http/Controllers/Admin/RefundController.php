@@ -48,7 +48,7 @@ class RefundController extends BaseController
                 -> join('refund_reason','order_returns.reason_id','=','refund_reason.id')
                 -> where('order_goods.merchant_id',$id)
                 -> where($where)
-                -> select('order_goods.id','order_goods.express_id','order_goods.courier_num','order_goods.order_id','users.name as user_name','refund_reason.name as retun_name',
+                -> select('order_goods.id','order_goods.pay_way','order_goods.express_id','order_goods.courier_num','order_goods.order_id','users.name as user_name','refund_reason.name as retun_name',
                     'order_returns.content','order_returns.is_reg','order_returns.status','goods.id as gid')
                 -> paginate(10);
         }else{
@@ -59,7 +59,7 @@ class RefundController extends BaseController
                 -> join('users','order_goods.user_id','=','users.id')
                 -> join('refund_reason','order_returns.reason_id','=','refund_reason.id')
                 -> where($where)
-                -> select('order_goods.id','order_goods.express_id','order_goods.courier_num','order_goods.order_id','users.name as user_name','refund_reason.name as retun_name',
+                -> select('order_goods.id','order_goods.pay_way','order_goods.express_id','order_goods.courier_num','order_goods.order_id','users.name as user_name','refund_reason.name as retun_name',
                     'order_returns.content','order_returns.is_reg','order_returns.status','goods.id as gid')
                 -> paginate(10);
         }
@@ -72,8 +72,13 @@ class RefundController extends BaseController
             // 根据当前提交的id 查询数据库中值
             $data = \DB::table('order_returns') -> where('order_goods_id',$all['id']) -> select('is_reg','status')->first();
             // 根据当前传入id 查询商品详情表中,用户支付的金额
-            $order_goods_data = \DB::table('order_goods') -> where('id',$all['id']) -> select('pay_money','user_id') -> first();
+            $order_goods_data = \DB::table('order_goods') -> where('id',$all['id']) -> first();
+            // 查询主表和副表，判断用户的支付方式
+            if($order_goods_data -> pay_way == 4){     // 余额支付
 
+            }else if($order_goods_data -> pay_way == 1){       // 微信支付
+
+            }
             // 判断售后类型
             if($data -> status == 1){
                 // 退货退款
@@ -83,6 +88,8 @@ class RefundController extends BaseController
                         'handling_time' => date("Y-m-d H:i:s")
                     ];
                 }else if($data -> is_reg == 2){
+                    // 执行退款操作
+                    // 判断退款方式
                     $datas = [
                         'is_reg' => 3,
                         'handling_time' => date("Y-m-d H:i:s")
@@ -97,6 +104,8 @@ class RefundController extends BaseController
                     ];
                 }
             }
+
+
             \DB::beginTransaction();
             try{
                 // 更新退货表
