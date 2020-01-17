@@ -142,9 +142,11 @@ class MerchantsController extends BaseController
                     'merchants.management_type','merchants.management_type',
                     'merchants.banner_img','merchants.logo_img',
                     'merchants.door_img','merchants.management_img',
-                    'merchants.goods_img','merchants.merchant_type_id','merchants.return_address'])
+                    'merchants.goods_img','merchants.merchant_type_id','merchants.return_address','merchants.cate_id'])
                 -> first();
-            return $this->view('',['data'=>$data]);
+            // 查询饭店分类
+            $hotel_category_data = DB::table('hotel_category') -> where('type_id',2) -> get();
+            return $this->view('',['data'=>$data,'hotel_category_data' => $hotel_category_data]);
         }else{
             if(!empty($all['management_type'])){
                 // 获得提交的内容
@@ -163,6 +165,7 @@ class MerchantsController extends BaseController
                     'management_img' => $all['management_img'],
                     'goods_img' => $all['goods_img'],
                     'management_type' => $all['management_type'],
+                    'cate_id' => $all['cate_id'],
                     'updated_at' => date("Y-m-d H:i:s")
                 ];
             }else{
@@ -221,9 +224,10 @@ class MerchantsController extends BaseController
                         'merchants.management_type','merchants.management_type',
                         'merchants.banner_img','merchants.logo_img',
                         'merchants.door_img','merchants.management_img',
-                        'merchants.goods_img','merchants.merchant_type_id','merchants.return_address'])
-                    -> first();
-                return $this->view('',['data'=>$data]);
+                        'merchants.goods_img','merchants.merchant_type_id','merchants.return_address','merchants.cate_id'])
+                    -> first();// 查询饭店分类
+                $hotel_category_data = DB::table('hotel_category') -> where('type_id',2) -> get();
+                return $this->view('',['data'=>$data,'hotel_category_data' => $hotel_category_data]);
 //                flash("商户信息修改成功") -> success();
 //                return redirect()->route('merchants.index');
             }else{
@@ -239,9 +243,10 @@ class MerchantsController extends BaseController
                         'merchants.management_type','merchants.management_type',
                         'merchants.banner_img','merchants.logo_img',
                         'merchants.door_img','merchants.management_img',
-                        'merchants.goods_img','merchants.merchant_type_id','merchants.return_address'])
+                        'merchants.goods_img','merchants.merchant_type_id','merchants.return_address','merchants.cate_id'])
                     -> first();
-                return $this->view('',['data'=>$data]);
+                $hotel_category_data = DB::table('hotel_category') -> where('type_id',2) -> get();
+                return $this->view('',['data'=>$data,'hotel_category_data' => $hotel_category_data]);
             }
         }
     }

@@ -489,10 +489,10 @@ class ShopController extends BaseController
                     'merchants.management_type','merchants.management_type',
                     'merchants.banner_img','merchants.logo_img',
                     'merchants.door_img','merchants.management_img',
-                    'merchants.goods_img','merchants.merchant_type_id','merchants.is_reg'])
+                    'merchants.goods_img','merchants.merchant_type_id','merchants.is_reg','merchants.cate_id'])
                 -> first();
-//            return dd($data);
-            return $this->view('',['data'=>$data]);
+            $hotel_category_data = DB::table('hotel_category') -> where('type_id',2) -> get();
+            return $this->view('',['data'=>$data,'hotel_category_data'=> $hotel_category_data]);
         }else{
             $save['is_reg']=$all['is_reg'];
             $id=$all['id'];

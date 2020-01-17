@@ -123,8 +123,6 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
 
         // 语音提醒
         Route::post('indexs/voice_play','IndexsController@voice_play')->name('indexs.voice_play'); // 语音提醒
-        Route::get('shop/decoration','IndexsController@voice_play')->name('shop.decoration'); // 语音提醒
-        Route::post('about/protocol','IndexsController@voice_play')->name('about.protocol'); // 语音提醒
 
 
         Route::get('hotel/decoration','HotelController@decoration')->name('hotel.decoration'); // 环境设施
