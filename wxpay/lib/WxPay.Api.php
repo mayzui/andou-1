@@ -1130,8 +1130,8 @@ class WxPayApi
 
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
 
-	
-
+        curl_setopt($ch, CURLOPT_SSLCERT,base_path().'/wxpay/lib/cert/apiclient_cert.pem');
+        curl_setopt($ch, CURLOPT_SSLKEY,base_path().'/wxpay/lib/cert/apiclient_key.pem');
 
 
 		//post提交方式
