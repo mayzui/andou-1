@@ -482,6 +482,37 @@ class GoodsController extends Controller
         return $this->rejson(200,'查询成功',$data);
     }
     /**
+     * @api {post} /api/goods/cate 商品分类联动
+     * @apiName cate
+     * @apiGroup goods
+     * @apiParam {string} id 上级分类id
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": [
+     *           {
+                    "id": "一级分类id",
+                    "name": "一级分类名字",
+                    "img": "分类图片"
+                }
+     *       ],
+     *       "msg":"查询成功"
+     *     }
+     */
+    public function cate(){
+        $all=request()->all();
+        if (empty($all['id'])) {
+           $pid=0;
+        }else{
+           $pid=$all['id'];
+        }
+        $data=DB::table('goods_cate')
+        ->select('id','name','img')
+        ->where('pid',$pid)
+        ->get();
+        return $this->rejson(200,'查询成功',$data);
+    }
+    /**
      * @api {post} /api/goods/hotsearch 热门搜索
      * @apiName hotsearch
      * @apiGroup goods
