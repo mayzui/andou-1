@@ -3016,15 +3016,18 @@ class ShopController extends BaseController
         // 判断当前用户是否是商家
         $i = DB::table('merchants')
             -> where('user_id',$id)
+            ->where('merchant_type_id',2)
             -> where('is_reg',1)
             -> first();
         // 如果当前用户是商家，则查询当前商户的商品
         if($i){
+//            return 1;
             $list = DB::table('express_model')
                 -> join('merchants','express_model.merchant_id','=','merchants.id')
-                -> where('merchants.user_id',$id)
+                -> where('merchants.id',$i->id)
                 -> select(['express_model.id','express_model.name as exname','express_model.caculate_method','merchants.name as mename'])
                 -> paginate(10);
+//            return dd($list);
         }else{
             $list = DB::table('express_model')
                 -> join('merchants','express_model.merchant_id','=','merchants.id')
@@ -3163,7 +3166,8 @@ class ShopController extends BaseController
         }
 
         $admin = Auth::guard('admin')->user();
-        $model->merchant_id = $admin->id;
+        $arr = DB::table('merchants')->where('user_id',$admin->id)->where('merchant_type_id',2)->first();
+        $model->merchant_id = $arr->id;
         $model->name = $request->input('name');
 
         try {
