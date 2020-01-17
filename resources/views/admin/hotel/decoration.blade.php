@@ -114,13 +114,13 @@
                      @if(!empty($i))
                          <button class="btn btn-primary" style="margin-left: 40%;" type="submit"><i class="fa fa-check"></i>&nbsp;保 存</button>
                       @else
-                           <button class="btn btn-primary" style="margin-left: 40%;" type="submit" disabled><i class="fa fa-check"></i>&nbsp;保1 存</button>
+                           <button class="btn btn-primary" style="margin-left: 40%;" type="submit" disabled><i class="fa fa-check"></i>&nbsp;保 存</button>
                       @endif
             </div>
         </div>
     </div>
     <script>
-
+ 
         // 加载就执行一下
         $('#level1').change();
         function  getChildren (obj,level) {

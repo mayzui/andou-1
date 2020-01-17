@@ -33,7 +33,7 @@
                             <th style="width: 150px;">菜品名称</th>
                             <th>菜品价格</th>
                             <th>菜品图片</th>
-                            <th>菜品规格</th>
+                            {{--<th>菜品规格</th>--}}
                             <th style="width: 200px;">菜品介绍</th>
                             <th>每月销售数量</th>
                             <th>点赞</th>
@@ -53,7 +53,7 @@
                                         <td>
                                             <img src="{{ $v->image }}" style="width: 80px;height: 80px">
                                         </td>
-                                        <th>{{ $v->specifications }}</th>
+                                        {{--<th>{{ $v->specifications }}</th>--}}
                                         <th><p style="width: 200px;overflow: hidden;white-space: nowrap;text-overflow: ellipsis;">{{ $v->remark }}</p></th>
                                         <th>{{ $v->quantitySold }}</th>
                                         <th>{{ $v->num }}</th>
