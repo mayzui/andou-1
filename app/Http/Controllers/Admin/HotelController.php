@@ -718,8 +718,7 @@ class HotelController extends BaseController
 
     //环境设施
     public function  decoration(){
-
-        $id = 13;     // 当前登录用户的id
+        $id = Auth::id();     // 当前登录用户的id
         // 判断当前用户是否是商家
         $i = DB::table('merchants')
             -> where('user_id',$id)
