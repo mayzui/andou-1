@@ -918,7 +918,8 @@ class GourmetController extends Controller
      *                              "id":"菜品id",
      *                              "name":"菜品名称",
      *                              "price":"菜品价格",
-     *                              "num":"数量"
+     *                              "num":"数量",
+     *                              "image":"菜品图片"
      *                            }
      *                            ]
      *                   }
@@ -948,7 +949,7 @@ class GourmetController extends Controller
                 $data->foods[$k]['id']=$v['id'];
                 $data->foods[$k]['num']=$v['num'];
                 $information=DB::table('foods_information')
-                    ->select(['name','price'])
+                    ->select(['name','price','image'])
                     ->where('id',$v['id'])
                     ->first();
                 $data->foods[$k]['name']=$information->name ?? '';
