@@ -313,12 +313,12 @@ class ShopController extends BaseController
                 -> orderBy('created_at','desc')
                 -> paginate(10);
             foreach ($data as $key => $value) {
-                $merchant_type=Db::table('merchant_type')->where('id',$value->merchant_type_id)->pluck('type_name');
-                if (!empty($merchant_type[0])) {
-                    $data[$key]->merchant_type_id=$merchant_type[0];
-                }else{
-                    $data[$key]->merchant_type_id='';
-                }
+//                $merchant_type=Db::table('merchant_type')->where('id',$value->merchant_type_id)->pluck('type_name');
+//                if (!empty($merchant_type[0])) {
+//                    $data[$key]->merchant_type_id=$merchant_type[0];
+//                }else{
+//                    $data[$key]->merchant_type_id='';
+//                }
                 $username=Db::table('users')->where('id',$value->user_id)->pluck('name');
                 if (!empty($username[0])) {
                     $data[$key]->username=$username[0];
@@ -349,12 +349,12 @@ class ShopController extends BaseController
                 -> orderBy('created_at','desc')
                 ->paginate(10);
             foreach ($data as $key => $value) {
-                $merchant_type=Db::table('merchant_type')->where('id',$value->merchant_type_id)->pluck('type_name');
-                if (!empty($merchant_type[0])) {
-                    $data[$key]->merchant_type_id=$merchant_type[0];
-                }else{
-                    $data[$key]->merchant_type_id='';
-                }
+//                $merchant_type=Db::table('merchant_type')->where('id',$value->merchant_type_id)->pluck('type_name');
+//                if (!empty($merchant_type[0])) {
+//                    $data[$key]->merchant_type_id=$merchant_type[0];
+//                }else{
+//                    $data[$key]->merchant_type_id='';
+//                }
                 $username=Db::table('users')->where('id',$value->user_id)->pluck('name');
                 if (!empty($username[0])) {
                     $data[$key]->username=$username[0];
@@ -395,12 +395,12 @@ class ShopController extends BaseController
                 -> orderBy('created_at','desc')
                 -> paginate(10);
             foreach ($data as $key => $value) {
-                $merchant_type=Db::table('merchant_type')->where('id',$value->merchant_type_id)->pluck('type_name');
-                if (!empty($merchant_type[0])) {
-                    $data[$key]->merchant_type_id=$merchant_type[0];
-                }else{
-                    $data[$key]->merchant_type_id='';
-                }
+//                $merchant_type=Db::table('merchant_type')->where('id',$value->merchant_type_id)->pluck('type_name');
+//                if (!empty($merchant_type[0])) {
+//                    $data[$key]->merchant_type_id=$merchant_type[0];
+//                }else{
+//                    $data[$key]->merchant_type_id='';
+//                }
                 $username=Db::table('users')->where('id',$value->user_id)->pluck('name');
                 if (!empty($username[0])) {
                     $data[$key]->username=$username[0];
@@ -430,12 +430,12 @@ class ShopController extends BaseController
                 -> orderBy('created_at','desc')
                 ->paginate(10);
             foreach ($data as $key => $value) {
-                $merchant_type=Db::table('merchant_type')->where('id',$value->merchant_type_id)->pluck('type_name');
-                if (!empty($merchant_type[0])) {
-                    $data[$key]->merchant_type_id=$merchant_type[0];
-                }else{
-                    $data[$key]->merchant_type_id='';
-                }
+//                $merchant_type=Db::table('merchant_type')->where('id',$value->merchant_type_id)->pluck('type_name');
+//                if (!empty($merchant_type[0])) {
+//                    $data[$key]->merchant_type_id=$merchant_type[0];
+//                }else{
+//                    $data[$key]->merchant_type_id='';
+//                }
                 $username=Db::table('users')->where('id',$value->user_id)->pluck('name');
                 if (!empty($username[0])) {
                     $data[$key]->username=$username[0];
