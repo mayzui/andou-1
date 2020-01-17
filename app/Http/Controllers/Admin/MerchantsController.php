@@ -190,7 +190,6 @@ class MerchantsController extends BaseController
                     'updated_at' => date("Y-m-d H:i:s")
                 ];
             }
-
             return "ok";
             // 获取当前 商户类型
             $merchants_data = DB::table('merchants') -> where('id',$all['id']) -> first();
