@@ -353,9 +353,9 @@ class HotelController extends BaseController
         if (!empty($datas)) {
             $role=$datas->id;
             $where[]=['merchant_id',$datas->id];
-         }else{
-            $role=0; 
-        } 
+        }else{
+            $role=0;
+        }
         $data=Db::table('hotel_room')->where($where)->paginate(20);
         foreach ($data as $key => $value) {
             $data[$key]->merchant_id=Db::table('merchants')->where('id',$value->merchant_id)->pluck('name')[0];
@@ -381,11 +381,11 @@ class HotelController extends BaseController
             echo 0;
         }
     }
-     /**添加修改房间
+    /**添加修改房间
      * [add description]
      * @param string $value [description]
      */
-    public function add($value='')
+    public function add($value='',Request $request)
     {
         $all = request()->all();
         $admin = Auth::guard('admin')->user();
@@ -404,30 +404,94 @@ class HotelController extends BaseController
             $data['has_breakfast']=$all['has_breakfast'];
             $data['bed_type']=$all['bed_type'];
             $data['other_sets']=$all['other_sets'];
-            if (empty($all['imgs']) && empty($all['id'])){
-               return json_encode(array('code'=>201,'msg'=>'缺少图片信息')); 
+
+            // 判断是否上传新文件
+            $choose_file = $_FILES['choose-file'];
+            // 如果第一个文件为空，则未上传新文件
+            if($choose_file['name'][0] == ""){
+                // 判断是否传值
+                $validate = Validator::make($request->all(),[
+                    'choose_file'=>'required'
+                ],[
+                    'choose_file.required'=>'缺少详细图片'
+                ]);
+
+                if ($validate->fails()) {
+                    flash($validate->errors()->first())->error()->important();
+                    return redirect()->route('shop.goods');
+                }
+                // 如果未上传新文件，则获取当前文件内容
+                $album = json_encode($all['choose_file']);
             }else{
-                if (!empty($all['imgs'])) {
-                    $save['img'] = $this->uploads($all['imgs']);
-                    if ($save['img'] === 0) {
-                        return json_encode(array('code'=>201,'msg'=>'文件格式错误'));
+                // 如果上传了文件
+                //判断保存文件的路径是否存在
+                $dir = $_SERVER['DOCUMENT_ROOT']."/shop/shopImage/";
+                // 如果文件不存在，则创建
+                if (!is_dir($dir)) {
+                    mkdir($dir,0777,true);
+                }
+                // 声明支持的文件类型
+                $types = array("png", "jpg", "webp", "jpeg", "gif");
+                // 执行文件上传操作
+                for ($i = 0; $i < count($choose_file['name']); $i++) {
+                    //在循环中取得每次要上传的文件名
+                    $name = $choose_file['name'][$i];
+                    // 将上传的文件名，分割成数组
+                    $end = explode(".", $name);
+                    //在循环中取得每次要上传的文件类型
+                    $type = strtolower(end($end));
+                    // 判断上传的文件是否正确
+                    if (!in_array($type, $types)) {
+                        return '第'.($i + 1).'个文件类型错误';
+                    } else {
+                        //在循环中取得每次要上传的文件的错误情况
+                        $error = $choose_file['error'][$i];
+                        if ($error != 0) {
+                            flash("第" . ($i + 1) . "个文件上传错误") -> error();
+                            return redirect()->route('shop.create');
+                        } else {
+                            //在循环中取得每次要上传的文件的临时文件
+                            $tmp_name = $choose_file['tmp_name'][$i];
+                            if (!is_uploaded_file($tmp_name)) {
+                                return "第" . ($i + 1) . "个临时文件错误";
+                            } else {
+                                // 给上传的文件重命名
+                                $newname = $dir.date("YmdHis") . rand(1, 10000) . "." . $type;
+                                $img_array[$i] = substr($newname,strpos($newname,'/shop/shopImage/'));
+                                //对文件执行上传操作
+                                if (!move_uploaded_file($tmp_name, $newname)) {
+                                    return "第" . ($i + 1) . "个文件上传失败";
+                                }
+                            }
+                        }
                     }
-                } 
+                }
+                // 获取上传的图片路径
+                $img_array = json_encode($img_array);
+                if(empty($all['choose_file'])){
+                    $al = "";
+                }else{
+                    $al = json_encode($all['choose_file']);
+                }
+                // 查询原来的值是否删除
+                $album = $img_array.$al;
             }
             if (empty($all['id'])) {
                 $save['user_id']=$admin->id;
                 $save['merchant_id']=Db::table('merchants')->where('user_id',$admin->id)->pluck('id')[0];
                 $save['status']=0;
+                $save['img']=$album;
                 $save['created_at']=date('Y-m-d H:i:s',time());
                 $ids=Db::table('hotel_room')->insertGetId($save);
                 $data['hotel_room_id']=$ids;
                 $re=Db::table('hotel_attr_value')->insertGetId($data);
             }else{
+                $save['img']=$album;
                 $re=Db::table('hotel_room')->where('id',$all['id'])->update($save);
                 $res=Db::table('hotel_attr_value')->where('hotel_room_id',$all['id'])->update($data);
             }
             if ($re || $res) {
-                return json_encode(array('code'=>200,'msg'=>'编辑成功'));  
+                return json_encode(array('code'=>200,'msg'=>'编辑成功'));
             }else{
                 return json_encode(array('code'=>201,'msg'=>'编辑失败,未修改任何内容'));
             }
@@ -438,21 +502,22 @@ class HotelController extends BaseController
                 $data->has_breakfast=1;
                 $data->wifi=1;
                 $data->has_window=1;
-                $data->img=array();  
+                $data->img=array();
             }else{
                 $data=Db::table('hotel_room as hr')
-                ->select('hr.*','hv.id as tid','hv.hotel_room_id','hv.areas','hv.has_window','hv.wifi',
-                    'hv.num','hv.num_people','hv.has_breakfast','hv.bed_type','hv.other_sets')
-                ->join('hotel_attr_value as hv','hr.id','=','hv.hotel_room_id')
-                ->where('hr.id',$all['id'])
-                ->first();
+                    ->select('hr.*','hv.id as tid','hv.hotel_room_id','hv.areas','hv.has_window','hv.wifi',
+                        'hv.num','hv.num_people','hv.has_breakfast','hv.bed_type','hv.other_sets')
+                    ->join('hotel_attr_value as hv','hr.id','=','hv.hotel_room_id')
+                    ->where('hr.id',$all['id'])
+                    ->first();
                 if (empty($data->desc)) {
                     $data->desc=array();
                 }else{
                     $data->desc=explode(',',$data->desc);
-                    $data->img=explode(',',$data->img);
+                    $data->img=json_decode($data->img);
                 }
             }
+
             $desc=Db::table('hotel_faci')->get();
             return $this->view('',['data'=>$data],['desc'=>$desc]);
         }
@@ -478,11 +543,11 @@ class HotelController extends BaseController
     {
         $all = request()->all();
         $id=$all['id'];
-        $where[]=['desc', 'like', '%'.$id.'%']; 
+        $where[]=['desc', 'like', '%'.$id.'%'];
         $res=Db::table('hotel_room')->where($where)->first();
         if (!empty($res)) {
             flash('该配置有房间使用不能删除')->error();
-            return redirect()->route('hotel.faci'); 
+            return redirect()->route('hotel.faci');
         }
         $re=Db::table('hotel_faci')->where('id',$id)->delete();
         // $res=Db::table('hotel_attr_value')->where('hotel_room_id',$id)->delete();
@@ -565,8 +630,8 @@ class HotelController extends BaseController
             $wheres['role']=$datas->id;
             $where[]=['merchant_id',$datas->id];
             // $data=Db::table('books')->where('merchant_id',$datas->id)->paginate(20);
-         }else{
-            $wheres['role']=0;    
+        }else{
+            $wheres['role']=0;
         }
         // 判断条件查询
         if(!empty($all['status'])){
@@ -596,27 +661,27 @@ class HotelController extends BaseController
             $data=Db::table('books')->where($where)->paginate(10);
         }
         if (!empty($data)) {
-             foreach ($data as $key => $value) {
-                 $user=Db::table('users')->where('id',$value->user_id)->first();
-                 if (!empty($user)) {
-                     $data[$key]->user_id=$user->name;
-                 }else{
-                     $data[$key]->user_id='用户不存在';   
-                 }
-                 $merchants=Db::table('merchants')->where('id',$value->merchant_id)->first();
-                 if (!empty($merchants)) {
-                     $data[$key]->merchant_id=$merchants->name;
-                 }else{
-                     $data[$key]->merchant_id='商户不存在';   
-                 }
-                 $hotel=Db::table('hotel_room')->where('id',$value->hotel_room_id)->first();
-                 if (!empty($hotel)) {
-                     $data[$key]->hotel_room_id=$hotel->house_name;
-                 }else{
-                     $data[$key]->hotel_room_id='房间不存在';   
-                 }
-             }
-         } 
+            foreach ($data as $key => $value) {
+                $user=Db::table('users')->where('id',$value->user_id)->first();
+                if (!empty($user)) {
+                    $data[$key]->user_id=$user->name;
+                }else{
+                    $data[$key]->user_id='用户不存在';
+                }
+                $merchants=Db::table('merchants')->where('id',$value->merchant_id)->first();
+                if (!empty($merchants)) {
+                    $data[$key]->merchant_id=$merchants->name;
+                }else{
+                    $data[$key]->merchant_id='商户不存在';
+                }
+                $hotel=Db::table('hotel_room')->where('id',$value->hotel_room_id)->first();
+                if (!empty($hotel)) {
+                    $data[$key]->hotel_room_id=$hotel->house_name;
+                }else{
+                    $data[$key]->hotel_room_id='房间不存在';
+                }
+            }
+        }
         return $this->view('',['data'=>$data,'status'=>$status],['wheres'=>$wheres]);
     }
     // 跳转酒店商户
@@ -748,21 +813,17 @@ class HotelController extends BaseController
         }
     }
 
-
-
     //环境设施
     public function  decoration(){
         $id = Auth::id();     // 当前登录用户的id
         // 判断当前用户是否是商家
         $i = DB::table('merchants')
-            -> where('user_id',$id)
-            ->where('merchant_type_id',3)
+            -> where('id',$id)
             -> where('is_reg',1)
             -> first();
         if ($i){
             $list = DB::table("merchants")
-                -> where('user_id',$id)
-                ->where('merchant_type_id',3)
+                ->where('id',$id)
                 ->first(['facilities','goods_img','id']);
             $data = json_decode($list->facilities);
             return $this->view('decoration',['list'=>$list,'id'=>$list->id,'data'=>$data,'i'=>$i]);
@@ -790,7 +851,7 @@ class HotelController extends BaseController
 
                 if ($validate->fails()) {
                     flash($validate->errors()->first())->error()->important();
-                    return redirect()->route('hotel.decoration');
+                    return redirect()->route('shop.goods');
                 }
                 // 如果未上传新文件，则获取当前文件内容
                 $album = json_encode($input['choose_file']);
@@ -917,6 +978,7 @@ class HotelController extends BaseController
 
 
     }
+
 
 //    public function
 }
