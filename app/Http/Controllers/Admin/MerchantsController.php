@@ -291,10 +291,17 @@ class MerchantsController extends BaseController
         
         if ($re) {
             flash('修改成功')->success();
-            return redirect()->route($url);
+            if(empty($all['arr'])){
+                return redirect()->route($url);
+            }
+            return redirect()->route('shop.shopMerchant');
+
         }else{
             flash('修改失败')->error();
-            return redirect()->route($url);
+            if(empty($all['arr'])){
+                return redirect()->route($url);
+            }
+            return redirect()->route('shop.shopMerchant');
         }
     }
     /**商户分类列表
