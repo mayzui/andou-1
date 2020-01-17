@@ -106,7 +106,7 @@
                         @endif
                     </div>
                 </div>
-                    <button class="btn btn-primary" type="submit"><i class="fa fa-check"></i>&nbsp;保 存</button>
+                    <button class="btn btn-primary" style="margin-left: 40%;" type="submit"><i class="fa fa-check"></i>&nbsp;保 存</button>
             </div>
         </div>
     </div>
