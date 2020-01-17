@@ -140,16 +140,16 @@
                             @if(count($data) > 0)
                                 @foreach($data as $k => $item)
                                     <tr>
-                                        <td><input type="checkbox" name="idse" value="{{$item['id']}}" /></td>
-                                        <td>{{$item['id']}}</td>
-                                        <td>{{$item['merchants_name']}}</td>
-                                        <td>{{$item['_name']}}</td>
-                                        <td>{{$item['num']}}</td>
+                                        <td><input type="checkbox" name="idse" value="{{$item->id}}" /></td>
+                                        <td>{{$item->id}}</td>
+                                        <td>{{$item->merchants_name}}</td>
+                                        <td>{{$item->name}}</td>
+                                        <td>{{$item->num}}</td>
                                         <td>
-                                            <a href="{{route('shop.merchants_goods_typeChange')}}?id={{$item['id']}}">
+                                            <a href="{{route('shop.merchants_goods_typeChange')}}?id={{$item->id}}">
                                                 <button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 编辑</button>
                                             </a>
-                                            <a onclick="del_class({{$item['id']}})"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o"></i> 删除</button></a>
+                                            <a onclick="del_class({{$item->id}})"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o"></i> 删除</button></a>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -233,7 +233,7 @@
                     $.post("{{route('shop.goodsAlldel')}}", {ids: check_val, _token: "{{csrf_token()}}"}, function (data) {
                         if (data = 1) {
                             layer.alert("删除成功", {icon: 1}, function (index) {
-                                window.location.href = "{{route('shop.merchants_goods_type')}}";
+                                window.location.href = "{{route('shop.goods')}}";
                             });
                         }
                     })

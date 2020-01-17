@@ -30,23 +30,23 @@
                     <table class="table table-striped table-bordered table-hover m-t-md">
                         <thead>
                         <tr>
-                            <th width="100">ID</th>
-                            <th>下单用户</th>
+                            <th width="50">ID</th>
+                            <th width="70">下单用户</th>
                             <th>预定商户</th>
                             <th>预定编号</th>
                             <th>入住人姓名</th>
                             <th>入住人电话</th>
                             <th>身份证</th>
-                            <th>房间型号</th>
-                            <th>入住时间</th>
-                            <th>离开时间</th>
-                            <th>预定天数</th>
-                            <th>入住人数</th>
-                            <th>订单金额</th>
-                            <th>支付金额</th>
-                            <th>支付方式</th>
-                            <th>订单状态</th>
-                            <th>操作</th>
+                            <th width="70">房间型号</th>
+                            <th width="100">入住时间</th>
+                            <th width="100">离开时间</th>
+                            <th width="50">预定天数</th>
+                            <th width="50">入住人数</th>
+                            <th width="70">订单金额</th>
+                            <th width="70">支付金额</th>
+                            <th width="70">支付方式</th>
+                            <th width="70">订单状态</th>
+                            <th width="150">操作</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -71,7 +71,7 @@
                                     @if($item->pay_way == 0)
                                         未支付
                                         @elseif($item->pay_way == 1)
-                                        微信
+                                        <span style="color:blue">微信</span>
                                         @elseif($item->pay_way == 2)
                                         支付宝
                                         @elseif($item->pay_way == 3)
@@ -97,7 +97,15 @@
                                 </td>
                                 <td class="text-center">    
                                     <div class="btn-group">
-                                    <a href="javascript:;"><button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 待定操作</button></a>   
+                                        @if($item->status == 20)
+                                            <a onclick="write_off({{$item->id}});"><button class="btn btn-success btn-xs" type="button"><i class="fa fa-check"></i> 核销</button></a>
+                                            <a onclick="return_money({{$item->id}});"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-close"></i> 退款</button></a>
+                                            @elseif($item->status == 30)
+                                            <a  onclick="write_off({{$item->id}});"><button class="btn btn-warning btn-xs" type="button"><i class="fa fa-paste"></i> 退房</button></a>
+                                            @elseif($item->status == 40)
+                                            <a href="javascript:;"><button class="btn btn-primary btn-xs" type="button" disabled><i class="fa fa-paste"></i> 已完成</button></a>
+                                            <a href="javascript:;"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o"></i> 删除</button></a>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
@@ -114,4 +122,20 @@
         </div>
         <div class="clearfix"></div>
     </div>
+    <script type="text/javascript">
+        function write_off(e) {
+            var id = e;
+            layer.alert("核销该用户状态？",{icon:3},function (index) {
+                location.href="{{route('hotel.write_off')}}?id="+id;
+                layer.close(index);
+            });
+        }
+        function return_money(e) {
+            var id = e;
+            layer.alert("是否确认退款？",{icon:3},function (index) {
+                location.href="{{route('hotel.return_money')}}?id="+id;
+                layer.close(index);
+            });
+        }
+    </script>
 @endsection

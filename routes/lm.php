@@ -30,6 +30,10 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('hotel/commnetsDel','HotelController@commnetsDel')->name('hotel.commnetsDel');
         Route::get('hotel/classification','HotelController@classification')->name('hotel.classification');        // 酒店分类
         Route::get('hotel/hotelStatus','HotelController@hotelStatus')->name('hotel.hotelStatus');        // 酒店状态
+        // 核销用户
+        Route::match(['get','post'],'hotel/write_off','HotelController@write_off')->name('hotel.write_off');
+        // 确认退款
+        Route::match(['get','post'],'hotel/return_money','HotelController@return_money')->name('hotel.return_money');
 
         //个人中心
         Route::get('user/merchant','UserController@merchant')->name('user.merchant');
@@ -119,6 +123,11 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
 
         // 语音提醒
         Route::post('indexs/voice_play','IndexsController@voice_play')->name('indexs.voice_play'); // 语音提醒
+        Route::get('shop/decoration','IndexsController@voice_play')->name('shop.decoration'); // 语音提醒
+        Route::post('about/protocol','IndexsController@voice_play')->name('about.protocol'); // 语音提醒
+
+
+        Route::get('hotel/decoration','HotelController@decoration')->name('hotel.decoration'); // 环境设施
     });
 });
 ?>

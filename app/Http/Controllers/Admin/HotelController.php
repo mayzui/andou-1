@@ -8,10 +8,102 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Services\HotelService;
 use App\Repositories\HotelRepository;
+use App\Http\Controllers\Controller;
 use Auth;
 
 class HotelController extends BaseController
 {
+    /*
+     *      确认退款
+     * */
+    public function return_money(){
+        $all = \request() -> all();
+        // 获取订单数据
+        $books_data = DB::table('books') -> where('id',$all['id']) -> first();
+        // 获取用户信息
+        $user_data = DB::table('users') -> where('id',$books_data -> user_id) -> first();
+
+        // 判断用户支付方式
+        if($books_data -> pay_way == 4){    // 余额支付
+            $money = $user_data -> money + $books_data -> money;
+            $i = DB::table('users') -> where('id',$books_data -> user_id) -> update(['money' => $money]);
+            // 修改副表订单状态
+            $m = DB::table('books') -> where('id',$all['id']) -> update(['status'=>70]);
+            // 修改主表订单状态
+//            $j = DB::table('')
+            if ($i) {
+                flash('退款成功') -> success();
+                return redirect()->route('hotel.books');
+            }else{
+                flash('退款失败，请稍后重试') -> error();
+                return redirect()->route('hotel.books');
+            }
+        }else if($books_data -> pay_way == 1){
+            // 微信退款
+            require_once base_path()."/wxpay/lib/WxPay.Api.php";
+            require_once base_path()."/wxpay/example/WxPay.NativePay.php";
+            //查询订单,根据订单里边的数据进行退款
+            $order = json_decode(json_encode(DB::table('books') -> where('id',$all['id']) -> first()),true);
+            $merch = new \WxPayConfig();
+            $merchid = $merch->GetMerchantId();
+            if(!$order){
+                return false;
+            }
+            $suiji = $this -> suiji();
+            $input = new \WxPayRefund();
+            $input->SetOut_trade_no($order['book_sn']);   //自己的订单号
+            $input->SetTransaction_id($order['out_trade_no']);  //微信官方生成的订单流水号，在支付成功中有返回
+            $input->SetOut_refund_no($suiji);   //退款单号
+            $input->SetTotal_fee($order['money']);   // 订单标价金额，单位为分
+            $input->SetRefund_fee($order['money']);   // 退款总金额，订单总金额，单位为分，只能为整数
+            $input->SetOp_user_id($merchid);        // 商户号
+            $result = \WxPayApi::refund($merch,$input); //退款操作
+            // 这句file_put_contents是用来查看服务器返回的退款结果 测试完可以删除了
+            if(($result['return_code']=='SUCCESS') && ($result['result_code']=='SUCCESS')){
+                //退款成功
+                flash('退款成功') -> success();
+                return redirect()->route('hotel.books');
+            }else if(($result['return_code']=='FAIL') || ($result['result_code']=='FAIL')){
+                //退款失败
+                //原因
+                $reason = (empty($result['err_code_des'])?$result['return_msg']:$result['err_code_des']);
+                flash($reason) -> error();
+                return redirect()->route('hotel.books');
+            }else{
+                //失败
+                flash("退款失败请稍后重试") -> error();
+                return redirect()->route('hotel.books');
+            }
+        }
+    }
+
+    /*
+     *      核销用户状态
+     * */
+    public function write_off(){
+        $all = \request() -> all();
+        // 获取当前订单的状态
+        $books_data = DB::table('books') -> where('id',$all['id']) -> first();
+        // 如果当前处于待入住状态，则将其更改未已入住状态
+        if($books_data -> status == 20){
+            $data = [
+                'status' => 30
+            ];
+        }else if($books_data -> status == 30){  // 如果当前状态处于已入住状态 则将其更改未已完成
+            $data = [
+                'status' => 40
+            ];
+        }
+        $i = DB::table('books') -> where('id',$all['id']) -> update($data);
+        if ($i) {
+            flash('用户核销成功') -> success();
+            return redirect()->route('hotel.books');
+        }else{
+            flash('用户核销失败，请稍后重试') -> error();
+            return redirect()->route('hotel.books');
+        }
+    }
+
     /*
      *      酒店分类
      * */
@@ -626,8 +718,7 @@ class HotelController extends BaseController
 
     //环境设施
     public function  decoration(){
-
-        $id = 13;     // 当前登录用户的id
+        $id = Auth::id();     // 当前登录用户的id
         // 判断当前用户是否是商家
         $i = DB::table('merchants')
             -> where('user_id',$id)
