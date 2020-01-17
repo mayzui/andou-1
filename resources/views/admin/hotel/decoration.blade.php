@@ -120,7 +120,7 @@
         </div>
     </div>
     <script>
- 
+
         // 加载就执行一下
         $('#level1').change();
         function  getChildren (obj,level) {
