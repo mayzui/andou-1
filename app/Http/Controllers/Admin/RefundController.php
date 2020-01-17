@@ -161,10 +161,9 @@ class RefundController extends BaseController
                     $suiji = $this -> suiji();
                     $input = new \WxPayRefund();
                     $input->SetOut_trade_no($order['order_sn']);   //自己的订单号
-                    $input->SetTransaction_id($order['returns_no']);  //微信官方生成的订单流水号，在支付成功中有返回
-                    $input->SetOut_refund_no($suiji);   //退款单号
-                    $input->SetTotal_fee($order['returns_amount']);   // 订单标价金额，单位为分
-                    $input->SetRefund_fee($order['returns_amount']);   // 退款总金额，订单总金额，单位为分，只能为整数
+                    $input->SetOut_refund_no($order['order_sn']);   //退款单号
+                    $input->SetTotal_fee((int)($order['pay_money']*100));   // 订单标价金额，单位为分
+                    $input->SetRefund_fee((int)($order['pay_money']*100));   // 退款总金额，订单总金额，单位为分，只能为整数
                     $input->SetOp_user_id($merchid);        // 商户号
                     $result = \WxPayApi::refund($merch,$input); //退款操作
                     // 这句file_put_contents是用来查看服务器返回的退款结果 测试完可以删除了
