@@ -77,7 +77,12 @@
                            @if(empty($id))
                                @else <input type="hidden" name="id" value="{{$id}}">
                         @endif
-                            <input type="file" name="choose-file[]" id="choose-file" multiple="multiple"/>
+                      @if(!empty($i))
+                                                   <input type="file" name="choose-file[]" id="choose-file" multiple="multiple"/>
+                      @else
+                                                   <input type="file" name="choose-file[]" id="choose-file"  disabled multiple="multiple"/>
+                      @endif
+
                         </p>
 
                         @if(!empty($i))
@@ -106,7 +111,11 @@
                         @endif
                     </div>
                 </div>
-                    <button class="btn btn-primary" style="margin-left: 40%;" type="submit"><i class="fa fa-check"></i>&nbsp;保 存</button>
+                     @if(!empty($i))
+                         <button class="btn btn-primary" style="margin-left: 40%;" type="submit"><i class="fa fa-check"></i>&nbsp;保 存</button>
+                      @else
+                           <button class="btn btn-primary" style="margin-left: 40%;" type="submit" disabled><i class="fa fa-check"></i>&nbsp;保1 存</button>
+                      @endif
             </div>
         </div>
     </div>

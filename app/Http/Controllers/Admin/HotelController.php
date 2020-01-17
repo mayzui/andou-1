@@ -748,23 +748,27 @@ class HotelController extends BaseController
         }
     }
 
+
+
     //环境设施
     public function  decoration(){
         $id = Auth::id();     // 当前登录用户的id
         // 判断当前用户是否是商家
         $i = DB::table('merchants')
-            -> where('id',$id)
+            -> where('user_id',$id)
+            ->where('merchant_type_id',3)
             -> where('is_reg',1)
             -> first();
-          if ($i){
-             $list = DB::table("merchants")
-             ->where('id',$id)
-             ->first(['facilities','goods_img','id']);
-              $data = json_decode($list->facilities);
-              return $this->view('decoration',['list'=>$list,'id'=>$list->id,'data'=>$data,'i'=>$i]);
-          }else{
-              return $this->view('decoration');
-          }
+        if ($i){
+            $list = DB::table("merchants")
+                -> where('user_id',$id)
+                ->where('merchant_type_id',3)
+                ->first(['facilities','goods_img','id']);
+            $data = json_decode($list->facilities);
+            return $this->view('decoration',['list'=>$list,'id'=>$list->id,'data'=>$data,'i'=>$i]);
+        }else{
+            return $this->view('decoration');
+        }
 
     }
 
@@ -773,7 +777,7 @@ class HotelController extends BaseController
     {
         $input = $request->all();
         if(!empty($input['id'])){
-           //修改
+            //修改
             $choose_file = $_FILES['choose-file'];
             // 如果第一个文件为空，则未上传新文件
             if($choose_file['name'][0] == ""){
@@ -786,7 +790,7 @@ class HotelController extends BaseController
 
                 if ($validate->fails()) {
                     flash($validate->errors()->first())->error()->important();
-                    return redirect()->route('shop.goods');
+                    return redirect()->route('hotel.decoration');
                 }
                 // 如果未上传新文件，则获取当前文件内容
                 $album = json_encode($input['choose_file']);
@@ -913,7 +917,6 @@ class HotelController extends BaseController
 
 
     }
-
 
 //    public function
 }
