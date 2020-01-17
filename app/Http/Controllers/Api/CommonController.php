@@ -226,7 +226,7 @@ class CommonController extends Controller
         if ($values['trade_status'] == 'TRADE_SUCCESS' || $values['trade_status'] == 'TRADE_FINISHED' || $values['return_code']=='SUCCESS') {
             //这里根据项目需求来写你的操作 如更新订单状态等信息 更新成功返回'success'即可
             $trade_no = $values['transaction_id'];
-            $total=$values['total_fee'];
+            $total=$values['total_fee']/100;
             $datas = array('status' => 20, 'pay_way' => 1, 'out_trade_no' => $trade_no,'pay_time'=>date('Y-m-d H:i:s',time()),'pay_money'=>$total);
             $out_trade_no = $values['out_trade_no'];
 
@@ -332,7 +332,7 @@ class CommonController extends Controller
         if ($values['trade_status'] == 'TRADE_SUCCESS' || $values['trade_status'] == 'TRADE_FINISHED' || $values['return_code']=='SUCCESS') {
             //这里根据项目需求来写你的操作 如更新订单状态等信息 更新成功返回'success'即可
             $trade_no = $values['transaction_id'];
-            $total=$values['total_fee'];
+            $total=$values['total_fee']/100;
             $datas = array('status' => 20, 'pay_way' => 1, 'out_trade_no' => $trade_no,'pay_time'=>date('Y-m-d H:i:s',time()),'pay_money'=>$total);
             $datass = array('status' => 20, 'method' => 1, 'out_trade_no' => $trade_no,'pay_time'=>date('Y-m-d H:i:s',time()),'pay_money'=>$total);
             $out_trade_no = $values['out_trade_no'];
