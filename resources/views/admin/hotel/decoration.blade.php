@@ -67,33 +67,46 @@
             </div>
             <div class="ibox-content">
                 <div class="hr-line-dashed m-t-sm m-b-sm"></div>
-                <form class="form-horizontal" action="{{ route('shop.store') }}" method="post" id='addGoods' accept-charset="UTF-8" enctype="multipart/form-data">
+                <form class="form-horizontal" action="{{ route('hotel.addDecoration') }}" method="post" id='addGoods' accept-charset="UTF-8" enctype="multipart/form-data">
                     {!! csrf_field() !!}
                 <div class="form-group">
                     <label class="col-sm-2 control-label"><em style="margin-right:5px;vertical-align: middle;color: #fe0000;">*</em>详情图片：</label>
                     <div class="col-sm-6 add_div">
                         <p>
+
+                           @if(empty($id))
+                               @else <input type="hidden" name="id" value="{{$id}}">
+                        @endif
                             <input type="file" name="choose-file[]" id="choose-file" multiple="multiple"/>
                         </p>
 
-                        @if(!empty($list[0]->facilities))
+                        @if(!empty($i))
                         <p>
-
                             <ul class="file-list image_ul " style="display: block;">
-                                @foreach($list as$k=> $v)
+                                @if(!empty($data))
+                                @foreach($data as$k=> $v)
+
                                     <li style="border:1px gray solid; margin:5px 5px;" class="file-item">
-                                        <input type="hidden" name="choose_file[]" value="" />
-                                        <img src="" alt="" height="70">
-{{--                                        <span class="btn btn-danger file-del">删除</span>--}}
+                                        <input type="hidden" name="choose_file[]" value="{{$v}}" />
+                                        <img src="{{$v}}" alt="" height="70">
+                                        <span class="btn btn-danger file-del">删除</span>
                                     </li>
                                 @endforeach
+                                    @else
+                                    <tr>
+                                        <td colspan="10">当前没相关有图片</td>
+                                    </tr>
+                                @endif
                             </ul>
-                              @else
+                              @else     <tr>
+                            <td colspan="10">对不起,您不是当前不是商户无法查看</td>
+                        </tr>
                             <ul class="file-list image_ul " style="display: block;"></ul>
                             </p>
                         @endif
                     </div>
                 </div>
+                    <button class="btn btn-primary" type="submit"><i class="fa fa-check"></i>&nbsp;保 存</button>
             </div>
         </div>
     </div>
@@ -138,10 +151,20 @@
             $file.on('change', function (e) {
                 //上传过图片后再次上传时限值数量
                 var numold = $('.image_ul li').length;
-
+                if(numold >= 10){
+                    layer.alert('最多上传10张图片');
+                    return;
+                }
                 //限制单次批量上传的数量
                 var num = e.target.files.length;
                 var numall = numold + num;
+                if(num >10 ){
+                    layer.alert('最多上传10张图片');
+                    return;
+                }else if(numall > 10){
+                    layer.alert('最多上传10张图片');
+                    return;
+                }
                 //原生的文件对象，相当于$file.get(0).files;//files[0]为第一张图片的信息;
                 curFile = this.files;
                 //将FileList对象变成数组

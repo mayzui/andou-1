@@ -721,17 +721,167 @@ class HotelController extends BaseController
         $id = Auth::id();     // 当前登录用户的id
         // 判断当前用户是否是商家
         $i = DB::table('merchants')
-            -> where('user_id',$id)
+            -> where('id',$id)
             -> where('is_reg',1)
             -> first();
           if ($i){
              $list = DB::table("merchants")
              ->where('id',$id)
-             ->get();
+             ->first(['facilities','goods_img','id']);
+              $data = json_decode($list->facilities);
+              return $this->view('decoration',['list'=>$list,'id'=>$list->id,'data'=>$data,'i'=>$i]);
           }else{
-              $list = DB::table("merchants")
-                  ->get(['facilities','goods_img']);
+              return $this->view('decoration');
           }
-          return $this->view('decoration',['list'=>$list]);
+
     }
+
+    //新增&修改环境设施
+    public function addDecoration(Request $request)
+    {
+        $input = $request->all();
+        if(!empty($input['id'])){
+           //修改
+            $choose_file = $_FILES['choose-file'];
+            // 如果第一个文件为空，则未上传新文件
+            if($choose_file['name'][0] == ""){
+                // 判断是否传值
+                $validate = Validator::make($request->all(),[
+                    'choose_file'=>'required'
+                ],[
+                    'choose_file.required'=>'缺少详细图片'
+                ]);
+
+                if ($validate->fails()) {
+                    flash($validate->errors()->first())->error()->important();
+                    return redirect()->route('shop.goods');
+                }
+                // 如果未上传新文件，则获取当前文件内容
+                $album = json_encode($input['choose_file']);
+            }else{
+                // 如果上传了文件
+                //判断保存文件的路径是否存在
+                $dir = $_SERVER['DOCUMENT_ROOT']."/shop/shopImage/";
+                // 如果文件不存在，则创建
+                if (!is_dir($dir)) {
+                    mkdir($dir,0777,true);
+                }
+                // 声明支持的文件类型
+                $types = array("png", "jpg", "webp", "jpeg", "gif");
+                // 执行文件上传操作
+                for ($i = 0; $i < count($choose_file['name']); $i++) {
+                    //在循环中取得每次要上传的文件名
+                    $name = $choose_file['name'][$i];
+                    // 将上传的文件名，分割成数组
+                    $end = explode(".", $name);
+                    //在循环中取得每次要上传的文件类型
+                    $type = strtolower(end($end));
+                    // 判断上传的文件是否正确
+                    if (!in_array($type, $types)) {
+                        return '第'.($i + 1).'个文件类型错误';
+                    } else {
+                        //在循环中取得每次要上传的文件的错误情况
+                        $error = $choose_file['error'][$i];
+                        if ($error != 0) {
+                            flash("第" . ($i + 1) . "个文件上传错误") -> error();
+                            return redirect()->route('shop.create');
+                        } else {
+                            //在循环中取得每次要上传的文件的临时文件
+                            $tmp_name = $choose_file['tmp_name'][$i];
+                            if (!is_uploaded_file($tmp_name)) {
+                                return "第" . ($i + 1) . "个临时文件错误";
+                            } else {
+                                // 给上传的文件重命名
+                                $newname = $dir.date("YmdHis") . rand(1, 10000) . "." . $type;
+                                $img_array[$i] = substr($newname,strpos($newname,'/shop/shopImage/'));
+                                //对文件执行上传操作
+                                if (!move_uploaded_file($tmp_name, $newname)) {
+                                    return "第" . ($i + 1) . "个文件上传失败";
+                                }
+                            }
+                        }
+                    }
+                }
+                // 获取上传的图片路径
+                $img_array = json_encode($img_array);
+                if(empty($all['choose_file'])){
+                    $al = "";
+                }else{
+                    $al = json_encode($input['choose_file']);
+                }
+                // 查询原来的值是否删除
+                $album = $img_array.$al;
+            }
+            $updData= DB::table("merchants")->where('id',$input['id'])->update(['facilities'=>$album]);
+            if ($updData){
+                flash('修改成功') -> success();
+                return redirect()->route('hotel.decoration');
+            }else{
+                flash('修改失败') -> error();
+                return redirect()->route('hotel.decoration');
+            }
+        }else{
+            $choose_file = $_FILES['choose-file'];
+            if ($choose_file['name'][0] == "") {
+                flash("请选择详情图片") -> error();
+                return redirect()->route('shop.create');
+            }
+            // 判断保存文件的路径是否存在
+            $dir = $_SERVER['DOCUMENT_ROOT']."/shop/shopImage/";
+            // 如果文件不存在，则创建
+            if (!is_dir($dir)) {
+                mkdir($dir,0777,true);
+            }
+            // 声明支持的文件类型
+            $types = array("png", "jpg", "webp", "jpeg", "gif");
+            // 执行文件上传操作
+            for ($i = 0; $i < count($choose_file['name']); $i++) {
+                //在循环中取得每次要上传的文件名
+                $name = $choose_file['name'][$i];
+                // 将上传的文件名，分割成数组
+                $end = explode(".", $name);
+                //在循环中取得每次要上传的文件类型
+                $type = strtolower(end($end));
+                // 判断上传的文件是否正确
+                if (!in_array($type, $types)) {
+                    return '第'.($i + 1).'个文件类型错误';
+                } else {
+                    //在循环中取得每次要上传的文件的错误情况
+                    $error = $choose_file['error'][$i];
+                    if ($error != 0) {
+                        flash("第" . ($i + 1) . "个文件上传错误") -> error();
+                        return redirect()->route('shop.create');
+                    } else {
+                        //在循环中取得每次要上传的文件的临时文件
+                        $tmp_name = $choose_file['tmp_name'][$i];
+                        if (!is_uploaded_file($tmp_name)) {
+                            return "第" . ($i + 1) . "个临时文件错误";
+                        } else {
+                            // 给上传的文件重命名
+                            $newname = $dir.date("YmdHis") . rand(1, 10000) . "." . $type;
+                            $img_array[$i] = substr($newname,strpos($newname,'/shop/shopImage/'));
+                            //对文件执行上传操作
+                            if (!move_uploaded_file($tmp_name, $newname)) {
+                                return "第" . ($i + 1) . "个文件上传失败";
+                            }
+                        }
+                    }
+                }
+            }
+            $img_array = json_encode($img_array);
+            $addData= DB::table("merchants")->insert(['facilities'=>$img_array]);
+            if ($addData){
+                flash('新增成功') -> success();
+                return redirect()->route('hotel.decoration');
+            }else{
+                flash('新增失败') -> error();
+                return redirect()->route('hotel.decoration');
+            }
+        }
+
+
+    }
+
+
+//    public function
 }

@@ -128,6 +128,7 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
 
 
         Route::get('hotel/decoration','HotelController@decoration')->name('hotel.decoration'); // 环境设施
+        Route::post('hotel/addDecoration','HotelController@addDecoration')->name('hotel.addDecoration'); // 新增环境图片
     });
 });
 ?>
