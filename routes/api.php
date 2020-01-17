@@ -36,6 +36,7 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('goods/collection', 'GoodsController@collection');
      Route::post('goods/follow', 'GoodsController@follow');
      Route::post('goods/goods_cate', 'GoodsController@goodsCate');
+     Route::post('goods/cate', 'GoodsController@cate');
      Route::post('goods/good_list', 'GoodsController@goodList');
      Route::post('goods/specslist', 'GoodsController@specslist');
      Route::post('goods/hotsearch', 'GoodsController@hotsearch');
