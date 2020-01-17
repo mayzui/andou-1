@@ -164,6 +164,7 @@ class GoodsController extends Controller
      * @apiParam {string} is_bargain 查询特价产品传1(非必传)
      * @apiParam {string} price_sort 价格排序(非必传1为倒序,0为正序)
      * @apiParam {string} volume_sort 销量排序(非必传1为倒序,0为正序)
+     * @apiParam {string} start_sort 信誉排序(非必传1为倒序,0为正序)
      * @apiParam {string} page 分页参数
      * @apiSuccessExample 参数返回:
      *     {
@@ -182,49 +183,59 @@ class GoodsController extends Controller
     public function goodList(){
         $all=request()->all();
         $num=10;
-        $where[]=['is_sale',1];
-        $where[]=['is_del',0];
+        $where[]=['g.is_sale',1];
+        $where[]=['g.is_del',0];
         if (isset($all['page'])) {
             $pages=($all['page']-1)*$num;
         }else{
             $pages=0;
         }
         if (!empty($all['is_recommend'])) {//推荐
-           $where[]=['is_recommend',1];
+           $where[]=['g.is_recommend',1];
         }
         if (!empty($all['is_bargain'])) {//特价
-           $where[]=['is_bargain',1];
+           $where[]=['g.is_bargain',1];
         }
         if (isset($all['cate_id'])) {
-            $where[]=['goods_cate_id', 'like', '%,'.$all['cate_id'].',%'];
+            $where[]=['g.goods_cate_id', 'like', '%,'.$all['cate_id'].',%'];
         }
         if (isset($all['keyword'])) {
-            $where[]=['name', 'like', '%'.$all['keyword'].'%'];
+            $where[]=['g.name', 'like', '%'.$all['keyword'].'%'];
         }
-        $orderBy='pv';
+        $orderBy='g.pv';
         $sort='DESC';
         if (isset($all['price_sort'])) {
             if ($all['price_sort']==1) {
-               $orderBy='price'; 
+               $orderBy='g.price'; 
             }else{
-               $orderBy='price';
+               $orderBy='g.price';
                $sort='ASC'; 
             }
         }
         if (isset($all['volume_sort'])) {
             if ($all['volume_sort']==1) {
-               $orderBy='volume'; 
+               $orderBy='g.volume'; 
             }else{
-               $orderBy='volume';
+               $orderBy='g.volume';
                $sort='ASC';  
             }
         }
-        $data=Db::table('goods')
-        ->select('name','img','price','id')
+        if (isset($all['start_sort'])) {
+            if ($all['start_sort']==1) {
+               $orderBy='cnum'; 
+            }else{
+               $orderBy='cnum';
+               $sort='ASC';  
+            }
+        }
+        $data=Db::table('goods as g')
+        ->select('g.name','g.img','g.price','g.id',DB::raw("count(c.content) as cnum"))
+        ->leftJoin('order_commnets as c','c.goods_id','=','g.id')
         ->where($where)
         ->orderBy($orderBy,$sort)
         ->offset($pages)
         ->limit($num)
+        ->groupBy('g.id')
         ->get();
         return $this->rejson('200','查询成功',$data);
 
