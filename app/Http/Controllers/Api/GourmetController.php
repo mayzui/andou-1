@@ -954,6 +954,7 @@ class GourmetController extends Controller
                     ->first();
                 $data->foods[$k]['name']=$information->name ?? '';
                 $data->foods[$k]['price']=$information->price ?? '';
+                $data->foods[$k]['image']=$information->image ?? '';
             }
 
         if($data){
