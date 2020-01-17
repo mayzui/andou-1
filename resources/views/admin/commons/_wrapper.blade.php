@@ -72,9 +72,6 @@
                         </div><!-- /.modal-content -->
                     </div>
                 </div>
-                @if(!empty($data))
-                    <dd><a class="J_menuItem" href="{{route('merchants.information')}}?id={{ $data -> id }}">修改商户信息</a></dd>
-                @endif
             </dl>
         </div>
     </div>

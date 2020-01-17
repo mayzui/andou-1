@@ -534,7 +534,6 @@ class ShopController extends BaseController
     //查看订单
     public function ordersUpd()
     {
-
         $id = Auth::id();     // 当前登录用户的id
         // 判断当前用户是否是商家
         $i = DB::table('merchants')

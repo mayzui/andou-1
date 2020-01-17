@@ -29,6 +29,12 @@
                 <form class="form-horizontal m-t-md" action="{{ route('merchants.information') }}" method="post" accept-charset="UTF-8" enctype="multipart/form-data">
                     {!! csrf_field() !!}
                     <input type="hidden" name="id" value="{{$data->id or ''}}">
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">商户类型：</label>
+                        <div class="input-group col-sm-2">
+                            <input type="text" class="form-control" name="type_name" value="{{$data->type_name or ''}}" readonly required data-msg-required="商户类型">
+                        </div>
+                    </div>
                     @if($data -> merchant_type_id == 4)
                         <div class="form-group">
                             <label class="col-sm-2 control-label">经营品种：</label>
@@ -38,11 +44,11 @@
                         </div>
                         <div class="form-group">
                             <label class="col-sm-2 control-label">饭店分类：</label>
-                            <select style="height: 25px;width: 273px;" name="cate_id" id="cate_id">
+                            <select style="height: 35px;width: 267px;" name="cate_id" id="cate_id">
+                                @if($data->cate_id == "")
+                                    <option value="0" >——暂无饭店分类——</option>
+                                @endif
                                 @if(count($hotel_category_data) > 0)
-                                    @if($data->cate_id == "")
-                                        <option value="0" >——暂无饭店分类——</option>
-                                    @endif
                                     @foreach($hotel_category_data as $v)
                                         @if($v->id == $data->cate_id)
                                             <option value="{{ $v->id }}" selected >{{ $v->name }}</option>
@@ -53,13 +59,19 @@
                                 @endif
                             </select>
                         </div>
-                    @endif
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label">商户类型：</label>
-                        <div class="input-group col-sm-2">
-                            <input type="text" class="form-control" name="type_name" value="{{$data->type_name or ''}}" readonly required data-msg-required="商户类型">
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">营业时间开始：</label>
+                            <div class="input-group col-sm-2">
+                                <input type="time" class="form-control" name="business_start" value="{{$data->business_start or ''}}" required>
+                            </div>
                         </div>
-                    </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">营业时间结束：</label>
+                            <div class="input-group col-sm-2">
+                                <input type="time" class="form-control" name="business_end" value="{{$data->business_end or ''}}" required>
+                            </div>
+                        </div>
+                    @endif
                     <div class="form-group">
                         <label class="col-sm-2 control-label">商户名称：</label>
                         <div class="input-group col-sm-2">

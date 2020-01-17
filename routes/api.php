@@ -82,6 +82,8 @@ Route::group(['namespace' => 'Api'], function () {
      Route::any('common/wxnotifyhotel', 'CommonController@wxnotifyhotel');
      Route::post('common/qrcode', 'CommonController@qrcode');
      Route::any('common/gourmet', 'CommonController@gourmet');
+     Route::post('common/treaty', 'CommonController@treaty');
+     
      //vip充值回调
      Route::post('common/viprecharge','CommonController@viprecharge');
      

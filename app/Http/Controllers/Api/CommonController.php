@@ -121,6 +121,38 @@ class CommonController extends Controller
         return $this->rejson(200,'查询成功',$data);
     }
     /**
+     * @api {post} /api/common/treaty 协议
+     * @apiName treaty
+     * @apiGroup common
+     * @apiParam {string} type 协议分类 1隐私协议 其他后面再加
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": [
+     *           {
+                    "id": "协议id",
+                    "name": "协议名称",
+                    "content": "协议内容",
+                    "create_time":"创建时间"
+                    "update_time":"修改时间"
+                }
+     *       ],
+     *       "msg":"查询成功"
+     *     }
+     */
+    public function treaty(){
+        $all=request()->all();
+        if (empty($all['type'])) {
+            return $this->rejson(201,'参数错误');
+        }
+        $data=Db::table('protocol')
+        ->where('type',$all['type'])->where('status',1)
+        ->orderBy('id','DESC')
+        ->select('id','name','content','create_time','update_time')
+        ->first();
+        return $this->rejson(200,'查询成功',$data);
+    }
+    /**
      * @api {post} /api/common/wxnotify 微信商城支付回调
      * @apiName wxnotify
      * @apiGroup common 

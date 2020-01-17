@@ -43,6 +43,7 @@
                             <th>退款原因</th>
                             <th>退款说明</th>
                             <th>售后类型</th>
+                            <th>支付方式</th>
                             <th>审核状态</th>
                             <th>操作</th>
                         </tr>
@@ -57,6 +58,17 @@
                                 <td>{{$item->retun_name}}</td>
                                 <td>{{$item->content}}</td>
                                 <td>{{$item->status == 1 ? "退货退款" : "仅退款"}}</td>
+                                <td>
+                                    @if($item->pay_way == 1)
+                                        <span style="color: blue;">微信</span>
+                                        @elseif($item->pay_way == 2)
+                                        <span style="color: blue;">支付宝</span>
+                                        @elseif($item->pay_way == 3)
+                                        <span style="color: blue;">银联</span>
+                                        @elseif($item->pay_way == 4)
+                                        <span>余额</span>
+                                    @endif
+                                </td>
                                 <td>
                                     @if($item->is_reg == 0)
                                         <p style="color: blue">待处理</p>

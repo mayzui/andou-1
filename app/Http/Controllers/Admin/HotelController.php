@@ -22,22 +22,37 @@ class HotelController extends BaseController
         $books_data = DB::table('books') -> where('id',$all['id']) -> first();
         // 获取用户信息
         $user_data = DB::table('users') -> where('id',$books_data -> user_id) -> first();
-
         // 判断用户支付方式
         if($books_data -> pay_way == 4){    // 余额支付
-            $money = $user_data -> money + $books_data -> money;
-            $i = DB::table('users') -> where('id',$books_data -> user_id) -> update(['money' => $money]);
-            // 修改副表订单状态
-            $m = DB::table('books') -> where('id',$all['id']) -> update(['status'=>70]);
-            // 修改主表订单状态
-//            $j = DB::table('')
-            if ($i) {
-                flash('退款成功') -> success();
-                return redirect()->route('hotel.books');
-            }else{
+            DB::beginTransaction();
+            try{
+                $money = $user_data -> money + $books_data -> money;
+                $i = DB::table('users') -> where('id',$books_data -> user_id) -> update(['money' => $money]);
+                // 修改副表订单状态
+                $m = DB::table('books') -> where('id',$all['id']) -> update(['status'=>70]);
+                // 修改主表订单状态
+                $j = DB::table('orders') -> where('order_sn',$books_data -> book_sn) -> first();
+                if(empty($j)){
+                    DB::rollBack();
+                    flash('退款失败，订单表中未查询到相关订单') -> error();
+                    return redirect()->route('hotel.books');
+                }
+                DB::table('orders') -> where('order_sn',$books_data -> book_sn) -> update(['status'=>70]);
+                if ($i) {
+                    DB::commit();
+                    flash('退款成功') -> success();
+                    return redirect()->route('hotel.books');
+                }else{
+                    DB::rollBack();
+                    flash('退款失败，请稍后重试') -> error();
+                    return redirect()->route('hotel.books');
+                }
+            }catch (\Exception $exception){
+                DB::rollBack();
                 flash('退款失败，请稍后重试') -> error();
                 return redirect()->route('hotel.books');
             }
+
         }else if($books_data -> pay_way == 1){
             // 微信退款
             require_once base_path()."/wxpay/lib/WxPay.Api.php";
@@ -58,11 +73,28 @@ class HotelController extends BaseController
             $input->SetRefund_fee($order['money']);   // 退款总金额，订单总金额，单位为分，只能为整数
             $input->SetOp_user_id($merchid);        // 商户号
             $result = \WxPayApi::refund($merch,$input); //退款操作
-            // 这句file_put_contents是用来查看服务器返回的退款结果 测试完可以删除了
             if(($result['return_code']=='SUCCESS') && ($result['result_code']=='SUCCESS')){
                 //退款成功
-                flash('退款成功') -> success();
-                return redirect()->route('hotel.books');
+                DB::beginTransaction();
+                try{
+                    // 修改副表订单状态
+                    $m = DB::table('books') -> where('id',$all['id']) -> update(['status'=>70]);
+                    // 修改主表订单状态
+                    $j = DB::table('orders') -> where('order_sn',$books_data -> book_sn) -> first();
+                    if(empty($j)){
+                        DB::rollBack();
+                        flash('退款失败，订单表中未查询到相关订单') -> error();
+                        return redirect()->route('hotel.books');
+                    }
+                    DB::table('orders') -> where('order_sn',$books_data -> book_sn) -> update(['status'=>70]);
+                    DB::commit();
+                    flash('退款成功') -> success();
+                    return redirect()->route('hotel.books');
+                }catch (\Exception $exception){
+                    DB::rollBack();
+                    flash('退款失败，请稍后重试') -> error();
+                    return redirect()->route('hotel.books');
+                }
             }else if(($result['return_code']=='FAIL') || ($result['result_code']=='FAIL')){
                 //退款失败
                 //原因

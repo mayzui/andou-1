@@ -168,6 +168,8 @@ class MerchantsController extends BaseController
                     'cate_id' => $all['cate_id'],
                     'updated_at' => date("Y-m-d H:i:s")
                 ];
+                // 获取上传时间
+                return dd($all);
             }else{
                 // 获得提交的内容
                 $data = [
@@ -188,6 +190,8 @@ class MerchantsController extends BaseController
                     'updated_at' => date("Y-m-d H:i:s")
                 ];
             }
+
+            return "ok";
             // 获取当前 商户类型
             $merchants_data = DB::table('merchants') -> where('id',$all['id']) -> first();
             if($merchants_data -> merchant_type_id == 2){
@@ -291,10 +295,17 @@ class MerchantsController extends BaseController
         
         if ($re) {
             flash('修改成功')->success();
-            return redirect()->route($url);
+            if(empty($all['arr'])){
+                return redirect()->route($url);
+            }
+            return redirect()->route('shop.shopMerchant');
+
         }else{
             flash('修改失败')->error();
-            return redirect()->route($url);
+            if(empty($all['arr'])){
+                return redirect()->route($url);
+            }
+            return redirect()->route('shop.shopMerchant');
         }
     }
     /**商户分类列表
