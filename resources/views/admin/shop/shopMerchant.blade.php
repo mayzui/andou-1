@@ -47,7 +47,16 @@
                                 <th>{{$item->username}}</th>
                                 <td><img src="{{$item->logo_img}}" alt="" style="width: 50px;height: 50px;"></td>
                                 <td>{{$item->address}}</td>
-                                <td>{{$item->merchant_type_id}}</td>
+                                <td>
+                                    @if($item->merchant_type_id == 2)
+                                        商城商家
+                                    @elseif($item->merchant_type_id == 3)
+                                        酒店商家
+                                    @elseif($item->merchant_type_id == 4)
+                                        饭店商家
+                                    @endif
+
+                                </td>
                                 <td>@if($item->is_reg==1)
                                         <p style="color: green">已认证</p>
                                     @elseif($item->is_reg==2)
@@ -60,9 +69,18 @@
                                 <td class="text-center">
                                     <div class="btn-group">
                                         <a href="{{route('shop.information')}}?id={{$item->id}}"><button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 详情</button></a>
-                                        @if($item->is_reg==1)
-                                            <a href="{{route('shop.shopMerchantOrder')}}?id={{$item->id}}"><button class="btn btn-info btn-xs" type="button"><i class="fa fa-check"></i> 查询订单</button></a>
-                                            <a href="{{route('shop.shopMerchantMoney')}}?id={{$item->id}}"><button class="btn btn-info btn-xs" type="button"><i class="fa fa-money"></i> 资金流水</button></a>
+                                       @if($item->is_reg==1)
+
+                                       @if($item->merchant_type_id == 2)
+                                            <a href="{{route('shop.orders')}}?id={{$item->user_id}}"><button class="btn btn-info btn-xs" type="button"><i class="fa fa-check"></i> 查询订单</button></a>
+                                            <a href="{{route('shop.shopMerchantMoney')}}?id={{$item->user_id}}"><button class="btn btn-info btn-xs" type="button"><i class="fa fa-money"></i> 资金流水</button></a>
+                                        @elseif($item->merchant_type_id == 3)
+                                            <a href="{{route('hotel.books')}}?id={{$item->user_id}}"><button class="btn btn-info btn-xs" type="button"><i class="fa fa-check"></i> 查询订单</button></a>
+                                            <a href="{{route('shop.shopMerchantMoney')}}?id={{$item->user_id}}"><button class="btn btn-info btn-xs" type="button"><i class="fa fa-money"></i> 资金流水</button></a>
+                                        @elseif($item->merchant_type_id == 4)
+                                            <a href="{{route('foods.orders')}}?id={{$item->user_id}}"><button class="btn btn-info btn-xs" type="button"><i class="fa fa-check"></i> 查询订单</button></a>
+                                            <a href="{{route('shop.shopMerchantMoney')}}?id={{$item->user_id}}"><button class="btn btn-info btn-xs" type="button"><i class="fa fa-money"></i> 资金流水</button></a>
+                                        @endif
                                         @endif
                                     </div>
                                 </td>

@@ -36,6 +36,23 @@
                                 <input type="text" class="form-control" name="management_type" value="{{$data->management_type or ''}}" required data-msg-required="经营品种">
                             </div>
                         </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">饭店分类：</label>
+                            <select style="height: 25px;width: 273px;" name="cate_id" id="cate_id">
+                                @if(count($hotel_category_data) > 0)
+                                    @if($data->cate_id == "")
+                                        <option value="0" >——暂无饭店分类——</option>
+                                    @endif
+                                    @foreach($hotel_category_data as $v)
+                                        @if($v->id == $data->cate_id)
+                                            <option value="{{ $v->id }}" selected >{{ $v->name }}</option>
+                                        @else
+                                            <option value="{{ $v->id }}" >{{ $v->name }}</option>
+                                        @endif
+                                    @endforeach
+                                @endif
+                            </select>
+                        </div>
                     @endif
                     <div class="form-group">
                         <label class="col-sm-2 control-label">商户类型：</label>
