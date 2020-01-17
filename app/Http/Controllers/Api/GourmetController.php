@@ -819,6 +819,8 @@ class GourmetController extends Controller
      *                  "people":"用餐人数",
      *                  "dinnertime":"用餐时间",
      *                  "remark":"备注",
+     *                  "integral":"积分",
+     *                  "pay_money":"支付总金额",
      *                  "status":"订单状态 (10未支付，20已支付,30已使用,待评价,40已评价)",
      *                  "foods":[
      *                                {
@@ -859,7 +861,7 @@ class GourmetController extends Controller
         }
         $data=DB::table("foods_user_ordering as o")
             ->join("merchants as m","o.merchant_id","=","m.id")
-            ->select(['m.name','o.foods_id','m.logo_img','o.prices','o.remark','o.dinnertime','o.people','o.id','o.merchant_id','o.order_sn','o.status','o.orderingtime'])
+            ->select(['m.name','o.foods_id','m.logo_img','o.prices','o.remark','o.integral','o.pay_money','o.dinnertime','o.people','o.id','o.merchant_id','o.order_sn','o.status','o.orderingtime'])
             ->where($where)
             ->offset($pages)
             ->limit($num)
