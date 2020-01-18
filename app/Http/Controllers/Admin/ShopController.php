@@ -203,10 +203,10 @@ class ShopController extends BaseController
         $all = \request() -> all();
         // 判断是按照什么排序 1销量 2价格
         if($all['id'] == 1){    // 销量
-            $sort = "volume";
+            $sort = "goods.volume";
         }else if($all['id'] == 2){ // 价格
-            $sort = "price";
-        }else if($all['id'] == 0){ // 价格
+            $sort = "goods.price";
+        }else if($all['id'] == 0){ // id
             $sort = "goods.id";
         }
         $id = Auth::id();     // 当前登录用户的id
@@ -214,6 +214,7 @@ class ShopController extends BaseController
         $i = DB::table('merchants')
             -> where('user_id',$id)
             -> where('is_reg',1)
+            -> where('merchant_type_id',2)
             -> select('id')
             -> first();
         if(!empty($all['status']))
@@ -234,7 +235,7 @@ class ShopController extends BaseController
                 -> join('merchants','goods.merchant_id','=','merchants.id')
                 -> where('goods.merchant_id',$i -> id)
                 -> where($where)
-                -> orderBy($sort,'desc')
+                -> orderBy($sort,'DESC')
                 -> select(['merchants.name as merchant_name','goods.id','goods.pv','goods.created_at','goods.updated_at',
                     'goods.goods_cate_id','goods.name as goods_name','goods.img','goods.desc','goods.is_hot','goods.is_recommend','goods.is_sale',
                     'goods.is_bargain','goods.dilivery','goods.volume','goods.price'])
@@ -276,20 +277,20 @@ class ShopController extends BaseController
                 -> join('merchants','merchants_goods_type.merchant_id','=','merchants.id')
                 -> where('is_del',1)
                 -> where('merchants_goods_type.merchant_id',$i -> id)
-                -> select('merchants_goods_type.id','merchants.name as merchants_name','merchants_goods_type.name as name','pid','num')
+                -> select('merchants_goods_type.id','merchants.name as merchants_name','merchants_goods_type.name as name','num')
                 -> get();
         }else{
             // 链接数据库，查询商户的商品分类
             $datas = DB::table('merchants_goods_type')
                 -> join('merchants','merchants_goods_type.merchant_id','=','merchants.id')
                 -> where('is_del',1)
-                -> select('merchants_goods_type.id','merchants.name as merchants_name','merchants_goods_type.name as name','pid','num')
+                -> select('merchants_goods_type.id','merchants.name as merchants_name','merchants_goods_type.name as name','num')
                 -> get();
         }
 //        $datas -> statuss = $all['status'];
-        $data = Tree::tree(json_decode(json_encode($datas),true),'name','id','pid');
+//        $data = Tree::tree(json_decode(json_encode($datas),true),'name','id','pid');
         $goods_sku = DB::select("select goods_id,SUM(store_num) as total from `goods_sku` group by `goods_id`");
-        return $this->view('goods',['list'=>$goods,'data'=>$data,'goods_sku'=>json_decode(json_encode($goods_sku),true),'sort' => $all['id'],'status' => $status]);
+        return $this->view('goods',['list'=>$goods,'data'=>$datas,'goods_sku'=>json_decode(json_encode($goods_sku),true),'sort' => $all['id'],'status' => $status]);
     }
     // 批量删除商品
     public function deleteAll(){
@@ -1071,6 +1072,13 @@ class ShopController extends BaseController
     // 新增 and 修改 商品分类
     public function merchants_goods_typeChange(Request $request){
         $all = \request() -> all();
+        $merchants_data = DB::table('merchants')
+            -> where('user_id',Auth::id())
+            -> where('merchant_type_id',2)
+            -> where('is_reg',1)
+            -> select('id')
+            -> first();
+
         if(\request() -> isMethod("get")){
             if(empty($all['id'])){
             $list = GoodsType::where('is_del',1)->get(['merchants_name','num','id','name'])->toArray();
@@ -1089,10 +1097,14 @@ class ShopController extends BaseController
         }else{
             if(empty($all['id'])){
                 // 执行新增操作
+                if(empty($merchants_data)){
+                    flash('新增失败,当前不是商户') -> error();
+                    return redirect()->route('shop.goods');
+                }
                 // 获取提交的内容
                     $data  = [
                         'name'        => $all['name'],
-                        'merchant_id' => Auth::id(),
+                        'merchant_id' => $merchants_data -> id,
                         'num'         => $all['num']
                     ];
                     // 链接数据库，新增内容
@@ -1965,6 +1977,7 @@ class ShopController extends BaseController
         // 判断当前用户是否是商家
         $i = DB::table('merchants')
             -> where('user_id',$id)
+            -> where('merchant_type_id',2)
             -> where('is_reg',1)
             -> select('id')
             -> first();
@@ -2104,8 +2117,6 @@ class ShopController extends BaseController
                 -> select('merchants_goods_type.id','merchants.name as merchants_name','merchants_goods_type.name as name','num')
                 -> get();
         }
-//        return dd();
-
         $goods_sku = DB::select("select goods_id,SUM(store_num) as total from `goods_sku` group by `goods_id`");
         return $this->view('goods',['list'=>$goods,'data'=>$data,'product_name'=>$product_name,'goods_sku'=>json_decode(json_encode($goods_sku),true),'sort'=>0,'status' => $status]);
     }
@@ -2114,6 +2125,12 @@ class ShopController extends BaseController
     public function create (Request $request)
     {
         $id = Auth::id();
+        $merchants_data = DB::table('merchants')
+            -> where('user_id',$id)
+            -> where('merchant_type_id',2)
+            -> where('is_reg',1)
+            -> select('id')
+            -> first();
         $goodsCate = GoodsCate::with(['children'=>function($res){
             $res->with('children');
         }])->where('pid','=',0)
@@ -2121,16 +2138,28 @@ class ShopController extends BaseController
 
         $level1 = GoodsCate::where('pid','=',0)->get();
         $goodBrands = GoodBrands::select('id','name')->orderBy('id','asc')->get();
-        // 查询商品参数
-        $attrData = DB::table('goods_attr') -> get();
+
         // 查询运费模板表
         $express_modeldata = DB::table('express_model') -> get();
-        // 查询商品分类
-        $merchants_goods_type = DB::table('merchants_goods_type')
-            -> where('is_del',1)
-            -> where('merchant_id',$id)
-            -> select('id','name')
-            -> get();
+        if(empty($merchants_data)){
+            // 查询商品分类
+            $merchants_goods_type = DB::table('merchants_goods_type')
+                -> where('is_del',1)
+                -> select('id','name')
+                -> get();
+            // 查询商品参数
+            $attrData = DB::table('goods_attr') -> get();
+        }else{
+            // 查询商品分类
+            $merchants_goods_type = DB::table('merchants_goods_type')
+                -> where('is_del',1)
+                -> where('merchant_id',$merchants_data -> id)
+                -> select('id','name')
+                -> get();
+            // 查询商品参数
+            $attrData = DB::table('goods_attr')-> where('merchant_id',$merchants_data -> id) -> get();
+        }
+
         // 查询规格表
         $goods_attr = DB::table('goods_attr') -> get();
 
@@ -2179,6 +2208,12 @@ class ShopController extends BaseController
     // 跳转修改商品界面
     public function update(){
         $all = \request() -> all();
+        $merchants_data = DB::table('merchants')
+            -> where('user_id',Auth::id())
+            -> where('merchant_type_id',2)
+            -> where('is_reg',1)
+            -> select('id')
+            -> first();
         //根据id 查询商品详情
         $goodsdata = DB::table('goods') -> where('id',$all['id']) -> first();
         // 根据获取的id 查询商品参数表
@@ -2210,15 +2245,25 @@ class ShopController extends BaseController
         $goodBrands = GoodBrands::select('id','name')->orderBy('id','asc')->get();
         // 查询运费模板表
         $express_modeldata = DB::table('express_model') -> get();
-        // 查询商品参数
-        $attrData = DB::table('goods_attr') -> get();
-        // 查询商品分类
-        $merchants_goods_type = DB::table('merchants_goods_type')
-            -> where('is_del',1)
-            -> select('id','name')
-            -> get();
+        if(empty($merchants_data)){
+            // 查询商品分类
+            $merchants_goods_type = DB::table('merchants_goods_type')
+                -> where('is_del',1)
+                -> select('id','name')
+                -> get();
+            // 查询商品参数
+            $attrData = DB::table('goods_attr') -> get();
+        }else{
+            // 查询商品分类
+            $merchants_goods_type = DB::table('merchants_goods_type')
+                -> where('is_del',1)
+                -> where('merchant_id',$merchants_data -> id)
+                -> select('id','name')
+                -> get();
+            // 查询商品参数
+            $attrData = DB::table('goods_attr')-> where('merchant_id',$merchants_data -> id) -> get();
+        }
         $a = DB::table('goods_attr_value') -> get();
-
 //        return dd($goodsdata->album);
         $arr = [
             'goodsCate'=>$goodsCate,
@@ -2252,6 +2297,7 @@ class ShopController extends BaseController
         // 判断当前用户是否是商家
         $i = DB::table('merchants')
             -> where('user_id',$id)
+            -> where('merchant_type_id',2)
             -> where('is_reg',1)
             -> first();
         // 如果当前用户是商家，则查询当前商户的商品
@@ -2259,11 +2305,13 @@ class ShopController extends BaseController
             $list = DB::table('goods_attr')
                 -> join('merchants','goods_attr.merchant_id','=','merchants.id')
                 -> where('merchants.user_id',$id)
+                -> where('merchant_type_id',2)
                 -> select(['goods_attr.id','goods_attr.name','goods_attr.is_sale_attr'])
                 -> paginate(10);
         }else{
             $list = DB::table('goods_attr')
                 -> join('merchants','goods_attr.merchant_id','=','merchants.id')
+                -> where('merchant_type_id',2)
                 -> select(['goods_attr.id','goods_attr.name','goods_attr.is_sale_attr'])
                 -> paginate(10);
         }
@@ -2284,10 +2332,20 @@ class ShopController extends BaseController
     // 异步获取属性
     public function getAttr (Request $request)
     {
-        $data = GoodsAttr::with('attrValue')->find($request->input('id'));
+        $merchants_data = DB::table('merchants')
+            -> where('user_id',Auth::id())
+            -> where('merchant_type_id',2)
+            -> where('is_reg',1)
+            -> first();
+        if(empty($merchants_data)){
+            return 0;
+        }
+        $goods_attr = DB::table('goods_attr') -> where('merchant_id',$merchants_data -> id) -> where('id',$request -> input('id')) -> first();
+
+        $data = DB::table('goods_attr_value') -> where('goods_attr_id',$goods_attr -> id) -> get();
         if ($data) {
-            $result = ['code'=>200,'data'=>$data];
-            echo  json_encode($result);
+            $result = ['code'=>200,'name'=>$goods_attr -> name,'data'=>$data];
+            return  json_encode($result);
         }
     }
 
@@ -2324,6 +2382,7 @@ class ShopController extends BaseController
             }
 
             GoodsAttrValue::where('goods_attr_id', $request->input('id'))->whereNotIn('id',$ids)->delete();
+            flash("编辑成功") ->success();
             return redirect()->route('shop.goodsAttr');
         }catch (\Exception $e) {
             flash($e->getMessage())->error()->important();
@@ -2341,7 +2400,11 @@ class ShopController extends BaseController
             'name.required'=>'名称必须',
             'is_sale_attr.numeric'=>'排序必须是数字',
         ]);
-
+        $merchants_data = DB::table('merchants')
+            -> where('user_id',Auth::id())
+            -> where('merchant_type_id',2)
+            -> where('is_reg',1)
+            -> first();
 
         if ($validate->fails()) {
             flash($validate->errors()->first())->error()->important();
@@ -2361,12 +2424,13 @@ class ShopController extends BaseController
             ->first();
 
         // 判断是哪个商户或者修改  上线后可以删除判断
-        $model->merchant_id = Auth::id();
+        $model->merchant_id = $merchants_data -> id;
         $model->name = $request->input('name');
         $model->is_sale_attr = $request->input('is_sale_attr');
 
         if ($model->save()) {
-            return   redirect()->route('shop.goodsAttr');
+            flash("新增成功") -> success();
+            return redirect()->route('shop.goodsAttr');
         }
         return  viewError('操作失败','shop.addAttr');
     }
@@ -2381,6 +2445,7 @@ class ShopController extends BaseController
             GoodsAttrValue::where('goods_attr_id','=',$id)->delete();
             $model->delete();
             DB::commit();
+            flash("删除成功") -> success();
             return   redirect()->route('shop.goodsAttr');
         } catch (\Exception $e) {
             DB::rollBack();
@@ -2597,7 +2662,12 @@ class ShopController extends BaseController
         }else{
             // 执行新增方法
             $model = new Goods();
-
+            $merchants_data = DB::table('merchants')
+                -> where('user_id',Auth::id())
+                -> where('merchant_type_id',2)
+                -> where('is_reg',1)
+                -> select('id')
+                -> first();
             if ($request->input('id')) {
                 $model = Goods::find($request->input('id'));
             }
@@ -2665,7 +2735,7 @@ class ShopController extends BaseController
             $model->is_sale = $request->input('is_sale');
             $model->dilivery = $request->input('dilivery');
             $model->album = $img_array;
-            $model->merchant_id = Auth::id();
+            $model->merchant_id = $merchants_data -> id;
             try {
                 $model->save();
 

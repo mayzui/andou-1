@@ -7,13 +7,6 @@
     </style>
     <div class="row">
         <div class="col-sm-12">
-            <div class="alert alert-warning alert-dismissable">
-                <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-sm-12">
             <div class="ibox-title">
                 <h5>属性列表</h5>
             </div>
@@ -22,13 +15,14 @@
                 <table class="table table-striped table-bordered table-hover m-t-md">
                     <thead>
                     <tr>
-                        <th width="5%">属性id</th>
-                        <th width="15%">属性名称</th>
-                        <th  width="10%">是否是销售属性</th>
-                        <th class="text-center" width="250">管理</th>
+                        <th>属性id</th>
+                        <th>属性名称</th>
+                        <th>是否是销售属性</th>
+                        <th>管理</th>
                     </tr>
                     </thead>
                     <tbody>
+                    @if(count($list) > 0)
                     @foreach($list as $k=>$item)
                         <tr>
                             <td>{{$item->id}}</td>
@@ -50,6 +44,11 @@
                             </td>
                         </tr>
                     @endforeach
+                        @else
+                    <tr>
+                        <td colspan="4">对不起还没有查找到相关内容</td>
+                    </tr>
+                    @endif
                     </tbody>
                 </table>
             </div>
@@ -118,17 +117,20 @@
             headers:{'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
             dataType:"JSON",
             success: function(res){
+                // console.log(res);
                 if (res.code == 200) {
-                    if (res.data && res.data.attr_value.length >0) {
-                        console.log(res.data.attr_value);
-                        for (i in  res.data.attr_value) {
-                            var val = res.data.attr_value[i];
+                    if (res.data && res.data.length >0) {
+                        // console.log(res.data.attr_value);
+                        for (i in  res.data) {
+                            var val = res.data[i];
                             $('#attrValues').append("<input type=\"text\" ondblclick=\"remevethis(this)\" name=\"attr_value["+val.id+"]\"  class=\"form-control value-num\" value=\""+val.value+"\"/>");
                         }
                     } else {
 
                     }
-                    $('#attrName').val(res.data.name)
+                    $('#attrName').val(res.name)
+                }else if(res == 0){
+                    layer.msg('系统繁忙，请稍后重试');
                 }
             }
         });
