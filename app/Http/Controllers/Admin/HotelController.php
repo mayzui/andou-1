@@ -411,7 +411,7 @@ class HotelController extends BaseController
                 $validate = Validator::make($request->all(),[
                     'choose_file'=>'required'
                 ],[
-                    'choose_file.required'=>'缺少详细图片'
+                    'choose_file.required'=>'缺少房间图片'
                 ]);
 
                 if ($validate->fails()) {
@@ -846,7 +846,7 @@ class HotelController extends BaseController
                 $validate = Validator::make($request->all(),[
                     'choose_file'=>'required'
                 ],[
-                    'choose_file.required'=>'缺少详细图片'
+                    'choose_file.required'=>'缺少环境设施图片'
                 ]);
 
                 if ($validate->fails()) {
@@ -920,7 +920,7 @@ class HotelController extends BaseController
         }else{
             $choose_file = $_FILES['choose-file'];
             if ($choose_file['name'][0] == "") {
-                flash("请选择详情图片") -> error();
+                flash("请选择环境设施图片") -> error();
                 return redirect()->route('shop.create');
             }
             // 判断保存文件的路径是否存在
