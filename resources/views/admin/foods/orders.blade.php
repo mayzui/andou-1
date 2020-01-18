@@ -75,7 +75,7 @@
                                         @elseif($v->status == 50)
                                         <span style="color: blue">已评价</span>
                                         @elseif($v->status == 60)
-                                        <span style="color: blue">申请退款</span>
+                                        <span style="color: red">申请退款</span>
                                         @elseif($v->status == 70)
                                         <span style="color: green">退款成功</span>
                                         @elseif($v->status == 80)
@@ -108,7 +108,7 @@
                                     @if($v->status == 20)
                                         <div class="btn-group">
                                             <a onclick="write_off({{$v->id}});"><button class="btn btn-success btn-xs" type="button"><i class="fa fa-check"></i> 核销</button></a>
-                                            <a onclick="return_money({{$v->id}})"><button class="btn btn-success btn-xs" type="button"><i class="fa fa-check"></i> 退款</button></a>
+                                            <a onclick="return_money({{$v->id}})"><button class="btn btn-success btn-xs" type="button"><i class="fa fa-money"></i> 退款</button></a>
                                         </div>
                                     @endif
                                 </td>
@@ -146,6 +146,13 @@
             var id = e;
             layer.alert("是否拒绝退款？",{icon:3},function (index) {
                 location.href="{{route('foods.return_refuse')}}?id="+id;
+                layer.close(index);
+            });
+        }
+        function write_off(e) {
+            var id = e;
+            layer.alert("核销该用户状态？",{icon:3},function (index) {
+                location.href="{{route('foods.write_off')}}?id="+id;
                 layer.close(index);
             });
         }

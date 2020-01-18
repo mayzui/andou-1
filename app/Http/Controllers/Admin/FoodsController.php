@@ -18,6 +18,27 @@ class FoodsController extends BaseController
      *
      * @return \Illuminate\Http\Response
      */
+    /*
+     *      饭店核销
+     * */
+    public function write_off(){
+        $all = \request() -> all();
+        // 获取当前订单的状态
+        $foods_user_ordering_data = DB::table('foods_user_ordering') -> where('id',$all['id']) -> first();
+        if($foods_user_ordering_data -> status == 20){
+            $data = [
+                'status' => 30
+            ];
+        }
+        $i = DB::table('foods_user_ordering') -> where('id',$all['id']) -> update($data);
+        if ($i) {
+            flash('用户核销成功') -> success();
+            return redirect()->route('foods.orders');
+        }else{
+            flash('用户核销失败，请稍后重试') -> error();
+            return redirect()->route('foods.orders');
+        }
+    }
 
     /*
      *      修改状态

@@ -80,7 +80,7 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::match(['get','post'],'foods/commnetsAdd','FoodsController@commnetsAdd')->name('foods.commnetsAdd');
         Route::get('foods/commnetsDel','FoodsController@commnetsDel')->name('foods.commnetsDel');
 
-
+        Route::match(['get','post'],'foods/write_off','FoodsController@write_off')->name('foods.write_off');    // 饭店核销
         /*
          *      财务管理模块
          * */
