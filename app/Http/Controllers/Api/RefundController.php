@@ -29,6 +29,7 @@ class RefundController extends Controller
      *       "code": "200",
      *       "msg":"查询成功",
      *       "data": {
+        "id":"退货原因id",
         "name":"退货理由",
         "type":"退货分类（1-商城 2-酒店）"
      *      }
@@ -44,7 +45,7 @@ class RefundController extends Controller
 
         $data = DB::table('refund_reason')
             -> where('is_del',0)
-            -> select('name','type')
+            -> select('id','name','type')
             -> offset($pages)
             -> limit($num)
             -> get();
