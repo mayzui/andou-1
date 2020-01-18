@@ -650,15 +650,15 @@ class HotelController extends BaseController
         }
         if(!empty($all['book_sn'])){
             $wheres['book_sn']=$all['book_sn'];
-            $data=Db::table('books')-> where('book_sn','like','%'.$all['book_sn'].'%') ->paginate(10);
+            $data=Db::table('books')-> where('book_sn','like','%'.$all['book_sn'].'%')->orderBy('pay_time','desc') ->paginate(10);
             if(count($data) == 0){
-                $data=Db::table('books')-> where('real_name','like','%'.$all['book_sn'].'%') ->paginate(10);
+                $data=Db::table('books')-> where('real_name','like','%'.$all['book_sn'].'%')->orderBy('pay_time','desc') ->paginate(10);
                 if(count($data) == 0){
-                    $data=Db::table('books') -> where('mobile','like','%'.$all['book_sn'].'%') ->paginate(10);
+                    $data=Db::table('books') -> where('mobile','like','%'.$all['book_sn'].'%')->orderBy('pay_time','desc') ->paginate(10);
                 }
             }
         }else{
-            $data=Db::table('books')->where($where)->paginate(10);
+            $data=Db::table('books')->where($where)->orderBy('pay_time','desc')->paginate(10);
         }
         if (!empty($data)) {
             foreach ($data as $key => $value) {
