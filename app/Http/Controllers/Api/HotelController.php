@@ -149,8 +149,11 @@ class HotelController extends Controller
      * @apiParam {string} province_id 省id(不是必传)
      * @apiParam {string} city_id 市id(不是必传)
      * @apiParam {string} area_id 区id(不是必传)
+     * @apiParam {string} keywords 关键字搜索
+     * @apiParam {string} star_price 价格区间最小值
+     * @apiParam {string} end_price 价格区间最大值
      * @apiParam {string} type 排序方式(不是必传 1按距离,2按点价格)
-     * @apiParam {string} page 查询页码(不是必传 
+     * @apiParam {string} page 查询页码(不是必传) 
      * @apiSuccessExample 参数返回:
      *     {
      *       "code": "200",
@@ -188,6 +191,15 @@ class HotelController extends Controller
         }
         if (!empty($all['area_id'])) {
             $where[]=['m.area_id',$all['area_id']];
+        }
+        if (!empty($all['keywords'])) {
+            $where[]=['m.name', 'like', '%'.$all['keywords'].'%'];
+        }
+        if (!empty($all['star_price'])) {
+            $where[]=['price', '>', $all['star_price']];
+        }
+        if (!empty($all['end_price'])) {
+            $where[]=['price', '<', $all['end_price']];
         }
         $data=Db::table('merchants as m')
         ->join('hotel_room as h','h.merchant_id','=','m.id')

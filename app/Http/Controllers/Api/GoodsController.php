@@ -481,7 +481,7 @@ class GoodsController extends Controller
     public function goodsCate()
     {
         $data=DB::table('goods_cate')
-        ->select('id','name')
+        ->select('id','name','img')
         ->where('pid',0)
         ->get();
         foreach ($data as $key => $value) {

@@ -277,6 +277,28 @@ class UsersController extends Controller
         return $this->rejson(200,'获取成功',$data);
     }
     /**
+     * @api {post} /api/users/new_user 查询是否为新用户
+     * @apiName new_user
+     * @apiGroup users
+     * @apiParam {string} uid 用户id
+     * @apiParam {string} token 验证登陆
+     * @apiSuccessExample 参数返回:
+     *     {
+     *       "code": "200",
+     *       "data": "",     
+     *       "msg":"该用户是新用户"
+     *     }
+     */
+    public function new_user(){
+        $all=request()->all();
+        $re=Db::table('user_logs')->where(['user_id'=>$all['uid'],'type_id'=>'4'])->first();
+        if (!empty($re)) {
+            return $this->rejson(201,'该用户已经领取过新用户红包');
+        }else{
+            return $this->rejson(200,'该用户是新用户');
+        }
+    }
+    /**
      * @api {post} /api/users/envelopes_add 新用户领取红包
      * @apiName envelopes_add
      * @apiGroup users

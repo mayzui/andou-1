@@ -789,6 +789,7 @@ class OrderController extends Controller
         $order = \WxPayApi::unifiedOrder($config, $input);
          // var_dump($order);exit();
         if($order['return_code']=="SUCCESS"){
+            // var_dump($order);exit();
             $time = time();
             $string = "appid=".$order['appid']."&noncestr=".$order['nonce_str']."&package="."Sign=WXPay"."&partnerid=".$order['mch_id']."&prepayid=".$order['prepay_id']."&timestamp=".$time."&key=AndoubendishenghuoXIdoukeji66888";
             $string = md5($string);

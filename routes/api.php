@@ -73,6 +73,7 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('users/binding', 'UsersController@binding');
      Route::post('users/vip_recharge', 'UsersController@vipRecharge');
      Route::post('users/vip_rote', 'UsersController@vipRote');
+     Route::post('users/new_user', 'UsersController@new_user');
 
      Route::post('common/uploads','CommonController@uploads');
      Route::post('common/pay_ways', 'CommonController@payWays');
