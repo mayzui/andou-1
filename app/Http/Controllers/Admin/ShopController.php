@@ -729,14 +729,9 @@ class ShopController extends BaseController
         // 获得提交的数据
         $all = \request() -> all();
         if(\request() -> isMethod("get")){
-            if(count($all) == 3){
-                flash("未选择商品参数，请选择后重试") -> error();
-                return redirect()->route('shop.goods');
-            }
             foreach ($all['attrname'] as $item) {
                 // 通过该id 在商品参数中去找值
                 $name = DB::table('goods_attr') -> where('id',$item)-> select(['name']) -> first();
-                $num = 0;
                 if(!empty($all['attrvalue_'.$item.''])){
                     $data[] =[
                         'name' => json_decode(json_encode($name),true)['name'],
@@ -777,6 +772,7 @@ class ShopController extends BaseController
             $price = $all['price'];
             // 通过传入的id，查询数据库中是否存在该id，如果存在，执行修改操作，如果不存在，执行新增操作
             $s = DB::table('goods_sku') -> where('goods_id',$all['goods_id']) -> first();
+
             if(empty($s)){
                 // 不存在该id,执行新增
                 for($i = 1;$i<=count($all)-5;$i++){
@@ -799,13 +795,13 @@ class ShopController extends BaseController
                         $i = DB::table('goods_sku') -> insert($data);
                     }
                     if($i){
+                        DB::commit();
                         flash('保存成功') -> success();
                         return redirect()->route('shop.goods');
-                        DB::commit();
                     }else{
+                        DB::rollBack();
                         flash('保存失败') -> error();
                         return redirect()->route('shop.goods');
-                        DB::rollBack();
                     }
                 }catch (\Exception $e){
                     DB::rollBack();
@@ -837,13 +833,13 @@ class ShopController extends BaseController
                             $i = DB::table('goods_sku') -> insert($data);
                         }
                         if($i){
+                            DB::commit();
                             flash('修改成功') -> success();
                             return redirect()->route('shop.goods');
-                            DB::commit();
                         }else{
+                            DB::rollBack();
                             flash('修改失败') -> error();
                             return redirect()->route('shop.goods');
-                            DB::rollBack();
                         }
                     }catch (\Exception $e){
                         DB::rollBack();
@@ -2207,7 +2203,6 @@ class ShopController extends BaseController
         }else{
             $old_arr = [];
         }
-
         $goodsCate = GoodsCate::with(['children'=>function($res){
             $res->with('children');
         }])->where('pid','=',0)
@@ -2222,14 +2217,14 @@ class ShopController extends BaseController
             -> where('is_del',1)
             -> select('id','name')
             -> get();
-        $goods_attr = DB::table('goods_attr') -> get();
         $a = DB::table('goods_attr_value') -> get();
+
+//        return dd($goodsdata->album);
         $arr = [
             'goodsCate'=>$goodsCate,
             'goodBrands'=>$goodBrands,
             'attrData'=>$attrData,
             'attrvalueData'=>$a,
-            'goods_attr'=>$goods_attr,
             'goodsdata'=>$goodsdata,
             'merchants_goods_type'=>$merchants_goods_type,
             'goods_album'=>json_decode($goodsdata->album),
@@ -2264,12 +2259,12 @@ class ShopController extends BaseController
             $list = DB::table('goods_attr')
                 -> join('merchants','goods_attr.merchant_id','=','merchants.id')
                 -> where('merchants.user_id',$id)
-                -> select(['goods_attr.id','goods_attr.name'])
+                -> select(['goods_attr.id','goods_attr.name','goods_attr.is_sale_attr'])
                 -> paginate(10);
         }else{
             $list = DB::table('goods_attr')
                 -> join('merchants','goods_attr.merchant_id','=','merchants.id')
-                -> select(['goods_attr.id','goods_attr.name'])
+                -> select(['goods_attr.id','goods_attr.name','goods_attr.is_sale_attr'])
                 -> paginate(10);
         }
         return $this->view('goodsAttr',['list'=>$list]);
@@ -2289,14 +2284,11 @@ class ShopController extends BaseController
     // 异步获取属性
     public function getAttr (Request $request)
     {
-        // 获取提交的id
-        $all = \request() -> all();
-        // 根据id 查询数据库中商品模板表中的内容
-        $goods_attr_data =DB::table('goods_attr') -> where('id',$all['id']) -> first();
-        // 根据id 查询数据库中规格属性表
-        $goods_attr_value_data = DB::table('goods_attr_value') -> where('goods_attr_id',$all['id']) -> get();
-        $result = ['code'=>200,'data'=>$goods_attr_data,'goods_attr_value_data'=>$goods_attr_value_data];
-        echo  json_encode($result,JSON_UNESCAPED_UNICODE);
+        $data = GoodsAttr::with('attrValue')->find($request->input('id'));
+        if ($data) {
+            $result = ['code'=>200,'data'=>$data];
+            echo  json_encode($result);
+        }
     }
 
     // 存储属性值
@@ -2342,108 +2334,41 @@ class ShopController extends BaseController
     // 新增模板
     public function attrStore (Request $request)
     {
-        flash("该功能还在开发中，敬请期待") -> error();
-        return redirect()->route('shop.goodsAttr');
         $validate = Validator::make($request->all(),[
-            'specNmae' => 'required',
+            'name' => 'required',
+            'is_sale_attr' => 'required',
         ],[
-            'specNmae.required'=>'模板名称未输入',
+            'name.required'=>'名称必须',
+            'is_sale_attr.numeric'=>'排序必须是数字',
         ]);
-        $all = \request() -> all();
-        // 判断新增的模板是否存在
-        $data = DB::table('goods_attr') -> where('id','!=',$all['id']) -> where('name',$all['specNmae']) -> first();
-        if(!empty($data)){
-            flash("该商品模板已存在，不能重复。") -> error();
-            return redirect()->route('shop.goodsAttr');
+
+
+        if ($validate->fails()) {
+            flash($validate->errors()->first())->error()->important();
+            return redirect()->route('shop.addAttr');
         }
 
-        if (empty($all['id'])){
-            DB::beginTransaction();
-            try{
-                // 新增模板表
-                $goods_attr_data = [
-                    'merchant_id' => 1,
-                    'name' => $all['specNmae']
-                ];
-                $id = DB::table('goods_attr') -> insertGetId($goods_attr_data);
-                // 获取上传的规格
-                foreach ($all['spec'] as $v){
-                    // 新增规格属性表
-                    $item = $v['item'];
-                    $arr_push = [];
-                    foreach ($item as $m){
-                        array_push($arr_push,$m['item']);
-                    }
-                    $spec_value = json_encode($arr_push,JSON_UNESCAPED_UNICODE);
-                    $goods_attr_value_data = [
-                        'goods_attr_id' => $id,
-                        'spec' => $v['name'],
-                        'spec_value' => $spec_value
-                    ];
-                    // 向规格属性表中添加内容
-                    $i = DB::table('goods_attr_value') -> insert($goods_attr_value_data);
-                }
-                if ($i) {
-                    DB::commit();
-                    flash("商品参数模板添加成功") -> success();
-                    return redirect()->route('shop.goodsAttr');
-                }else{
-                    DB::rollBack();
-                    flash("添加失败，请稍后重试") -> error();
-                    return redirect()->route('shop.goodsAttr');
-                }
-            }catch (\Exception $e){
-                DB::rollBack();
-                flash("添加失败，错误码：201") -> error();
-                return redirect()->route('shop.goodsAttr');
-            }
-        }else{
-            DB::beginTransaction();
-            try{
-                // 修改模板表
-                $goods_attr_data = [
-                    'merchant_id' => 1,
-                    'name' => $all['specNmae']
-                ];
-                $flag_up = DB::table('goods_attr') ->where('id',$all['id'])-> update($goods_attr_data);
-
-                //清除旧规格
-                $flag_del = DB::table('goods_attr_value') ->where('goods_attr_id',$all['id'])-> delete();
-
-                foreach ($all['spec'] as $v){
-                    // 重新录入规格属性表
-                    $item = $v['item'];
-                    $arr_push = [];
-                    foreach ($item as $m){
-                        array_push($arr_push,$m['item']);
-                    }
-                    $spec_value = json_encode($arr_push,JSON_UNESCAPED_UNICODE);
-                    $goods_attr_value_data = [
-                        'goods_attr_id' => $all['id'],
-                        'spec' => $v['name'],
-                        'spec_value' => $spec_value
-                    ];
-                    // 向规格属性表中添加内容
-                    $i = DB::table('goods_attr_value') -> insert($goods_attr_value_data);
-                }
-                if ($i) {
-                    DB::commit();
-                    flash("商品参数模板修改成功") -> success();
-                    return redirect()->route('shop.goodsAttr');
-                }else{
-                    DB::rollBack();
-                    flash("修改失败，请稍后重试") -> error();
-                    return redirect()->route('shop.goodsAttr');
-                }
-            }catch (\Exception $e){
-                DB::rollBack();
-                flash("修改失败，错误码：201") -> error();
-                return redirect()->route('shop.goodsAttr');
-            }
+        $model = new GoodsAttr();
+        if ($request->input('id')) {
+            $model = GoodsAttr::find($request->input('id'));
         }
 
 
+        $admin = Auth::guard('admin')->user();
 
+        $merchant =  Merchant::where('user_id','=',$admin->id)
+            ->where('merchant_type_id',$this->merchant_type_id)
+            ->first();
+
+        // 判断是哪个商户或者修改  上线后可以删除判断
+        $model->merchant_id = Auth::id();
+        $model->name = $request->input('name');
+        $model->is_sale_attr = $request->input('is_sale_attr');
+
+        if ($model->save()) {
+            return   redirect()->route('shop.goodsAttr');
+        }
+        return  viewError('操作失败','shop.addAttr');
     }
 
 
@@ -2554,14 +2479,14 @@ class ShopController extends BaseController
                     }
                 }
                 // 获取上传的图片路径
-                $img_array = json_encode($img_array);
                 if(empty($all['choose_file'])){
-                    $al = "";
+                    $album = json_encode($img_array);
                 }else{
-                    $al = json_encode($all['choose_file']);
+                    foreach ($img_array as $k => $v){
+                        $ablm[] = array_push($all['choose_file'],$v);
+                    }
+                    $album = json_encode($all['choose_file']);
                 }
-                // 查询原来的值是否删除
-                $album = $img_array.$al;
             }
             // 获取提交的数据
             $data = [

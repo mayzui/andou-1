@@ -146,9 +146,9 @@
                                                 <div class="col-sm-2">
                                                     <select class="form-control pull-left" name="merchants_goods_type">
                                                         <option value="0">— 选择参数模板 —</option>
-                                                        @foreach($goods_attr as $item)
-                                                            <option value="{{$item->id}}" @if($item->id == $goodsdata->merchants_goods_type_id) selected @endif > {{$item->name}}</option>
-                                                        @endforeach
+                                                        {{--@foreach($goods_attr as $item)--}}
+                                                            {{--<option value="{{$item->id}}" @if($item->id == $goodsdata->merchants_goods_type_id) selected @endif > {{$item->name}}</option>--}}
+                                                        {{--@endforeach--}}
                                                     </select>
                                                     <div style="width: 766px;min-height: 100px;margin-top: 36px;background-color: #EEEEEE;">
                                                         {{--@foreach($attrvalueData as $v)--}}
@@ -333,7 +333,7 @@
                                                         <div class="radio i-checks checkbox">
                                                             @foreach($attrvalueData as $m)
                                                                 @if($v -> id == $m -> goods_attr_id)
-                                                                    <label><input type="checkbox" name="attrvalue_{{ $v -> id }}[]" value="{{$m -> spec}}" @if(in_array($m -> spec,$goodssku)) checked @endif />{{$m -> spec}} </label>
+                                                                    <label><input type="checkbox" name="attrvalue_{{ $v -> id }}[]" value="{{$m -> value}}" @if(in_array($m -> value,$goodssku)) checked @endif />{{$m -> value}} </label>
                                                                 @endif
                                                             @endforeach
                                                         </div>
