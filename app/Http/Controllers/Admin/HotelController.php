@@ -840,12 +840,14 @@ class HotelController extends BaseController
         $id = Auth::id();     // 当前登录用户的id
         // 判断当前用户是否是商家
         $i = DB::table('merchants')
-            -> where('id',$id)
+            -> where('user_id',$id)
+            ->where('merchant_type_id',3)
             -> where('is_reg',1)
             -> first();
         if ($i){
             $list = DB::table("merchants")
-                ->where('id',$id)
+                -> where('user_id',$id)
+                ->where('merchant_type_id',3)
                 ->first(['facilities','goods_img','id']);
             $data = json_decode($list->facilities);
             return $this->view('decoration',['list'=>$list,'id'=>$list->id,'data'=>$data,'i'=>$i]);
@@ -897,7 +899,7 @@ class HotelController extends BaseController
                     $type = strtolower(end($end));
                     // 判断上传的文件是否正确
                     if (!in_array($type, $types)) {
-                        return '第'.($i + 1).'个文件类型错误';
+                        return '第'.( $i+ 1).'个文件类型错误';
                     } else {
                         //在循环中取得每次要上传的文件的错误情况
                         $error = $choose_file['error'][$i];
