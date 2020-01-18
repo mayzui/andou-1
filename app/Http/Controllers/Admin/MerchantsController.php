@@ -135,21 +135,40 @@ class MerchantsController extends BaseController
 //        $res = DB::table('merchants') -> where('id',$id) -> first();
         if(\request() -> isMethod("get")){
             // 通过传入的id 查询商户信息
-            $data = DB::table('merchants')
-                -> join('merchant_type','merchants.merchant_type_id','=','merchant_type.id')
-                -> join('merchant_stores','merchants.id','=','merchant_stores.merchant_id')
-                -> where('merchants.id',$all['id'])
-                -> select(['merchant_type.type_name','merchants.id',
-                    'merchants.name','merchants.desc',
-                    'merchants.province_id','merchants.city_id',
-                    'merchants.area_id','merchants.address',
-                    'merchants.tel','merchants.user_name',
-                    'merchants.management_type','merchants.management_type',
-                    'merchants.banner_img','merchants.logo_img',
-                    'merchants.door_img','merchants.management_img',
-                    'merchants.goods_img','merchants.merchant_type_id',
-                    'merchants.return_address','merchants.cate_id','merchant_stores.business_start','merchant_stores.business_end'])
-                -> first();
+            $re = DB::table('merchants')->where('id',$all['id'])->where('merchant_type_id',4)->first();
+            if($re){
+                $data = DB::table('merchants')
+                    -> join('merchant_type','merchants.merchant_type_id','=','merchant_type.id')
+                    -> join('merchant_stores','merchants.id','=','merchant_stores.merchant_id')
+                    -> where('merchants.id',$all['id'])
+                    -> select(['merchant_type.type_name','merchants.id',
+                        'merchants.name','merchants.desc',
+                        'merchants.province_id','merchants.city_id',
+                        'merchants.area_id','merchants.address',
+                        'merchants.tel','merchants.user_name',
+                        'merchants.management_type','merchants.management_type',
+                        'merchants.banner_img','merchants.logo_img',
+                        'merchants.door_img','merchants.management_img',
+                        'merchants.goods_img','merchants.merchant_type_id',
+                        'merchants.return_address','merchants.cate_id','merchant_stores.business_start','merchant_stores.business_end'])
+                    -> first();
+            }else{
+                $data = DB::table('merchants')
+                    -> join('merchant_type','merchants.merchant_type_id','=','merchant_type.id')
+                    -> where('merchants.id',$all['id'])
+                    -> select(['merchant_type.type_name','merchants.id',
+                        'merchants.name','merchants.desc',
+                        'merchants.province_id','merchants.city_id',
+                        'merchants.area_id','merchants.address',
+                        'merchants.tel','merchants.user_name',
+                        'merchants.management_type','merchants.management_type',
+                        'merchants.banner_img','merchants.logo_img',
+                        'merchants.door_img','merchants.management_img',
+                        'merchants.goods_img','merchants.merchant_type_id',
+                        'merchants.return_address','merchants.cate_id'])
+                    -> first();
+            }
+
             // 查询饭店分类
             $hotel_category_data = DB::table('hotel_category') -> where('type_id',2) -> get();
             return $this->view('',['data'=>$data,'hotel_category_data' => $hotel_category_data]);
