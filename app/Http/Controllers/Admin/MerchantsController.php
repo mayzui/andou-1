@@ -53,6 +53,7 @@ class MerchantsController extends BaseController
         // 判断该用户，是否开店 并且已经认证通过
         $i = DB::table('merchants') -> where("user_id",$id) -> where("is_reg",1) -> first();
         if(!empty($i)) {
+            $mer_id = $i -> id;
             // 如果开店，则查询当前商户的信息
             $where[]=['id','>','0'];
             if (!empty($all['merchant_type_id'])) {
@@ -88,6 +89,7 @@ class MerchantsController extends BaseController
             $wheres['type']=DB::table('merchant_type')->get();
             $wheres['where']=$screen;
         }else{
+            $mer_id = '';
             $where[]=['id','>','0'];
             if (!empty($all['merchant_type_id'])) {
                 $where[]=['merchant_type_id',$all['merchant_type_id']];

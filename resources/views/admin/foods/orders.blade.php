@@ -107,6 +107,7 @@
                                     @endif
                                     @if($v->status == 20)
                                         <div class="btn-group">
+                                            <a onclick="write_off({{$v->id}});"><button class="btn btn-success btn-xs" type="button"><i class="fa fa-check"></i> 核销</button></a>
                                             <a onclick="return_money({{$v->id}})"><button class="btn btn-success btn-xs" type="button"><i class="fa fa-check"></i> 退款</button></a>
                                         </div>
                                     @endif

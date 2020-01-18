@@ -118,6 +118,7 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('shop/shopMerchantMoney','ShopController@shopMerchantMoney')->name('shop.shopMerchantMoney');    // 查询资金流水
         Route::get('shop/shopDiscount','ShopController@shopDiscount')->name('shop.shopDiscount');   // 平台优惠
         Route::match(['get','post'],'shop/information','ShopController@information')->name('shop.information');   // 商家详情
+        Route::match(['get','post'],'shop/updateStatus','ShopController@updateStatus')->name('shop.updateStatus');   // 设为推荐
 
         // 物流信息
         Route::get('logistics/indexs','LogisticsController@indexs') -> name('logistics.indexs');

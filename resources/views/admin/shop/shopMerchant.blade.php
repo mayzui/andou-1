@@ -68,6 +68,13 @@
                                 <td>{{$item->created_at}}</td>
                                 <td class="text-center">
                                     <div class="btn-group">
+                                        @if($item->is_reg==1)
+                                            @if($item -> recommend ==1)
+                                                <a onclick="del({{$item->id}})"><button class="btn btn-secondary btn-xs" type="button"><i class="fa fa-ban"></i> 取消推荐</button></a>
+                                            @else
+                                                <a onclick="del({{$item->id}})"><button class="btn btn-success btn-xs" type="button"><i class="fa fa-check"></i> 设为推荐</button></a>
+                                            @endif
+                                        @endif
                                         <a href="{{route('shop.information')}}?id={{$item->id}}"><button class="btn btn-primary btn-xs" type="button"><i class="fa fa-paste"></i> 详情</button></a>
                                        @if($item->is_reg==1)
                                             @if($item->merchant_type_id == 2)
@@ -98,4 +105,13 @@
         </div>
         <div class="clearfix"></div>
     </div>
+    <script type="text/javascript">
+        function del(e) {
+            var id = e;
+            layer.alert("是否更改当前状态？",{icon:3},function (index) {
+                location.href="{{route('shop.updateStatus')}}?id="+id;
+                layer.close(index);
+            });
+        }
+    </script>
 @endsection

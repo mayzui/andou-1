@@ -26,6 +26,32 @@ use Auth;
 
 class ShopController extends BaseController
 {
+    // 设为推荐
+    public function updateStatus(){
+        // 获取提交的数据
+        $all = \request() -> all();
+        // 根据当前id 查询数据库中的内容
+        $recommend = DB::table('merchants') -> where('id',$all['id']) -> select('recommend') -> first();
+        if($recommend -> recommend == 1){
+            $data = [
+                'recommend' => 0
+            ];
+        }else{
+            $data = [
+                'recommend' => 1
+            ];
+        }
+        // 链接数据库修改数据库中的内容
+        $i = DB::table('merchants') -> where('id',$all['id']) -> update($data);
+        if($i){
+            flash("状态更新成功") -> success();
+            return redirect()->route('shop.shopMerchant');
+        }else{
+            flash("状态更新失败，请稍后重试") -> error();
+            return redirect()->route('shop.shopMerchant');
+        }
+    }
+
     // 回复评论
     public function commnetReply(){
         $all = \request() -> all();
