@@ -131,10 +131,13 @@ class MerchantsController extends BaseController
     // 查看详情
     public function information(){
         $all = \request() -> all();
+//        $id = Auth::id();
+//        $res = DB::table('merchants') -> where('id',$id) -> first();
         if(\request() -> isMethod("get")){
             // 通过传入的id 查询商户信息
             $data = DB::table('merchants')
                 -> join('merchant_type','merchants.merchant_type_id','=','merchant_type.id')
+                -> join('merchant_stores','merchants.id','=','merchant_stores.merchant_id')
                 -> where('merchants.id',$all['id'])
                 -> select(['merchant_type.type_name','merchants.id',
                     'merchants.name','merchants.desc',
@@ -144,7 +147,8 @@ class MerchantsController extends BaseController
                     'merchants.management_type','merchants.management_type',
                     'merchants.banner_img','merchants.logo_img',
                     'merchants.door_img','merchants.management_img',
-                    'merchants.goods_img','merchants.merchant_type_id','merchants.return_address','merchants.cate_id'])
+                    'merchants.goods_img','merchants.merchant_type_id',
+                    'merchants.return_address','merchants.cate_id','merchant_stores.business_start','merchant_stores.business_end'])
                 -> first();
             // 查询饭店分类
             $hotel_category_data = DB::table('hotel_category') -> where('type_id',2) -> get();
@@ -170,8 +174,35 @@ class MerchantsController extends BaseController
                     'cate_id' => $all['cate_id'],
                     'updated_at' => date("Y-m-d H:i:s")
                 ];
+                $arr = [
+                    'merchant_id'=>$all['id'],
+                    'img'=>$all['logo_img'],
+                    'business_start'=>$all['business_start'],
+                    'business_end'=>$all['business_end'],
+                    'created_at'=>date('Y-m-d H:i:s',time())
+                ];
+                DB::beginTransaction();
+                $a = DB::table('merchant_stores')->where('merchant_id',$all['id'])->first();
+                if($a){
+                    $re = DB::table('merchant_stores')->where('merchant_id',$all['id'])->update($arr);
+                }else{
+                    $re = DB::table('merchant_stores')->insert($arr);
+                }
+
+                $r = DB::table('merchants')->where('id',$all['id'])->update($data);
+                if($re&&$r){
+                    flash('保存成功') -> success();
+                    DB::commit();
+                    return redirect()->route('merchants.index');
+
+                }else{
+                    flash('保存失败') -> error();
+                    DB::rollBack();
+                    return redirect()->route('merchants.index');
+
+                }
                 // 获取上传时间
-                return dd($all);
+//                return dd($all);
             }else{
                 // 获得提交的内容
                 $data = [

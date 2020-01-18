@@ -644,6 +644,8 @@ class HotelController extends BaseController
                 $where[] = ['status',20];
             }elseif ($all['status'] == 30){      // 已入住
                 $where[] = ['status',30];
+            }elseif ($all['status'] == 40){      // 已入住
+                $where[] = ['status',40];
             }
         }else{
             $status = 0;

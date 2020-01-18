@@ -20,6 +20,8 @@
                     </a>
                     <a href="{{url('/admin/hotel/books?status=20')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
                             待入住</button>
+                    </a><a href="{{url('/admin/hotel/books?status=40')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
+                            已完成</button>
                     </a>
                 </form>
                     <style>
