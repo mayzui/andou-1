@@ -152,6 +152,7 @@ class HotelController extends Controller
      * @apiParam {string} keywords 关键字搜索
      * @apiParam {string} star_price 价格区间最小值
      * @apiParam {string} end_price 价格区间最大值
+     * @apiParam {string} stars_all 酒店星级
      * @apiParam {string} type 排序方式(不是必传 1按距离,2按点价格)
      * @apiParam {string} page 查询页码(不是必传) 
      * @apiSuccessExample 参数返回:
@@ -200,6 +201,9 @@ class HotelController extends Controller
         }
         if (!empty($all['end_price'])) {
             $where[]=['price', '<', $all['end_price']];
+        }
+        if (!empty($all['stars_all'])) {
+            $where[]=['m.stars_all', $all['stars_all']];
         }
         $data=Db::table('merchants as m')
         ->join('hotel_room as h','h.merchant_id','=','m.id')

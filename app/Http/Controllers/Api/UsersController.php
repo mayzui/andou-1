@@ -285,7 +285,7 @@ class UsersController extends Controller
      * @apiSuccessExample 参数返回:
      *     {
      *       "code": "200",
-     *       "data": "",     
+     *       "data": {"val":1}(1是新用户，0不是新用户),     
      *       "msg":"该用户是新用户"
      *     }
      */
@@ -293,9 +293,9 @@ class UsersController extends Controller
         $all=request()->all();
         $re=Db::table('user_logs')->where(['user_id'=>$all['uid'],'type_id'=>'4'])->first();
         if (!empty($re)) {
-            return $this->rejson(201,'该用户已经领取过新用户红包');
+            return $this->rejson(200,'该用户已经领取过新用户红包',array('val'=>0));
         }else{
-            return $this->rejson(200,'该用户是新用户');
+            return $this->rejson(200,'该用户是新用户',array('val'=>1));
         }
     }
     /**
