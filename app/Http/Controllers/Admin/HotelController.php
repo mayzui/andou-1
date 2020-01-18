@@ -403,7 +403,6 @@ class HotelController extends BaseController
             $data['has_breakfast']=$all['has_breakfast'];
             $data['bed_type']=$all['bed_type'];
             $data['other_sets']=$all['other_sets'];
-
             // 判断是否上传新文件
             $choose_file = $_FILES['choose-file'];
             // 如果第一个文件为空，则未上传新文件
@@ -417,7 +416,7 @@ class HotelController extends BaseController
 
                 if ($validate->fails()) {
                     flash($validate->errors()->first())->error()->important();
-                    return redirect()->route('shop.goods');
+                    return redirect()->route('hotel.index');
                 }
                 // 如果未上传新文件，则获取当前文件内容
                 $album = json_encode($all['choose_file']);
@@ -447,7 +446,7 @@ class HotelController extends BaseController
                         $error = $choose_file['error'][$i];
                         if ($error != 0) {
                             flash("第" . ($i + 1) . "个文件上传错误") -> error();
-                            return redirect()->route('shop.create');
+                            return redirect()->route('hotel.index');
                         } else {
                             //在循环中取得每次要上传的文件的临时文件
                             $tmp_name = $choose_file['tmp_name'][$i];
@@ -472,7 +471,7 @@ class HotelController extends BaseController
                 }else{
                     $al = json_encode($all['choose_file']);
                 }
-                // 查询原来的值是否删除了
+                // 查询原来的值是否删除
                 $album = $img_array.$al;
             }
             if (empty($all['id'])) {
@@ -490,9 +489,11 @@ class HotelController extends BaseController
                 $res=Db::table('hotel_attr_value')->where('hotel_room_id',$all['id'])->update($data);
             }
             if ($re || $res) {
-                return json_encode(array('code'=>200,'msg'=>'编辑成功'));
+                flash("新增成功") -> success();
+                return redirect()->route('hotel.index');
             }else{
-                return json_encode(array('code'=>201,'msg'=>'编辑失败,未修改任何内容'));
+                flash("新增失败") -> error();
+                return redirect()->route('hotel.index');
             }
         }else{
             if (empty($all['id'])) {
@@ -850,7 +851,7 @@ class HotelController extends BaseController
 
                 if ($validate->fails()) {
                     flash($validate->errors()->first())->error()->important();
-                    return redirect()->route('shop.goods');
+                    return redirect()->route('hotel.decoration');
                 }
                 // 如果未上传新文件，则获取当前文件内容
                 $album = json_encode($input['choose_file']);
@@ -880,7 +881,7 @@ class HotelController extends BaseController
                         $error = $choose_file['error'][$i];
                         if ($error != 0) {
                             flash("第" . ($i + 1) . "个文件上传错误") -> error();
-                            return redirect()->route('shop.create');
+                            return redirect()->route('hotel.decoration');
                         } else {
                             //在循环中取得每次要上传的文件的临时文件
                             $tmp_name = $choose_file['tmp_name'][$i];

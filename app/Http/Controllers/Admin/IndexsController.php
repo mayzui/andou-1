@@ -24,9 +24,9 @@ class IndexsController extends Controller
             if(!empty($merchant_data)){
                 foreach ($merchant_data as $v){
                     // 查询数据库中，是否存在未播放的语音
-                    $voice_paly_status[] = \DB::table('order_goods') -> where('merchant_id',$v -> id) -> where('voice_paly',0) -> get();
-                    $voice_paly_status[] = \DB::table('foods_user_ordering') -> where('merchant_id',$v -> id) -> where('voice_paly',0) -> get();
-                    $voice_paly_status[] = \DB::table('books') -> where('merchant_id',$v -> id) -> where('voice_paly',0) -> get();
+                    $voice_paly_status[] = \DB::table('order_goods') -> where('merchant_id',$v -> id)-> where('status',20) -> where('voice_paly',0) -> get();
+                    $voice_paly_status[] = \DB::table('foods_user_ordering') -> where('merchant_id',$v -> id)-> where('status',20) -> where('voice_paly',0) -> get();
+                    $voice_paly_status[] = \DB::table('books') -> where('merchant_id',$v -> id)-> where('status',20) -> where('voice_paly',0) -> get();
                     // 将此商户的所有语音修改为以播放状态
                     $data = [
                         'voice_paly' => 1

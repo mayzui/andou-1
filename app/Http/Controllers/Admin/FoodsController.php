@@ -682,18 +682,18 @@ class FoodsController extends BaseController
             // 查询数据库数据
             if(!empty($all['name'])){
                 // 条件查询
-                $data=Db::table('foods_user_ordering') -> where('phone','like','%'.$all['name'].'%') -> where('merchant_id',$i->id) ->paginate(10);
+                $data=Db::table('foods_user_ordering') -> where('phone','like','%'.$all['name'].'%')->orderBy('pay_time','desc') -> where('merchant_id',$i->id) ->paginate(10);
                 if(count($data) == 0){
-                    $data=Db::table('foods_user_ordering')-> where('user_name','like','%'.$all['name'].'%') -> where('merchant_id',$i->id) ->paginate(10);
+                    $data=Db::table('foods_user_ordering')-> where('user_name','like','%'.$all['name'].'%')->orderBy('pay_time','desc') -> where('merchant_id',$i->id) ->paginate(10);
                     if(count($data) == 0){
-                        $data=Db::table('foods_user_ordering') -> where('order_sn','like','%'.$all['name'].'%') -> where('merchant_id',$i->id) ->paginate(10);
+                        $data=Db::table('foods_user_ordering') -> where('order_sn','like','%'.$all['name'].'%')->orderBy('pay_time','desc') -> where('merchant_id',$i->id) ->paginate(10);
                     }
                 }
                 $name = $all['name'];
                 $id = "";
             }else{
                 // 跳转页面
-                $data=Db::table('foods_user_ordering')->where($where) -> where('merchant_id',$i->id)->paginate(10);
+                $data=Db::table('foods_user_ordering')->where($where)->orderBy('pay_time','desc') -> where('merchant_id',$i->id)->paginate(10);
                 $name = "";
                 $id = "";
             }
@@ -703,18 +703,18 @@ class FoodsController extends BaseController
             // 判断是否执行条件查询
             if(!empty($all['name'])){
                 // 条件查询
-                $data=Db::table('foods_user_ordering') -> where('phone','like','%'.$all['name'].'%') ->paginate(10);
+                $data=Db::table('foods_user_ordering') -> where('phone','like','%'.$all['name'].'%')->orderBy('pay_time','desc') ->paginate(10);
                 if(count($data) == 0){
-                    $data=Db::table('foods_user_ordering')-> where('user_name','like','%'.$all['name'].'%') ->paginate(10);
+                    $data=Db::table('foods_user_ordering')-> where('user_name','like','%'.$all['name'].'%')->orderBy('pay_time','desc') ->paginate(10);
                     if(count($data) == 0){
-                        $data=Db::table('foods_user_ordering') -> where('order_sn','like','%'.$all['name'].'%') ->paginate(10);
+                        $data=Db::table('foods_user_ordering') -> where('order_sn','like','%'.$all['name'].'%')->orderBy('pay_time','desc') ->paginate(10);
                     }
                 }
                 $name = $all['name'];
                 $id = "";
             }else{
                 // 跳转页面
-                $data=Db::table('foods_user_ordering')->where($where)->paginate(10);
+                $data=Db::table('foods_user_ordering')->where($where)->orderBy('pay_time','desc')->paginate(10);
                 $name = "";
                 $id = "";
             }
