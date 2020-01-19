@@ -561,7 +561,7 @@ class GourmetController extends Controller
         foreach ($data->foods as $value){
             $all += $value->price*$value->num;
         }
-        $data->all = $all;
+        $data->all = (string)$all;
         $allintegral=DB::table('users')->where('id',$all['uid'])->first()->integral ?? 0;
         $integrals=DB::table('config')->where('key','integral')->first()->value;
         $data->integral=floor($all*$integrals);
