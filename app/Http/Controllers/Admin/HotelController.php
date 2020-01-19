@@ -950,7 +950,7 @@ class HotelController extends BaseController
         }else{
             $choose_file = $_FILES['choose-file'];
             if ($choose_file['name'][0] == "") {
-                flash("请选择详情图片") -> error();
+                flash("请选择设施图片") -> error();
                 return redirect()->route('hotel.decoration');
             }
             // 判断保存文件的路径是否存在
@@ -971,25 +971,28 @@ class HotelController extends BaseController
                 $type = strtolower(end($end));
                 // 判断上传的文件是否正确
                 if (!in_array($type, $types)) {
-                    return '第'.($i + 1).'个文件类型错误';
+                    flash("文件类型错误") -> error();
+                    return redirect()->route('hotel.decoration');
                 } else {
                     //在循环中取得每次要上传的文件的错误情况
                     $error = $choose_file['error'][$i];
                     if ($error != 0) {
-                        flash("第" . ($i + 1) . "个文件上传错误") -> error();
-                        return redirect()->route('shop.create');
+                        flash("文件上传错误") -> error();
+                        return redirect()->route('hotel.decoration');
                     } else {
                         //在循环中取得每次要上传的文件的临时文件
                         $tmp_name = $choose_file['tmp_name'][$i];
                         if (!is_uploaded_file($tmp_name)) {
-                            return "第" . ($i + 1) . "个临时文件错误";
+                            flash(  "临时文件错误") -> error();
+                            return redirect()->route('hotel.decoration');
                         } else {
                             // 给上传的文件重命名
                             $newname = $dir.date("YmdHis") . rand(1, 10000) . "." . $type;
                             $img_array[$i] = substr($newname,strpos($newname,'/shop/shopImage/'));
                             //对文件执行上传操作
                             if (!move_uploaded_file($tmp_name, $newname)) {
-                                return "第" . ($i + 1) . "个文件上传失败";
+                                flash(  "文件上传失败") -> error();
+                                return redirect()->route('hotel.decoration');
                             }
                         }
                     }
