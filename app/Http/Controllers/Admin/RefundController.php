@@ -37,7 +37,7 @@ class RefundController extends BaseController
             $status = 0;
         }
         // 判断该用户，是否开店 并且已经认证通过
-        $i = \DB::table('merchants') -> where("user_id",$id) -> where("is_reg",1) -> first();
+        $i = \DB::table('merchants') -> where("user_id",$id)-> where('merchant_type_id',2) -> where("is_reg",1) -> first();
         if(!empty($i)) {
             // 如果开店，则查询当前商户的信息
             // 查询数据库内容
@@ -46,7 +46,7 @@ class RefundController extends BaseController
                 ->join('goods','order_goods.goods_id','=','goods.id')
                 -> join('users','order_goods.user_id','=','users.id')
                 -> join('refund_reason','order_returns.reason_id','=','refund_reason.id')
-                -> where('order_goods.merchant_id',$id)
+                -> where('order_goods.merchant_id',$i -> id)
                 -> where($where)
                 -> select('order_goods.id','order_goods.pay_way','order_goods.express_id','order_goods.courier_num','order_goods.order_id','users.name as user_name','refund_reason.name as retun_name',
                     'order_returns.content','order_returns.is_reg','order_returns.status','goods.id as gid')
