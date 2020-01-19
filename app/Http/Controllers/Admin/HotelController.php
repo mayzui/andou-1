@@ -594,7 +594,7 @@ class HotelController extends BaseController
         $user_id = Auth::id();
         $arr = DB::Table('merchants')->where('user_id',$user_id)->where('merchant_type_id',3)->first();
         if (request()->isMethod('post')) {
-            $save=['name'=>$all['name'],'merchant_id'=>$arr['id']];
+            $save=['name'=>$all['name'],'merchant_id'=>$arr -> id];
             if (empty($all['id'])) {
                 $re=Db::table('hotel_faci')->insert($save);
             }else{
