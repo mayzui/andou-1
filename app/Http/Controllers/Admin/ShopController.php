@@ -2139,8 +2139,6 @@ class ShopController extends BaseController
         $level1 = GoodsCate::where('pid','=',0)->get();
         $goodBrands = GoodBrands::select('id','name')->orderBy('id','asc')->get();
 
-        // 查询运费模板表
-        $express_modeldata = DB::table('express_model') -> get();
         if(empty($merchants_data)){
             // 查询商品分类
             $merchants_goods_type = DB::table('merchants_goods_type')
@@ -2149,6 +2147,8 @@ class ShopController extends BaseController
                 -> get();
             // 查询商品参数
             $attrData = DB::table('goods_attr') -> get();
+            // 查询运费模板表
+            $express_modeldata = DB::table('express_model') -> get();
         }else{
             // 查询商品分类
             $merchants_goods_type = DB::table('merchants_goods_type')
@@ -2158,6 +2158,8 @@ class ShopController extends BaseController
                 -> get();
             // 查询商品参数
             $attrData = DB::table('goods_attr')-> where('merchant_id',$merchants_data -> id) -> get();
+            // 查询运费模板表
+            $express_modeldata = DB::table('express_model')-> where('merchant_id',$merchants_data -> id) -> get();
         }
 
         // 查询规格表
@@ -3137,7 +3139,6 @@ class ShopController extends BaseController
                 $i = DB::table('express_detail') -> insert($addDetailData);
             }
             $data = [
-                'merchant_id' => Auth::id(),
                 'caculate_method' => $all['caculate_method'],
                 'num' => $all['num'],
                 'basic_price' => $all['basic_price'],
