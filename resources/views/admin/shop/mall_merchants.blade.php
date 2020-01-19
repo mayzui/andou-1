@@ -7,10 +7,10 @@
             </div>
             <div class="ibox-content">
 
-                <form method="post" action="{{route('hotel.merchant')}}" name="form">
+                <form method="post" action="{{route('shop.mall_merchants')}}" name="form">
                     {{ csrf_field() }}
                     <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>
-                    <input type="text" style="height: 25px;margin-left: 10px;" value="{{$wheres['where']['name']}}" name="name" placeholder="商家名字">
+                    <input type="text" style="height: 25px;margin-left: 10px;" value="{{$wheres['where']['name']}}" name="name" placeholder="商户名字">
                     <button style="height: 25px;margin-left: 10px;" type="submit">按条件查询</button>
 
                     <a href="{{url('/admin/shop/mall_merchants?status=0')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">

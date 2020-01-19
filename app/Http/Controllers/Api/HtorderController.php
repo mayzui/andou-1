@@ -359,6 +359,7 @@ class HtorderController extends Controller
             -> select(['books.book_sn','books.created_at','books.pay_way','hotel_room.id','hotel_room.merchant_id','merchants.name as merchants_name','books.status','hotel_room.img','hotel_room.house_name','hotel_room.price','books.integral','books.money','books.start_time','books.end_time','books.day_num','books.real_name','books.mobile','merchants.tel'])
             ->first();
         if (!empty($data)) {
+            $data->img=json_decode($data->img)[0] ?? '';
             $data->pay_money=$data->money-$data->integral;
             $data->pay_way=Db::table('pay_ways')->where('id',$data->pay_way)->first()->pay_way??'';
             return $this->rejson(200,'查询成功',$data);

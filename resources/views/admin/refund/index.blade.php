@@ -7,11 +7,13 @@
             </div>
             <div class="ibox-content">
                 <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>
-                {{--<a href="{{route('refund.indexChange')}}" link-url="javascript:void(0)">--}}
-                    {{--<button class="btn btn-primary btn-sm" type="button">--}}
-                        {{--<i class="fa fa-plus-circle"></i> 新增退货原因--}}
-                    {{--</button>--}}
-                {{--</a>--}}
+                @if(!empty($i))
+                <a href="{{route('refund.indexChange')}}" link-url="javascript:void(0)">
+                    <button class="btn btn-primary btn-sm" type="button">
+                        <i class="fa fa-plus-circle"></i> 新增退货原因
+                    </button>
+                </a>
+                @endif
                 <form method="post" action="{{route('config.index')}}" name="form">
                     <style>
                         th ,td{

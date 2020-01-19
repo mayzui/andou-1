@@ -99,12 +99,19 @@ class RefundController extends Controller
             'is_reg' => 0,
             'returns_type' => 0,
         ];
-        // 链接数据库，新增数据库
-        $i = DB::table('order_returns') -> insert($data);
-        if($i){
-            return $this->rejson(200,'退款申请提交成功');
-        }else{
-            return $this->rejson(200,'退款申请提交失败，请重试');
+        DB::beginTransaction();
+        try{
+            // 链接数据库，新增数据库
+            $i = DB::table('order_returns') -> insert($data);
+            // 修改表状态
+            DB::table('order_goods') -> where('id',$all['order_goods_id']) -> update(['status' => 70]);
+            if($i){
+                return $this->rejson(200,'退款申请提交成功');
+            }else{
+                return $this->rejson(200,'退款申请提交失败，请重试');
+            }
+        }catch (\Exception $exception){
+
         }
         // 3a2978315df6ac181b7b0220602416c6
     }

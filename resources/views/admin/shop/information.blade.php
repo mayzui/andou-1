@@ -150,7 +150,7 @@
                                 <input type="hidden" name="banner_img" id="banner_img" value="{{ $data->banner_img or '' }}"/>
                                 <button type="button" class="layui-btn" id="bannerimage">上传图片</button>
                                 <div class="layui-upload-list">
-                                        <img class="layui-upload-img" id="bannerShowImage" src="{{ $data->banner_img or '' }}" style="width: 60%;height: 30%">
+                                        <img class="layui-upload-img" id="bannerShowImage" src="{{ $data->banner_img or '' }}" style="width: 200px;height: 200px">
                                     <p id="bannerdemoText"></p>
                                 </div>
                             </div>
@@ -199,7 +199,7 @@
                                 <input type="hidden" name="logo_img" id="logo_img" value="{{ $data->logo_img or '' }}"/>
                                 <button type="button" class="layui-btn" id="logoimage">上传图片</button>
                                 <div class="layui-upload-list">
-                                        <img class="layui-upload-img" id="logoShowImage" src="{{ $data->logo_img or '' }}" style="width: 60%;height: 30%">
+                                        <img class="layui-upload-img" id="logoShowImage" src="{{ $data->logo_img or '' }}" style="width: 200px;height: 200px">
                                     <p id="logodemoText"></p>
                                 </div>
                             </div>
@@ -248,7 +248,7 @@
                                 <input type="hidden" name="door_img" id="door_img" value="{{ $data->door_img or '' }}"/>
                                 <button type="button" class="layui-btn" id="doorimage">上传图片</button>
                                 <div class="layui-upload-list">
-                                        <img class="layui-upload-img" id="doorShowImage" src="{{ $data->door_img or '' }}" style="width: 60%;height: 30%">
+                                        <img class="layui-upload-img" id="doorShowImage" src="{{ $data->door_img or '' }}" style="width: 200px;height: 200px">
                                     <p id="doordemoText"></p>
                                 </div>
                             </div>
@@ -297,7 +297,7 @@
                                 <input type="hidden" name="management_img" id="management_img" value="{{ $data->management_img or '' }}"/>
                                 <button type="button" class="layui-btn" id="managementimage">上传图片</button>
                                 <div class="layui-upload-list">
-                                        <img class="layui-upload-img" id="managementShowImage" src="{{ $data->management_img or '' }}" style="width: 60%;height: 30%">
+                                        <img class="layui-upload-img" id="managementShowImage" src="{{ $data->management_img or '' }}" style="width: 200px;height: 200px">
                                     <p id="managementdemoText"></p>
                                 </div>
                             </div>
@@ -346,7 +346,7 @@
                                 <input type="hidden" name="goods_img" id="goods_img" value="{{ $data->goods_img or '' }}"/>
                                 <button type="button" class="layui-btn" id="goodsimage">上传图片</button>
                                 <div class="layui-upload-list">
-                                        <img class="layui-upload-img" id="goodsShowImage" src="{{ $data->goods_img or '' }}" style="width: 60%;height: 30%">
+                                        <img class="layui-upload-img" id="goodsShowImage" src="{{ $data->goods_img or '' }}" style="width: 200px;height: 200px">
                                     <p id="goodsdemoText"></p>
                                 </div>
                             </div>
