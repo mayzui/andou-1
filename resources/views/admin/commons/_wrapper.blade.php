@@ -20,6 +20,9 @@
             <i class="sign-out"></i>
             <span>退出</span>
         </a>
+        <a href="{{route('admin.redis')}}" class="a">
+            <span>刷新缓存</span>
+        </a>
         <div class="a layui-nav-item">
             <img src="{{$admin->avator}}" />
             <a href="javascript:;">{{$admin->name}}</a>

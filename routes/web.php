@@ -26,6 +26,7 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
 
         Route::get('admins/status/{statis}/{admin}','AdminsController@status')->name('admins.status');
         Route::get('admins/allow/{allow_in}/{admin}','AdminsController@allow')->name('admins.allow');
+        Route::get('admins/redis','AdminsController@redis')->name('admin.redis');
 
         Route::get('admins/delete/{admin}','AdminsController@delete')->name('admins.delete');
 
