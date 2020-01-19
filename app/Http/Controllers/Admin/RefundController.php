@@ -111,6 +111,8 @@ class RefundController extends BaseController
                         $money = $user_data ->money + $order_goods_data -> pay_money;
                         // 更新用户表
                         $m = \DB::table('users') -> where('id',$order_goods_data -> user_id) -> update(['money' => $money]);
+                        // 更新订单详情表
+                        \DB::table('order_goods') -> where('id',$all['id']) -> update(['status' => 80]);
                         if($m){
                             \DB::commit();
                             flash("更新成功") -> success();
@@ -168,7 +170,8 @@ class RefundController extends BaseController
                     $result = \WxPayApi::refund($merch,$input); //退款操作
                     // 这句file_put_contents是用来查看服务器返回的退款结果 测试完可以删除了
                     if(($result['return_code']=='SUCCESS') && ($result['result_code']=='SUCCESS')){
-                        $n = DB::table('order_goods') -> where('id',$all['id']) -> update(['status'=>60]);
+                        // 更新订单详情表
+                        \DB::table('order_goods') -> where('id',$all['id']) -> update(['status' => 80]);
                         //退款成功
                         flash('退款成功') -> success();
                         return redirect()->route('refund.aftermarket');
