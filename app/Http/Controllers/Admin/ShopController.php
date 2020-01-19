@@ -1834,6 +1834,7 @@ class ShopController extends BaseController
                 }else{
                     $list = DB::table('orders')
                         -> join('order_goods','orders.order_sn','=','order_goods.order_id')
+                        ->join('goods','order_goods.goods_id','=','goods.id')
                         -> join('users','orders.user_id','=','users.id')
                         -> where('order_goods.is_del',0)
                         ->whereDate('order_goods.created_at','like',$input['times'])
