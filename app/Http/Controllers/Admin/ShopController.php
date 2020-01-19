@@ -75,14 +75,14 @@ class ShopController extends BaseController
         $all = request()->all();
         $id = \Auth::id();
         // 判断该用户，是否开店 并且已经认证通过
-        $i = DB::table('merchants') -> where("user_id",$id) -> where("is_reg",1) -> first();
+        $i = DB::table('merchants') -> where("user_id",$id) -> where('merchant_type_id',2) -> where("is_reg",1) -> first();
         if(!empty($i)) {
             // 如果开店，则查询当前商户的信息
             $where[]=['id','>','0'];
             $where[]=['merchant_type_id',2];
             $screen['merchant_type_id'] = 2;
             if (!empty($all['name'])) {
-                $where[]=['name', 'like', '%'.$all['name'].'%'];
+                $where[]=['merchants.name', 'like', '%'.$all['name'].'%'];
                 $screen['name']=$all['name'];
             }else{
                 $screen['name']='';
@@ -2480,6 +2480,12 @@ class ShopController extends BaseController
             flash($validate->errors()->first())->error()->important();
             return redirect()->route('shop.create');
         }
+        $merchants_data = DB::table('merchants')
+            -> where('user_id',Auth::id())
+            -> where('merchant_type_id',2)
+            -> where('is_reg',1)
+            -> select('id')
+            -> first();
         // 商品详情修改
         $all = \request() -> all();
         // 判断执行新增方法还是执行修改方法
@@ -2604,14 +2610,24 @@ class ShopController extends BaseController
                 // 查询运费模板表
                 $express_modeldata = DB::table('express_model') -> get();
                 $goodBrands = GoodBrands::select('id','name')->orderBy('id','asc')->get();
-                // 查询商品参数
-                $attrData = DB::table('goods_attr') -> get();
-                // 查询商品分类
-                $merchants_goods_type = DB::table('merchants_goods_type')
-                    -> where('is_del',1)
-                    -> where('merchant_id',Auth::id())
-                    -> select('id','name')
-                    -> get();
+                if(empty($merchants_data)){
+                    // 查询商品分类
+                    $merchants_goods_type = DB::table('merchants_goods_type')
+                        -> where('is_del',1)
+                        -> select('id','name')
+                        -> get();
+                    // 查询商品参数
+                    $attrData = DB::table('goods_attr') -> get();
+                }else{
+                    // 查询商品分类
+                    $merchants_goods_type = DB::table('merchants_goods_type')
+                        -> where('is_del',1)
+                        -> where('merchant_id',$merchants_data -> id)
+                        -> select('id','name')
+                        -> get();
+                    // 查询商品参数
+                    $attrData = DB::table('goods_attr')-> where('merchant_id',$merchants_data -> id) -> get();
+                }
                 $goods_attr = DB::table('goods_attr') -> get();
                 $a = DB::table('goods_attr_value') -> get();
                 $arr = [
@@ -2638,14 +2654,24 @@ class ShopController extends BaseController
                 // 查询运费模板表
                 $express_modeldata = DB::table('express_model') -> get();
                 $goodBrands = GoodBrands::select('id','name')->orderBy('id','asc')->get();
-                // 查询商品参数
-                $attrData = DB::table('goods_attr') -> get();
-                // 查询商品分类
-                $merchants_goods_type = DB::table('merchants_goods_type')
-                    -> where('is_del',1)
-                    -> where('merchant_id',Auth::id())
-                    -> select('id','name')
-                    -> get();
+                if(empty($merchants_data)){
+                    // 查询商品分类
+                    $merchants_goods_type = DB::table('merchants_goods_type')
+                        -> where('is_del',1)
+                        -> select('id','name')
+                        -> get();
+                    // 查询商品参数
+                    $attrData = DB::table('goods_attr') -> get();
+                }else{
+                    // 查询商品分类
+                    $merchants_goods_type = DB::table('merchants_goods_type')
+                        -> where('is_del',1)
+                        -> where('merchant_id',$merchants_data -> id)
+                        -> select('id','name')
+                        -> get();
+                    // 查询商品参数
+                    $attrData = DB::table('goods_attr')-> where('merchant_id',$merchants_data -> id) -> get();
+                }
                 $a = DB::table('goods_attr_value') -> get();
                 $arr = [
                     'goodsCate'=>$goodsCate,
@@ -2772,14 +2798,24 @@ class ShopController extends BaseController
                 $express_modeldata = DB::table('express_model') -> get();
                 $level1 = GoodsCate::where('pid','=',0)->get();
                 $goodBrands = GoodBrands::select('id','name')->orderBy('id','asc')->get();
-                // 查询商品参数
-                $attrData = DB::table('goods_attr') -> get();
-                // 查询商品分类
-                $merchants_goods_type = DB::table('merchants_goods_type')
-                    -> where('is_del',1)
-                    -> where('merchant_id',Auth::id())
-                    -> select('id','name')
-                    -> get();
+                if(empty($merchants_data)){
+                    // 查询商品分类
+                    $merchants_goods_type = DB::table('merchants_goods_type')
+                        -> where('is_del',1)
+                        -> select('id','name')
+                        -> get();
+                    // 查询商品参数
+                    $attrData = DB::table('goods_attr') -> get();
+                }else{
+                    // 查询商品分类
+                    $merchants_goods_type = DB::table('merchants_goods_type')
+                        -> where('is_del',1)
+                        -> where('merchant_id',$merchants_data -> id)
+                        -> select('id','name')
+                        -> get();
+                    // 查询商品参数
+                    $attrData = DB::table('goods_attr')-> where('merchant_id',$merchants_data -> id) -> get();
+                }
                 $goods_attr = DB::table('goods_attr') -> get();
                 $a = DB::table('goods_attr_value') -> get();
                 $arr = [

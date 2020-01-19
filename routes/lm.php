@@ -118,7 +118,7 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         // 排序
         Route::get('shop/sort','ShopController@sort')->name('shop.sort');
         // 商城商户
-        Route::get('shop/mall_merchants','ShopController@mall_merchants')->name('shop.mall_merchants');
+        Route::match(['get','post'],'shop/mall_merchants','ShopController@mall_merchants')->name('shop.mall_merchants');
         Route::get('shop/shopStatus','ShopController@shopStatus')->name('shop.shopStatus'); // 修改状态
 
         // 语音提醒
