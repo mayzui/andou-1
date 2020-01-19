@@ -8,12 +8,24 @@ use Illuminate\Http\Request;
 use App\Services\AdminsService;
 use App\Repositories\RolesRepository;
 use App\Http\Requests\Admin\AdminLoginRequest;
+use Illuminate\Support\Facades\Redis;
 
 class AdminsController extends BaseController {
 
     protected $adminsService;
 
     protected $rolesRepository;
+    /*
+     *      刷新redis
+     * */
+    public function redis(){
+        $redis = \Cache::getRedis();
+        $keys = $redis -> keys("*");
+        foreach ($keys as $key) {
+            $redis->del($key);
+        }
+        return redirect()->route('index.index');
+    }
 
     /**
      * AdminsController constructor.

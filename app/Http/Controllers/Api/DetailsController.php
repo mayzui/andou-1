@@ -102,7 +102,7 @@ class DetailsController extends Controller
         foreach($data['hotel_room'] as $key=>$value ) {
             $res=explode(',',$value->desc);
             $data['hotel_room'][$key]->name='';
-            $value->img=json_decode($value->img,true);
+            $value->img=json_decode($value->img,true)??[];
             if (!empty($res)){
                 foreach ($res as $k=>$v){
                     $data['hotel_room'][$key]->name.=DB::table('hotel_faci')
@@ -152,7 +152,7 @@ class DetailsController extends Controller
             ->where('r.id', $all['id'])
             ->where('r.status',1)
             ->first();
-        $data->img=json_decode($data->img,true);
+        $data->img=json_decode($data->img,true)??[];
         return $this->rejson(200, '查询成功', $data);
     }
     /**

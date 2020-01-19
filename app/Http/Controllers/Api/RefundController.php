@@ -76,9 +76,7 @@ class RefundController extends Controller
         if ($check['code']==202) {
             return $this->rejson($check['code'],$check['msg']);
         }
-        if(empty($all['order_id'])){
-            return $this->rejson(201,'请输入订单id');
-        }else if(empty($all['order_goods_id'])){
+        if(empty($all['order_goods_id'])){
             return $this->rejson(201,'请输入订单编号的id');
         }else if(empty($all['reason_id'])){
             return $this->rejson(201,'请输入退款原因id');
