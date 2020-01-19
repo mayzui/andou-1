@@ -224,13 +224,13 @@ class RefundController extends BaseController
     {
         $id = \Auth::id();
         // 判断该用户，是否开店 并且已经认证通过
-        $i = \DB::table('merchants') -> where("user_id",$id) -> where("is_reg",1) -> first();
+        $i = \DB::table('merchants') -> where("user_id",$id)-> where('merchant_type_id',2) -> where("is_reg",1) -> first();
         if(!empty($i)) {
             // 如果开店，则查询当前商户的信息
             // 查询退款原因表中内容
             $data = \DB::table('refund_reason')
                 -> join('merchants','refund_reason.merchant_id','=','merchants.id')
-                -> where('merchants.user_id',$id)
+                -> where('refund_reason.merchant_id',$i -> id)
                 -> select(['merchants.name as merchants_name','refund_reason.id','refund_reason.name as reason_name','refund_reason.is_del'])
                 -> paginate(10);
         }else{
@@ -240,12 +240,13 @@ class RefundController extends BaseController
                 -> select(['merchants.name as merchants_name','refund_reason.id','refund_reason.name as reason_name','refund_reason.is_del'])
                 -> paginate(10);
         }
-        return $this -> view('',['data' => $data]);
+        return $this -> view('',['data' => $data,'i' => $i]);
     }
 
     // 退款原因新增 and 修改
     public function indexChange(){
         $all = \request() -> all();
+        $merchants_data = \DB::table('merchants') -> where("user_id",$id)-> where('merchant_type_id',2) -> where("is_reg",1) -> first();
         if(\request() -> isMethod("get")){
             if(empty($all['id'])){
                 // 跳转新增界面
@@ -259,7 +260,9 @@ class RefundController extends BaseController
             if(empty($all['id'])){
                 // 执行新增操作
                 $data = [
-                    'name' => $all['name']
+                    'merchant_id' => $merchants_data -> id,
+                    'name' => $all['name'],
+                    'type' => 1
                 ];
                 $i = \DB::table('refund_reason') -> insert($data);
                 if($i){
