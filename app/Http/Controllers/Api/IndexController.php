@@ -33,7 +33,8 @@ class IndexController extends Controller
                     {
                         "id": "商户id",
                         "logo_img": "商户logo",
-                        "name": "商户名字"
+                        "name": "商户名字",
+                        "merchant_type_id":"商户类型id"
                     }
                 ],
                 "notice": [
@@ -59,7 +60,7 @@ class IndexController extends Controller
         ->orderBy('sort','ASC')
         ->get();
         $data['merchants']=Db::table('merchants')
-        ->select('id','logo_img','name')
+        ->select('id','logo_img','name','merchant_type_id')
         ->where('recommend',1)
         ->orderBy('updated_at','DESC')
         ->get();
