@@ -66,6 +66,9 @@ class HotelController extends Controller
             ->limit($num)
             ->orderBy('books.created_at','DESC')
             ->get();
+        foreach ($data as $key => $value) {
+            $data[$key]->img=json_decode($value->img)[0] ?? '';
+        }
         return $this->rejson(200,'查询成功',$data);
     }
     /**
