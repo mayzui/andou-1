@@ -838,7 +838,7 @@ class HotelController extends BaseController
 
     //环境设施
     public function  decoration(){
-        $id = Auth::id();     // 当前登录用户的id
+        $id = 2;     // 当前登录用户的id
         // 判断当前用户是否是商家
         $i = DB::table('merchants')
             -> where('user_id',$id)
@@ -900,30 +900,33 @@ class HotelController extends BaseController
                     $type = strtolower(end($end));
                     // 判断上传的文件是否正确
                     if (!in_array($type, $types)) {
-                        return '第'.( $i+ 1).'个文件类型错误';
+                        flash("文件类型错误") -> error();
+                        return redirect()->route('hotel.decoration');
                     } else {
                         //在循环中取得每次要上传的文件的错误情况
                         $error = $choose_file['error'][$i];
                         if ($error != 0) {
-                            flash("第" . ($i + 1) . "个文件上传错误") -> error();
-                            return redirect()->route('shop.create');
+                            flash("文件上传错误") -> error();
+                            return redirect()->route('hotel.decoration');
                         } else {
                             //在循环中取得每次要上传的文件的临时文件
                             $tmp_name = $choose_file['tmp_name'][$i];
                             if (!is_uploaded_file($tmp_name)) {
-                                return "第" . ($i + 1) . "个临时文件错误";
+                                flash(  "临时文件错误") -> error();
+                                return redirect()->route('hotel.decoration');
                             } else {
                                 // 给上传的文件重命名
                                 $newname = $dir.date("YmdHis") . rand(1, 10000) . "." . $type;
                                 $img_array[$i] = substr($newname,strpos($newname,'/shop/shopImage/'));
                                 //对文件执行上传操作
                                 if (!move_uploaded_file($tmp_name, $newname)) {
-                                    return "第" . ($i + 1) . "个文件上传失败";
+                                    flash(  "文件上传失败") -> error();
+                                    return redirect()->route('hotel.decoration');
                                 }
                             }
                         }
                     }
-                }
+                } echo 1;die;
                 // 获取上传的图片路径
                 $img_array = json_encode($img_array);
                 if(empty($input['choose_file'])){
@@ -948,7 +951,7 @@ class HotelController extends BaseController
             $choose_file = $_FILES['choose-file'];
             if ($choose_file['name'][0] == "") {
                 flash("请选择详情图片") -> error();
-                return redirect()->route('shop.create');
+                return redirect()->route('hotel.decoration');
             }
             // 判断保存文件的路径是否存在
             $dir = $_SERVER['DOCUMENT_ROOT']."/shop/shopImage/";
