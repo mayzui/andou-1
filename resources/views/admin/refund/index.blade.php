@@ -7,11 +7,11 @@
             </div>
             <div class="ibox-content">
                 <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>
-                <a href="{{route('refund.indexChange')}}" link-url="javascript:void(0)">
-                    <button class="btn btn-primary btn-sm" type="button">
-                        <i class="fa fa-plus-circle"></i> 新增退货原因
-                    </button>
-                </a>
+                {{--<a href="{{route('refund.indexChange')}}" link-url="javascript:void(0)">--}}
+                    {{--<button class="btn btn-primary btn-sm" type="button">--}}
+                        {{--<i class="fa fa-plus-circle"></i> 新增退货原因--}}
+                    {{--</button>--}}
+                {{--</a>--}}
                 <form method="post" action="{{route('config.index')}}" name="form">
                     <style>
                         th ,td{
@@ -29,6 +29,7 @@
                         </tr>
                         </thead>
                         <tbody>
+                        @if(count($data) > 0)
                         @foreach($data as $k => $item)
                             <tr>
                                 <td>{{$item->id}}</td>
@@ -53,6 +54,11 @@
                                 </td>
                             </tr>
                         @endforeach
+                            @else
+                        <tr>
+                            <td colspan="5">对不起未查询到相关内容</td>
+                        </tr>
+                        @endif
                         </tbody>
                     </table>
                     {{$data}}

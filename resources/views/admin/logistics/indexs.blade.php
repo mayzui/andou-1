@@ -32,6 +32,7 @@
                         </tr>
                         </thead>
                         <tbody>
+                        @if(count($list) > 0)
                         @foreach($list as $k => $item)
                             <tr>
                                 <td>{{$item->id}}</td>
@@ -90,6 +91,11 @@
                                 </td>
                             </tr>
                         @endforeach
+                            @else
+                            <tr>
+                                <td colspan="11">对不起未查询到相关内容</td>
+                            </tr>
+                        @endif
                         </tbody>
                     </table>
                     {{$list}}
