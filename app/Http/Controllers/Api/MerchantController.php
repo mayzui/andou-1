@@ -287,7 +287,8 @@ class MerchantController extends Controller
         if (isset($all['type_id'])) {
             $where[]=['merchants_goods_type_id',$all['type_id']];
         }
-
+        $where[]=['is_sale',1];
+        $where[]=['is_del',0];
         $orderBy='pv';
         $sort='DESC';
         if (isset($all['price_sort'])) {

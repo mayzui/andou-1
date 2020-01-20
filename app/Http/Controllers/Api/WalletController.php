@@ -61,7 +61,7 @@ class WalletController extends Controller
         // 根据用户id 查询资金流动表
         $data['log'] = DB::table('user_logs')
             -> where('user_id',$all['uid'])
-            -> where('type_id',2)
+            -> whereIn('type_id',[2,4])
             -> where('user_logs.is_del',0)
             -> select(['user_logs.superior_id','user_logs.price','user_logs.describe','user_logs.create_time','user_logs.state'])
             -> offset($pages)

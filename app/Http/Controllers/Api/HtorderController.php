@@ -386,9 +386,10 @@ class HtorderController extends Controller
      *     }
      */
     public function refundReason(){
+        $all=request()->all();
         $data=Db::table('refund_reason')
         ->select('id','name')
-        ->where(['type'=>1,'is_del'=>0,'merchants_id'=>$all['merchants_id']])
+        ->where(['type'=>2,'is_del'=>0,'merchant_id'=>$all['merchants_id']])
         ->get();
         return $this->rejson(200,'查询成功',$data);
     }
@@ -422,7 +423,7 @@ class HtorderController extends Controller
         $data['book_sn']=$all['refund_id'];
         DB::beginTransaction(); //开启事务
         $res=Db::table('books')->where('book_sn',$all['book_sn'])->update($data);
-        $ress=Db::table('orders')->where('order_sn',$all['order_sn'])->update(array('status'=>60));
+        $ress=Db::table('orders')->where('order_sn',$all['book_sn'])->update(array('status'=>60));
         if ($res&&$ress) {
             DB::commit();
             return $this->rejson(200,'申请成功');

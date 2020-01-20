@@ -123,7 +123,8 @@ class LoginController extends Controller
             if ($re) {
                 $data['openid']=$all['openid'];
                 $data['password']=Hash::make($all['password']);
-                $data['avator']=$re->avator ?? $all['avator'];
+                $data['avator']='/images/7520e6faa309a1eed8a4fd95fb49770.jpg';
+                // $re->avator ?? $all['avator'];
                 $data['name']=$re->name ?? $all['name'];
                 $re=Db::table('users')->where('mobile',$all['phone'])->update($data);
             }else{
@@ -134,14 +135,15 @@ class LoginController extends Controller
                 $data['is_del']=0;
                 $data['openid']=$all['openid'];
                 $data['password']=Hash::make($all['password']);
-                $data['avator']=$all['avator'];
+                $data['avator']='/images/7520e6faa309a1eed8a4fd95fb49770.jpg';
+                // $all['avator'];
                 $data['name']=$all['name'];
                 $data['mobile']=$all['phone'];
                 $re=Db::table('users')->insertGetId($data);
             }
             if ($re) {
                 $datare=Db::table('users')
-                ->select('id','name','login_count','mobile')
+                ->select('               ','name','login_count','mobile')
                 ->where('mobile',$all['phone'])
                 ->first();
                 $token = $this->token($datare->id);
@@ -196,7 +198,7 @@ class LoginController extends Controller
             $data['source']=0;
             $data['is_del']=0;
             $data['name']='用户:'.$all['phone'];
-            $data['avator']='/uploads/images/avators/201911/29//1575020535_VGSxFj53YP.jpg';
+            $data['avator']='/images/7520e6faa309a1eed8a4fd95fb49770.jpg';
             $re=Db::table('users')->insertGetId($data);
             if ($re) {
                 $data=Db::table('users')
