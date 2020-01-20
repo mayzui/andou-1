@@ -86,7 +86,6 @@ class RefundController extends Controller
         if(empty($id)){
             return $this->rejson('204','未找到订单');
         }
-
         // 接收上传的图片
         if(empty($all['image'])){
             $image[] = '';
@@ -116,7 +115,7 @@ class RefundController extends Controller
             if($i){
                 return $this->rejson(200,'退款申请提交成功');
             }else{
-                return $this->rejson(200,'退款申请提交失败，请重试');
+                return $this->rejson(201,'退款申请提交失败，请重试');
             }
         }catch (\Exception $exception){
 

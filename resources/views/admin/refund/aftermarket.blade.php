@@ -119,7 +119,7 @@
                         @endforeach
                             @else
                             <tr>
-                                <td colspan="8">未查询到相关内容</td>
+                                <td colspan="9">未查询到相关内容</td>
                             </tr>
                         @endif
                         </tbody>

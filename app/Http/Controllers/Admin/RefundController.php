@@ -46,7 +46,7 @@ class RefundController extends BaseController
                 ->join('goods','order_goods.goods_id','=','goods.id')
                 -> join('users','order_goods.user_id','=','users.id')
                 -> join('refund_reason','order_returns.reason_id','=','refund_reason.id')
-                -> where('order_goods.merchant_id',$i -> id)
+                -> where('order_returns.merchant_id',$i -> id)
                 -> where($where)
                 -> select('order_goods.id','order_goods.pay_way','order_goods.express_id','order_goods.courier_num','order_goods.order_id','users.name as user_name','refund_reason.name as retun_name',
                     'order_returns.content','order_returns.is_reg','order_returns.status','goods.id as gid')
