@@ -30,14 +30,32 @@ class FoodsController extends BaseController
                 'status' => 30
             ];
         }
-        $i = DB::table('foods_user_ordering') -> where('id',$all['id']) -> update($data);
-        if ($i) {
-            flash('用户核销成功') -> success();
-            return redirect()->route('foods.orders');
-        }else{
+        DB::beginTransaction();
+        try{
+            // 查询当前订单中的菜品
+            $goods_id = json_decode($foods_user_ordering_data -> foods_id,true);
+            foreach($goods_id as $v){
+                // 根据当前id 查询商品表中数据
+                $goods_data = DB::table('foods_information') -> where('id',$v['id']) -> first();
+                $volume = $goods_data -> quantitySold + $v['num'];
+                DB::table('foods_information') -> where('id',$v['id']) -> update(['quantitySold' => $volume]);
+            }
+            $i = DB::table('foods_user_ordering') -> where('id',$all['id']) -> update($data);
+            if ($i) {
+                DB::commit();
+                flash('用户核销成功') -> success();
+                return redirect()->route('foods.orders');
+            }else{
+                DB::rollBack();
+                flash('用户核销失败，请稍后重试') -> error();
+                return redirect()->route('foods.orders');
+            }
+        }catch (\Exception $exception){
+            DB::rollBack();
             flash('用户核销失败，请稍后重试') -> error();
             return redirect()->route('foods.orders');
         }
+
     }
 
     /*
