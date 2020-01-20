@@ -83,9 +83,17 @@ class RefundController extends Controller
         }
         // 根据当前传入的订单编号的id，查询订单详情表中的订单金额
         $id = DB::table("order_goods") -> where('id',$all['order_goods_id']) -> select('pay_money','merchant_id') -> first();
+        if(empty($id)){
+            return $this->rejson('204','未找到订单');
+        }
 
         // 接收上传的图片
-        $image[] = $all['image'];
+        if(empty($all['image'])){
+            $image[] = '';
+        }else{
+            $image[] = $all['image'];
+
+        }
         // 获取提交的数据
         $data = [
             'returns_amount' => $id -> pay_money,
