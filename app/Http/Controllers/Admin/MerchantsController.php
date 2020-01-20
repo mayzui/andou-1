@@ -131,27 +131,44 @@ class MerchantsController extends BaseController
     // 查看详情
     public function information(){
         $all = \request() -> all();
-//        $id = Auth::id();
-//        $res = DB::table('merchants') -> where('id',$id) -> first();
         if(\request() -> isMethod("get")){
             // 通过传入的id 查询商户信息
             $re = DB::table('merchants')->where('id',$all['id'])->where('merchant_type_id',4)->first();
             if($re){
-                $data = DB::table('merchants')
-                    -> join('merchant_type','merchants.merchant_type_id','=','merchant_type.id')
-                    -> join('merchant_stores','merchants.id','=','merchant_stores.merchant_id')
-                    -> where('merchants.id',$all['id'])
-                    -> select(['merchant_type.type_name','merchants.id',
-                        'merchants.name','merchants.desc',
-                        'merchants.province_id','merchants.city_id',
-                        'merchants.area_id','merchants.address',
-                        'merchants.tel','merchants.user_name',
-                        'merchants.management_type','merchants.management_type',
-                        'merchants.banner_img','merchants.logo_img',
-                        'merchants.door_img','merchants.management_img',
-                        'merchants.goods_img','merchants.merchant_type_id',
-                        'merchants.return_address','merchants.cate_id','merchant_stores.business_start','merchant_stores.business_end'])
-                    -> first();
+                //查询营业时间表
+                $merchant_stores_data =  DB::table("merchant_stores") -> where('merchant_id',$all['id']) -> first();
+                if(!empty($merchant_stores_data)){
+                    $data = DB::table('merchants')
+                        -> join('merchant_type','merchants.merchant_type_id','=','merchant_type.id')
+                        -> join('merchant_stores','merchants.id','=','merchant_stores.merchant_id')
+                        -> where('merchants.id',$all['id'])
+                        -> select(['merchant_type.type_name','merchants.id',
+                            'merchants.name','merchants.desc',
+                            'merchants.province_id','merchants.city_id',
+                            'merchants.area_id','merchants.address',
+                            'merchants.tel','merchants.user_name',
+                            'merchants.management_type','merchants.management_type',
+                            'merchants.banner_img','merchants.logo_img',
+                            'merchants.door_img','merchants.management_img',
+                            'merchants.goods_img','merchants.merchant_type_id',
+                            'merchants.return_address','merchants.cate_id','merchant_stores.business_start','merchant_stores.business_end'])
+                        -> first();
+                }else{
+                    $data = DB::table('merchants')
+                        -> join('merchant_type','merchants.merchant_type_id','=','merchant_type.id')
+                        -> where('merchants.id',$all['id'])
+                        -> select(['merchant_type.type_name','merchants.id',
+                            'merchants.name','merchants.desc',
+                            'merchants.province_id','merchants.city_id',
+                            'merchants.area_id','merchants.address',
+                            'merchants.tel','merchants.user_name',
+                            'merchants.management_type','merchants.management_type',
+                            'merchants.banner_img','merchants.logo_img',
+                            'merchants.door_img','merchants.management_img',
+                            'merchants.goods_img','merchants.merchant_type_id',
+                            'merchants.return_address','merchants.cate_id'])
+                        -> first();
+                }
             }else{
                 $data = DB::table('merchants')
                     -> join('merchant_type','merchants.merchant_type_id','=','merchant_type.id')
@@ -200,6 +217,11 @@ class MerchantsController extends BaseController
                     'business_end'=>$all['business_end'],
                     'created_at'=>date('Y-m-d H:i:s',time())
                 ];
+                if($all['business_start'] > $all['business_end']){
+                    flash("对不起，营业开始时间不能大于营业结束时间") -> error();
+                    return redirect()->route('merchants.index');
+                }
+//                return dd($all['business_start'] > $all['business_end'] ? "no" : "ok");
                 DB::beginTransaction();
                 $a = DB::table('merchant_stores')->where('merchant_id',$all['id'])->first();
                 if($a){
@@ -241,8 +263,16 @@ class MerchantsController extends BaseController
                     'goods_img' => $all['goods_img'],
                     'updated_at' => date("Y-m-d H:i:s")
                 ];
+                $r = DB::table('merchants')->where('id',$all['id'])->update($data);
+                if($r){
+                    flash('保存成功') -> success();
+                    return redirect()->route('merchants.index');
+
+                }else{
+                    flash('保存失败') -> error();
+                    return redirect()->route('merchants.index');
+                }
             }
-            return "ok";
             // 获取当前 商户类型
             $merchants_data = DB::table('merchants') -> where('id',$all['id']) -> first();
             if($merchants_data -> merchant_type_id == 2){

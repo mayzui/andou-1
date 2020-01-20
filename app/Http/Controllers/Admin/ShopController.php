@@ -1376,13 +1376,14 @@ class ShopController extends BaseController
                     break;
                 case 20:
                     // 如果当前用户是商家，则查询当前商户的商品
+                    $mid = DB::table("merchants")->where("user_id",$id)->first(['id']);
                     if($i){
                         $list = DB::table('orders')
                             -> join('order_goods','orders.order_sn','=','order_goods.order_id')
                             ->join('goods','order_goods.goods_id','=','goods.id')
                             -> join('users','orders.user_id','=','users.id')
                             -> where('order_goods.is_del',0)
-                            -> where('order_goods.merchant_id',$id)
+                            -> where('order_goods.merchant_id',$mid->id)
                             ->where('order_goods.status',$status)
                             -> select(['order_goods.id','order_goods.pay_money','order_goods.created_at as pay_time','order_goods.total','orders.shipping_free','orders.order_sn',
                                 'orders.pay_way','orders.remark','order_goods.status as statuss','users.name as user_name','users.mobile','orders.created_at','order_goods.order_source','order_goods.express_id','order_goods.courier_num','goods.name','goods.good_num','goods.id as gid'])
