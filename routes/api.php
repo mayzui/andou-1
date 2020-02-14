@@ -186,4 +186,7 @@ Route::group(['namespace' => 'Api'], function () {
      
      Route::Post('modification/user_head','modificationController@user_head');
      Route::Post('modification/user_pictures','modificationController@user_pictures');
+
+     Route::post('goods/sec_list', 'GoodsController@secKillList');
+     Route::post('goods/sec_goods', 'GoodsController@secGoods');
 });
