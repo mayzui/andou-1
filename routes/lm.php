@@ -127,6 +127,9 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
 
         Route::get('hotel/decoration','HotelController@decoration')->name('hotel.decoration'); // 环境设施
         Route::post('hotel/addDecoration','HotelController@addDecoration')->name('hotel.addDecoration'); // 新增环境图片
+        //秒杀管理
+        Route::get('seckill/list','SeckillController@list')->name('seckill.list'); //秒杀列表
+        Route::get('seckill/del','SeckillController@killDel')->name('seckill.killdel'); //秒杀删除
     });
 });
 ?>
