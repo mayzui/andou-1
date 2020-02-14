@@ -69,11 +69,10 @@
                                             <a href="" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
                                             <a onclick="del({{$item['id']}})"  style="margin-left: 20px;"><button class="btn btn-info btn-xs" type="button"><i class="fa fa-warning"></i> 下架</button></a>
                                         @else
-                                            <a onclick="" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
+                                            <a href="" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
                                             <a onclick="dels({{$item['id']}})" style="margin-left: 20px;"><font style="color: lightgreen">删除</font></a>
                                         @endif
                                     @endif
-
                                 </td>
                             </tr>
                             @endforeach
@@ -100,8 +99,7 @@
         }
         //删除
         function dels(e) {
-            var id = e;
-            alert(id)
+            var id = e
             layer.alert("是否删除该数据？",{icon:3},function (index) {
                 location.href="{{route('seckill.killdels')}}?id="+id;
                 layer.close(index);

@@ -70,4 +70,22 @@ class SeckillController extends BaseController
         flash('下架失败')->success();
         return redirect()->route('seckill.list');
     }
+
+    /**
+     * @author  jsy
+     * @deprecated  秒杀删除
+     */
+
+    public function killDels(Request $request)
+    {
+        $input = $request->all();
+        $id = $input['id'];
+        $delsData = Seckill::where('id',$id)->delete();
+        if ($delsData){
+            flash('删除成功')->success();
+            return redirect()->route('seckill.list');
+        }
+        flash('删除失败')->success();
+        return redirect()->route('seckill.list');
+    }
 }
