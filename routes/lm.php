@@ -133,7 +133,8 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::get('seckill/dels','SeckillController@killDels')->name('seckill.killdels'); //秒杀删除
         Route::match(['get','post'],'seckill/change','SeckillController@killUpd')->name('seckill.killupd');  //秒杀详情
         Route::match(['get','post'],'seckill/edit','SeckillController@killEdit')->name('seckill.edit');  //秒杀编辑
-        Route::match(['get','post'],'seckill/addkill','SeckillController@addKill')->name('seckill.addkill');  //新增秒杀商品
+        Route::match(['get','post'],'seckill/addkill','SeckillController@addKill')->name('seckill.addkill');  //新增秒杀商品页
+        Route::match(['get','post'],'seckill/addkilldata','SeckillController@addkillData')->name('seckill.addkilldata');  //新增秒杀商品
     });
 
 });

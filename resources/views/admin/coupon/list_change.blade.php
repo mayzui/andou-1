@@ -25,7 +25,6 @@
                         </div>
                     </div>
                     <div class="hr-line-dashed m-t-sm m-b-sm"></div>
-
                     <div class="form-group">
                         <label class="col-sm-2 control-label">优惠券分类：</label>
                         <select style="height: 25px;width: 273px;" name="coupon_type_id" id="coupon_type_id">

@@ -130,7 +130,8 @@ class SeckillController extends BaseController
                'end_time'   => $end_time,
                'kill_price' => $kill_price,
                'kill_rule'  => $kill_rule,
-                'num'        => $num
+                'num'        => $num,
+                'updated_at'=> date("Y-m-d:H:i:s",time())
             ]);
         if ($upd) {
             flash('编辑成功')->success();
@@ -147,6 +148,97 @@ class SeckillController extends BaseController
 
      public function addKill(Request $request)
      {
-         return $this->view('');
+         $input = $request->all();
+         if(empty($input['name'])){
+             return $this->view('');
+         }
+         $name = $input['name'];         //商品名称
+         $id = Auth::id();     // 当前登录用户的id
+         // 判断当前用户是否是商家
+         $i = DB::table('merchants')
+             -> where('user_id',$id)
+             -> where('is_reg',1)
+             -> first();
+         if($i) {
+             $serData = DB::table("goods")
+                 ->where('is_sec','=',1)
+                 ->where('merchant_id','=',$i['id'])
+                 ->where('name','like','%'.$name.'%')
+                 ->get(['name','id']);
+             return $this->view('',['data'=>$serData]);
+         }
+         $serData = DB::table("goods")
+                   ->where('is_sec','=',1)
+                   ->where('name','like','%'.$name.'%')
+                   ->get(['name','id']);
+         return $this->view('',['data'=>$serData]);
      }
+
+    /**
+     * @author  jsy
+     * @deprecated  新增秒杀商品
+     */
+
+    public function addkillData(Request $request)
+    {
+        $input      = $request->all();
+        $id = Auth::id();     // 当前登录用户的id
+        $goods_id   = $input['goods_id'];        //秒杀商品id
+        $start_time = $input['start_time'];      //开始时间
+        $end_time   = $input['end_time'];        //结束时间
+        $kill_price = $input['kill_price'];      //秒杀价格
+        $num        = $input['num'];              //秒杀库存
+        $kill_rule  = $input['kill_rule'];        //秒杀规则
+        $s = strtotime($start_time);
+        $e = strtotime($end_time);
+        if($s>$e){
+            echo '<script>alert("结束时间要比开始时间要大");window.location.href="/admin/seckill/addkill";</script>';exit;
+        }
+        if($s<time() && $e<time()){
+            echo '<script>alert("选择的时间不能比当前时间小");window.location.href="/admin/seckill/addkill";</script>';exit;
+        }
+        // 判断当前用户是否是商家
+        $i = DB::table('merchants')
+            -> where('user_id',$id)
+            -> where('is_reg',1)
+            -> first();
+        if($i){
+            $addData = DB::table("seckill_rules")
+                ->insert([
+                    'goods_id'      =>$goods_id,
+                    'start_time'    =>$start_time,
+                    'end_time'      =>$end_time,
+                    'kill_price'    =>$kill_price,
+                    'num'            =>$num,
+                    'kill_rule'     =>$kill_rule,
+                    'status'        =>1,
+                    'created_at'    =>date("Y-m-d:H:i:s",time()),
+                    'merchantsid'   =>$i['id']
+                ]);
+            if($addData){
+                flash('新增成功')->success();
+                return redirect()->route('seckill.list');
+            }
+            flash('新增失败')->error();
+            return redirect()->route('seckill.list');
+        }
+        $addData = DB::table("seckill_rules")
+            ->insert([
+                'goods_id'      =>$goods_id,
+                'start_time'    =>$start_time,
+                'end_time'      =>$end_time,
+                'kill_price'    =>$kill_price,
+                'num'            =>$num,
+                'kill_rule'     =>$kill_rule,
+                'status'        =>1,
+                'created_at'    =>date("Y-m-d:H:i:s",time())
+            ]);
+        if($addData){
+            flash('新增成功')->success();
+            return redirect()->route('seckill.list');
+        }
+        flash('新增失败')->error();
+        return redirect()->route('seckill.list');
+
+    }
 }
