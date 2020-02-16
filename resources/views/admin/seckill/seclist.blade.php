@@ -13,7 +13,11 @@
                 <h5>秒杀管理</h5>
             </div>
             <div class="ibox-title">
-                <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>1
+                <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>
+                <a href="{{route('seckill.addkill')}}" link-url="javascript:void(0)">
+                    <button class="btn btn-primary btn-sm" type="button">
+                        <i class="fa fa-plus-circle"></i> 新增秒杀商品</button>
+                </a>
             </div>
             <div class="ibox-content">
                 <style>
@@ -57,19 +61,19 @@
                                 <td style="width: 300px;">
                                     @if(now()>$item['start_time'] && now()<$item['end_time'])
                                         @if($item['num']==0)
-                                            <a href="" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
+                                            <a href="{{route('seckill.killupd')}}?id={{$item['id']}}" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
                                             <a onclick="dels({{$item['id']}})" style="margin-left: 20px;"><font style="color: lightgreen">删除</font></a>
                                             <a onclick="del({{$item['id']}})"  style="margin-left: 20px;"><button class="btn btn-info btn-xs" type="button"><i class="fa fa-warning"></i> 下架</button></a>
                                         @else
-                                            <a href="" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
+                                            <a href="{{route('seckill.killupd')}}?id={{$item['id']}}" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
                                             <a onclick="del({{$item['id']}})"  style="margin-left: 20px;"><button class="btn btn-info btn-xs" type="button"><i class="fa fa-warning"></i> 下架</button></a>
                                         @endif
                                     @else
                                         @if(now()<$item['start_time'])
-                                            <a href="" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
+                                            <a href="{{route('seckill.killupd')}}?id={{$item['id']}}" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
                                             <a onclick="del({{$item['id']}})"  style="margin-left: 20px;"><button class="btn btn-info btn-xs" type="button"><i class="fa fa-warning"></i> 下架</button></a>
                                         @else
-                                            <a href="" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
+                                            <a href="{{route('seckill.killupd')}}?id={{$item['id']}}" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
                                             <a onclick="dels({{$item['id']}})" style="margin-left: 20px;"><font style="color: lightgreen">删除</font></a>
                                         @endif
                                     @endif

@@ -11,61 +11,58 @@
     <div class="row">
         <div class="col-sm-12">
             <div class="ibox-title">
-                <h5>编辑优惠券</h5>
+                <h5>新增秒杀商品</h5>
             </div>
             <div class="ibox-content">
                 <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>
                 <div class="hr-line-dashed m-t-sm m-b-sm"></div>
-                <form class="form-horizontal m-t-md" action="{{route('coupon.list_change')}}" method="POST">
-                    <input type="hidden" name="id" value="{{ $data -> id or '' }}" />
+                <form class="form-horizontal m-t-md" action="{{route('seckill.edit')}}" method="POST">
                     <div class="form-group">
-                        <label class="col-sm-2 control-label">优惠券名称：</label>
+                        <label class="col-sm-2 control-label">商品关键字</label>
+                        <div class="input-group col-sm-2" style="float: left">
+                            <input type="text" class="form-control" required data-msg-required="" >
+                        </div><button style="float:left;margin-left: 20px;" class="btn btn-default" >搜索</button>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">商品名称</label>
                         <div class="input-group col-sm-2">
-                            <input type="text" name="coupon_name" value="{{$data -> coupon_name or ''}}" class="form-control" required data-msg-required="">
+                            <input type="text" class="form-control" required data-msg-required="">
                         </div>
                     </div>
                     <div class="hr-line-dashed m-t-sm m-b-sm"></div>
-
-                    <div class="form-group">
-                        <label class="col-sm-2 control-label">优惠券分类：</label>
-                        <select style="height: 25px;width: 273px;" name="coupon_type_id" id="coupon_type_id">
-                            @if(empty($data))
-                            <option value="0" >——请选择优惠券分类——</option>
-                            <option value="1" >平台优惠券</option>
-                            <option value="2" disabled >商户优惠券</option>
-                                @else
-                                <option value="0"  >——请选择优惠券分类——</option>
-                                <option value="1" @if($data -> coupon_type_id == 1) selected @endif >平台优惠券</option>
-                                <option value="2" @if($data -> coupon_type_id == 2) selected @endif disabled >商户优惠券</option>
-                            @endif
-                        </select>
-                    </div>
                     <div class="hr-line-dashed m-t-sm m-b-sm"></div>
                     <div class="form-group">
                         <label class="col-sm-2 control-label">开始时间：</label>
                         <div class="input-group col-sm-2">
-                            <input type="datetime-local" class="form-control" class="one_time" value="{{ $data -> start_at or '' }}" name="start_at" placeholder="请选择时间">
+                            <input type="datetime-local" class="form-control" class="one_time"  name="start_time" placeholder="请选择时间">
                         </div>
                     </div>
                     <div class="hr-line-dashed m-t-sm m-b-sm"></div>
                     <div class="form-group">
                         <label class="col-sm-2 control-label">结束时间：</label>
                         <div class="input-group col-sm-2">
-                            <input type="datetime-local" class="form-control" class="end_at" value="{{ $data -> end_at or '' }}" name="end_at" placeholder="请选择时间">
+                            <input type="datetime-local" class="form-control" class="end_at"  name="end_time" placeholder="请选择时间">
                         </div>
                     </div>
                     <div class="hr-line-dashed m-t-sm m-b-sm"></div>
                     <div class="form-group">
-                        <label class="col-sm-2 control-label">优惠券总数：</label>
+                        <label class="col-sm-2 control-label">秒杀价格：</label>
                         <div class="input-group col-sm-2">
-                            <input type="text" name="max_mun" value="{{$data -> max_mun or ''}}" class="form-control" required data-msg-required="">
+                            <input type="text" name="kill_price"  class="form-control" required data-msg-required="">
                         </div>
                     </div>
                     <div class="hr-line-dashed m-t-sm m-b-sm"></div>
                     <div class="form-group">
-                        <label class="col-sm-2 control-label">价值金额：</label>
+                        <label class="col-sm-2 control-label">秒杀库存：</label>
                         <div class="input-group col-sm-2">
-                            <input type="text" name="money" value="{{$data -> money or ''}}" class="form-control" required data-msg-required="">
+                            <input type="text" name="num"  class="form-control" required data-msg-required="">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">秒杀规则：</label>
+                        <div class="input-group col-sm-2">
+                            <textarea name="kill_rule" id=""  cols="60" rows="6"></textarea>
                         </div>
                     </div>
                     <div class="hr-line-dashed m-t-sm m-b-sm"></div>
@@ -106,4 +103,5 @@
         })
     </script>
 @endsection
+
 
