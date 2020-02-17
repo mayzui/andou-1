@@ -19,18 +19,20 @@ class SeckillController extends BaseController
     public function list(Request $request)
     {
         $input = $request->all();
-        $id = Auth::id();     // 当前登录用户的id
+        $id =Auth::id();     // 当前登录用户的id
         // 判断当前用户是否是商家
         $i = DB::table('merchants')
             -> where('user_id',$id)
             -> where('is_reg',1)
             -> first();
-        $seckData = Seckill::where('status',1)->get()->toArray();
+        $seckData = Seckill::where('status',1)->paginate(3);
         if ($i){
-            foreach ($seckData as $k){
+            $mid = $i->id;        //商户id
+            $seckData = Seckill::where(['status'=>1,'merchantsid'=>$mid])->paginate(10);
+            for($i=0;$i<count($seckData);$i++){
                 $sql = DB::table("goods")
-                    ->where('id','=',$k['goods_id'])
-                    ->where('merchant_id','=',$i['id'])
+                    ->where('id','=',$seckData[$i]['goods_id'])
+                    ->where('merchant_id','=',$mid)
                     ->where('is_sec','=',1)
                     ->first(['name']);
                 $arr [] =$sql;
@@ -40,16 +42,17 @@ class SeckillController extends BaseController
             }
             return $this->view('seclist',['list'=>$seckData]);
         }
-        foreach ($seckData as $k){
-             $sql = DB::table("goods")
-                 ->where('id','=',$k['goods_id'])
-                 ->where('is_sec','=',1)
-                 ->first(['name']);
-             $arr [] =$sql;
-             }
+            for($i=0;$i<count($seckData);$i++){
+                $sql = DB::table("goods")
+                    ->where('id','=',$seckData[$i]['goods_id'])
+                    ->where('is_sec','=',1)
+                    ->first(['name']);
+                $arr [] =$sql;
+            }
         for ($i=0;$i<count($seckData);$i++){
             $seckData[$i]['goods_name'] = $arr[$i];
         }
+
         return $this->view('seclist',['list'=>$seckData]);
     }
 
@@ -160,9 +163,10 @@ class SeckillController extends BaseController
              -> where('is_reg',1)
              -> first();
          if($i) {
+             $mid = $i->id;
              $serData = DB::table("goods")
                  ->where('is_sec','=',1)
-                 ->where('merchant_id','=',$i['id'])
+                 ->where('merchant_id','=',$mid)
                  ->where('name','like','%'.$name.'%')
                  ->get(['name','id']);
              return $this->view('',['data'=>$serData]);
@@ -203,6 +207,7 @@ class SeckillController extends BaseController
             -> where('is_reg',1)
             -> first();
         if($i){
+            $mid = $i->id;
             $addData = DB::table("seckill_rules")
                 ->insert([
                     'goods_id'      =>$goods_id,
@@ -213,7 +218,7 @@ class SeckillController extends BaseController
                     'kill_rule'     =>$kill_rule,
                     'status'        =>1,
                     'created_at'    =>date("Y-m-d:H:i:s",time()),
-                    'merchantsid'   =>$i['id']
+                    'merchantsid'   =>$mid
                 ]);
             if($addData){
                 flash('新增成功')->success();
@@ -239,6 +244,40 @@ class SeckillController extends BaseController
         }
         flash('新增失败')->error();
         return redirect()->route('seckill.list');
+    }
 
+    /**
+     * @author  jsy
+     * @deprecated  秒杀统计
+     */
+    public function killCount(Request $request)
+    {
+        $input = $request->all();
+        $id = Auth::id();     // 当前登录用户的id
+        // 判断当前用户是否是商家
+        $i = DB::table('merchants')
+            -> where('user_id',$id)
+            -> where('is_reg',1)
+            -> first();
+        if ($i){
+            $mid = $i->id;
+            $selData = DB::table("seckill_details")
+                ->where('merchantsid','=',$mid)
+                ->paginate(3);
+            return $this->view('killcount',['data'=>$selData]);
+        }
+
+        $selData = DB::table("seckill_details")->paginate(3);
+        for($i=0;$i<count($selData);$i++){
+            $sql = DB::table("goods")
+                ->where('id','=',$selData[$i]->goods_id)
+                ->where('is_sec','=',1)
+                ->first(['name']);
+            $arr [] =$sql;    //商品名称
+        }
+        for ($i=0;$i<count($selData);$i++){
+            $selData[$i]['goods_name'] = $arr[$i];   //赋值商品名称
+        }
+        return $this->view('killcount',['data'=>$selData]);
     }
 }

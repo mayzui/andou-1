@@ -38,47 +38,51 @@
                         </thead>
                         @if(count($list) > 0)
                             @foreach($list as $k => $item)
-                            <tr>
-                                <td>{{$item['id']}}</td>
-                                <td>{{$item['goods_name']->name}}</td>
-                                <td>{{$item['start_time']}}-{{$item['end_time']}}</td>
-                                <td>{{$item['kill_num']}}</td>
-                                <td>
-                                    @if(now()>$item['start_time'] && now()<$item['end_time'])
-                                        @if($item['num']==0)
-                                            进行中（已售罄）
+                                <tr>
+                                    <td>{{$item['id']}}</td>
+                                    <td>
+                                        <?php if(empty($item['goods_name']))
+                                        {}else{
+                                            echo ($item['goods_name']->name);
+                                        }?></td>
+                                    <td>{{$item['start_time']}}-{{$item['end_time']}}</td>
+                                    <td>{{$item['kill_num']}}</td>
+                                    <td>
+                                        @if(now()>$item['start_time'] && now()<$item['end_time'])
+                                            @if($item['num']==0)
+                                                进行中（已售罄）
                                             @else
-                                            进行中
+                                                进行中
                                             @endif
                                         @else
-                                           @if(now()<$item['start_time'])
-                                               尚未开始
-                                               @else
-                                               已结束
-                                               @endif
-                                    @endif
-                                </td>
-                                <td style="width: 300px;">
-                                    @if(now()>$item['start_time'] && now()<$item['end_time'])
-                                        @if($item['num']==0)
-                                            <a href="{{route('seckill.killupd')}}?id={{$item['id']}}" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
-                                            <a onclick="dels({{$item['id']}})" style="margin-left: 20px;"><font style="color: lightgreen">删除</font></a>
-                                            <a onclick="del({{$item['id']}})"  style="margin-left: 20px;"><button class="btn btn-info btn-xs" type="button"><i class="fa fa-warning"></i> 下架</button></a>
-                                        @else
-                                            <a href="{{route('seckill.killupd')}}?id={{$item['id']}}" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
-                                            <a onclick="del({{$item['id']}})"  style="margin-left: 20px;"><button class="btn btn-info btn-xs" type="button"><i class="fa fa-warning"></i> 下架</button></a>
+                                            @if(now()<$item['start_time'])
+                                                尚未开始
+                                            @else
+                                                已结束
+                                            @endif
                                         @endif
-                                    @else
-                                        @if(now()<$item['start_time'])
-                                            <a href="{{route('seckill.killupd')}}?id={{$item['id']}}" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
-                                            <a onclick="del({{$item['id']}})"  style="margin-left: 20px;"><button class="btn btn-info btn-xs" type="button"><i class="fa fa-warning"></i> 下架</button></a>
+                                    </td>
+                                    <td style="width: 300px;">
+                                        @if(now()>$item['start_time'] && now()<$item['end_time'])
+                                            @if($item['num']==0)
+                                                <a href="{{route('seckill.killupd')}}?id={{$item['id']}}" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
+                                                <a onclick="dels({{$item['id']}})" style="margin-left: 20px;"><font style="color: lightgreen">删除</font></a>
+                                                <a onclick="del({{$item['id']}})"  style="margin-left: 20px;"><button class="btn btn-info btn-xs" type="button"><i class="fa fa-warning"></i> 下架</button></a>
+                                            @else
+                                                <a href="{{route('seckill.killupd')}}?id={{$item['id']}}" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
+                                                <a onclick="del({{$item['id']}})"  style="margin-left: 20px;"><button class="btn btn-info btn-xs" type="button"><i class="fa fa-warning"></i> 下架</button></a>
+                                            @endif
                                         @else
-                                            <a href="{{route('seckill.killupd')}}?id={{$item['id']}}" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
-                                            <a onclick="dels({{$item['id']}})" style="margin-left: 20px;"><font style="color: lightgreen">删除</font></a>
+                                            @if(now()<$item['start_time'])
+                                                <a href="{{route('seckill.killupd')}}?id={{$item['id']}}" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
+                                                <a onclick="del({{$item['id']}})"  style="margin-left: 20px;"><button class="btn btn-info btn-xs" type="button"><i class="fa fa-warning"></i> 下架</button></a>
+                                            @else
+                                                <a href="{{route('seckill.killupd')}}?id={{$item['id']}}" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
+                                                <a onclick="dels({{$item['id']}})" style="margin-left: 20px;"><font style="color: lightgreen">删除</font></a>
+                                            @endif
                                         @endif
-                                    @endif
-                                </td>
-                            </tr>
+                                    </td>
+                                </tr>
                             @endforeach
                         @else
                             <tr>
@@ -87,6 +91,7 @@
                         @endif
                         <tbody>
                     </table>
+                {{$list}}
             </div>
         </div>
         <div class="clearfix"></div>
