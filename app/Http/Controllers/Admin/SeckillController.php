@@ -263,11 +263,28 @@ class SeckillController extends BaseController
             $mid = $i->id;
             $selData = DB::table("seckill_details")
                 ->where('merchantsid','=',$mid)
-                ->paginate(3);
+                ->paginate(2);
+            for($i=0;$i<count($selData);$i++){
+                $sql = DB::table("goods")
+                    ->where('id','=',$selData[$i]->goods_id)
+                    ->where('is_sec','=',1)
+                    ->first(['name']);
+                $arr [] =$sql;    //商品名称
+            }
+            for($i=0;$i<count($selData);$i++){
+                $sql = DB::table("users")
+                    ->where('id','=',$selData[$i]->user_id)
+                    ->first(['name']);
+                $user [] =$sql;    //用户名
+            }
+            for ($i=0;$i<count($selData);$i++){
+                $selData[$i]->goods_name = $arr[$i];   //赋值商品名称
+                $selData[$i]->user_name = $user[$i];    //赋值用户名称
+            }
             return $this->view('killcount',['data'=>$selData]);
         }
 
-        $selData = DB::table("seckill_details")->paginate(3);
+        $selData = DB::table("seckill_details")->paginate(2);
         for($i=0;$i<count($selData);$i++){
             $sql = DB::table("goods")
                 ->where('id','=',$selData[$i]->goods_id)
@@ -275,8 +292,15 @@ class SeckillController extends BaseController
                 ->first(['name']);
             $arr [] =$sql;    //商品名称
         }
+        for($i=0;$i<count($selData);$i++){
+            $sql = DB::table("users")
+                ->where('id','=',$selData[$i]->user_id)
+                ->first(['name']);
+            $user [] =$sql;    //用户名
+        }
         for ($i=0;$i<count($selData);$i++){
-            $selData[$i]['goods_name'] = $arr[$i];   //赋值商品名称
+            $selData[$i]->goods_name = $arr[$i];   //赋值商品名称
+            $selData[$i]->user_name = $user[$i];    //赋值用户名称
         }
         return $this->view('killcount',['data'=>$selData]);
     }

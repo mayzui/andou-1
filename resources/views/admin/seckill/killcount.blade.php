@@ -35,7 +35,12 @@
                     @if(count($data) > 0)
                         @foreach($data as $k => $item)
                             <tr>
-
+                               <td>{{$item->id}}</td>
+                                <td>{{$item->goods_name->name}}</td>
+                                <td>{{$item->user_name->name}}</td>
+                                <td>{{$item->sec_price}}</td>
+                                <td>{{$item->sec_time}}</td>
+                                <td>{{$item->order_id}}</td>
                             </tr>
                         @endforeach
                     @else
