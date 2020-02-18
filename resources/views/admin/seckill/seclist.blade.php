@@ -53,11 +53,19 @@
                         @if(count($list) > 0)
                             @foreach($list as $k => $item)
                                 <tr>
-                                    <td>{{$item->id}}</td>
+                                    <td>@if(empty($names))
+                                            {{$item->id}}
+                                        @else
+                                              <?php echo $item->seid?>
+                                        @endif</td>
                                     <td>
-                                        <?php if(empty($item->goods_name))
-                                        {}else{
-                                            echo ($item->goods_name->name);
+                                        <?php if(empty($names)){
+                                            if(empty($item->goods_name))
+                                            {}else{
+                                                echo ($item->goods_name->name);
+                                            }
+                                        }else{
+                                            echo $item->name;
                                         }?></td>
                                     <td>{{$item->start_time}}-{{$item->end_time}}</td>
                                     <td>{{$item->kill_num}}</td>
@@ -76,26 +84,49 @@
                                             @endif
                                         @endif
                                     </td>
-                                    <td style="width: 300px;">
-                                        @if(now()>$item->start_time && now()<$item->end_time)
-                                            @if($item->num==0)
-                                                <a href="{{route('seckill.killupd')}}?id={{$item->id}}" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
-                                                <a onclick="dels({{$item->id}})" style="margin-left: 20px;"><font style="color: lightgreen">删除</font></a>
-                                                <a onclick="del({{$item->id}})"  style="margin-left: 20px;"><button class="btn btn-info btn-xs" type="button"><i class="fa fa-warning"></i> 下架</button></a>
+                                  @if(empty($names))
+                                        <td style="width: 300px;">
+                                            @if(now()>$item->start_time && now()<$item->end_time)
+                                                @if($item->num==0)
+                                                    <a href="{{route('seckill.killupd')}}?id={{$item->id}}" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
+                                                    <a onclick="dels({{$item->id}})" style="margin-left: 20px;"><font style="color: lightgreen">删除</font></a>
+                                                    <a onclick="del({{$item->id}})"  style="margin-left: 20px;"><button class="btn btn-info btn-xs" type="button"><i class="fa fa-warning"></i> 下架</button></a>
+                                                @else
+                                                    <a href="{{route('seckill.killupd')}}?id={{$item->id}}" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
+                                                    <a onclick="del({{$item->id}})"  style="margin-left: 20px;"><button class="btn btn-info btn-xs" type="button"><i class="fa fa-warning"></i> 下架</button></a>
+                                                @endif
                                             @else
-                                                <a href="{{route('seckill.killupd')}}?id={{$item->id}}" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
-                                                <a onclick="del({{$item->id}})"  style="margin-left: 20px;"><button class="btn btn-info btn-xs" type="button"><i class="fa fa-warning"></i> 下架</button></a>
+                                                @if(now()<$item->start_time)
+                                                    <a href="{{route('seckill.killupd')}}?id={{$item->id}}" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
+                                                    <a onclick="del({{$item->id}})"  style="margin-left: 20px;"><button class="btn btn-info btn-xs" type="button"><i class="fa fa-warning"></i> 下架</button></a>
+                                                @else
+                                                    <a href="{{route('seckill.killupd')}}?id={{$item->id}}" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
+                                                    <a onclick="dels({{$item->id}})" style="margin-left: 20px;"><font style="color: lightgreen">删除</font></a>
+                                                @endif
                                             @endif
-                                        @else
-                                            @if(now()<$item->start_time)
-                                                <a href="{{route('seckill.killupd')}}?id={{$item->id}}" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
-                                                <a onclick="del({{$item->id}})"  style="margin-left: 20px;"><button class="btn btn-info btn-xs" type="button"><i class="fa fa-warning"></i> 下架</button></a>
+                                        </td>
+                                      @else
+                                        <td style="width: 300px;">
+                                            @if(now()>$item->start_time && now()<$item->end_time)
+                                                @if($item->num==0)
+                                                    <a href="{{route('seckill.killupd')}}?id={{$item->seid}}" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
+                                                    <a onclick="dels({{$item->seid}})" style="margin-left: 20px;"><font style="color: lightgreen">删除</font></a>
+                                                    <a onclick="del({{$item->seid}})"  style="margin-left: 20px;"><button class="btn btn-info btn-xs" type="button"><i class="fa fa-warning"></i> 下架</button></a>
+                                                @else
+                                                    <a href="{{route('seckill.killupd')}}?id={{$item->seid}}" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
+                                                    <a onclick="del({{$item->seid}})"  style="margin-left: 20px;"><button class="btn btn-info btn-xs" type="button"><i class="fa fa-warning"></i> 下架</button></a>
+                                                @endif
                                             @else
-                                                <a href="{{route('seckill.killupd')}}?id={{$item->id}}" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
-                                                <a onclick="dels({{$item->id}})" style="margin-left: 20px;"><font style="color: lightgreen">删除</font></a>
+                                                @if(now()<$item->start_time)
+                                                    <a href="{{route('seckill.killupd')}}?id={{$item->seid}}" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
+                                                    <a onclick="del({{$item->seid}})"  style="margin-left: 20px;"><button class="btn btn-info btn-xs" type="button"><i class="fa fa-warning"></i> 下架</button></a>
+                                                @else
+                                                    <a href="{{route('seckill.killupd')}}?id={{$item->seid}}" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
+                                                    <a onclick="dels({{$item->seid}})" style="margin-left: 20px;"><font style="color: lightgreen">删除</font></a>
+                                                @endif
                                             @endif
-                                        @endif
-                                    </td>
+                                        </td>
+                                      @endif
                                 </tr>
                             @endforeach
                         @else
@@ -105,13 +136,17 @@
                         @endif
                         <tbody>
                     </table>
-                   @if(empty($status))
-                       {{$list}}
-                   @else
-                    @if(count($list)>0)
-                        {{ $list->appends(['status'=>$status]) }}
+                   @if(empty($names))
+                    @if(empty($status))
+                        {{$list}}
+                    @else
+                        @if(count($list)>0)
+                            {{ $list->appends(['status'=>$status]) }}
+                        @endif
                     @endif
-                   @endif
+                       @else
+                    {{ $list->appends(['status'=>6,'named'=>$names]) }}
+                @endif
             </div>
         </div>
         <div class="clearfix"></div>
@@ -138,7 +173,7 @@
         //搜索
         $("#pse").click(function () {
             var search = $("#names").val();
-            location.href="{{route('seckill.list')}}?name="+search
+            location.href="{{route('seckill.list')}}?name="+search+"&status="+6
         })
     </script>
 @endsection

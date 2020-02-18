@@ -25,16 +25,29 @@ class SeckillController extends BaseController
             -> where('user_id',$id)
             -> where('is_reg',1)
             -> first();
-        //搜索
         if(!empty($input['name'])){
+            if($i){
+                $names  = $input['name'];     //要搜索的商品名字
+                $seckData = DB::table("seckill_rules")
+                    ->join("goods",'seckill_rules.goods_id','=','goods.id')
+                    ->where('seckill_rules.status','=',1)
+                    ->where('goods.is_sec','=',1)
+                    ->where('goods.name','like','%'.$names.'%')
+                    ->where('seckill_rules.merchantsid','=',$i->id)
+                    ->select(['goods.name','seckill_rules.num','seckill_rules.start_time','seckill_rules.end_time','seckill_rules.kill_num','seckill_rules.id as seid'])
+                    ->paginate(3);
+//            var_dump($seckData[0]->seid);die;
+                return $this->view('seclist',['list'=>$seckData,'names'=>$names]);
+            }
             $names  = $input['name'];     //要搜索的商品名字
             $seckData = DB::table("seckill_rules")
-                       ->join("goods",'seckill_rules.goods_id','=','goods.id')
-                       ->where('seckill_rules.status','=',1)
-                       ->where('goods.is_sec','=',1)
-                       ->paginate(3);
-        }else{
-            $seckData = Seckill::where('status',1)->paginate(3);
+                ->join("goods",'seckill_rules.goods_id','=','goods.id')
+                ->where('seckill_rules.status','=',1)
+                ->where('goods.is_sec','=',1)
+                ->where('goods.name','like','%'.$names.'%')
+                ->select(['goods.name','seckill_rules.num','seckill_rules.start_time','seckill_rules.end_time','seckill_rules.kill_num','seckill_rules.id as seid'])
+                ->paginate(3);
+            return $this->view('seclist',['list'=>$seckData,'names'=>$names]);
         }
         if (!empty($input['status'])){
             $status =$input['status'];   //接受状态值
@@ -67,11 +80,34 @@ class SeckillController extends BaseController
                     ->paginate(3);
             }elseif($status==1){
                 $seckData = Seckill::where('status',1)->paginate(3);
+            }elseif($status==6){     //搜索
+                if ($i){
+                    $names  = $input['named'];     //要搜索的商品名字
+                    $seckData = DB::table("seckill_rules")
+                        ->join("goods",'seckill_rules.goods_id','=','goods.id')
+                        ->where('seckill_rules.status','=',1)
+                        ->where('goods.is_sec','=',1)
+                        ->where('goods.name','like','%'.$names.'%')
+                        ->where('seckill_rules.merchantsid','=',$i->id)
+                        ->select(['goods.name','seckill_rules.num','seckill_rules.start_time','seckill_rules.end_time','seckill_rules.kill_num','seckill_rules.id as seid'])
+                        ->paginate(3);
+                    return $this->view('seclist',['list'=>$seckData,'names'=>$names]);
+                }
+                $names  = $input['named'];     //要搜索的商品名字
+                $seckData = DB::table("seckill_rules")
+                    ->join("goods",'seckill_rules.goods_id','=','goods.id')
+                    ->where('seckill_rules.status','=',1)
+                    ->where('goods.is_sec','=',1)
+                    ->where('goods.name','like','%'.$names.'%')
+                    ->select(['goods.name','seckill_rules.num','seckill_rules.start_time','seckill_rules.end_time','seckill_rules.kill_num','seckill_rules.id as seid'])
+                    ->paginate(3);
+                return $this->view('seclist',['list'=>$seckData,'names'=>$names]);
             }else{}
         }else{
             $status = 0;
             $seckData = Seckill::where('status',1)->paginate(3);
         }
+//        exit();
         if ($i){
             $mid = $i->id;        //商户id
             $seckData = Seckill::where(['status'=>1,'merchantsid'=>$mid])->paginate(10);
@@ -98,7 +134,6 @@ class SeckillController extends BaseController
         for ($i=0;$i<count($seckData);$i++){
             $seckData[$i]['goods_name'] = $arr[$i];
         }
-
         if($status==0){
             return $this->view('seclist',['list'=>$seckData]);
         }
