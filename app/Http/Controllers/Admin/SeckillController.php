@@ -25,6 +25,17 @@ class SeckillController extends BaseController
             -> where('user_id',$id)
             -> where('is_reg',1)
             -> first();
+        //搜索
+        if(!empty($input['name'])){
+            $names  = $input['name'];     //要搜索的商品名字
+            $seckData = DB::table("seckill_rules")
+                       ->join("goods",'seckill_rules.goods_id','=','goods.id')
+                       ->where('seckill_rules.status','=',1)
+                       ->where('goods.is_sec','=',1)
+                       ->paginate(3);
+        }else{
+            $seckData = Seckill::where('status',1)->paginate(3);
+        }
         if (!empty($input['status'])){
             $status =$input['status'];   //接受状态值
             if($status ==2) {         //进行中
@@ -87,6 +98,7 @@ class SeckillController extends BaseController
         for ($i=0;$i<count($seckData);$i++){
             $seckData[$i]['goods_name'] = $arr[$i];
         }
+
         if($status==0){
             return $this->view('seclist',['list'=>$seckData]);
         }
