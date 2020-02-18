@@ -18,6 +18,18 @@
                     <button class="btn btn-primary btn-sm" type="button">
                         <i class="fa fa-plus-circle"></i> 新增秒杀商品</button>
                 </a>
+                <a href="{{url('/admin/seckill/list?status=1')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
+                        全部</button>
+                </a>
+                <a href="{{url('/admin/seckill/list?status=2')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
+                    进行中</button>
+                </a>
+                <a href="{{url('/admin/seckill/list?status=3')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
+                        已结束</button>
+                </a>
+                <a href="{{url('/admin/seckill/list?status=4')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
+                        进行中(售罄)</button>
+                </a>
             </div>
             <div class="ibox-content">
                 <style>
@@ -39,23 +51,23 @@
                         @if(count($list) > 0)
                             @foreach($list as $k => $item)
                                 <tr>
-                                    <td>{{$item['id']}}</td>
+                                    <td>{{$item->id}}</td>
                                     <td>
-                                        <?php if(empty($item['goods_name']))
+                                        <?php if(empty($item->goods_name))
                                         {}else{
-                                            echo ($item['goods_name']->name);
+                                            echo ($item->goods_name->name);
                                         }?></td>
-                                    <td>{{$item['start_time']}}-{{$item['end_time']}}</td>
-                                    <td>{{$item['kill_num']}}</td>
+                                    <td>{{$item->start_time}}-{{$item->end_time}}</td>
+                                    <td>{{$item->kill_num}}</td>
                                     <td>
-                                        @if(now()>$item['start_time'] && now()<$item['end_time'])
-                                            @if($item['num']==0)
+                                        @if(now()>$item->start_time && now()<$item->end_time)
+                                            @if($item->num==0)
                                                 进行中（已售罄）
                                             @else
                                                 进行中
                                             @endif
                                         @else
-                                            @if(now()<$item['start_time'])
+                                            @if(now()<$item->start_time)
                                                 尚未开始
                                             @else
                                                 已结束
@@ -63,22 +75,22 @@
                                         @endif
                                     </td>
                                     <td style="width: 300px;">
-                                        @if(now()>$item['start_time'] && now()<$item['end_time'])
-                                            @if($item['num']==0)
-                                                <a href="{{route('seckill.killupd')}}?id={{$item['id']}}" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
-                                                <a onclick="dels({{$item['id']}})" style="margin-left: 20px;"><font style="color: lightgreen">删除</font></a>
-                                                <a onclick="del({{$item['id']}})"  style="margin-left: 20px;"><button class="btn btn-info btn-xs" type="button"><i class="fa fa-warning"></i> 下架</button></a>
+                                        @if(now()>$item->start_time && now()<$item->end_time)
+                                            @if($item->num==0)
+                                                <a href="{{route('seckill.killupd')}}?id={{$item->id}}" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
+                                                <a onclick="dels({{$item->id}})" style="margin-left: 20px;"><font style="color: lightgreen">删除</font></a>
+                                                <a onclick="del({{$item->id}})"  style="margin-left: 20px;"><button class="btn btn-info btn-xs" type="button"><i class="fa fa-warning"></i> 下架</button></a>
                                             @else
-                                                <a href="{{route('seckill.killupd')}}?id={{$item['id']}}" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
-                                                <a onclick="del({{$item['id']}})"  style="margin-left: 20px;"><button class="btn btn-info btn-xs" type="button"><i class="fa fa-warning"></i> 下架</button></a>
+                                                <a href="{{route('seckill.killupd')}}?id={{$item->id}}" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
+                                                <a onclick="del({{$item->id}})"  style="margin-left: 20px;"><button class="btn btn-info btn-xs" type="button"><i class="fa fa-warning"></i> 下架</button></a>
                                             @endif
                                         @else
-                                            @if(now()<$item['start_time'])
-                                                <a href="{{route('seckill.killupd')}}?id={{$item['id']}}" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
-                                                <a onclick="del({{$item['id']}})"  style="margin-left: 20px;"><button class="btn btn-info btn-xs" type="button"><i class="fa fa-warning"></i> 下架</button></a>
+                                            @if(now()<$item->start_time)
+                                                <a href="{{route('seckill.killupd')}}?id={{$item->id}}" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
+                                                <a onclick="del({{$item->id}})"  style="margin-left: 20px;"><button class="btn btn-info btn-xs" type="button"><i class="fa fa-warning"></i> 下架</button></a>
                                             @else
-                                                <a href="{{route('seckill.killupd')}}?id={{$item['id']}}" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
-                                                <a onclick="dels({{$item['id']}})" style="margin-left: 20px;"><font style="color: lightgreen">删除</font></a>
+                                                <a href="{{route('seckill.killupd')}}?id={{$item->id}}" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
+                                                <a onclick="dels({{$item->id}})" style="margin-left: 20px;"><font style="color: lightgreen">删除</font></a>
                                             @endif
                                         @endif
                                     </td>
@@ -91,7 +103,13 @@
                         @endif
                         <tbody>
                     </table>
-                {{$list}}
+                   @if(empty($status))
+                       {{$list}}
+                   @else
+                    @if(count($list)>0)
+                        {{ $list->appends(['status'=>$status]) }}
+                    @endif
+                   @endif
             </div>
         </div>
         <div class="clearfix"></div>

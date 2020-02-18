@@ -25,7 +25,42 @@ class SeckillController extends BaseController
             -> where('user_id',$id)
             -> where('is_reg',1)
             -> first();
-        $seckData = Seckill::where('status',1)->paginate(3);
+        if (!empty($input['status'])){
+            $status =$input['status'];   //接受状态值
+            if($status ==2) {         //进行中
+                $seckData = Seckill::where(['status'=>1])
+                    ->where(function($query){
+                        $query->where('start_time','<',now())
+                            ->where(function($query){
+                                $query->where('end_time','>',now())
+                                    ->where(function($query){
+                                        $query->where('num','!=',0);
+                                    });
+                            });
+                    })
+                    ->paginate(3);
+            }elseif ($status==3){     //已结束
+                $seckData = Seckill::where(['status'=>1])
+                    ->where(function($query){
+                        $query->where('end_time','<',now());
+                    })
+                    ->paginate(3);
+            }elseif ($status==4){     //进行中(售罄)
+                $seckData = Seckill::where(['num'=>0,'status'=>1])
+                    ->where(function($query){
+                        $query->where('start_time','<',now())
+                            ->where(function($query){
+                                $query->where('end_time','>',now());
+                            });
+                    })
+                    ->paginate(3);
+            }elseif($status==1){
+                $seckData = Seckill::where('status',1)->paginate(3);
+            }else{}
+        }else{
+            $status = 0;
+            $seckData = Seckill::where('status',1)->paginate(3);
+        }
         if ($i){
             $mid = $i->id;        //商户id
             $seckData = Seckill::where(['status'=>1,'merchantsid'=>$mid])->paginate(10);
@@ -42,18 +77,20 @@ class SeckillController extends BaseController
             }
             return $this->view('seclist',['list'=>$seckData]);
         }
-            for($i=0;$i<count($seckData);$i++){
+        for($i=0;$i<count($seckData);$i++){
                 $sql = DB::table("goods")
                     ->where('id','=',$seckData[$i]['goods_id'])
                     ->where('is_sec','=',1)
                     ->first(['name']);
                 $arr [] =$sql;
-            }
+        }
         for ($i=0;$i<count($seckData);$i++){
             $seckData[$i]['goods_name'] = $arr[$i];
         }
-
-        return $this->view('seclist',['list'=>$seckData]);
+        if($status==0){
+            return $this->view('seclist',['list'=>$seckData]);
+        }
+        return $this->view('seclist',['list'=>$seckData,'status'=>$status]);
     }
 
     /**
