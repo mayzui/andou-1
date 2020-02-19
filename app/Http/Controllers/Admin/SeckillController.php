@@ -35,7 +35,7 @@ class SeckillController extends BaseController
                     ->where('goods.name','like','%'.$names.'%')
                     ->where('seckill_rules.merchantsid','=',$i->id)
                     ->select(['goods.name','seckill_rules.num','seckill_rules.start_time','seckill_rules.end_time','seckill_rules.kill_num','seckill_rules.id as seid'])
-                    ->paginate(3);
+                    ->paginate(10);
 //            var_dump($seckData[0]->seid);die;
                 return $this->view('seclist',['list'=>$seckData,'names'=>$names]);
             }
@@ -46,7 +46,7 @@ class SeckillController extends BaseController
                 ->where('goods.is_sec','=',1)
                 ->where('goods.name','like','%'.$names.'%')
                 ->select(['goods.name','seckill_rules.num','seckill_rules.start_time','seckill_rules.end_time','seckill_rules.kill_num','seckill_rules.id as seid'])
-                ->paginate(3);
+                ->paginate(10);
             return $this->view('seclist',['list'=>$seckData,'names'=>$names]);
         }
         if (!empty($input['status'])){
@@ -62,13 +62,13 @@ class SeckillController extends BaseController
                                     });
                             });
                     })
-                    ->paginate(3);
+                    ->paginate(10);
             }elseif ($status==3){     //已结束
                 $seckData = Seckill::where(['status'=>1])
                     ->where(function($query){
                         $query->where('end_time','<',now());
                     })
-                    ->paginate(3);
+                    ->paginate(10);
             }elseif ($status==4){     //进行中(售罄)
                 $seckData = Seckill::where(['num'=>0,'status'=>1])
                     ->where(function($query){
@@ -77,9 +77,9 @@ class SeckillController extends BaseController
                                 $query->where('end_time','>',now());
                             });
                     })
-                    ->paginate(3);
+                    ->paginate(10);
             }elseif($status==1){
-                $seckData = Seckill::where('status',1)->paginate(3);
+                $seckData = Seckill::where('status',1)->paginate(10);
             }elseif($status==6){     //搜索
                 if ($i){
                     $names  = $input['named'];     //要搜索的商品名字
@@ -90,7 +90,7 @@ class SeckillController extends BaseController
                         ->where('goods.name','like','%'.$names.'%')
                         ->where('seckill_rules.merchantsid','=',$i->id)
                         ->select(['goods.name','seckill_rules.num','seckill_rules.start_time','seckill_rules.end_time','seckill_rules.kill_num','seckill_rules.id as seid'])
-                        ->paginate(3);
+                        ->paginate(10);
                     return $this->view('seclist',['list'=>$seckData,'names'=>$names]);
                 }
                 $names  = $input['named'];     //要搜索的商品名字
@@ -100,12 +100,12 @@ class SeckillController extends BaseController
                     ->where('goods.is_sec','=',1)
                     ->where('goods.name','like','%'.$names.'%')
                     ->select(['goods.name','seckill_rules.num','seckill_rules.start_time','seckill_rules.end_time','seckill_rules.kill_num','seckill_rules.id as seid'])
-                    ->paginate(3);
+                    ->paginate(10);
                 return $this->view('seclist',['list'=>$seckData,'names'=>$names]);
             }else{}
         }else{
             $status = 0;
-            $seckData = Seckill::where('status',1)->paginate(3);
+            $seckData = Seckill::where('status',1)->paginate(10);
         }
 //        exit();
         if ($i){
@@ -347,7 +347,7 @@ class SeckillController extends BaseController
             $mid = $i->id;
             $selData = DB::table("seckill_details")
                 ->where('merchantsid','=',$mid)
-                ->paginate(2);
+                ->paginate(10);
             for($i=0;$i<count($selData);$i++){
                 $sql = DB::table("goods")
                     ->where('id','=',$selData[$i]->goods_id)
@@ -368,7 +368,7 @@ class SeckillController extends BaseController
             return $this->view('killcount',['data'=>$selData]);
         }
 
-        $selData = DB::table("seckill_details")->paginate(2);
+        $selData = DB::table("seckill_details")->paginate(10);
         for($i=0;$i<count($selData);$i++){
             $sql = DB::table("goods")
                 ->where('id','=',$selData[$i]->goods_id)
