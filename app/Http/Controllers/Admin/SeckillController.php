@@ -388,4 +388,25 @@ class SeckillController extends BaseController
         }
         return $this->view('killcount',['data'=>$selData]);
     }
+
+    /**
+     * @author  jsy
+     * @deprecated  秒杀统计删除
+     */
+    public function countDel(Request $request)
+    {
+        $input = $request->all();
+        $id = $input['id'];
+        $delData = DB::table("seckill_details")
+                   ->where('id',$id)
+                   ->delete();
+        if ($delData){
+            flash('删除成功')->success();
+            return redirect()->route('seckill.count');
+        }else{
+            flash('删除失败')->error();
+            return redirect()->route('seckill.count');
+        }
+
+    }
 }

@@ -30,6 +30,7 @@
                         <th>价格</th>
                         <th>时间</th>
                         <th>订单编号</th>
+                        <th>操作</th>
                     </tr>
                     </thead>
                     @if(count($data) > 0)
@@ -41,6 +42,9 @@
                                 <td>{{$item->sec_price}}</td>
                                 <td>{{$item->sec_time}}</td>
                                 <td>{{$item->order_id}}</td>
+                                <td>
+                                    <a onclick="dels({{$item->id}})"><button class="btn btn-danger btn-xs" type="button"><i class="fa fa-trash-o"></i> 删除</button></a>
+                                </td>
                             </tr>
                         @endforeach
                     @else
@@ -61,7 +65,7 @@
         function dels(e) {
             var id = e
             layer.alert("是否删除该数据？",{icon:3},function (index) {
-                {{--location.href="{{route('seckill.killdels')}}?id="+id;--}}
+                location.href="{{route('seckill.countdel')}}?id="+id;
                 layer.close(index);
             });
         }
