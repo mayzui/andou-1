@@ -36,7 +36,6 @@ class SeckillController extends BaseController
                     ->where('seckill_rules.merchantsid','=',$i->id)
                     ->select(['goods.name','seckill_rules.num','seckill_rules.start_time','seckill_rules.end_time','seckill_rules.kill_num','seckill_rules.id as seid'])
                     ->paginate(10);
-//            var_dump($seckData[0]->seid);die;
                 return $this->view('seclist',['list'=>$seckData,'names'=>$names]);
             }
             $names  = $input['name'];     //要搜索的商品名字
@@ -107,7 +106,7 @@ class SeckillController extends BaseController
             $status = 0;
             $seckData = Seckill::where('status',1)->paginate(10);
         }
-//        exit();
+
         if ($i){
             $mid = $i->id;        //商户id
             $seckData = Seckill::where(['status'=>1,'merchantsid'=>$mid])->paginate(10);
@@ -233,34 +232,65 @@ class SeckillController extends BaseController
      * @deprecated  显示新增秒杀商品页
      */
 
-     public function addKill(Request $request)
-     {
-         $input = $request->all();
-         if(empty($input['name'])){
-             return $this->view('');
-         }
-         $name = $input['name'];         //商品名称
-         $id = Auth::id();     // 当前登录用户的id
-         // 判断当前用户是否是商家
-         $i = DB::table('merchants')
-             -> where('user_id',$id)
-             -> where('is_reg',1)
-             -> first();
-         if($i) {
-             $mid = $i->id;
-             $serData = DB::table("goods")
-                 ->where('is_sec','=',1)
-                 ->where('merchant_id','=',$mid)
-                 ->where('name','like','%'.$name.'%')
-                 ->get(['name','id']);
-             return $this->view('',['data'=>$serData]);
-         }
-         $serData = DB::table("goods")
-                   ->where('is_sec','=',1)
-                   ->where('name','like','%'.$name.'%')
-                   ->get(['name','id']);
-         return $this->view('',['data'=>$serData]);
-     }
+    public function addKill(Request $request)
+    {
+        $input = $request->all();
+        if(empty($input['name'])){
+            return $this->view('');
+        }
+        $name = $input['name'];         //商品名称
+        $id = Auth::id();     // 当前登录用户的id
+        // 判断当前用户是否是商家
+        $i = DB::table('merchants')
+            -> where('user_id',$id)
+            -> where('is_reg',1)
+            -> first();
+        if($i) {
+            $mid = $i->id;
+            $serData = DB::table("goods")
+                ->where('is_sec','=',1)
+                ->where('merchant_id','=',$mid)
+                ->where('name','like','%'.$name.'%')
+                ->get(['name','id']);
+            for($i=0;$i<count($serData);$i++){
+                $goods_id = $serData[$i]->id;       //商品id
+                $sql = DB::table("goods_sku")
+                    ->where('goods_id','=',$goods_id)
+                    ->where('is_valid','=',1)
+                    ->get(['id','attr_value']);
+                $arr [] =$sql;
+            }
+            if(empty($arr)){
+                return $this->view('',['data'=>$serData]);
+            }
+            for ($i=0;$i<count($arr[0]);$i++)
+            {
+                $arr[0][$i]->attr_value = json_decode($arr[0][$i]->attr_value);
+            }
+            return $this->view('',['data'=>$serData,'sku'=>$arr]);
+        }
+        //非商户
+        $serData = DB::table("goods")
+            ->where('is_sec','=',1)
+            ->where('name','like','%'.$name.'%')
+            ->get(['name','id']);
+        for($i=0;$i<count($serData);$i++){
+            $goods_id = $serData[$i]->id;       //商品id
+            $sql = DB::table("goods_sku")
+                ->where('goods_id','=',$goods_id)
+                ->where('is_valid','=',1)
+                ->get(['id','attr_value']);
+            $arr [] =$sql;
+        }
+        if(empty($arr)){
+            return $this->view('',['data'=>$serData]);
+        }
+        for ($i=0;$i<count($arr[0]);$i++)
+        {
+            $arr[0][$i]->attr_value = json_decode($arr[0][$i]->attr_value);
+        }
+        return $this->view('',['data'=>$serData,'sku'=>$arr]);
+    }
 
     /**
      * @author  jsy
@@ -277,6 +307,7 @@ class SeckillController extends BaseController
         $kill_price = $input['kill_price'];      //秒杀价格
         $num        = $input['num'];              //秒杀库存
         $kill_rule  = $input['kill_rule'];        //秒杀规则
+        $sku_id     = $input['sku_id'];           //商品规格id
         $s = strtotime($start_time);
         $e = strtotime($end_time);
         if($s>$e){
@@ -285,7 +316,6 @@ class SeckillController extends BaseController
         if($s<time() && $e<time()){
             echo '<script>alert("选择的时间不能比当前时间小");window.location.href="/admin/seckill/addkill";</script>';exit;
         }
-        // 判断当前用户是否是商家
         $i = DB::table('merchants')
             -> where('user_id',$id)
             -> where('is_reg',1)
@@ -302,7 +332,8 @@ class SeckillController extends BaseController
                     'kill_rule'     =>$kill_rule,
                     'status'        =>1,
                     'created_at'    =>date("Y-m-d:H:i:s",time()),
-                    'merchantsid'   =>$mid
+                    'merchantsid'   =>$mid,
+                    'sku_id'        =>$sku_id
                 ]);
             if($addData){
                 flash('新增成功')->success();
@@ -320,7 +351,8 @@ class SeckillController extends BaseController
                 'num'            =>$num,
                 'kill_rule'     =>$kill_rule,
                 'status'        =>1,
-                'created_at'    =>date("Y-m-d:H:i:s",time())
+                'created_at'    =>date("Y-m-d:H:i:s",time()),
+                'sku_id'        =>$sku_id
             ]);
         if($addData){
             flash('新增成功')->success();

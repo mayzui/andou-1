@@ -25,19 +25,41 @@
                     </div>
                     <div class="form-group">
                         <label class="col-sm-2 control-label">商品名称</label>
-
                         <div class="input-group col-sm-2">
                             <select style="height: 25px;width: 273px;" name="goods_id" id="">
                                 @if(empty($data))
                                     <option>请先搜索商品生成选项列表</option>
                                 @else
-                                  @if(empty($data[0]->name))
+                                    @if(empty($data[0]->name))
                                         <option>未搜索到商品</option>
-                                      @else
+                                    @else
                                         @foreach($data as $k=>$item)
                                             <option value="{{$item->id}}">{{$item->name}}</option>
                                         @endforeach
-                                      @endif
+                                    @endif
+                                @endif
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">商品规格</label>
+                        <div class="input-group col-sm-2">
+                            <select style="height: 25px;width: 273px;" name="sku_id" id="">
+                                @if(empty($sku))
+                                    <option>请先搜索商品生成选项列表</option>
+                                @else
+                                    @foreach($sku[0] as $k=>$item)
+                              <option value="<?php echo $item->id?>">
+                                            @php
+                          $sk_name  = $item->attr_value[0]->name;
+                           $sk_val   = $item->attr_value[0]->value;
+                                            @endphp
+                                            @for($i=0;$i<count($sk_name);$i++)
+                                                {{$sk_name[$i]}}
+                                                {{$sk_val[$i]}}
+                                            @endfor
+                                        </option>
+                                    @endforeach
                                 @endif
                             </select>
                         </div>
