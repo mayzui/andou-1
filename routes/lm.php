@@ -135,6 +135,7 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::match(['get','post'],'seckill/edit','SeckillController@killEdit')->name('seckill.edit');  //秒杀编辑
         Route::match(['get','post'],'seckill/addkill','SeckillController@addKill')->name('seckill.addkill');  //新增秒杀商品页
         Route::match(['get','post'],'seckill/addkilldata','SeckillController@addkillData')->name('seckill.addkilldata');  //新增秒杀商品
+        Route::match(['get','post'],'seckill/sku','SeckillController@sku')->name('seckill.sku');  //秒杀商品规格
         Route::match(['get','post'],'seckill/count','SeckillController@killCount')->name('seckill.count');  //秒杀统计
         Route::match(['get','post'],'seckill/countdel','SeckillController@countDel')->name('seckill.countdel');  //秒杀统计删除
     });

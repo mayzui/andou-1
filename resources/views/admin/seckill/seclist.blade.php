@@ -88,19 +88,19 @@
                                         <td style="width: 300px;">
                                             @if(now()>$item->start_time && now()<$item->end_time)
                                                 @if($item->num==0)
-                                                    <a href="{{route('seckill.killupd')}}?id={{$item->id}}" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
+                                                    <a href="{{route('seckill.killupd')}}?id={{$item->id}}&sku_id={{$item->sku_id}}" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
                                                     <a onclick="dels({{$item->id}})" style="margin-left: 20px;"><font style="color: lightgreen">删除</font></a>
                                                     <a onclick="del({{$item->id}})"  style="margin-left: 20px;"><button class="btn btn-info btn-xs" type="button"><i class="fa fa-warning"></i> 下架</button></a>
                                                 @else
-                                                    <a href="{{route('seckill.killupd')}}?id={{$item->id}}" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
+                                                    <a href="{{route('seckill.killupd')}}?id={{$item->id}}&sku_id={{$item->sku_id}}" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
                                                     <a onclick="del({{$item->id}})"  style="margin-left: 20px;"><button class="btn btn-info btn-xs" type="button"><i class="fa fa-warning"></i> 下架</button></a>
                                                 @endif
                                             @else
                                                 @if(now()<$item->start_time)
-                                                    <a href="{{route('seckill.killupd')}}?id={{$item->id}}" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
+                                                    <a href="{{route('seckill.killupd')}}?id={{$item->id}}&sku_id={{$item->sku_id}}" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
                                                     <a onclick="del({{$item->id}})"  style="margin-left: 20px;"><button class="btn btn-info btn-xs" type="button"><i class="fa fa-warning"></i> 下架</button></a>
                                                 @else
-                                                    <a href="{{route('seckill.killupd')}}?id={{$item->id}}" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
+                                                    <a href="{{route('seckill.killupd')}}?id={{$item->id}}&sku_id={{$item->sku_id}}" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
                                                     <a onclick="dels({{$item->id}})" style="margin-left: 20px;"><font style="color: lightgreen">删除</font></a>
                                                 @endif
                                             @endif
@@ -109,19 +109,19 @@
                                         <td style="width: 300px;">
                                             @if(now()>$item->start_time && now()<$item->end_time)
                                                 @if($item->num==0)
-                                                    <a href="{{route('seckill.killupd')}}?id={{$item->seid}}" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
+                                                    <a href="{{route('seckill.killupd')}}?id={{$item->seid}}&sku_id={{$item->sku_id}}" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
                                                     <a onclick="dels({{$item->seid}})" style="margin-left: 20px;"><font style="color: lightgreen">删除</font></a>
                                                     <a onclick="del({{$item->seid}})"  style="margin-left: 20px;"><button class="btn btn-info btn-xs" type="button"><i class="fa fa-warning"></i> 下架</button></a>
                                                 @else
-                                                    <a href="{{route('seckill.killupd')}}?id={{$item->seid}}" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
+                                                    <a href="{{route('seckill.killupd')}}?id={{$item->seid}}&sku_id={{$item->sku_id}}" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
                                                     <a onclick="del({{$item->seid}})"  style="margin-left: 20px;"><button class="btn btn-info btn-xs" type="button"><i class="fa fa-warning"></i> 下架</button></a>
                                                 @endif
                                             @else
                                                 @if(now()<$item->start_time)
-                                                    <a href="{{route('seckill.killupd')}}?id={{$item->seid}}" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
+                                                    <a href="{{route('seckill.killupd')}}?id={{$item->seid}}&sku_id={{$item->sku_id}}" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
                                                     <a onclick="del({{$item->seid}})"  style="margin-left: 20px;"><button class="btn btn-info btn-xs" type="button"><i class="fa fa-warning"></i> 下架</button></a>
                                                 @else
-                                                    <a href="{{route('seckill.killupd')}}?id={{$item->seid}}" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
+                                                    <a href="{{route('seckill.killupd')}}?id={{$item->seid}}&sku_id={{$item->sku_id}}" style="margin-left: 20px;"><font style="color: lightgreen">修改</font></a>
                                                     <a onclick="dels({{$item->seid}})" style="margin-left: 20px;"><font style="color: lightgreen">删除</font></a>
                                                 @endif
                                             @endif

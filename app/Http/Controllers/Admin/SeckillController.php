@@ -34,7 +34,7 @@ class SeckillController extends BaseController
                     ->where('goods.is_sec','=',1)
                     ->where('goods.name','like','%'.$names.'%')
                     ->where('seckill_rules.merchantsid','=',$i->id)
-                    ->select(['goods.name','seckill_rules.num','seckill_rules.start_time','seckill_rules.end_time','seckill_rules.kill_num','seckill_rules.id as seid'])
+                    ->select(['goods.name','seckill_rules.num','seckill_rules.start_time','seckill_rules.end_time','seckill_rules.kill_num','seckill_rules.id as seid','seckill_rules.sku_id'])
                     ->paginate(10);
                 return $this->view('seclist',['list'=>$seckData,'names'=>$names]);
             }
@@ -44,7 +44,7 @@ class SeckillController extends BaseController
                 ->where('seckill_rules.status','=',1)
                 ->where('goods.is_sec','=',1)
                 ->where('goods.name','like','%'.$names.'%')
-                ->select(['goods.name','seckill_rules.num','seckill_rules.start_time','seckill_rules.end_time','seckill_rules.kill_num','seckill_rules.id as seid'])
+                ->select(['goods.name','seckill_rules.num','seckill_rules.start_time','seckill_rules.end_time','seckill_rules.kill_num','seckill_rules.id as seid','seckill_rules.sku_id'])
                 ->paginate(10);
             return $this->view('seclist',['list'=>$seckData,'names'=>$names]);
         }
@@ -183,17 +183,43 @@ class SeckillController extends BaseController
     public function killUpd(Request $request)
     {
         $input = $request->all();
-        $id = $input['id'];
-        $seckData = Seckill::where(['status'=>1,'id'=>$id])->first()->toArray();
-        $sql = DB::table("goods")
-            ->where('id','=',$seckData['goods_id'])
-            ->where('is_sec','=',1)
-            ->first(['name']);
-        $seckData['start_time']=strtotime($seckData['start_time']);  //开始时间
-        $seckData['end_time']=strtotime($seckData['end_time']);  //结束时间
-        $end_time =  date('Y-m-d',$seckData['end_time'])."T".date('H:i:s',$seckData['end_time']);
-        $start_time =  date('Y-m-d',$seckData['start_time'])."T".date('H:i:s',$seckData['start_time']);
-        return $this->view('sechange',['data'=>$seckData,'gname'=>$sql,'end_time'=>$end_time,'start_time'=>$start_time]);
+        if(empty($input['sku_id']))
+        {
+            $id = $input['id'];
+            $seckData = Seckill::where(['status'=>1,'id'=>$id])->first()->toArray();
+            $sql = DB::table("goods")
+                ->where('id','=',$seckData['goods_id'])
+                ->where('is_sec','=',1)
+                ->first(['name']);
+            $seckData['start_time']=strtotime($seckData['start_time']);  //开始时间
+            $seckData['end_time']=strtotime($seckData['end_time']);  //结束时间
+            $end_time =  date('Y-m-d',$seckData['end_time'])."T".date('H:i:s',$seckData['end_time']);
+            $start_time =  date('Y-m-d',$seckData['start_time'])."T".date('H:i:s',$seckData['start_time']);
+            return $this->view('sechange',['data'=>$seckData,'gname'=>$sql,'end_time'=>$end_time,'start_time'=>$start_time]);
+        }else{
+            $sku_id = $input['sku_id'];   //商品规格id
+            $id = $input['id'];
+            $seckData = Seckill::where(['status'=>1,'id'=>$id])->first()->toArray();
+            //商品规格
+            $skuData = DB::table("goods_sku")
+                ->where('id','=',$sku_id)
+                ->where('is_valid','=',1)
+                ->first(['attr_value','id']);
+            $sql = DB::table("goods")
+                ->where('id','=',$seckData['goods_id'])
+                ->where('is_sec','=',1)
+                ->first(['name']);
+            $gdata =  DB::table("goods_sku")
+                ->where('goods_id','=',$seckData['goods_id'])
+                ->where('is_valid','=',1)
+                ->get(['id','attr_value']);
+            $seckData['start_time']=strtotime($seckData['start_time']);  //开始时间
+            $seckData['end_time']=strtotime($seckData['end_time']);  //结束时间
+            $end_time =  date('Y-m-d',$seckData['end_time'])."T".date('H:i:s',$seckData['end_time']);
+            $start_time =  date('Y-m-d',$seckData['start_time'])."T".date('H:i:s',$seckData['start_time']);
+            return $this->view('sechange',['data'=>$seckData,'gname'=>$sql,'end_time'=>$end_time,'start_time'=>$start_time,'skudata'=>$skuData,'gdata'=>$gdata,'kid'=>$sku_id]);
+        }
+
     }
 
     /**
@@ -210,6 +236,10 @@ class SeckillController extends BaseController
         $kill_price = $input['kill_price'];   //秒杀价格
         $kill_rule  = $input['kill_rule'];    //秒杀规则
         $num  = $input['num'];    //秒杀库存
+        $diffTime =(strtotime($end_time)-strtotime($start_time))/3600;
+        if(!preg_match("/^[1-9][0-9]*$/" ,$diffTime)){
+            echo '<script>alert("活动时间必须是整点");window.location.href="/admin/seckill/list";</script>';exit;
+        }
         $upd = Seckill::where('id',$id)
             ->update([
                'start_time' => $start_time,
@@ -310,11 +340,32 @@ class SeckillController extends BaseController
         $sku_id     = $input['sku_id'];           //商品规格id
         $s = strtotime($start_time);
         $e = strtotime($end_time);
+
+        if(empty($start_time)){
+            echo '<script>alert("未选择时间");window.location.href="/admin/seckill/addkill";</script>';exit;
+        }
+        if(empty($end_time)){
+            echo '<script>alert("未选择时间");window.location.href="/admin/seckill/addkill";</script>';exit;
+        }
+        if(!empty($sku_id)){
+            $skuData = DB::table("goods_sku")
+                ->where('id','=',$sku_id)
+                ->where('is_valid','=',1)
+                ->first(['id','store_num']);
+           if($num<=$skuData->store_num){
+           }else{
+               echo '<script>alert("该商品的库存已超出");window.location.href="/admin/seckill/addkill";</script>';exit;
+           }
+        }
         if($s>$e){
             echo '<script>alert("结束时间要比开始时间要大");window.location.href="/admin/seckill/addkill";</script>';exit;
         }
         if($s<time() && $e<time()){
             echo '<script>alert("选择的时间不能比当前时间小");window.location.href="/admin/seckill/addkill";</script>';exit;
+        }
+      $diffTime = ($e-$s)/3600;
+        if(!preg_match("/^[1-9][0-9]*$/" ,$diffTime)){
+            echo '<script>alert("活动时间必须是整点");window.location.href="/admin/seckill/addkill";</script>';exit;
         }
         $i = DB::table('merchants')
             -> where('user_id',$id)
@@ -439,6 +490,24 @@ class SeckillController extends BaseController
             flash('删除失败')->error();
             return redirect()->route('seckill.count');
         }
+    }
 
+    /**
+     * @author  jsy
+     * @deprecated  秒杀商品规格
+     */
+    public function sku(Request $request)
+    {
+        $input = $request->all();
+        $gid = $input['gid'];
+        $skuData = DB::table("goods_sku")
+            ->where('goods_id','=',$gid)
+            ->where('is_valid','=',1)
+            ->get(['id','attr_value']);
+        for($i=0;$i<count($skuData);$i++){
+            $skuData[$i]->attr_value = json_decode($skuData[$i]->attr_value);
+        }
+
+        echo json_encode(['code'=>0,'data'=>$skuData]);
     }
 }

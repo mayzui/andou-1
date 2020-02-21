@@ -26,7 +26,7 @@
                     <div class="form-group">
                         <label class="col-sm-2 control-label">商品名称</label>
                         <div class="input-group col-sm-2">
-                            <select style="height: 25px;width: 273px;" name="goods_id" id="">
+                            <select style="height: 25px;width: 273px;" name="goods_id" id="gid" class="gid">
                                 @if(empty($data))
                                     <option>请先搜索商品生成选项列表</option>
                                 @else
@@ -44,7 +44,7 @@
                     <div class="form-group">
                         <label class="col-sm-2 control-label">商品规格</label>
                         <div class="input-group col-sm-2">
-                            <select style="height: 25px;width: 273px;" name="sku_id" id="">
+                            <select style="height: 25px;width: 273px;" name="sku_id" id="skus">
                                 @if(empty($sku))
                                     <option>请先搜索商品生成选项列表</option>
                                 @else
@@ -141,11 +141,38 @@
             $('#fonts').val( $.trim(str));
             layer.closeAll();
         })
-
         //搜索
         $("#search").click(function () {
             var search = $("#names").val();
             location.href="{{route('seckill.addkill')}}?name="+search
+        })
+
+        //商品规格
+        $("#skus").change();
+        $("#gid").change(function () {
+            var gid = $("#gid").val();
+            $.ajax({
+                url:'{{url('/admin/seckill/sku')}}',
+                data:{gid:gid},
+                type:'get',
+                success:function (e) {
+                    var data =JSON.parse(e)
+                    // console.log(data);return;
+                    if(data.code==0){
+                        var html = '';
+                        for (i in data.data) {
+                            var  h= '';
+                            var  a= '';
+                            html += '<option value="'+data.data[i]['id']+'">';
+                            for (d in data.data[i]['attr_value'][0].name){
+                                h+=data.data[i]['attr_value'][0].name[d] + data.data[i]['attr_value'][0].value[d]
+                            }
+                            html += h+'</option>';
+                        }
+                        $('#skus').html(html);
+                    }
+                }
+            })
         })
     </script>
 @endsection

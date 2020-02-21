@@ -24,6 +24,38 @@
                             <input type="text" value="{{$gname->name}}" class="form-control" required data-msg-required="">
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">商品规格</label>
+                        <div class="input-group col-sm-2">
+                            <select style="height: 25px;width: 273px;" name="sku_id" id="skus">　
+                                @if(empty($kid))
+                                    <option>暂无规格</option>
+                                @else
+                                    @foreach($gdata as $k=>$item)
+                                        <option value="<?php echo $item->id?>" selected="selected" @if($skudata->id == $item->id) selected="selected"@endif >
+                                            @php
+                                                $attr  = json_decode($skudata->attr_value);
+                                                $attr_value =json_decode($item->attr_value);
+
+                                            @endphp
+                                            @if($skudata->id == $item->id)
+                                                @for ($i=0;$i<count($attr[0]->name);$i++)
+                                                    {{$attr[0]->name[$i]}}
+                                                    {{$attr[0]->value[$i]}}
+                                                @endfor
+                                            @else
+                                                @for ($i=0;$i<count($attr_value[0]->name);$i++)
+                                                    {{$attr_value[0]->name[$i]}}
+                                                    {{$attr_value[0]->value[$i]}}
+                                                @endfor
+                                            @endif
+                                            @endforeach
+
+                                        </option>
+                                 @endif
+                            </select>
+                        </div>
+                    </div>
                     <div class="hr-line-dashed m-t-sm m-b-sm"></div>
                     <div class="hr-line-dashed m-t-sm m-b-sm"></div>
                     <div class="form-group">
