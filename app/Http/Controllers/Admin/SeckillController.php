@@ -338,9 +338,9 @@ class SeckillController extends BaseController
         $num        = $input['num'];              //秒杀库存
         $kill_rule  = $input['kill_rule'];        //秒杀规则
         $sku_id     = $input['sku_id'];           //商品规格id
+        var_dump($start_time);die;
         $s = strtotime($start_time);
         $e = strtotime($end_time);
-
         if(empty($start_time)){
             echo '<script>alert("未选择时间");window.location.href="/admin/seckill/addkill";</script>';exit;
         }
@@ -357,14 +357,11 @@ class SeckillController extends BaseController
                echo '<script>alert("该商品的库存已超出");window.location.href="/admin/seckill/addkill";</script>';exit;
            }
         }
-        if($s>$e){
-            echo '<script>alert("结束时间要比开始时间要大");window.location.href="/admin/seckill/addkill";</script>';exit;
-        }
         if($s<time() && $e<time()){
             echo '<script>alert("选择的时间不能比当前时间小");window.location.href="/admin/seckill/addkill";</script>';exit;
         }
       $diffTime = ($e-$s)/3600;
-        if(!preg_match("/^[1-9][0-9]*$/" ,$diffTime)){
+        if(!is_int($diffTime)){
             echo '<script>alert("活动时间必须是整点");window.location.href="/admin/seckill/addkill";</script>';exit;
         }
         $i = DB::table('merchants')
