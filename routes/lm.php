@@ -138,6 +138,8 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::match(['get','post'],'seckill/sku','SeckillController@sku')->name('seckill.sku');  //秒杀商品规格
         Route::match(['get','post'],'seckill/count','SeckillController@killCount')->name('seckill.count');  //秒杀统计
         Route::match(['get','post'],'seckill/countdel','SeckillController@countDel')->name('seckill.countdel');  //秒杀统计删除
+        //邀请码管理
+        Route::match(['get','post'],'invite/inlist','InviteController@inviteList')->name('invite.inlist');  //邀请码管理列表
     });
 
 });

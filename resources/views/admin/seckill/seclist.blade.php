@@ -18,7 +18,7 @@
                     <button class="btn btn-primary btn-sm" type="button">
                         <i class="fa fa-plus-circle"></i> 新增秒杀商品</button>
                 </a>
-                <input type="text" id="names" required >
+                <input type="text" placeholder="请输入商品名称" id="names" required >
                 <button class="btn btn-primary " type="button"><i class="fa fa-search" id="pse" >搜索</i></button>
                 <a href="{{url('/admin/seckill/list?status=1')}}" link-url="javascript:void(0)"><button class="btn btn-primary btn-sm" type="button">
                         全部</button>
