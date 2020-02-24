@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 class CartController extends Controller
-{   
+{
     public function __construct()
     {
         $all=request()->all();
@@ -57,7 +57,7 @@ class CartController extends Controller
         }else{
             $pages=0;
         }
-        $data=Db::table('cart as c')
+        $data=DB::table('cart as c')
         ->join("goods as g","c.goods_id","=","g.id")
         ->join("goods_sku as s","c.goods_sku_id","=","s.id")
         ->join("merchants as m","c.merchant_id","=","m.id")
@@ -70,7 +70,7 @@ class CartController extends Controller
         return $this->rejson(200,'查询成功',$data);
     }
     /**
-     * @api {post} /api/cart/delcar 删除购物车 
+     * @api {post} /api/cart/delcar 删除购物车
      * @apiName delcar
      * @apiGroup cart
      * @apiParam {string} uid 用户id
@@ -89,7 +89,7 @@ class CartController extends Controller
         if (empty($all['id'])) {
             return $this->rejson(201,'请选择需要删除的数据');
         }
-        $re=Db::table('cart')->where('user_id',$all['uid'])->whereIn('id',$all['id'])->delete();
+        $re=DB::table('cart')->where('user_id',$all['uid'])->whereIn('id',$all['id'])->delete();
         if($re){
             return $this->rejson(200,'删除成功');
         }else{
@@ -97,7 +97,7 @@ class CartController extends Controller
         }
     }
     /**
-     * @api {post} /api/cart/addcar 添加购物车 
+     * @api {post} /api/cart/addcar 添加购物车
      * @apiName addcar
      * @apiGroup cart
      * @apiParam {string} uid 用户id
@@ -142,7 +142,7 @@ class CartController extends Controller
         }
     }
     /**
-     * @api {post} /api/cart/update_num 修改购物车购买数量 
+     * @api {post} /api/cart/update_num 修改购物车购买数量
      * @apiName update_num
      * @apiGroup cart
      * @apiParam {string} uid 用户id
@@ -162,8 +162,8 @@ class CartController extends Controller
             return $this->rejson(201,'缺少参数');
         }
         $data=DB::table('cart')->select('num')->where('id',$all['id'])->first();
-        if ($all['type'] == 1) {   
-            $re=DB::table('cart')->where('id',$all['id'])->increment('num'); 
+        if ($all['type'] == 1) {
+            $re=DB::table('cart')->where('id',$all['id'])->increment('num');
         }else if($all['type'] == 0){
             if ($data->num <= 1) {
                  return $this->rejson(200,'购买数量不能小于1');

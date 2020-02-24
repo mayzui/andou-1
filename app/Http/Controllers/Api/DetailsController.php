@@ -260,7 +260,7 @@ class DetailsController extends Controller
             $da['user_id']=$all['uid'];
             $da['pid']=$all['id'];
             $da['created_at']=date('Y-m-d H:i:s',time());
-            $re=Db::table('fabulous')->insert($da);
+            $re=DB::table('fabulous')->insert($da);
             $res=DB::table('merchants')->where('id',$all['id'])->increment('praise_num');
 
         }

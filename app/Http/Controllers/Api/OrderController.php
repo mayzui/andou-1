@@ -168,7 +168,7 @@ class OrderController extends Controller {
 
         if (!empty($express_id) && !empty($courier_num)) {
 
-            $r01 = Db::table('express')->where('id', $express_id)->first();
+            $r01 = DB::table('express')->where('id', $express_id)->first();
             $type = $r01->com; //快递公司代码
 
             $kuaidi_name = $r01->name;
@@ -247,7 +247,7 @@ class OrderController extends Controller {
         if (empty($all['goods_id']) || empty($all['merchant_id']) || empty($all['goods_sku_id']) || empty($all['num'])) {
             return $this->rejson(201, '缺少参数');
         }
-        $address = Db::table('user_address')->where(['user_id' => $all['uid'], 'is_defualt' => 1])->first();
+        $address = DB::table('user_address')->where(['user_id' => $all['uid'], 'is_defualt' => 1])->first();
         if (empty($address)) {
             return $this->rejson(201, '请填写收货地址');
         } else {
@@ -263,14 +263,14 @@ class OrderController extends Controller {
         $alldata['user_id'] = $data['user_id'] = $all['uid'];
         $alldata['order_sn'] = $data['order_id'] = $this->suiji();
         $alldata['created_at'] = $alldata['updated_at'] = $data['created_at'] = $data['updated_at'] = date('Y-m-d H:i:s', time());
-        $dilivery = Db::table('goods')->select('dilivery', 'weight')->where('id', $all['goods_id'])->first();
+        $dilivery = DB::table('goods')->select('dilivery', 'weight')->where('id', $all['goods_id'])->first();
         if ($dilivery->dilivery > 0) {
             $alldata['shipping_free'] = $data['shipping_free'] = $this->freight($dilivery->weight * $all['num'], $all['num'], $dilivery->dilivery);
         } else {
             $alldata['shipping_free'] = $data['shipping_free'] = 0;
         }
 
-        $datas = Db::table('goods_sku')->where('id', $all['goods_sku_id'])->where('store_num', '>', 0)->first();
+        $datas = DB::table('goods_sku')->where('id', $all['goods_sku_id'])->where('store_num', '>', 0)->first();
         if (empty($data)) {
             return $this->rejson(201, '商品库存不足');
         }
@@ -314,7 +314,7 @@ class OrderController extends Controller {
         if (empty($all['id'])) {
             return $this->rejson(201, '缺少参数');
         }
-        $address = Db::table('user_address')->where(['user_id' => $all['uid'], 'is_defualt' => 1])->first();
+        $address = DB::table('user_address')->where(['user_id' => $all['uid'], 'is_defualt' => 1])->first();
         if (empty($address)) {
             return $this->rejson(201, '请填写收货地址');
         } else {
@@ -339,14 +339,14 @@ class OrderController extends Controller {
                 return $this->rejson(201, '购物车id不存在');
             }
             $data['num'] = $car->num ?? 0;
-            $dilivery = Db::table('goods')->select('dilivery', 'weight')->where('id', $car->goods_id)->first();
+            $dilivery = DB::table('goods')->select('dilivery', 'weight')->where('id', $car->goods_id)->first();
             if ($dilivery->dilivery > 0) {
                 $data['shipping_free'] = $this->freight($dilivery->weight * $data['num'], $data['num'], $dilivery->dilivery);
                 $alldata['shipping_free'] += $data['shipping_free'];
             } else {
                 $data['shipping_free'] = 0;
             }
-            $datas = Db::table('goods_sku')->where('id', $car->goods_sku_id)->where('store_num', '>', 0)->first();
+            $datas = DB::table('goods_sku')->where('id', $car->goods_sku_id)->where('store_num', '>', 0)->first();
             if (empty($datas)) {
                 DB::rollback();
                 return $this->rejson(201, '商品库存不足');
@@ -371,7 +371,7 @@ class OrderController extends Controller {
 
         $res = DB::table('orders')->insert($alldata);
 
-        $red = Db::table('cart')->where('user_id', $all['uid'])->whereIn('id', $all['id'])->delete();
+        $red = DB::table('cart')->where('user_id', $all['uid'])->whereIn('id', $all['id'])->delete();
 
         if ($res && $red) {
             DB::commit();
@@ -448,7 +448,7 @@ class OrderController extends Controller {
             $data->integral = $integral;
         }
 
-        $address = Db::table('user_address')
+        $address = DB::table('user_address')
             ->where('id', $data->address_id)
             ->first();
         $province = DB::table('districts')->where('id', $address->province_id)->first()->name ?? '';
@@ -533,7 +533,7 @@ class OrderController extends Controller {
 
         $integral = DB::table('config')->where('key', 'integral')->first()->value;
         $data->integral = floor(($data->order_money - $data->shipping_free) * $integral);
-        $address = Db::table('user_address')
+        $address = DB::table('user_address')
             ->where('id', $data->address_id)
             ->first();
         $province = DB::table('districts')->where('id', $address->province_id)->first()->name ?? '';
@@ -624,7 +624,7 @@ class OrderController extends Controller {
 
         $integral = DB::table('config')->where('key', 'integral')->first()->value;
         $data->integral = floor(($data->order_money - $data->shipping_free) * $integral);
-        $address = Db::table('user_address')
+        $address = DB::table('user_address')
             ->where('id', $data->address_id)
             ->first();
 
@@ -688,17 +688,17 @@ class OrderController extends Controller {
             return $this->rejson(201, '参数错误');
         }
         $sNo = $all['sNo'];
-        $users = Db::table('users')
+        $users = DB::table('users')
             ->select('money', 'integral')
             ->where('id', $all['uid'])
             ->first();
-        $orders = Db::table('orders')
+        $orders = DB::table('orders')
             ->where(['order_sn' => $sNo, 'status' => 10, 'user_id' => $all['uid']])
             ->first();
         if (empty($orders)) {
             return $this->rejson(201, '订单不存在');
         }
-        $order_goods = Db::table('order_goods')->where('order_id', $sNo)->get();
+        $order_goods = DB::table('order_goods')->where('order_id', $sNo)->get();
         if ($all['is_integral'] == 1) {
             $integrals = DB::table('config')->where('key', 'integral')->first()->value;
             $integral = floor(($orders->order_money - $orders->shipping_free) * $integrals);
@@ -708,10 +708,10 @@ class OrderController extends Controller {
                 foreach ($order_goods as $key => $value) {
                     $uporder['integral'] = floor(($value->pay_money - $value->shipping_free) * $integrals);
                     $uporder['pay_money'] = $value->pay_money - $uporder['integral'];
-                    Db::table('order_goods')->where('id', $value->id)->update($uporder);
+                    DB::table('order_goods')->where('id', $value->id)->update($uporder);
                 }
                 $dataintegral['integral'] = $integral;
-                Db::table('orders')->where('order_sn', $sNo)->update($dataintegral);
+                DB::table('orders')->where('order_sn', $sNo)->update($dataintegral);
             }
         } else {
             $integral = 0;
@@ -762,13 +762,13 @@ class OrderController extends Controller {
 
         $sNo = $all['sNo'];
 
-        $orders = Db::table('orders')
+        $orders = DB::table('orders')
             ->where('order_sn', $sNo)
             ->first();
         if (empty($orders)) {
             return $this->rejson(201, '订单不存在');
         }
-        $order_goods = Db::table('order_goods')->where('order_id', $sNo)->get();
+        $order_goods = DB::table('order_goods')->where('order_id', $sNo)->get();
         if (isset($all['is_integral']) && $all['is_integral'] == 1) {
             $allintegral = DB::table('users')->where('id', $all['uid'])->first()->integral;
             $integrals = DB::table('config')->where('key', 'integral')->first()->value;
@@ -779,10 +779,10 @@ class OrderController extends Controller {
                 foreach ($order_goods as $key => $value) {
                     $uporder['integral'] = floor(($value->pay_money - $value->shipping_free) * $integrals);
                     $uporder['pay_money'] = $value->pay_money - $uporder['integral'];
-                    Db::table('order_goods')->where('id', $value->id)->update($uporder);
+                    DB::table('order_goods')->where('id', $value->id)->update($uporder);
                 }
                 $dataintegral['integral'] = $integral;
-                Db::table('orders')->where('order_sn', $sNo)->update($dataintegral);
+                DB::table('orders')->where('order_sn', $sNo)->update($dataintegral);
             }
         } else {
             $integral = 0;
@@ -899,11 +899,11 @@ class OrderController extends Controller {
         if (empty($all['id'])) {
             return $this->rejson(201, '缺少参数');
         }
-        $re = Db::table('order_goods')->where(['id' => $all['id'], 'status' => 40])->first();
+        $re = DB::table('order_goods')->where(['id' => $all['id'], 'status' => 40])->first();
         if (empty($re)) {
             return $this->rejson(201, '订单不存在');
         }
-        $name = Db::table('goods')->where('id', $re->goods_id)->first()->name ?? '';
+        $name = DB::table('goods')->where('id', $re->goods_id)->first()->name ?? '';
         $log['price'] = $re->total;
         $order_sn = $re->order_id;
         $log['msg'] = $name . '出售成功,订单编号：' . $re->order_id;
@@ -913,12 +913,12 @@ class OrderController extends Controller {
         $log['user_id'] = $re->user_id;
         $log['merchant_id'] = $re->merchant_id;
         DB::beginTransaction(); //开启事务
-        $res = Db::table('merchant_log')->insert($log);
-        $ress = Db::table('merchants')->where('id', $re->merchant_id)->increment('money', $log['price']);
-        $ordre = Db::table('order_goods')->where('id', $all['id'])->update(['status' => 50]);
-        $re = Db::table('order_goods')->where(['id' => $all['id'], 'status' => 40])->first();
+        $res = DB::table('merchant_log')->insert($log);
+        $ress = DB::table('merchants')->where('id', $re->merchant_id)->increment('money', $log['price']);
+        $ordre = DB::table('order_goods')->where('id', $all['id'])->update(['status' => 50]);
+        $re = DB::table('order_goods')->where(['id' => $all['id'], 'status' => 40])->first();
         if (empty($re)) {
-            $ordres = Db::table('orders')->where('order_sn', $order_sn)->update(['status' => 50]);
+            $ordres = DB::table('orders')->where('order_sn', $order_sn)->update(['status' => 50]);
         } else {
             $ordres = 1;
         }

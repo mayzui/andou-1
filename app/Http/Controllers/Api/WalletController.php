@@ -297,7 +297,7 @@ class WalletController extends Controller
      *     }
      */
     public function payWays(){
-        $data=Db::table('pay_ways')->select('id','pay_way','logo')
+        $data=DB::table('pay_ways')->select('id','pay_way','logo')
             ->having('id','!=',4)
             ->where('status',1)->get();
         return $this->rejson(200,'查询成功',json_decode($data,JSON_UNESCAPED_UNICODE));
@@ -366,7 +366,7 @@ class WalletController extends Controller
             return $this->rejson(201,'参数错误');
         }
         //查找表里是否有此订单
-        $orders = Db::table('recharge')
+        $orders = DB::table('recharge')
             ->where('order_sn',$sNo)
             ->first();
         if (empty($orders)) {
@@ -444,9 +444,9 @@ class WalletController extends Controller
         $data->collect = DB::table('collection')->where('user_id',$all['uid'])->where('type',1)->count();
         $data->focus = DB::table('collection')->where('user_id',$all['uid'])->where('type',3)->count();
         $data->record = DB::table('see_log')->where('user_id',$all['uid'])->where('type',2)->count();
-        $data->goodordernum=Db::table('order_goods')->where('user_id',$all['uid'])->whereIn('status',['10','50'])->count();
-        $data->booksordernum=Db::table('books')->where('user_id',$all['uid'])->whereIn('status',['20'])->count();
-        $data->foodsordernum=Db::table('foods_user_ordering')->where('user_id',$all['uid'])->whereIn('status',['20'])->count();
+        $data->goodordernum=DB::table('order_goods')->where('user_id',$all['uid'])->whereIn('status',['10','50'])->count();
+        $data->booksordernum=DB::table('books')->where('user_id',$all['uid'])->whereIn('status',['20'])->count();
+        $data->foodsordernum=DB::table('foods_user_ordering')->where('user_id',$all['uid'])->whereIn('status',['20'])->count();
         if(empty($grade)){
             $data->status = 0;
             $data -> grade = 0;

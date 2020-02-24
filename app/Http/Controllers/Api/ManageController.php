@@ -388,7 +388,7 @@ class ManageController extends Controller
         }
         $integral=DB::table('config')->where('key','integral')->first()->value;
         $data->integral=floor(($data->order_money-$data->shipping_free)*$integral);
-        $address=Db::table('user_address')
+        $address=DB::table('user_address')
             ->where('id',$data->address_id)
             ->first();
         $province=DB::table('districts')->where('id',$address->province_id)->first()->name ?? '';

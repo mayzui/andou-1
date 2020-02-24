@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 class UsersaddressController extends Controller
-{   
+{
     public function __construct()
     {
         $all=request()->all();
@@ -25,7 +25,7 @@ class UsersaddressController extends Controller
     }
 
     /**
-     * @api {post} /api/Usersaddress/address_add 添加收货地址 
+     * @api {post} /api/Usersaddress/address_add 添加收货地址
      * @apiName address_add
      * @apiGroup Usersaddress
      * @apiParam {string} uid 用户id
@@ -58,13 +58,13 @@ class UsersaddressController extends Controller
         $data['created_at']=$data['updated_at']=date('Y-m-d H:i:s',time());
         $data['is_defualt']=$all['is_defualt'];
         $data['user_id']=$all['uid'];
-        
+
         DB::beginTransaction(); //开启事务
         if ($all['is_defualt']==1) {
             $datas['is_defualt']=0;
-            $re=Db::table('user_address')->where('user_id',$all['uid'])->update($datas);   
+            $re=DB::table('user_address')->where('user_id',$all['uid'])->update($datas);
         }
-        $res=Db::table('user_address')->insert($data);
+        $res=DB::table('user_address')->insert($data);
         if ($res) {
             DB::commit();
             return $this->rejson(200,'添加成功');
@@ -74,7 +74,7 @@ class UsersaddressController extends Controller
         }
     }
     /**
-     * @api {post} /api/Usersaddress/address 收货地址列表 
+     * @api {post} /api/Usersaddress/address 收货地址列表
      * @apiName address
      * @apiGroup Usersaddress
      * @apiParam {string} uid 用户id
@@ -102,7 +102,7 @@ class UsersaddressController extends Controller
      */
     public function address(){
         $all=request()->all();
-        $data=Db::table('user_address')
+        $data=DB::table('user_address')
         ->select('id','name','mobile','is_defualt','province_id','city_id','area_id','address')
         ->where('user_id',$all['uid'])
         ->get();
@@ -114,7 +114,7 @@ class UsersaddressController extends Controller
         return $this->rejson(200,'查询成功',$data);
     }
     /**
-     * @api {post} /api/Usersaddress/defualt 设置默认地址 
+     * @api {post} /api/Usersaddress/defualt 设置默认地址
      * @apiName defualt
      * @apiGroup Usersaddress
      * @apiParam {string} id 地址id
@@ -135,8 +135,8 @@ class UsersaddressController extends Controller
         $data['is_defualt']=1;
         $datas['is_defualt']=0;
         DB::beginTransaction(); //开启事务
-        $re=Db::table('user_address')->where('user_id',$all['uid'])->update($datas);
-        $res=Db::table('user_address')->where(['user_id'=>$all['uid'],'id'=>$all['id']])->update($data);
+        $re=DB::table('user_address')->where('user_id',$all['uid'])->update($datas);
+        $res=DB::table('user_address')->where(['user_id'=>$all['uid'],'id'=>$all['id']])->update($data);
         if ($re&&$res) {
             DB::commit();
             return $this->rejson(200,'设置成功');
@@ -146,7 +146,7 @@ class UsersaddressController extends Controller
         }
     }
     /**
-     * @api {post} /api/Usersaddress/details 地址详细 
+     * @api {post} /api/Usersaddress/details 地址详细
      * @apiName details
      * @apiGroup Usersaddress
      * @apiParam {string} id 地址id
@@ -176,7 +176,7 @@ class UsersaddressController extends Controller
         if (!isset($all['id'])) {
             return $this->rejson(201,'缺少参数');
         }
-        $data=Db::table('user_address')
+        $data=DB::table('user_address')
         ->select('id','name','mobile','is_defualt','province_id','city_id','area_id','address')
         ->where(['user_id'=>$all['uid'],'id'=>$all['id']])
         ->first();
@@ -186,7 +186,7 @@ class UsersaddressController extends Controller
         return $this->rejson(200,'查询成功',$data);
     }
     /**
-     * @api {post} /api/Usersaddress/address_edit 修改收货地址 
+     * @api {post} /api/Usersaddress/address_edit 修改收货地址
      * @apiName address_edit
      * @apiGroup Usersaddress
      * @apiParam {string} id 地址id
@@ -198,7 +198,7 @@ class UsersaddressController extends Controller
      * @apiParam {string} city_id 地址市id
      * @apiParam {string} area_id 地址区id
      * @apiParam {string} address 详细地址
-     * @apiParam {string} is_defualt 是否默认地址 1为默认 
+     * @apiParam {string} is_defualt 是否默认地址 1为默认
      * @apiSuccessExample 参数返回:
      *     {
      *       "code": "200",
@@ -222,13 +222,13 @@ class UsersaddressController extends Controller
         $data['user_id']=$all['uid'];
         if ($all['is_defualt']==1) {
             $datas['is_defualt']=0;
-            $re=Db::table('user_address')->where('user_id',$all['uid'])->update($datas);
+            $re=DB::table('user_address')->where('user_id',$all['uid'])->update($datas);
         }
-        $res=Db::table('user_address')->where(['user_id'=>$all['uid'],'id'=>$all['id']])->update($data);
-        return $this->rejson(200,'修改成功');    
+        $res=DB::table('user_address')->where(['user_id'=>$all['uid'],'id'=>$all['id']])->update($data);
+        return $this->rejson(200,'修改成功');
     }
     /**
-     * @api {post} /api/Usersaddress/address_del 删除地址 
+     * @api {post} /api/Usersaddress/address_del 删除地址
      * @apiName address_del
      * @apiGroup Usersaddress
      * @apiParam {string} id 地址id
@@ -246,7 +246,7 @@ class UsersaddressController extends Controller
         if (!isset($all['id'])) {
             return $this->rejson(201,'缺少参数');
         }
-        $re=Db::table('user_address')
+        $re=DB::table('user_address')
         ->where(['user_id'=>$all['uid'],'id'=>$all['id']])
         ->delete();
         if ($re) {

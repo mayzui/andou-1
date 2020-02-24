@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Hash;
 use Auth;
 class LoginController extends Controller
-{   
+{
     /**
      * @api {post} /api/login/login_p 手机登陆
      * @apiName loginP
@@ -41,7 +41,7 @@ class LoginController extends Controller
         ])){
             return $this->rejson(201,'账号密码错误');
         }else{
-            $data=Db::table('users')
+            $data=DB::table('users')
             ->select('id','name','login_count','mobile')
             ->where('mobile',$phone)
             ->first();
@@ -52,7 +52,7 @@ class LoginController extends Controller
             $data->token = $token['noncestr'];
             return $this->rejson(200,'登陆成功',$data);
         }
-        
+
     }
     /**
      * @api {post} /api/login/wxlogin 微信登陆
@@ -75,8 +75,8 @@ class LoginController extends Controller
        $all=request()->all();
        $code = $all['code'] ?? '';
        $user = $this->getUserAccessUserInfo($code);
-       
-       $re=Db::table('users')
+
+       $re=DB::table('users')
             ->select('id','name','login_count','mobile')
             ->where('openid',$user['openid'])
             ->first();
@@ -86,7 +86,7 @@ class LoginController extends Controller
             $datas['login_count']=$re->login_count+1;
             DB::table('users')->where('openid',$user['openid'])->update($datas);
             $re->token = $token['noncestr'];
-            return $this->rejson(200,'登陆成功',$re);   
+            return $this->rejson(200,'登陆成功',$re);
        }else{
             $data['openid']=$user['openid'];
             $data['name']=$user['nickname'];
@@ -119,14 +119,14 @@ class LoginController extends Controller
             if ($all['verify'] != Redis::get($all['phone'])) {
                 return $this->rejson(201,'验证码错误');
             }
-            $re=Db::table('users')->where('mobile',$all['phone'])->first();
+            $re=DB::table('users')->where('mobile',$all['phone'])->first();
             if ($re) {
                 $data['openid']=$all['openid'];
                 $data['password']=Hash::make($all['password']);
                 $data['avator']='/images/7520e6faa309a1eed8a4fd95fb49770.jpg';
                 // $re->avator ?? $all['avator'];
                 $data['name']=$re->name ?? $all['name'];
-                $re=Db::table('users')->where('mobile',$all['phone'])->update($data);
+                $re=DB::table('users')->where('mobile',$all['phone'])->update($data);
             }else{
                 $data['create_ip'] = request()->ip();
                 $data['last_login_ip'] = request()->ip();
@@ -139,10 +139,10 @@ class LoginController extends Controller
                 // $all['avator'];
                 $data['name']=$all['name'];
                 $data['mobile']=$all['phone'];
-                $re=Db::table('users')->insertGetId($data);
+                $re=DB::table('users')->insertGetId($data);
             }
             if ($re) {
-                $datare=Db::table('users')
+                $datare=DB::table('users')
                 ->select('               ','name','login_count','mobile')
                 ->where('mobile',$all['phone'])
                 ->first();
@@ -186,7 +186,7 @@ class LoginController extends Controller
             if ($all['verify'] != Redis::get($all['phone'])) {
                 return $this->rejson(201,'验证码错误');
             }
-            $re=Db::table('users')->where('mobile',$all['phone'])->first();
+            $re=DB::table('users')->where('mobile',$all['phone'])->first();
             if ($re) {
                 return $this->rejson(201,'账户已存在');
             }
@@ -199,9 +199,9 @@ class LoginController extends Controller
             $data['is_del']=0;
             $data['name']='用户:'.$all['phone'];
             $data['avator']='/images/7520e6faa309a1eed8a4fd95fb49770.jpg';
-            $re=Db::table('users')->insertGetId($data);
+            $re=DB::table('users')->insertGetId($data);
             if ($re) {
-                $data=Db::table('users')
+                $data=DB::table('users')
                 ->select('id','name','mobile')
                 ->where('mobile',$all['phone'])
                 ->first();
@@ -221,7 +221,7 @@ class LoginController extends Controller
      *     {
      *       "code": "200",
      *       "data": {
-     *        
+     *
      *       },
      *       "msg":"登陆成功"
      *     }
@@ -231,16 +231,16 @@ class LoginController extends Controller
         $all=request()->all();
         $mobile=$all['phone'];
         $type=$all['type'];
-        $pattern = "/^1[34578]\d{9}$/"; 
+        $pattern = "/^1[34578]\d{9}$/";
         $res_1=preg_match($pattern,$mobile);
         if (empty($mobile) || !$res_1) {
             return $this->rejson(201,'参数错误');
         }
         if (!empty($type) && $type == 1) {
-            $re=Db::table('users')->where('mobile',$mobile)->first();
+            $re=DB::table('users')->where('mobile',$mobile)->first();
             if ($re) {
                 return $this->rejson(201,'账户已存在');
-            }            
+            }
         }
         $send = $this->sendmessage($code,$mobile);
 
@@ -249,7 +249,7 @@ class LoginController extends Controller
         }else{
             return $this->rejson(201,'发送短信验证失败');
         }
-         
+
     }
     /**
      * @api {post} /api/login/forget 忘记密码
@@ -276,7 +276,7 @@ class LoginController extends Controller
        if ($all['verify'] != Redis::get($all['phone'])) {
                 return $this->rejson(201,'验证码错误');
         }
-        $re=Db::table('users')->where('mobile',$mobile)->first();
+        $re=DB::table('users')->where('mobile',$mobile)->first();
         if (empty($re)) {
 
             return $this->rejson(201,'用户不存在');
@@ -284,7 +284,7 @@ class LoginController extends Controller
 
        $new_password=$all['new_password'];
        $datas['password']=Hash::make($new_password);
-       $re=Db::table('users')->where('mobile',$mobile)->update($datas);
+       $re=DB::table('users')->where('mobile',$mobile)->update($datas);
         $datas = [
             'title'=> '账户安全通知',
             'content'=>'密码被修改为了您的账户安全请及时查验',
@@ -308,6 +308,6 @@ class LoginController extends Controller
      */
     public function caches(){
        return $a=Redis::get('18883562091');
-       exit(); 
+       exit();
     }
 }

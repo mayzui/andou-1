@@ -438,7 +438,7 @@ class GourmetController extends Controller
      */
     public function del_foods(){
         $all=\request()->all();
-        
+
         $token=request()->header('token')??'';
         if ($token!='') {
             $all['token']=$token;
@@ -624,13 +624,13 @@ class GourmetController extends Controller
         if ($prices==0) {
             return $this->rejson('201','商品价格出错');
         }
-        $users=Db::table('users')->where('id',$all['uid'])->select('name','mobile','integral')->first();
+        $users=DB::table('users')->where('id',$all['uid'])->select('name','mobile','integral')->first();
         if ($all['is_integral']==1) {
             if ($users->integral < $integral) {
                 return $this->rejson('201','积分不足');
             }
         }else{
-           $integral=0; 
+           $integral=0;
         }
         $res = [
             'user_id'=>$all['uid'],
@@ -661,7 +661,7 @@ class GourmetController extends Controller
         $alldata['shipping_free']=0;
         $alldata['integral']=$integral;
         $sNo = $res['order_sn'];
-        $datas = Db::table('orders')->insert($alldata);
+        $datas = DB::table('orders')->insert($alldata);
         $data = DB::table('foods_user_ordering')->insert($res);
         $resss = DB::table("foods_cart")->where('user_id',$all['uid'])->where('merchant_id',$all['merchant_id'])->delete();
         if($data){
@@ -702,10 +702,10 @@ class GourmetController extends Controller
         if (!empty($all['sNo'])) {
            $sNo=$all['sNo'];
         }
-        $orders = Db::table('orders')
+        $orders = DB::table('orders')
         ->where(['order_sn'=>$sNo,'status'=>10])
         ->first();
-        $users = Db::table('users')
+        $users = DB::table('users')
         ->where('id',$all['uid'])
         ->first();
         $data['user_id']=$all['uid'];
@@ -771,16 +771,16 @@ class GourmetController extends Controller
         if (empty($sNo)) {
             return $this->rejson(201,'参数错误');
         }
-        $users = Db::table('users')
+        $users = DB::table('users')
         ->where('id',$all['uid'])
         ->first();
         //查找表里是否有此订单
-        $orders = Db::table('orders')
+        $orders = DB::table('orders')
             ->where('order_sn',$sNo)
             ->first();
         if ($orders->integral>$users->integral) {
            return $this->rejson(201,'积分不足');
-        }    
+        }
         if (empty($orders)) {
             return $this->rejson(201,'订单不存在');
         }
@@ -998,15 +998,15 @@ class GourmetController extends Controller
         if (empty($all['refund_msg'])||empty($all['order_sn'])) {
            return $this->rejson(201,'缺少参数');
         }
-        $re=Db::table('foods_user_ordering')->where(['order_sn'=>$all['order_sn'],'status'=>20])->select('id')->first();
+        $re=DB::table('foods_user_ordering')->where(['order_sn'=>$all['order_sn'],'status'=>20])->select('id')->first();
         if (empty($re)) {
             return $this->rejson(201,'订单编号错误');
         }
         $data['status']=60;
         $data['refund_msg']=$all['refund_msg'];
         DB::beginTransaction(); //开启事务
-        $res=Db::table('foods_user_ordering')->where('order_sn',$all['order_sn'])->update($data);
-        $ress=Db::table('orders')->where('order_sn',$all['order_sn'])->update(array('status'=>60));
+        $res=DB::table('foods_user_ordering')->where('order_sn',$all['order_sn'])->update($data);
+        $ress=DB::table('orders')->where('order_sn',$all['order_sn'])->update(array('status'=>60));
         if ($res&&$ress) {
             DB::commit();
             return $this->rejson(200,'申请成功');
@@ -1056,7 +1056,7 @@ class GourmetController extends Controller
         $data = [
             'user_id' => $all['uid'],
             'order_id' => $all['order_id'],
-            
+
             'merchants_id' => $all['merchants_id'],
             'content' => $content,
             'stars' => $all['stars'],
@@ -1069,7 +1069,7 @@ class GourmetController extends Controller
             $da['user_id']=$all['uid'];
             $da['pid']=$all['id'];
             $da['created_at']=date('Y-m-d H:i:s',time());
-            $re=Db::table('fabulous')->insert($da);
+            $re=DB::table('fabulous')->insert($da);
             $res=DB::table('merchants')->where('id',$all['id'])->increment('praise_num');
 
         }

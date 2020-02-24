@@ -34,12 +34,12 @@ class MerchantController extends Controller
      * @apiParam {string} city_id 市id(不是必传)
      * @apiParam {string} area_id 区id(不是必传)
      * @apiParam {string} type 排序方式(不是必传 1按评分查询,2按点赞数查询)
-     * @apiParam {string} page 查询页码(不是必传 
+     * @apiParam {string} page 查询页码(不是必传
      * @apiSuccessExample 参数返回:
      *     {
      *       "code": "200",
      *       "data": {
-     *       
+     *
                "merchants": [
                     {
                         "id": "商户id",
@@ -117,7 +117,7 @@ class MerchantController extends Controller
         }else{
             $orderBy="created_at";
         }
-        $data['merchants']=Db::table('merchants')
+        $data['merchants']=DB::table('merchants')
         ->where($where)
         ->whereIn('merchant_type_id',[2,3])
         ->select('id','created_at','merchant_type_id','address','tel','stars_all','praise_num','logo_img','name')
@@ -127,12 +127,12 @@ class MerchantController extends Controller
         ->get();
         foreach ($data['merchants'] as $key => $value) {
             if ($value->merchant_type_id==2) {
-                $data['merchants'][$key]->price=Db::table('goods')->where('merchant_id',$value->id)->orderBy('price')->first()->price ?? 0;
+                $data['merchants'][$key]->price=DB::table('goods')->where('merchant_id',$value->id)->orderBy('price')->first()->price ?? 0;
             }elseif ($value->merchant_type_id==3) {
-                $data['merchants'][$key]->price=Db::table('hotel_room')->where('merchant_id',$value->id)->orderBy('price')->first()->price ?? 0;
+                $data['merchants'][$key]->price=DB::table('hotel_room')->where('merchant_id',$value->id)->orderBy('price')->first()->price ?? 0;
             }
         }
-        $data['merchant_type']=Db::table('merchant_type')
+        $data['merchant_type']=DB::table('merchant_type')
         ->select('id','type_name')
         ->where('status',1)
         ->orderBy('sort','ASC')
@@ -155,7 +155,7 @@ class MerchantController extends Controller
      * @apiParam {string} city_id 市id(不是必传)
      * @apiParam {string} area_id 区id(不是必传)
      * @apiParam {string} type 排序方式(不是必传 1按评分查询,2按点赞数查询)
-     * @apiParam {string} page 查询页码(不是必传 
+     * @apiParam {string} page 查询页码(不是必传
      * @apiSuccessExample 参数返回:
      *     {
      *       "code": "200",
@@ -173,7 +173,7 @@ class MerchantController extends Controller
                         "logo_img":"商家图片",
                         "name":"商家名字"
                     }
-                ]  
+                ]
      *       },
      *       "msg":"查询成功"
      *     }
@@ -211,7 +211,7 @@ class MerchantController extends Controller
             $orderBy="created_at";
         }
 
-        $data['merchants']=Db::table('merchants')
+        $data['merchants']=DB::table('merchants')
         ->where($where)
         ->whereIn('merchant_type_id',[2,3])
         ->select('id','created_at','merchant_type_id','address','tel','stars_all','praise_num','logo_img','name')
@@ -221,9 +221,9 @@ class MerchantController extends Controller
         ->get();
         foreach ($data['merchants'] as $key => $value) {
             if ($value->merchant_type_id==2) {
-                $data['merchants'][$key]->price=Db::table('goods')->where('merchant_id',$value->id)->orderBy('price')->first()->price ?? 0;
+                $data['merchants'][$key]->price=DB::table('goods')->where('merchant_id',$value->id)->orderBy('price')->first()->price ?? 0;
             }elseif ($value->merchant_type_id==3) {
-                $data['merchants'][$key]->price=Db::table('hotel_room')->where('merchant_id',$value->id)->orderBy('price')->first()->price ?? 0;
+                $data['merchants'][$key]->price=DB::table('hotel_room')->where('merchant_id',$value->id)->orderBy('price')->first()->price ?? 0;
             }
         }
         return $this->rejson(200,'查询成功',$data);
@@ -268,7 +268,7 @@ class MerchantController extends Controller
     public function merchantGoods(){
         $all=request()->all();
         $num=10;
-        
+
         if (isset($all['page'])) {
             $pages=($all['page']-1)*$num;
         }else{
@@ -293,36 +293,36 @@ class MerchantController extends Controller
         $sort='DESC';
         if (isset($all['price_sort'])) {
             if ($all['price_sort']==1) {
-               $orderBy='price'; 
+               $orderBy='price';
             }elseif($all['price_sort']==2){
                $orderBy='price';
-               $sort='ASC'; 
+               $sort='ASC';
             }
         }
         if (isset($all['volume_sort'])) {
             if ($all['volume_sort']==1) {
-               $orderBy='volume'; 
+               $orderBy='volume';
             }elseif($all['volume_sort']==2){
                $orderBy='volume';
-               $sort='ASC';  
+               $sort='ASC';
             }
         }
         $id=$all['id'];
-        $data=Db::table('merchants')->select('name','banner_img','logo_img')->where('id',$id)->first();
+        $data=DB::table('merchants')->select('name','banner_img','logo_img')->where('id',$id)->first();
         $arr = DB::table('collection')->where('user_id',$all['uid'])->where('type',3)->where('pid',$all['id'])->first();
         if($arr){
             $data->status = 1;
         }else{
             $data->status = 0;
         }
-        $data->goods=Db::table('goods')
+        $data->goods=DB::table('goods')
         ->select('name','img','price','id')
         ->where($where)
         ->orderBy($orderBy,$sort)
         ->offset($pages)
         ->limit($num)
         ->get();
-        $data->type=Db::table('merchants_goods_type')->select('name','id')->where(['merchant_id'=>$id,'is_del'=>1])->get();
+        $data->type=DB::table('merchants_goods_type')->select('name','id')->where(['merchant_id'=>$id,'is_del'=>1])->get();
         return $this->rejson(200,'查询成功',$data);
     }
     /**

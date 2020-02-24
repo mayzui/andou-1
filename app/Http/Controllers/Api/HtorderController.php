@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 class HtorderController extends Controller
-{   
+{
     public function __construct()
     {
         $all=request()->all();
@@ -23,7 +23,7 @@ class HtorderController extends Controller
         }
     }
     /**
-     * @api {post} /api/htorder/settlement 酒店结算页 
+     * @api {post} /api/htorder/settlement 酒店结算页
      * @apiName settlement
      * @apiGroup htorder
      * @apiParam {string} uid 用户id
@@ -63,7 +63,7 @@ class HtorderController extends Controller
             $startdate=strtotime($data['start']);
             $enddate=strtotime($data['end']);
             $data['days']=round(($enddate-$startdate)/3600/24);
-            $data['room']=Db::table('hotel_room as h')
+            $data['room']=DB::table('hotel_room as h')
             ->join('merchants as m','h.merchant_id','=','m.id')
             ->select('h.house_name','h.img','h.price','h.merchant_id','h.id','m.name')
             ->where(['h.status'=>1,'h.id'=>$id])
@@ -71,7 +71,7 @@ class HtorderController extends Controller
             if(empty($data['room'])){
                 return $this->rejson(201,'房间不存在');
             }
-            $integral=Db::table('config')->where('key','integral')->first()->value;
+            $integral=DB::table('config')->where('key','integral')->first()->value;
             $data['integral']=floor($data['room']->price*$data['days']*$integral);
             $data['allprice']=$data['room']->price*$data['days']-$data['integral'];
             return $this->rejson('200','查询成功',$data);
@@ -126,11 +126,11 @@ class HtorderController extends Controller
         $data['day_num']=round(($enddate-$startdate)/3600/24);
         $data['pay_way']=$all['pay_way'];
         $data['mobile']=$all['mobile'];
-        $users=Db::table('users')
+        $users=DB::table('users')
             ->select('money','integral')
             ->where('id',$all['uid'])
             ->first();
-        $price=Db::table('hotel_room')
+        $price=DB::table('hotel_room')
             ->select('price')
             ->where('id',$all['id'])
             ->first()
@@ -139,10 +139,10 @@ class HtorderController extends Controller
             return $this->rejson('201','房间错误');
         }
         $data['money']=$price*$all['day_num'];
-        
+
         $data['status']=10;
         if($all['is_integral']==1){
-            
+
             $integrals=DB::table('config')->where('key','integral')->first()->value;
             $integral=floor($price*$all['day_num']*$integrals);
             if ($users->integral<$integral) {
@@ -169,8 +169,8 @@ class HtorderController extends Controller
         $alldata['auto_receipt']=$all['auto_receipt']??0;
         $alldata['shipping_free']=0;
         DB::beginTransaction(); //开启事务
-        $re=Db::table('books')->insert($data);
-        $res=Db::table('orders')->insert($alldata);
+        $re=DB::table('books')->insert($data);
+        $res=DB::table('orders')->insert($alldata);
             if ($re&&$res) {
                 DB::commit();
                 $all=request()->all();
@@ -212,16 +212,16 @@ class HtorderController extends Controller
         if (!empty($all['sNo'])) {
            $sNo=$all['sNo'];
         }
-        $orders = Db::table('orders')
+        $orders = DB::table('orders')
         ->where(['order_sn'=>$sNo,'status'=>10])
         ->first();
-        $users = Db::table('users')
+        $users = DB::table('users')
         ->where('id',$all['uid'])
         ->first();
         if ($orders->order_money - $orders->integral>$users->money) {
            return $this->rejson(201,'余额不足');
         }
-       
+
         $data['user_id']=$all['uid'];
         $data['describe']='酒店预定消费';
         $data['create_time']=date('Y-m-d H:i:s',time());
@@ -278,18 +278,18 @@ class HtorderController extends Controller
         if (empty($sNo)) {
             return $this->rejson(201,'参数错误');
         }
-        $users = Db::table('users')
+        $users = DB::table('users')
         ->where('id',$all['uid'])
         ->first();
         //查找表里是否有此订单
-        $orders = Db::table('orders')
+        $orders = DB::table('orders')
             ->where('order_sn',$sNo)
             ->first();
-       
+
         $pay_money = 100*($orders->order_money-$orders->integral);
-        
+
         $input = new \WxPayUnifiedOrder();
-        
+
         $input->SetBody("安抖商城平台");
         $input->SetOut_trade_no($sNo);
         $input->SetTotal_fee($pay_money);
@@ -361,7 +361,7 @@ class HtorderController extends Controller
         if (!empty($data)) {
             $data->img=json_decode($data->img)[0] ?? '';
             $data->pay_money=$data->money-$data->integral;
-            $data->pay_way=Db::table('pay_ways')->where('id',$data->pay_way)->first()->pay_way??'';
+            $data->pay_way=DB::table('pay_ways')->where('id',$data->pay_way)->first()->pay_way??'';
             return $this->rejson(200,'查询成功',$data);
         }else{
             return $this->rejson(201,'订单编号错误');
@@ -380,14 +380,14 @@ class HtorderController extends Controller
      *       "data": [{
      *           "id":"退款原因id",
      *           "name":"退款原因"
-     *       }]       
+     *       }]
      *       ,
      *       "msg":"预定成功"
      *     }
      */
     public function refundReason(){
         $all=request()->all();
-        $data=Db::table('refund_reason')
+        $data=DB::table('refund_reason')
         ->select('id','name')
         ->where(['type'=>2,'is_del'=>0,'merchant_id'=>$all['merchants_id']])
         ->get();
@@ -414,7 +414,7 @@ class HtorderController extends Controller
         if (empty($all['refund_msg'])||empty($all['refund_id'])||empty($all['book_sn'])) {
            return $this->rejson(201,'缺少参数');
         }
-        $re=Db::table('books')->where(['book_sn'=>$all['book_sn'],'status'=>20])->select('id')->first();
+        $re=DB::table('books')->where(['book_sn'=>$all['book_sn'],'status'=>20])->select('id')->first();
         if (empty($re)) {
             return $this->rejson(201,'订单编号错误');
         }
@@ -422,8 +422,8 @@ class HtorderController extends Controller
         $data['refund_msg']=$all['refund_msg'];
         $data['book_sn']=$all['refund_id'];
         DB::beginTransaction(); //开启事务
-        $res=Db::table('books')->where('book_sn',$all['book_sn'])->update($data);
-        $ress=Db::table('orders')->where('order_sn',$all['book_sn'])->update(array('status'=>60));
+        $res=DB::table('books')->where('book_sn',$all['book_sn'])->update($data);
+        $ress=DB::table('orders')->where('order_sn',$all['book_sn'])->update(array('status'=>60));
         if ($res&&$ress) {
             DB::commit();
             return $this->rejson(200,'申请成功');
@@ -431,5 +431,5 @@ class HtorderController extends Controller
             DB::rollback();
             return $this->rejson(201,'申请失败');
         }
-    }    
+    }
 }

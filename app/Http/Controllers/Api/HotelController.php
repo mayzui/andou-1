@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 class HotelController extends Controller
-{   
+{
     /**
      * @api {post} /api/hotel/order 酒店订单
      * @apiName order
@@ -89,7 +89,7 @@ class HotelController extends Controller
      *     }
      */
     public function cate(){
-          $data=Db::table('hotel_category')
+          $data=DB::table('hotel_category')
           ->select('id','name','img')
           ->where(['status'=>1,'type_id'=>1])
           ->get();
@@ -109,7 +109,7 @@ class HotelController extends Controller
      *     }
      */
     public function need(){
-          $data=Db::table('hotel_need')
+          $data=DB::table('hotel_need')
           ->select('need_content')
           ->where('status',0)
           ->first();
@@ -157,7 +157,7 @@ class HotelController extends Controller
      * @apiParam {string} end_price 价格区间最大值
      * @apiParam {string} stars_all 酒店星级
      * @apiParam {string} type 排序方式(不是必传 1按距离,2按点价格)
-     * @apiParam {string} page 查询页码(不是必传) 
+     * @apiParam {string} page 查询页码(不是必传)
      * @apiSuccessExample 参数返回:
      *     {
      *       "code": "200",
@@ -208,11 +208,11 @@ class HotelController extends Controller
         if (!empty($all['stars_all'])) {
             $where[]=['m.stars_all', $all['stars_all']];
         }
-        $data=Db::table('merchants as m')
+        $data=DB::table('merchants as m')
         ->join('hotel_room as h','h.merchant_id','=','m.id')
         ->where($where)
         ->select('m.id','m.created_at','m.address','m.tel','m.stars_all','m.praise_num','m.logo_img','m.name',DB::raw('min(h.price) as price'))
-        ->groupBy('m.id') 
+        ->groupBy('m.id')
         ->offset($start)
         ->limit(10)
         ->get();

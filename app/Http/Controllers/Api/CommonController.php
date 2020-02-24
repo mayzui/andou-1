@@ -31,8 +31,8 @@ class CommonController extends Controller
         $data = DB::table('express')->select('id','name')->get();
         return $this->rejson('200','查询成功',$data);
     }
-    
-    
+
+
 
     /**
      * @api {post} /api/common/pay_ways 支付方式
@@ -47,12 +47,12 @@ class CommonController extends Controller
                     "pay_way": "支付方式名字",
                     "logo": "图标"
                 }
-            ],     
+            ],
      *       "msg":"查询成功"
      *     }
      */
     public function payWays(){
-        $data=Db::table('pay_ways')->select('id','pay_way','logo')->where('status',1)->get();
+        $data=DB::table('pay_ways')->select('id','pay_way','logo')->where('status',1)->get();
         return $this->rejson(200,'查询成功',json_decode($data,JSON_UNESCAPED_UNICODE));
     }
     /**
@@ -67,12 +67,12 @@ class CommonController extends Controller
                     "id": "id",
                     "type_name": "商户类型名字"
                 }
-            ],     
+            ],
      *       "msg":"查询成功"
      *     }
      */
     public function merchantType(){
-        $data['merchant_type']=Db::table('merchant_type')
+        $data['merchant_type']=DB::table('merchant_type')
         ->select('id','type_name')
         ->where('status',1)
         ->orderBy('sort','ASC')
@@ -82,7 +82,7 @@ class CommonController extends Controller
     /**
      * @api {post} /api/common/district 获取所有地址列表
      * @apiName district
-     * @apiGroup common 
+     * @apiGroup common
      * @apiSuccessExample 参数返回:
      *     {
      *       "code": "200",
@@ -145,7 +145,7 @@ class CommonController extends Controller
         if (empty($all['type'])) {
             return $this->rejson(201,'参数错误');
         }
-        $data=Db::table('protocol')
+        $data=DB::table('protocol')
         ->where('type',$all['type'])->where('status',1)
         ->orderBy('id','DESC')
         ->select('id','name','content','create_time','update_time')
@@ -155,7 +155,7 @@ class CommonController extends Controller
     /**
      * @api {post} /api/common/wxnotify 微信商城支付回调
      * @apiName wxnotify
-     * @apiGroup common 
+     * @apiGroup common
      * @apiSuccessExample 参数返回:
      *     {
      *       "code": "200",
@@ -163,9 +163,9 @@ class CommonController extends Controller
      *       "msg":"查询成功"
      *     }
      */
-    
+
     public function wxnotify() {
-        
+
         $xml=file_get_contents('php://input');
         //$xml = PHP_VERSION <= 5.6 ? $GLOBALS['HTTP_RAW_POST_DATA']:file_get_contents('php://input');
         libxml_disable_entity_loader(true);
@@ -173,7 +173,7 @@ class CommonController extends Controller
         $aa['val']=$xml;
         $values['trade_status']=$values['trade_status']??'';
         $values['return_code']=$values['return_code']??'';
-        Db::table('record')->insert($aa);
+        DB::table('record')->insert($aa);
 
         if ($values['trade_status'] == 'TRADE_SUCCESS' || $values['trade_status'] == 'TRADE_FINISHED' || $values['return_code']=='SUCCESS') {
             //这里根据项目需求来写你的操作 如更新订单状态等信息 更新成功返回'success'即可
@@ -182,22 +182,22 @@ class CommonController extends Controller
             $datas = array('status' => 20, 'pay_way' => 1, 'out_trade_no' => $trade_no,'pay_time'=>date('Y-m-d H:i:s',time()),'pay_money'=>$total);
             $out_trade_no = $values['out_trade_no'];
             // echo $out_trade_no;
-            $ress=Db::table('orders')->where(['order_sn' =>$out_trade_no, 'status' =>10])->first();
+            $ress=DB::table('orders')->where(['order_sn' =>$out_trade_no, 'status' =>10])->first();
             // var_dump($ress);exit();
             if (!empty($ress)) {
-                $re = Db::table('orders')->where('order_sn', $out_trade_no)->update($datas);
-                $res = Db::table('order_goods')->where('order_id', $out_trade_no)->update($datas);
+                $re = DB::table('orders')->where('order_sn', $out_trade_no)->update($datas);
+                $res = DB::table('order_goods')->where('order_id', $out_trade_no)->update($datas);
                 if ($re && $res) {
-                    $str='<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>';  
+                    $str='<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>';
                     return $str;
-                    
+
                 } else {
                     return 'fail1';
                 }
             }else{
                  return 'fail2';
             }
-            
+
         } else {
             return 'fail3';
         }
@@ -206,7 +206,7 @@ class CommonController extends Controller
      /**
      * @api {get} /api/common/wxnotifyhotel 微信支付酒店回调
      * @apiName wxnotifyhotel
-     * @apiGroup common 
+     * @apiGroup common
      * @apiSuccessExample 参数返回:
      *     {
      *       "code": "200",
@@ -222,7 +222,7 @@ class CommonController extends Controller
         $aa['val']=$values['out_trade_no'];
         $values['trade_status']=$values['trade_status']??'';
         $values['return_code']=$values['return_code']??'';
-        Db::table('record')->insert($aa);
+        DB::table('record')->insert($aa);
         if ($values['trade_status'] == 'TRADE_SUCCESS' || $values['trade_status'] == 'TRADE_FINISHED' || $values['return_code']=='SUCCESS') {
             //这里根据项目需求来写你的操作 如更新订单状态等信息 更新成功返回'success'即可
             $trade_no = $values['transaction_id'];
@@ -230,19 +230,19 @@ class CommonController extends Controller
             $datas = array('status' => 20, 'pay_way' => 1, 'out_trade_no' => $trade_no,'pay_time'=>date('Y-m-d H:i:s',time()),'pay_money'=>$total);
             $out_trade_no = $values['out_trade_no'];
 
-            $ress=Db::table('orders')->where(['order_sn' => $out_trade_no, 'status' =>10])->first();
+            $ress=DB::table('orders')->where(['order_sn' => $out_trade_no, 'status' =>10])->first();
             if (!empty($ress)) {
-                $re = Db::table('orders')->where('order_sn', $out_trade_no)->update($datas);
-                $res = Db::table('books')->where('book_sn', $out_trade_no)->update($datas);
+                $re = DB::table('orders')->where('order_sn', $out_trade_no)->update($datas);
+                $res = DB::table('books')->where('book_sn', $out_trade_no)->update($datas);
                 if ($re && $res) {
-                    $str='<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>';  
+                    $str='<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>';
                     echo $str;
-                    
+
                 } else {
                     exit('fail');
                 }
             }
-            
+
         } else {
             exit('fail');
         }
@@ -273,10 +273,10 @@ class CommonController extends Controller
             $total=$values['total_fee']/100;
             $datas = array('status' => 1, 'method' => 1, 'trade_no' => $trade_no,'price'=>$total);
             $out_trade_no = $values['out_trade_no'];
-            
-            $ress=Db::table('recharge')->where(['order_sn' =>$out_trade_no])->where('status',0)->first();
+
+            $ress=DB::table('recharge')->where(['order_sn' =>$out_trade_no])->where('status',0)->first();
             if (!empty($ress)) {
-                $re = Db::table('recharge')->where('order_sn', $out_trade_no)->update($datas);
+                $re = DB::table('recharge')->where('order_sn', $out_trade_no)->update($datas);
                 $arr = [
                     'user_id'=>$ress->user_id,
                     'price'=>$ress->price,
@@ -337,14 +337,14 @@ class CommonController extends Controller
             $datass = array('status' => 20, 'method' => 1, 'out_trade_no' => $trade_no,'pay_time'=>date('Y-m-d H:i:s',time()),'pay_money'=>$total);
             $out_trade_no = $values['out_trade_no'];
 
-            $ress=Db::table('orders')->where(['order_sn' => $out_trade_no, 'status' =>10])->first();
+            $ress=DB::table('orders')->where(['order_sn' => $out_trade_no, 'status' =>10])->first();
             if (!empty($ress)) {
-                $re = Db::table('orders')->where('order_sn', $out_trade_no)->update($datas);
-                $res = Db::table('foods_user_ordering')->where('order_sn', $out_trade_no)->update($datass);
+                $re = DB::table('orders')->where('order_sn', $out_trade_no)->update($datas);
+                $res = DB::table('foods_user_ordering')->where('order_sn', $out_trade_no)->update($datass);
                 if ($re && $res) {
-                    $str='<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>';  
+                    $str='<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>';
                     echo $str;
-                    
+
                 } else {
                     exit('fail');
                 }
@@ -381,7 +381,7 @@ class CommonController extends Controller
             $trade_no = $values['transaction_id'];
             $total=$values['total_fee']/100;
             $out_trade_no = $values['out_trade_no'];
-            $ress=Db::table('vip_recharge')->where(['order_sn' =>$out_trade_no])->where('status',0)->first();
+            $ress=DB::table('vip_recharge')->where(['order_sn' =>$out_trade_no])->where('status',0)->first();
             if (!empty($ress)) {
                 $arr = [
                     'user_id'=>$ress->user_id,

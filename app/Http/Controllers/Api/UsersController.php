@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 class UsersController extends Controller
-{   
+{
     public function __construct()
     {
         $all=request()->all();
@@ -30,7 +30,7 @@ class UsersController extends Controller
      * @apiGroup users
      * @apiParam {string} uid 用户id
      * @apiParam {string} token 验证登陆
-     * @apiParam {string} page 查询页码(不是必传 
+     * @apiParam {string} page 查询页码(不是必传
      * @apiSuccessExample 参数返回:
      *     {
      *       "code": "200",
@@ -46,7 +46,7 @@ class UsersController extends Controller
                     "tel":"商家电话",
                     "merchant_type_id":"商户类型id"
                 }
-            ],     
+            ],
      *       "msg":"查询成功"
      *     }
      */
@@ -58,7 +58,7 @@ class UsersController extends Controller
             $page=$all['page'];
             $start=$num*($page-1);
         }
-        $data=Db::table('see_log as c')
+        $data=DB::table('see_log as c')
         ->join('merchants as m','m.id','=','c.pid')
         ->where(['c.user_id'=>$all['uid'],'c.type'=>2])
         ->select('m.id','m.address','m.merchant_type_id','m.tel','m.stars_all','m.praise_num','m.name','m.logo_img')
@@ -83,16 +83,16 @@ class UsersController extends Controller
                     "name": "用户名字",
                     "avator": "用户头像",
                     "invitation": "邀请码",
-                    "qrcode": "邀请二维码" 
+                    "qrcode": "邀请二维码"
                 }
-            ],     
+            ],
      *       "msg":"查询成功"
      *     }
      */
     public function invitations(){
         $all=request()->all();
         $id=$all['uid'];
-        $data=Db::table('users')->where('id',$id)->select('id','name','avator','invitation','qrcode')->first();
+        $data=DB::table('users')->where('id',$id)->select('id','name','avator','invitation','qrcode')->first();
         if ($data->invitation=='0') {
             $data->invitation=$this->invitation($data->id);
         }
@@ -111,7 +111,7 @@ class UsersController extends Controller
      * @apiSuccessExample 参数返回:
      *     {
      *       "code": "200",
-     *       "data": "",     
+     *       "data": "",
      *       "msg":"查询成功"
      *     }
      */
@@ -120,20 +120,20 @@ class UsersController extends Controller
         if (empty($all['code'])) {
             return $this->rejson(201,'缺少参数');
         }
-        $ress=Db::table('users')->where('id',$all['uid'])->select('guide_puser_id')->first();
+        $ress=DB::table('users')->where('id',$all['uid'])->select('guide_puser_id')->first();
         if ($ress->guide_puser_id>0) {
            return $this->rejson(201,'你已经存在上级用户');
         }
-        $re=Db::table('users')->where('invitation',$all['code'])->select('id')->first();
+        $re=DB::table('users')->where('invitation',$all['code'])->select('id')->first();
         if (empty($re)) {
             return $this->rejson(201,'邀请码不存在');
         }
         $data['guide_puser_id']=$re->id;
-        $res=Db::table('users')->where('id',$all['uid'])->update($data);
+        $res=DB::table('users')->where('id',$all['uid'])->update($data);
         if ($res) {
            return $this->rejson(200,'绑定成功');
         }else{
-           return $this->rejson(201,'绑定失败'); 
+           return $this->rejson(201,'绑定失败');
         }
     }
     /**
@@ -142,7 +142,7 @@ class UsersController extends Controller
      * @apiGroup users
      * @apiParam {string} uid 用户id
      * @apiParam {string} token 验证登陆
-     * @apiParam {string} page 查询页码(不是必传 
+     * @apiParam {string} page 查询页码(不是必传
      * @apiSuccessExample 参数返回:
      *     {
      *       "code": "200",
@@ -154,7 +154,7 @@ class UsersController extends Controller
                     "img":"商品图片",
                     "name":"商品名字"
                 }
-            ],     
+            ],
      *       "msg":"查询成功"
      *     }
      */
@@ -166,7 +166,7 @@ class UsersController extends Controller
             $page=$all['page'];
             $start=$num*($page-1);
         }
-        $data=Db::table('collection as c')
+        $data=DB::table('collection as c')
         ->join('goods as m','m.id','=','c.pid')
         ->where(['c.user_id'=>$all['uid'],'c.type'=>1])
         ->select('m.id','m.price','m.img','m.name')
@@ -182,7 +182,7 @@ class UsersController extends Controller
      * @apiGroup users
      * @apiParam {string} uid 用户id
      * @apiParam {string} token 验证登陆
-     * @apiParam {string} page 查询页码(不是必传 
+     * @apiParam {string} page 查询页码(不是必传
      * @apiSuccessExample 参数返回:
      *     {
      *       "code": "200",
@@ -198,7 +198,7 @@ class UsersController extends Controller
                     "merchant_type_id":"商家类型id",
                     "tel":"商家电话"
                 }
-            ],     
+            ],
      *       "msg":"查询成功"
      *     }
      */
@@ -210,7 +210,7 @@ class UsersController extends Controller
             $page=$all['page'];
             $start=$num*($page-1);
         }
-        $data=Db::table('collection as c')
+        $data=DB::table('collection as c')
         ->join('merchants as m','m.id','=','c.pid')
         ->where(['c.user_id'=>$all['uid'],'c.type'=>3])
         ->select('m.id','m.address','m.merchant_type_id','m.tel','m.stars_all','m.praise_num','m.name','m.logo_img')
@@ -230,7 +230,7 @@ class UsersController extends Controller
      * @apiSuccessExample 参数返回:
      *     {
      *       "code": "200",
-     *       "data": "",     
+     *       "data": "",
      *       "msg":"查询成功"
      *     }
      */
@@ -242,15 +242,15 @@ class UsersController extends Controller
         $data['user_id']=$all['uid'];
         $data['pid']=$all['id'];
         $data['created_at']=date('Y-m-d H:i:s',time());
-        $datas=Db::table('fabulous')->where(['user_id'=>$all['uid'],'pid'=>$all['id']])->first();
-    
+        $datas=DB::table('fabulous')->where(['user_id'=>$all['uid'],'pid'=>$all['id']])->first();
+
         if (empty($datas)) {
-            $re=Db::table('fabulous')->insert($data);
+            $re=DB::table('fabulous')->insert($data);
             $res=DB::table('merchants')->where('id',$all['id'])->increment('praise_num');
             return $this->rejson(200,'点赞成功');
         }else{
             return $this->rejson(201,'不能重复点赞');
-        }   
+        }
     }
     /**
      * @api {post} /api/users/envelopes 红包金额查询
@@ -263,17 +263,17 @@ class UsersController extends Controller
      *       "code": "200",
      *       "data": {
      *               "value":"领取金额"
-     *        },     
+     *        },
      *       "msg":"查询成功"
      *     }
      */
     public function envelopes(){
         $all=request()->all();
-        $re=Db::table('user_logs')->where(['user_id'=>$all['uid'],'type_id'=>'4'])->first();
+        $re=DB::table('user_logs')->where(['user_id'=>$all['uid'],'type_id'=>'4'])->first();
         if (!empty($re)) {
             return $this->rejson(201,'该用户已经领取过新用户红包');
         }
-        $data=Db::table('config')->select('value')->where('key','envelopes')->first();
+        $data=DB::table('config')->select('value')->where('key','envelopes')->first();
         return $this->rejson(200,'获取成功',$data);
     }
     /**
@@ -285,13 +285,13 @@ class UsersController extends Controller
      * @apiSuccessExample 参数返回:
      *     {
      *       "code": "200",
-     *       "data": {"val":1}(1是新用户，0不是新用户),     
+     *       "data": {"val":1}(1是新用户，0不是新用户),
      *       "msg":"该用户是新用户"
      *     }
      */
     public function new_user(){
         $all=request()->all();
-        $re=Db::table('user_logs')->where(['user_id'=>$all['uid'],'type_id'=>'4'])->first();
+        $re=DB::table('user_logs')->where(['user_id'=>$all['uid'],'type_id'=>'4'])->first();
         if (!empty($re)) {
             return $this->rejson(200,'该用户已经领取过新用户红包',array('val'=>0));
         }else{
@@ -307,17 +307,17 @@ class UsersController extends Controller
      * @apiSuccessExample 参数返回:
      *     {
      *       "code": "200",
-     *       "data": "",     
+     *       "data": "",
      *       "msg":"领取成功"
      *     }
      */
     public function envelopesAdd(){
         $all=request()->all();
-        $re=Db::table('user_logs')->where(['user_id'=>$all['uid'],'type_id'=>'4'])->first();
+        $re=DB::table('user_logs')->where(['user_id'=>$all['uid'],'type_id'=>'4'])->first();
         if (!empty($re)) {
             return $this->rejson(201,'该用户已经领取过新用户红包');
         }
-        $data['price']=Db::table('config')->where('key','envelopes')
+        $data['price']=DB::table('config')->where('key','envelopes')
         ->select('value')
         ->first()
         ->value ?? '';
@@ -350,7 +350,7 @@ class UsersController extends Controller
      * @apiParam {string} token 验证登陆
      * @apiParam {string} phone 手机号码
      * @apiParam {string} verify 验证码
-     * 
+     *
      * @apiSuccessExample 参数返回:
      *     {
      *       "code": "200",
@@ -367,7 +367,7 @@ class UsersController extends Controller
        if ($all['verify'] != Redis::get($all['phone'])) {
                 return $this->rejson(201,'验证码错误');
         }
-       $re=Db::table('users')->where('id',$all['uid'])->update($data);
+       $re=DB::table('users')->where('id',$all['uid'])->update($data);
        return $this->rejson('200',"修改手机号成功");
     }
     /**
@@ -386,7 +386,7 @@ class UsersController extends Controller
      */
     public function vipRecharge(){
         $all=request()->all();
-        $price=Db::table('config')->where('key','vipRecharge')->first()->value ?? 0;
+        $price=DB::table('config')->where('key','vipRecharge')->first()->value ?? 0;
         if (!$price) {
             return $this->rejson(201,'后台未设置会员开通价格');
         }
@@ -394,7 +394,7 @@ class UsersController extends Controller
         $data['price']=$price;
         $data['created_at']=$data['updated_at']=date('Y-m-d H:i:s',time());
         $data['order_sn']=$this->suiji();
-        $re=Db::table('vip_recharge')->insert($data);
+        $re=DB::table('vip_recharge')->insert($data);
         if ($all['pay_id']==1) {//微信支付
             $this->wxpay($data['order_sn']);
         }else if($all['pay_id']==2){//支付宝支付
@@ -422,17 +422,17 @@ class UsersController extends Controller
      */
     public function vipRote(){
         $all=request()->all();
-        $data['price']=Db::table('config')->where('key','vipRecharge')->first()->value ?? 0;
+        $data['price']=DB::table('config')->where('key','vipRecharge')->first()->value ?? 0;
         if (!$data['price']) {
             return $this->rejson(201,'后台未设置会员开通价格');
         }
-        $data['vip_rote']=Db::table('vip_equity')->first()->content ?? 0;
+        $data['vip_rote']=DB::table('vip_equity')->first()->content ?? 0;
         return $this->rejson(200,'获取成功',$data);
     }
     public function wxPay($sNo){
         require_once base_path()."/wxpay/lib/WxPay.Api.php";
         require_once base_path()."/wxpay/example/WxPay.NativePay.php";
-        $orders = Db::table('vip_recharge')
+        $orders = DB::table('vip_recharge')
         ->where('order_sn',$sNo)
         ->first();
         if (empty($orders)) {
