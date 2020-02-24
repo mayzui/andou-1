@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 class OrderController extends Controller
-{   
+{
     public function __construct()
     {
         $all=request()->all();
@@ -72,7 +71,7 @@ class OrderController extends Controller
     }
 
     /**
-     * @api {post} /api/order/index 订单列表 
+     * @api {post} /api/order/index 订单列表
      * @apiName index
      * @apiGroup order
      * @apiParam {string} uid 用户id
@@ -118,14 +117,14 @@ class OrderController extends Controller
             $pages=0;
         }
         if (empty($all['type'])) {
-            
+
         }else{
             $where[]=['o.status',$all['type']];
         }
-        
+
         $where[]=['o.user_id',$all['uid']];
-        
-        
+
+
         $data=DB::table('order_goods as o')
         ->join('goods as g','g.id','=','o.goods_id')
         ->join('merchants as m','m.id','=','o.merchant_id')
@@ -139,11 +138,11 @@ class OrderController extends Controller
         foreach ($data as $k => $v) {
         $data[$k]->attr_value=json_decode($v->attr_value,1)[0]['value'];
         }
-        
+
         return $this->rejson(200,'查询成功',$data);
     }
     /**
-     * @api {post} /api/order/express 快递查询 
+     * @api {post} /api/order/express 快递查询
      * @apiName express
      * @apiGroup order
      * @apiParam {string} uid 用户id
@@ -222,11 +221,11 @@ class OrderController extends Controller
         } else {
             return $this->rejson( 201, '未查询到物流信息！');
         }
-        
+
     }
 
     /**
-     * @api {post} /api/order/add_order 立即购买 
+     * @api {post} /api/order/add_order 立即购买
      * @apiName add_order
      * @apiGroup order
      * @apiParam {string} uid 用户id
@@ -271,7 +270,7 @@ class OrderController extends Controller
         }else{
             $alldata['shipping_free']=$data['shipping_free']=0;
         }
-        
+
         $datas=Db::table('goods_sku')->where('id',$all['goods_sku_id'])->where('store_num','>',0)->first();
         if (empty($data)) {
             return $this->rejson(201,'商品库存不足');
@@ -293,7 +292,7 @@ class OrderController extends Controller
         }
     }
     /**
-     * @api {post} /api/order/add_order_car 购物车购买 
+     * @api {post} /api/order/add_order_car 购物车购买
      * @apiName add_order_car
      * @apiGroup order
      * @apiParam {string} uid 用户id
@@ -357,7 +356,7 @@ class OrderController extends Controller
             $data['status']=10;
             $data['merchant_id']=$car->merchant_id;
             $data['goods_sku_id']=$car->goods_sku_id;
-           
+
             $data['pay_discount']=1;
             $alldata['order_money']+=$data['pay_money']=$datas->price*$data['num']*$data['pay_discount']+$data['shipping_free'];
             $data['total']=$datas->price*$data['num']+$data['shipping_free'];
@@ -383,7 +382,7 @@ class OrderController extends Controller
         }
     }
     /**
-     * @api {post} /api/order/settlement 购买结算页 
+     * @api {post} /api/order/settlement 购买结算页
      * @apiName settlement
      * @apiGroup order
      * @apiParam {string} uid 用户id
@@ -460,7 +459,7 @@ class OrderController extends Controller
         return $this->rejson(200,'查询成功',$data);
     }
     /**
-     * @api {post} /api/order/details 订单详情 
+     * @api {post} /api/order/details 订单详情
      * @apiName details
      * @apiGroup order
      * @apiParam {string} uid 用户id
@@ -520,7 +519,7 @@ class OrderController extends Controller
         if (empty($data)) {
             return $this->rejson(201,'无效的订单号');
         }
-        
+
         $integral=DB::table('config')->where('key','integral')->first()->value;
         $data->integral=floor(($data->order_money-$data->shipping_free)*$integral);
         $address=Db::table('user_address')
@@ -649,7 +648,7 @@ class OrderController extends Controller
      * @apiSuccessExample 参数返回:
      *     {
      *       "code": "200",
-     *       "data": "",     
+     *       "data": "",
      *       "msg":"查询成功"
      *     }
      */
@@ -737,7 +736,7 @@ class OrderController extends Controller
             return $this->rejson(201,'支付失败');
         }
 
-     }   
+     }
      public function wxPay(){
         require_once base_path()."/wxpay/lib/WxPay.Api.php";
         require_once base_path()."/wxpay/example/WxPay.NativePay.php";
@@ -747,7 +746,7 @@ class OrderController extends Controller
         }
 
         $sNo=$all['sNo'];
-        
+
         $orders = Db::table('orders')
         ->where('order_sn',$sNo)
         ->first();
@@ -755,7 +754,7 @@ class OrderController extends Controller
             return $this->rejson(201,'订单不存在');
         }
         $order_goods=Db::table('order_goods')->where('order_id',$sNo)->get();
-        if($all['is_integral']==1){
+        if(isset($all['is_integral']) && $all['is_integral']==1){
             $allintegral=DB::table('users')->where('id',$all['uid'])->first()->integral;
             $integrals=DB::table('config')->where('key','integral')->first()->value;
             $integral=floor(($orders->order_money-$orders->shipping_free)*$integrals);
@@ -774,9 +773,9 @@ class OrderController extends Controller
             $integral=0;
         }
         $pay_money = 100*($orders->order_money-$integral);
-        
+
         $input = new \WxPayUnifiedOrder();
-        
+
         $input->SetBody("安抖商城平台");
         $input->SetOut_trade_no($sNo);
         $input->SetTotal_fee($pay_money);
@@ -906,7 +905,7 @@ class OrderController extends Controller
             $ordres=Db::table('orders')->where('order_sn',$order_sn)->update(array('status'=>50));
         }else{
             $ordres=1;
-        } 
+        }
         if ($res&&$ress&&$ordres&&$ordre) {
             DB::commit();
             return $this->rejson(200,'收货成功');
