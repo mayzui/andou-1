@@ -9,7 +9,7 @@
     bottom: 0;
 	right: 0;
 }
-.ad-right {
+.content-right {
     position: absolute;
     left: 256px;
     top: 0;
@@ -18,7 +18,7 @@
     background: #f7f7f7;
     width: calc(100% - 256px);
 }
-.ad-wrapper {
+.content-wrapper {
     position: absolute;
     width: calc(100% - 256px);
     bottom: 0;
