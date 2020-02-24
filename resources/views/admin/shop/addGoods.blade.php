@@ -103,28 +103,34 @@
                                     <div class="step-pane active" id="step1">
                                         <form class="form-horizontal" action="{{ route('shop.store') }}" method="post"
                                               id='addGoods' accept-charset="UTF-8" enctype="multipart/form-data">
-                                            {!! csrf_field() !!}
+                                            {{csrf_field()}}
+                                            {{method_field('POST')}}
                                             <input type="hidden" name="goods_id" value="{{ $goods_id ?? ''}}"/>
                                             <div class="form-group">
                                                 <label class="col-sm-2 control-label"><em
                                                         style="margin-right:5px;vertical-align: middle;color: #fe0000;">*</em>商品类目：</label>
                                                 <div class="col-sm-2">
                                                     <select class="form-control pull-left" id="level1"
-                                                            name="goods_cate_id" onchange="getChildren(this,1)">
+                                                            name="goods_cate_id" data-level="1">
+                                                        <option value=""></option>
                                                         @foreach($goodsCate as $item)
-                                                            <option value="{{$item->id}}"> {{$item->name}}</option>
+                                                            <option value="{{$item->id}}"
+                                                                    @if(isset($cates[0]) && $cates[0] == $item->id) selected @endif>{{$item->name}}</option>
                                                         @endforeach
                                                     </select>
                                                 </div>
                                                 <div class="col-sm-2">
-                                                    <select class="form-control col-sm-2 pull-left " id="level2"
-                                                            name="goods_cate_id1" onchange="getChildren(this,2)">
+                                                    <select class="form-control col-sm-2 pull-left" id="level2"
+                                                            name="goods_cate_id1" data-level="2">
                                                     </select>
+                                                    <input type="hidden" id="cate2"
+                                                           value="{{isset($cates[1]) ? $cates[1] : 0}}">
                                                 </div>
                                                 <div class="col-sm-2">
                                                     <select class="form-control col-sm-2 pull-left" id="level3"
-                                                            onchange="getChildren(this,3)"
-                                                            name="goods_cate_id2"></select>
+                                                            name="goods_cate_id2" data-level="3"></select>
+                                                    <input type="hidden" id="cate3"
+                                                           value="{{isset($cates[2]) ? $cates[2] : 0}}">
                                                 </div>
                                             </div>
                                             <div class="form-group">
@@ -438,30 +444,54 @@
 
     <script>
 
-        // 加载就执行一下
-        $('#level1').change();
+        $(function () {
+            // Init
+            var selected = $('#level1').val();
+            if (selected) {
+                var cate2 = $('#cate2').val();
+                loadCategories(selected, 2)
+                loadCategories(cate2, 3);
+            }
 
-        function getChildren(obj, level) {
-            var next = level + 1;
-            var id = $(obj).val();
-            $.ajax({
-                url: '/admin/shop/getCateChildren',
-                type: 'post',
-                headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-                data: {id: id},
-                dataType: 'JSON',
-                success: function (res) {
-                    if (res.code == 200) {
-                        var html = '';
-                        for (i in res.data) {
-                            html += '<option value="' + res.data[i].id + '">' + res.data[i].name + '</option>';
+            function loadCategories(current_id, level) {
+                $.ajax({
+                    url: '/admin/shop/getCateChildren',
+                    type: 'post',
+                    headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                    data: {id: current_id},
+                    dataType: 'json',
+                    async: false,
+                    success: function (response, status) {
+                        if (status === 'success') {
+                            var eleValue = $('#cate' + level);
+                            if (eleValue.length > 0) {
+                                var cate = eleValue.val();
+                                eleValue.remove();
+                            } else {
+                                var cate = 0;
+                            }
+                            var html = '';
+                            for (var i in response.data) {
+                                if (cate == response.data[i].id) {
+                                    html += '<option value="' + response.data[i].id + '" selected>' + response.data[i].name + '</option>';
+                                } else {
+                                    html += '<option value="' + response.data[i].id + '">' + response.data[i].name + '</option>';
+                                }
+                            }
+                            $('#level' + level).html(html);
                         }
-                        $('#level' + next).html(html);
                     }
-                    $('#level' + next).change();
+                });
+            }
+
+            $('.step-content #addGoods select[data-level]').change(function () {
+                var currentLevel = parseInt($(this).attr('data-level'));
+                if (currentLevel == 1) {
+                    $('#level3').html('');
                 }
-            })
-        }
+                loadCategories($(this).val(), currentLevel + 1);
+            });
+        });
 
         $(function () {
             ////////////////////////////////////////////////图片上传//////////////////////////////////////////////
