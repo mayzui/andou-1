@@ -2,22 +2,23 @@
 
 namespace App\Http\Controllers\Admin;
 
-use Auth;
-use Route;
 use App\Http\Controllers\Controller;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\View\View;
+use Route;
 
-class BaseController extends Controller
-{
+class BaseController extends Controller {
 
     /**
      * 自动获取对应的模块名称和
-     * @param null $view
+     *
+     * @param null  $view
      * @param array $data
      * @param array $mergeData
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     *
+     * @return Factory|View
      */
-    public function view($view = null, $data = [], $mergeData = [])
-    {
+    public function view($view = null, $data = [], $mergeData = []) {
         $currentAction = $this->getCurrentAction();
         /**获取当前模块名称**/
         $module = $this->getModule();
@@ -30,64 +31,66 @@ class BaseController extends Controller
 
     /**
      * 获取当前控制器名称
+     *
      * @return mixed
      */
-    public function getControllerName()
-    {
+    public function getControllerName() {
         return $this->getCurrentAction()['controller'];
     }
+
     /**
      * 多图上传
+     *
      * @return [type] [description]
      */
-    public function uploads($files)
-    {
+    public function uploads($files) {
         // $files=$all['imgs'];
-        $count=count($files);
-        $msg=array();
-         // var_dump($files);exit;
-        foreach ($files as $k=>$v){
+        $count = count($files);
+        $msg = [];
+        // var_dump($files);exit;
+        foreach ($files as $k => $v) {
             $type = $v->getClientOriginalExtension();
-            $path=$v->getPathname();
-            if($type == "png" || $type == "jpg"){
-                $newname = 'uploads/'.date ( "Ymdhis" ).rand(0,9999);
-                $url = $newname.'.'.$type;
-                $upload=move_uploaded_file($path,$url);
-                $msg[]=$url;
-            }else{
-               return 0;  
+            $path = $v->getPathname();
+            if ($type == "png" || $type == "jpg") {
+                $newname = 'uploads/' . date("Ymdhis") . rand(0, 9999);
+                $url = $newname . '.' . $type;
+                $upload = move_uploaded_file($path, $url);
+                $msg[] = $url;
+            } else {
+                return 0;
             }
         }
-       return implode(',',$msg);
+        return implode(',', $msg);
     }
+
     /**
      * 获取当前方法名称(小写)
+     *
      * @return mixed
      */
-    public function getActionName()
-    {
+    public function getActionName() {
         return $this->getCurrentAction()['action'];
     }
 
     /**
      * 获取当前控制器与方法(小写)
+     *
      * @return array
      */
-    public function getCurrentAction()
-    {
+    public function getCurrentAction() {
         $action = Route::currentRouteName();
-        list($controller, $action) = explode('.', $action);
+        [$controller, $action] = explode('.', $action);
         return ['controller' => $controller, 'action' => $action];
     }
 
     /**
      * 获取当前模块名称(小写)
+     *
      * @return mixed
      */
-    public function getModule()
-    {
+    public function getModule() {
         $module = Request()->route()->action['prefix'];
-        $module= explode('/',$module);
+        $module = explode('/', $module);
         return $module[1];
     }
 }
