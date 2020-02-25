@@ -42,7 +42,7 @@ class Controller extends BaseController {
     public function rejson($code = 0, $msg = '', $data = '') {
         $msg = str_replace('null', '', $msg);
         if (is_string($data)) {
-            $data = str_replace('null', '', $msg);
+            $data = str_replace('null', '', $data);
         }
 
         return [
