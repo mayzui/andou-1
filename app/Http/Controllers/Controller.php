@@ -405,4 +405,13 @@ class Controller extends BaseController
         return $userinfo_json;
 
     }
+
+    protected function responseJson($code, $message = '', $data = '')
+    {
+        return response()->json([
+            'code' => $code,
+            'msg'  => $message,
+            'data' => $data
+        ]);
+    }
 }

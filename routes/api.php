@@ -189,4 +189,12 @@ Route::group(['namespace' => 'Api'], function () {
 
      Route::post('goods/sec_list', 'GoodsController@secKillList');
      Route::post('goods/sec_goods', 'GoodsController@secGoods');
+     Route::post('goods/sec_details', 'GoodsController@getSecRule');
+     Route::get('group/today_top', 'GroupBuyController@todayHot');
+     Route::get('group/group_cate', 'GroupBuyController@topCate');
+     Route::get('group/group_list/{cate_id}/{page?}', 'GroupBuyController@groupGoodsListByCate');
+     Route::get('group/puzzle_detail/{puzzle_id}', 'GroupBuyController@groupGoodsDetail');
+     Route::post('group/group_order', 'GroupBuyController@groupOrderAdd'); // 开团/拼团订单
+     Route::post('group/group_buy_test', 'GroupBuyController@groupBuyTest'); // 生成开团/拼团入库测试
+     Route::get('group/scan_failed', 'GroupBuyController@scanFailedGroups'); // 清理失败拼团
 });

@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Services\GroupService;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
 class OrderController extends Controller
-{   
+{
     public function __construct()
     {
         $all=request()->all();
@@ -638,21 +639,24 @@ class OrderController extends Controller
         return $this->rejson(200,'查询成功',$data);
     }
      /**
-     * @api {post} /api/order/pay 订单支付
-     * @apiName pay
-     * @apiGroup order
-     * @apiParam {string} uid 用户id
-     * @apiParam {string} token 验证登陆
-     * @apiParam {string} sNo 订单号
-     * @apiParam {string} pay_id 支付方式id
-     * @apiParam {string} is_integral 是否使用积分 1使用 0不使用
-     * @apiSuccessExample 参数返回:
-     *     {
-     *       "code": "200",
-     *       "data": "",     
-     *       "msg":"查询成功"
-     *     }
-     */
+      * @api {post} /api/order/pay 订单支付
+      * @apiName pay
+      * @apiGroup order
+      * @apiParam {string} uid 用户id
+      * @apiParam {string} token 验证登陆
+      * @apiParam {string} sNo 订单号
+      * @apiParam {string} pay_id 支付方式id
+      * @apiParam {string} is_integral 是否使用积分 1使用 0不使用
+      * @apiParam {number} puzzle_id 可选，团购id，购团商品需要传递
+      * @apiParam {number} open_join 团购必填，开团还是参团：1开团 2参团
+      * @apiParam {number} group_id 参团必填，参团id
+      * @apiSuccessExample 参数返回:
+      *     {
+      *       "code": "200",
+      *       "data": "",
+      *       "msg":"查询成功"
+      *     }
+      */
      public function pay(){
         $all=request()->all();
         if ($all['pay_id']==1) {//微信支付
@@ -685,6 +689,7 @@ class OrderController extends Controller
         if (empty($orders)) {
             return $this->rejson(201,'订单不存在');
         }
+
         $order_goods=Db::table('order_goods')->where('order_id',$sNo)->get();
         if($all['is_integral']==1){
             $integrals=DB::table('config')->where('key','integral')->first()->value;
@@ -706,6 +711,34 @@ class OrderController extends Controller
         if($users->money < $orders->order_money-$integral){
             return $this->rejson(201,'余额不足');
         }
+
+         // hcq新增：团购支付处理
+         $puzzle_id = empty($all['puzzle_id']) ? 0 : $all['puzzle_id'];
+         $open_join = empty($all['open_join']) ? 0 : $all['open_join'];
+         $group_id = empty($all['group_id']) ? 0 : $all['group_id'];
+         if ($puzzle_id) {
+             $service = new GroupService();
+             try {
+                 $goods = Db::table('order_goods')->where('order_id',$sNo)->first();
+                 if (! $goods) {
+                     return $this->rejson(201, '没有该订单数据');
+                 }
+                 if ($orders->puzzle_id == 0 || $orders->puzzle_id != $puzzle_id || $orders->is_del == 1) {
+                     return $this->rejson(201, '非法订单');
+                 }
+                 $num = $goods->num;
+                 $service->openOrJoinGroup($orders->id, $puzzle_id, $open_join, $num, $all['uid'], $group_id);
+             }
+             catch (\Exception $e) {
+                 // 删除订单
+//                 $service->deleteOrder($sNo);
+                 if ($e->getCode() == 201) {
+                     return $this->rejson(201, '拼团失败,' . $e->getMessage());
+                 }
+                 return $this->rejson(500, '未知错误,拼团失败');
+             }
+         }
+
         $data['user_id']=$all['uid'];
         $data['describe']='商城购物消费';
         $data['create_time']=date('Y-m-d H:i:s',time());
@@ -773,6 +806,34 @@ class OrderController extends Controller
         }else{
             $integral=0;
         }
+
+         // hcq新增：团购支付处理
+         $puzzle_id = empty($all['puzzle_id']) ? 0 : $all['puzzle_id'];
+         $open_join = empty($all['open_join']) ? 0 : $all['open_join'];
+         $group_id = empty($all['group_id']) ? 0 : $all['group_id'];
+         if ($puzzle_id) {
+             $service = new GroupService();
+             try {
+                 $goods = Db::table('order_goods')->where('order_id',$sNo)->first();
+                 if (! $goods) {
+                     return $this->rejson(201, '没有该订单数据');
+                 }
+                 if ($orders->puzzle_id == 0 || $orders->puzzle_id != $puzzle_id || $orders->is_del == 1) {
+                     return $this->rejson(201, '非法订单');
+                 }
+                 $num = $goods->num;
+                 $service->openOrJoinGroup($orders->id, $puzzle_id, $open_join, $num, $all['uid'], $group_id);
+             }
+             catch (\Exception $e) {
+                 // 删除订单
+//                 $service->deleteOrder($sNo);
+                 if ($e->getCode() == 201) {
+                     return $this->rejson(201, '拼团失败,' . $e->getMessage());
+                 }
+                 return $this->rejson(500, '未知错误,拼团失败');
+             }
+         }
+
         $pay_money = 100*($orders->order_money-$integral);
         
         $input = new \WxPayUnifiedOrder();
