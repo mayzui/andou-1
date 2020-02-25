@@ -88,7 +88,7 @@ class UsersaddressController extends Controller {
      * "is_default":'1为默认地址'
      * "province_id": "省id",
      * "city_id": "市id",
-     * "area_id": "区id",
+     * "district_id": "区id",
      * "address": "详细地址",
      * "province": "省地址",
      * "city": "市地址",
@@ -101,13 +101,13 @@ class UsersaddressController extends Controller {
     public function address() {
         $all = request()->all();
         $data = DB::table('user_address')
-            ->select('id', 'name', 'mobile', 'is_default', 'province_id', 'city_id', 'area_id', 'address')
+            ->select('id', 'name', 'mobile', 'is_default', 'province_id', 'city_id', 'district_id', 'address')
             ->where('user_id', $all['uid'])
             ->get();
         foreach ($data as $key => $value) {
-            $data[$key]->province = DB::table('districts')->where('id', $value->province_id)->first()->name ?? '';
-            $data[$key]->city = DB::table('districts')->where('id', $value->city_id)->first()->name ?? '';
-            $data[$key]->area = DB::table('districts')->where('id', $value->area_id)->first()->name ?? '';
+            $data[$key]->province = DB::table('util_area')->where('id', $value->province_id)->value('province_id') ?? '';
+            $data[$key]->city = DB::table('util_area')->where('id', $value->city_id)->value('city_id') ?? '';
+            $data[$key]->area = DB::table('util_area')->where('id', $value->district_id)->value('district_id') ?? '';
         }
         return $this->rejson(200, '查询成功', $data);
     }
@@ -162,7 +162,7 @@ class UsersaddressController extends Controller {
      * "is_default":'1为默认地址'
      * "province_id": "省id",
      * "city_id": "市id",
-     * "area_id": "区id",
+     * "district_id": "区id",
      * "address": "详细地址",
      * "province": "省地址",
      * "city": "市地址",
@@ -177,12 +177,12 @@ class UsersaddressController extends Controller {
             return $this->rejson(201, '缺少参数');
         }
         $data = DB::table('user_address')
-            ->select('id', 'name', 'mobile', 'is_default', 'province_id', 'city_id', 'area_id', 'address')
+            ->select('id', 'name', 'mobile', 'is_default', 'province_id', 'city_id', 'district_id', 'address')
             ->where(['user_id' => $all['uid'], 'id' => $all['id']])
             ->first();
-        $data->province = DB::table('districts')->where('id', $data->province_id)->first()->name ?? '';
-        $data->city = DB::table('districts')->where('id', $data->city_id)->first()->name ?? '';
-        $data->area = DB::table('districts')->where('id', $data->area_id)->first()->name ?? '';
+        $data->province = DB::table('util_area')->find($data->province_id)->value('name') ?? '';
+        $data->city = DB::table('util_area')->find($data->city_id)->value('name') ?? '';
+        $data->area = DB::table('util_area')->find($data->district_id)->value('name') ?? '';
         return $this->rejson(200, '查询成功', $data);
     }
 
