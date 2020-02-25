@@ -197,4 +197,6 @@ Route::group(['namespace' => 'Api'], function () {
      Route::post('group/group_order', 'GroupBuyController@groupOrderAdd'); // 开团/拼团订单
      Route::post('group/group_buy_test', 'GroupBuyController@groupBuyTest'); // 生成开团/拼团入库测试
      Route::get('group/scan_failed', 'GroupBuyController@scanFailedGroups'); // 清理失败拼团
+    Route::post('invites/makeinvite','InvitesController@makeInvite');    //生成邀请码
+    Route::get('invites/invitenum','InvitesController@inviteNum');    //邀请码下级数
 });

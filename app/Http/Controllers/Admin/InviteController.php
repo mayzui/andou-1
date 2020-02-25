@@ -20,13 +20,18 @@ class InviteController extends BaseController
          $input =$request->all();
          if(empty($input['code'])){
              $inviteData = DB::table("invite")
-                 ->paginate(2);
+                 ->paginate(10);
              return $this->view('invitelist',['list'=>$inviteData]);
          }else{
              $code = $input['code'];
              $inviteData = DB::table("invite")
                  ->where('invite_code','like','%'.$code.'%')
-                 ->paginate(2);
+                 ->paginate(10);
+             if(empty($inviteData[0])){
+                 $inviteData = DB::table("invite")
+                   ->where('usernames','like','%'.$code.'%')
+                   ->paginate(2);
+             }
              return $this->view('invitelist',['list'=>$inviteData,'code'=>$code]);
          }
 
