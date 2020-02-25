@@ -8,7 +8,7 @@
 <link href="{{loadEdition('/admin/css/base.css')}}" rel="stylesheet">
 <link href="{{loadEdition('/admin/css/layui.css')}}" rel="stylesheet">
 <link href="{{loadEdition('/admin/css/style.css')}}" rel="stylesheet">
-<div class="ad-right">
+<div class="content-right">
     <div class="sign layui-nav">
         <div style="display: none;" id="voice_play">
             <audio id="play">
@@ -117,7 +117,7 @@
         });
 
     </script>
-    <div class="ad-wrapper  J_mainContent" id="content-main">
+    <div class="content-wrapper  J_mainContent" id="content-main">
         <iframe class="J_iframe" name="iframe0" width="100%" height="100%" src="{{route('index.main')}}" frameborder="0" data-id="index_v1.html" seamless></iframe>
     </div>
 </div>

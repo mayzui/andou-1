@@ -49,22 +49,22 @@ class IndexController extends Controller
      *     }
      */
     public function index(){
-        $data['banner']=Db::table('banner')
+        $data['banner']=DB::table('banner')
         ->select('id','img','url')
         ->where(['banner_position_id'=>1,'status'=>1])
         ->orderBy('sort','ASC')
         ->get();
-        $data['merchant_type']=Db::table('merchant_type')
+        $data['merchant_type']=DB::table('merchant_type')
         ->select('id','img')
         ->where('status',1)
         ->orderBy('sort','ASC')
         ->get();
-        $data['merchants']=Db::table('merchants')
+        $data['merchants']=DB::table('merchants')
         ->select('id','logo_img','name','merchant_type_id')
         ->where('recommend',1)
         ->orderBy('updated_at','DESC')
         ->get();
-        $data['notice']=Db::table('notice')
+        $data['notice']=DB::table('notice')
         ->select('id','content','updated_at')
         ->where('status',1)
         ->where('send','all')
@@ -141,7 +141,7 @@ class IndexController extends Controller
      */
     public function notification_center(){
         $all = \request() -> all();
-        
+
         // 链接数据库根据id查询
         $where[]=['send', 'like', '%'.$all['uid'].'%'];
         $where[]=['status',1];
@@ -157,13 +157,13 @@ class IndexController extends Controller
         if(!empty($data)){
             foreach ($data as $key => $value) {
                 $message = json_decode($value -> message) ?? [];
-               
+
                 if(in_array($all['uid'],$message)){
                     $data[$key] -> messageStatus = 1;
                 }else{
                     $data[$key] -> messageStatus = 0;
                 }
-                
+
             }
             return $this->rejson(200,'查询成功',$data);
         }else{
