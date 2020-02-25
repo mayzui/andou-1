@@ -9,7 +9,9 @@ class InvitesController extends Controller
 {
     /**
      * @api {post} /api/invites/makeinvite 生成邀请码
+     * @apiName makeinvite
      * @apiParam {string} uid 用户id
+     * @apiGroup invite
      * @apiSuccessExample 参数返回:
      * {
           "code": 200,
@@ -22,7 +24,7 @@ class InvitesController extends Controller
               "phone": "17671446672",
          }
            }
-     *}
+     }
      */
     public function makeInvite()
     {
@@ -70,7 +72,9 @@ class InvitesController extends Controller
 
     /**
      * @api {get} /api/invites/invitenum 邀请码下级数
-     * @apiParam {string} uid 用户id
+     * @apiName invitenum
+     * @apiParam {string} code 邀请码
+     * @apiGroup invite
      * @apiSuccessExample 参数返回:
      *{
          "code": "200",
