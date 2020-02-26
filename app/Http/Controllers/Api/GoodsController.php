@@ -163,9 +163,16 @@ class GoodsController extends Controller {
 
         // hcq新增：判断是否秒杀商品,是就返回秒杀开始结束时间
          if ($data->is_sec == 1) {
-             $sec_rule = SecRuleModel::where('goods_id', $all['id'])->select('start_time', 'end_time')->first();
-             $data->start_time = $sec_rule->start_time;
-             $data->end_time = $sec_rule->end_time;
+             $sec_rule = SecRuleModel::where('goods_id', $all['id'])
+                 ->where('status', 1)
+                 ->select('start_time', 'end_time')->first();
+             if ($sec_rule) {
+                 $data->start_time = $sec_rule->start_time;
+                 $data->end_time = $sec_rule->end_time;
+             }
+             else {
+                 $data->is_sec = 0;
+             }
          }
 
         return $this->rejson(200, '查询成功', $data);
