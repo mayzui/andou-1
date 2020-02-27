@@ -7,14 +7,14 @@
     "require": {
         "php": ">=7.0.0",
         "barryvdh/laravel-ide-helper": "^2.4",
-        "fideloper/proxy": "~3.3",
+        "fideloper/proxy": "^3.3",
         "germey/geetest": "^3.0",
-        "jacobcyl/ali-oss-storage": "dev-master",
+        "jacobcyl/ali-oss-storage": "^2.1",
         "laracasts/flash": "^3.0",
         "laravel/framework": "5.5.*",
         "laravel/tinker": "~1.0",
         "predis/predis": "^1.1",
-        "overtrue/laravel-ueditor": "~1.0",
+        "overtrue/laravel-ueditor": "^1.2",
         "zhuzhichao/ip-location-zh": "^2.4"
     },
     "require-dev": {
