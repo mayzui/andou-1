@@ -61,12 +61,14 @@ class SeckillController extends BaseController
                                     });
                             });
                     })
+                    ->orderBy('id','desc')
                     ->paginate(10);
             }elseif ($status==3){     //已结束
                 $seckData = Seckill::where(['status'=>1])
                     ->where(function($query){
                         $query->where('end_time','<',now());
                     })
+                    ->orderBy('id','desc')
                     ->paginate(10);
             }elseif ($status==4){     //进行中(售罄)
                 $seckData = Seckill::where(['num'=>0,'status'=>1])
@@ -76,9 +78,10 @@ class SeckillController extends BaseController
                                 $query->where('end_time','>',now());
                             });
                     })
+                    ->orderBy('id','desc')
                     ->paginate(10);
             }elseif($status==1){
-                $seckData = Seckill::where('status',1)->paginate(10);
+                $seckData = Seckill::where('status',1)->orderBy('id','desc')->paginate(10);
             }elseif($status==6){     //搜索
                 if ($i){
                     $names  = $input['named'];     //要搜索的商品名字
@@ -104,7 +107,7 @@ class SeckillController extends BaseController
             }else{}
         }else{
             $status = 0;
-            $seckData = Seckill::where('status',1)->paginate(10);
+            $seckData = Seckill::where('status',1)->orderBy('id','desc')->paginate(10);
         }
 
         if ($i){
@@ -369,6 +372,10 @@ class SeckillController extends BaseController
             -> first();
         if($i){
             $mid = $i->id;
+            $goodData = DB::table("goods")
+                ->where('id',$goods_id)
+                ->first(['merchant_id']);
+            $merchants_id = $goodData->merchant_id;
             $addData = DB::table("seckill_rules")
                 ->insert([
                     'goods_id'      =>$goods_id,
@@ -379,7 +386,7 @@ class SeckillController extends BaseController
                     'kill_rule'     =>$kill_rule,
                     'status'        =>1,
                     'created_at'    =>date("Y-m-d:H:i:s",time()),
-                    'merchantsid'   =>$mid,
+                    'merchantsid'   =>$merchants_id,
                     'sku_id'        =>$sku_id
                 ]);
             if($addData){

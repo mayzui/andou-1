@@ -391,13 +391,6 @@ class GroupBuyController extends Controller
             }
             return $this->responseJson(500, '未知错误，请稍后再试');
         }
-        // 有未支付的团购订单则不让操作,付款的时候则排除当前订单
-        $has_order = DB::table('orders')
-            ->where('puzzle_id', '!=', 0)
-            ->where(['user_id' => $uid, 'type' => 1, 'status' => 10, 'is_del' => 0])->first();
-        if ($has_order) {
-            return $this->responseJson(201, '你有未付款团购的订单，请先付款再操作');
-        }
 
         $all['goods_id'] = $puzzle_goods->goods_id;
         $all['goods_sku_id'] = $puzzle_goods->sku_id;

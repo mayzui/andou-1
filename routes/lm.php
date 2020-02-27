@@ -140,6 +140,16 @@ Route::group(['namespace' => 'Admin','prefix' => 'admin'], function (){
         Route::match(['get','post'],'seckill/countdel','SeckillController@countDel')->name('seckill.countdel');  //秒杀统计删除
         //邀请码管理
         Route::match(['get','post'],'invite/inlist','InviteController@inviteList')->name('invite.inlist');  //邀请码管理列表
+        //团购管理
+        Route::any('shop/puzzle','PuzzleController@index')->name('shop.puzzle');
+        Route::any('shop/puzzleAdd','PuzzleController@puzzleAdd')->name('shop.puzzleAdd');
+        Route::any('shop/status','PuzzleController@status')->name('shop.status');
+        Route::any('shop/puzzleEdit','PuzzleController@puzzleEdit')->name('shop.puzzleEdit');
+        Route::any('shop/addPuzzle','PuzzleController@addPuzzle')->name('shop.addPuzzle');
+        Route::any('shop/addPuzzleData','PuzzleController@addPuzzleData')->name('shop.addPuzzleData');
+        Route::any('shop/puzzleUpd','PuzzleController@puzzleUpd')->name('shop.puzzleUpd');
+        Route::any('shop/show','PuzzleController@show')->name('shop.show');
+        Route::any('shop/display','PuzzleController@display')->name('shop.display');
     });
 
 });
