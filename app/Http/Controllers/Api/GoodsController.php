@@ -779,7 +779,7 @@ class GoodsController extends Controller {
 
         // 商品状态验证
         $goods = GoodsModel::find($sec_rule->goods_id);
-        if (! $goods || $goods->is_sale != 1 || $goods->is_del == 1) return $this->rejson(201, '商品不存在或已下架');
+        if (! $goods || $goods->is_sale != 1 || $goods->is_del == 1 || empty($goods->merchant_id)) return $this->rejson(201, '商品不存在或已下架');
         if ($goods->is_sec != 1) return $this->rejson(201, '该商品未参与秒杀');
 
         // 是否秒杀验证
@@ -804,8 +804,8 @@ class GoodsController extends Controller {
             $where['kill_num'] = $sec_rule->kill_num;
             SecRuleModel::where($where)->increment('kill_num');
 
-            // 生成秒杀订单
-            $ret = $this->createSecOrder($sec_id, $sec_rule->goods_id, $sec_rule->sku_id, $sec_rule->merchantsid, $address->id, $uid, $sec_rule->kill_price);
+            // 生成秒杀订单，看是否根据情况定时清理一直没付款的订单，并返还库存
+            $ret = $this->createSecOrder($sec_id, $sec_rule->goods_id, $sec_rule->sku_id, $goods->merchant_id, $address->id, $uid, $sec_rule->kill_price);
             $order_sn = $ret['order_sn'];
             $order_id = $ret['order_id'];
 
@@ -862,6 +862,7 @@ class GoodsController extends Controller {
                     "goods_id": "商品id",
                     "sku_id": "规格id",
                     "kill_price": "秒杀价",
+                    "old_price": "原价"
                     "kill_num": "秒杀数",
                     "storage": "秒杀库存",
                     "start_time": "2020-02-20 14:00:00",
@@ -897,10 +898,14 @@ class GoodsController extends Controller {
         else {
             $sec_status = 2;
         }
+        // 加个秒杀原价
+        $old_price = DB::table('goods_sku')->where('id', $sec_rule->sku_id)
+            ->value('price');
 
         $data['goods_id'] = $sec_rule->goods_id;
         $data['sku_id'] = $sec_rule->sku_id;
         $data['kill_price'] = $sec_rule->kill_price;
+        $data['old_price'] = $old_price;
         $data['kill_num'] = $sec_rule->kill_num;
         $data['storage'] = $sec_rule->num - $sec_rule->kill_num;
         $data['start_time'] = $sec_rule->start_time;

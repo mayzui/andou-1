@@ -151,10 +151,10 @@ class GroupService
             throw new \Exception("参数错误", 201);
         }
 
+        // 开团/拼团，针对同一个商品不能再次开团或拼团
         if ($open_join == 1) {
-            // 开团
-            $has = PuzzleGroupModel::where(['captain_id' => $uid, 'status' => 1])->first();
-            if ($has) throw new \Exception("您已经开过团了", 201);
+//            $has = PuzzleGroupModel::where(['captain_id' => $uid, 'status' => 1])->first();
+//            if ($has) throw new \Exception("您已经开过团了", 201);
         }
         elseif ($open_join == 2) {
             // 参团
@@ -173,7 +173,7 @@ class GroupService
             }
             $group_users = PuzzleUserModel::where('group_id', $group_id)->pluck('user_id')->toArray();
             if (in_array($uid, $group_users)) {
-                throw new \Exception("你已经参与了该团购", 201);
+                throw new \Exception("你已经参与了该团组", 201);
             }
         }
         else {
@@ -198,17 +198,13 @@ class GroupService
     {
         $puzzle_goods = $this->groupOrderCheck($puzzle_id, $uid, $num, $open_join, $group_id);
 
+        // 开团/拼团，针对同一个商品不能再次开团或拼团
+        $this->checkHasPartInGoods($puzzle_id, $uid);
+
         if ($open_join == 1) {
             // 开团
             try {
                 DB::beginTransaction();
-                $has_order = DB::table('orders')
-                    ->where('puzzle_id', '!=', 0)
-                    ->where('id', '!=', $order_id)
-                    ->where(['user_id' => $uid, 'type' => 1, 'status' => 10, 'is_del' => 0])->first();
-                if ($has_order) {
-                    throw new \Exception('你有未付款团购的订单，请先付款再操作', 201);
-                }
 
                 $group_data['puzzle_id'] = $puzzle_id;
                 $group_data['group_code'] = $this->createGroupCode();
@@ -248,14 +244,6 @@ class GroupService
                 $order_exist = PuzzleUserModel::where('order_id', $order_id)->first();
                 if ($order_exist) {
                     throw new \Exception('订单已参与拼团', 201);
-                }
-
-                $has_order = DB::table('orders')
-                    ->where('puzzle_id', '!=', 0)
-                    ->where('id', '!=', $order_id)
-                    ->where(['user_id' => $uid, 'type' => 1, 'status' => 10, 'is_del' => 0])->first();
-                if ($has_order) {
-                    throw new \Exception('你有未付款团购的订单，请先付款再操作', 201);
                 }
 
                 $puzzle_group = PuzzleGroupModel::find($group_id);
@@ -306,7 +294,7 @@ class GroupService
     }
 
     /**
-     * 扫描过期未拼团成功的商品下架，并修改拼团状态为失败
+     * 扫描过期未拼团成功的商品下架，并修改拼团状态为失败（这里到时间清理，会自动下架团购，应该不存在返库存的问题了）
      * @return bool
      * @throws \Exception
      */
@@ -343,5 +331,28 @@ class GroupService
         }
 
         return false;
+    }
+
+    /**
+     * 检测当前用户是否参加过当前商品的团购，参加过就不能再次拼团
+     * @param $puzzle_id
+     * @param $uid
+     * @return bool
+     * @throws \Exception
+     */
+    private function checkHasPartInGoods($puzzle_id, $uid)
+    {
+        $group_ids = PuzzleGroupModel::where('puzzle_id', $puzzle_id)
+            ->where('status', 1)
+            ->pluck('id')->toArray();
+
+        $has_me = PuzzleUserModel::whereIn('group_id', $group_ids)
+            ->where('user_id', $uid)
+            ->first();
+        if ($has_me) {
+            throw new \Exception('你已经参加过该商品的团购', 201);
+        }
+
+        return true;
     }
 }
