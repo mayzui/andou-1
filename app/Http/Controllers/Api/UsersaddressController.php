@@ -51,9 +51,9 @@ class UsersaddressController extends Controller {
         $data['address'] = $all['address'];
         $data['province_id'] = $all['province_id'];
         $data['city_id'] = $all['city_id'];
-        $data['district_id'] = $all['district_id'];
+        $data['area_id'] = $all['district_id'];
         $data['created_at'] = $data['updated_at'] = date('Y-m-d H:i:s', time());
-        $data['is_default'] = $all['is_default'];
+        $data['is_defualt'] = $all['is_default'];
         $data['user_id'] = $all['uid'];
 
         DB::beginTransaction(); //开启事务
@@ -101,13 +101,13 @@ class UsersaddressController extends Controller {
     public function address() {
         $all = request()->all();
         $data = DB::table('user_address')
-            ->select('id', 'name', 'mobile', 'is_default', 'province_id', 'city_id', 'district_id', 'address')
+            ->select('id', 'name', 'mobile', 'is_defualt', 'province_id', 'city_id', 'area_id', 'address')
             ->where('user_id', $all['uid'])
             ->get();
         foreach ($data as $key => $value) {
-            $data[$key]->province = DB::table('util_area')->where('id', $value->province_id)->value('province_id') ?? '';
-            $data[$key]->city = DB::table('util_area')->where('id', $value->city_id)->value('city_id') ?? '';
-            $data[$key]->area = DB::table('util_area')->where('id', $value->district_id)->value('district_id') ?? '';
+            $data[$key]->province = DB::table('util_area')->where('id', $value->province_id)->value('name') ?? '';
+            $data[$key]->city = DB::table('util_area')->where('id', $value->city_id)->value('name') ?? '';
+            $data[$key]->area = DB::table('util_area')->where('id', $value->area_id)->value('name') ?? '';
         }
         return $this->rejson(200, '查询成功', $data);
     }
@@ -131,7 +131,7 @@ class UsersaddressController extends Controller {
         if (!isset($all['id'])) {
             return $this->rejson(201, '缺少参数');
         }
-        $data['is_default'] = 1;
+        $data['is_defualt'] = 1;
         $datas['is_default'] = 0;
         DB::beginTransaction(); //开启事务
         $re = DB::table('user_address')->where('user_id', $all['uid'])->update($datas);
@@ -177,12 +177,12 @@ class UsersaddressController extends Controller {
             return $this->rejson(201, '缺少参数');
         }
         $data = DB::table('user_address')
-            ->select('id', 'name', 'mobile', 'is_default', 'province_id', 'city_id', 'district_id', 'address')
+            ->select('id', 'name', 'mobile', 'is_defualt', 'province_id', 'city_id', 'area_id', 'address')
             ->where(['user_id' => $all['uid'], 'id' => $all['id']])
             ->first();
         $data->province = DB::table('util_area')->find($data->province_id)->value('name') ?? '';
         $data->city = DB::table('util_area')->find($data->city_id)->value('name') ?? '';
-        $data->area = DB::table('util_area')->find($data->district_id)->value('name') ?? '';
+        $data->area = DB::table('util_area')->find($data->area_id)->value('name') ?? '';
         return $this->rejson(200, '查询成功', $data);
     }
 
@@ -215,11 +215,11 @@ class UsersaddressController extends Controller {
         $data['name'] = $all['name'];
         $data['mobile'] = $all['mobile'];
         $data['address'] = $all['address'];
-        $data['district_id'] = $all['district_id'];
+        $data['area_id'] = $all['district_id'];
         $data['city_id'] = $all['city_id'];
         $data['province_id'] = $all['province_id'];
         $data['updated_at'] = date('Y-m-d H:i:s', time());
-        $data['is_default'] = $all['is_default'];
+        $data['is_defualt'] = $all['is_default'];
         $data['user_id'] = $all['uid'];
         if ($all['is_default'] == 1) {
             $datas['is_default'] = 0;

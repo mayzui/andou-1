@@ -443,7 +443,8 @@ class OrderController extends Controller
 
         $percent = DB::table('config')->where('key', 'integral')->value('value');
         $max_deduction = floor(($data->order_money - $data->shipping_free) * $percent);
-        $integral = DB::table('users')->find($all['uid'])->value('integral');
+//        $integral = DB::table('users')->find($all['uid'])->value('integral');
+        $integral = DB::table('users')->where('id', $all['uid'])->value('integral');
 
         if ($integral >= $max_deduction) {
             $data->integral = $max_deduction;
