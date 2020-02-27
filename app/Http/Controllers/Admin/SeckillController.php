@@ -338,7 +338,6 @@ class SeckillController extends BaseController
         $num        = $input['num'];              //秒杀库存
         $kill_rule  = $input['kill_rule'];        //秒杀规则
         $sku_id     = $input['sku_id'];           //商品规格id
-        var_dump($start_time);die;
         $s = strtotime($start_time);
         $e = strtotime($end_time);
         if(empty($start_time)){
