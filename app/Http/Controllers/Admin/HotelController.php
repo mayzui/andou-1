@@ -935,7 +935,7 @@ class HotelController extends BaseController
                             }
                         }
                     }
-                } echo 1;die;
+                }
                 // 获取上传的图片路径
                 $img_array = json_encode($img_array);
                 if(empty($input['choose_file'])){

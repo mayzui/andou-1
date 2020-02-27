@@ -29,18 +29,18 @@ class InvitesController extends Controller
     public function makeInvite(Request $request)
     {
         if($request->isMethod('get')){
-            return $this->rejson('210','非法请求');exit;
+            return $this->rejson('210','非法请求');
         }
         $all=request()->all();
         if(empty($all['uid'])){
-            return $this->rejson(205,'请先登录','');exit;
+            return $this->rejson(205,'请先登录','');
         }
         $id =$all['uid'];    // 当前登录用户的id
         $vipData = DB::table("vip")
             ->where(['user_id'=>$id,'is_del'=>0])
             ->first(['user_id','grade']);
         if(empty($vipData)){
-            return $this->rejson(201,'您当前还不是超级会员','');exit;
+            return $this->rejson(201,'您当前还不是超级会员','');
         }
         $uid = $vipData->user_id;
         $inviteCode = $this->createCode("$uid");
@@ -48,13 +48,13 @@ class InvitesController extends Controller
         ->where('id','=',$uid)
             ->first(['id','mobile','name']);
         if(empty($selUser)){
-            return $this->rejson(202,'没有该用户','');exit;
+            return $this->rejson(202,'没有该用户','');
         }
         $screen = DB::table("invite")
             ->where('users_id','=',$uid)
             ->first(['users_id']);
         if(!empty($screen)){
-            return $this->rejson(203,'该用户已有邀请码','');exit;
+            return $this->rejson(203,'该用户已有邀请码','');
         }
         $time =date("Y-m-d:H:i:s",time());
         $createInvite = DB::table("invite")
@@ -67,9 +67,9 @@ class InvitesController extends Controller
             ]);
         $return = ['code'=>$inviteCode,'uid'=>$selUser->id,'make_time'=>$time,'phone'=>$selUser->mobile];
         if($createInvite){
-            return $this->rejson(200,'成功生成邀请码',['data'=>$return]);exit;
+            return $this->rejson(200,'成功生成邀请码',['data'=>$return]);
         }else{
-            return $this->rejson(206,'未生成邀请码','');exit;
+            return $this->rejson(206,'未生成邀请码','');
         }
     }
 
@@ -91,11 +91,11 @@ class InvitesController extends Controller
     public function inviteNum(Request $request)
     {
         if($request->isMethod('post')){
-            return $this->rejson('210','非法请求');exit;
+            return $this->rejson('210','非法请求');
         }
         $all = $request->query();
         if(empty($all['code'])){
-            return $this->rejson('201','请输入邀请码');exit;
+            return $this->rejson('201','请输入邀请码');
         }
         $code = $all['code'];        //验证码
         $uid =  $this->deCode($code);
@@ -103,10 +103,10 @@ class InvitesController extends Controller
             ->where('users_id','=',$uid)
             ->first(['id','collar','invite_code']);
         if(empty($oldCollar)){            //判断用户是否有验证码
-            return $this->rejson('202','该用户不是超级会员');exit;
+            return $this->rejson('202','该用户不是超级会员');
         }
         if($oldCollar->invite_code != $code){   //判断邀请码是否一致
-            return $this->rejson('203','填入的邀请码不一致');exit;
+            return $this->rejson('203','填入的邀请码不一致');
         }
         $oldVal = $oldCollar->collar;
         $id = $oldCollar->id;        //邀请码主键id
@@ -119,9 +119,9 @@ class InvitesController extends Controller
             ->first(['id','collar','invite_code']);
         $return = ['collar'=>$newCollar->collar,'uid'=>$uid];
         if ($updCollar){
-            return $this->rejson('200','邀请成功',$return);exit;
+            return $this->rejson('200','邀请成功',$return);
         }else{
-            return $this->rejson('204','邀请失败');exit;
+            return $this->rejson('204','邀请失败');
         }
     }
 }

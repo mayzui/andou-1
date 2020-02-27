@@ -202,6 +202,7 @@ class SeckillController extends BaseController
         }else{
             $sku_id = $input['sku_id'];   //商品规格id
             $id = $input['id'];
+            $seckData['id'] = $input['id'];
             $seckData = Seckill::where(['status'=>1,'id'=>$id])->first()->toArray();
             //商品规格
             $skuData = DB::table("goods_sku")

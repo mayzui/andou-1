@@ -3,7 +3,9 @@
 <script src="{{loadEdition('/admin/plugins/layui/layui.all.js')}}"></script>
 @section('css')
     <style>
-        .animated{-webkit-animation-fill-mode: none;}
+        .animated {
+            -webkit-animation-fill-mode: none;
+        }
     </style>
 @endsection
 
@@ -17,11 +19,12 @@
                 <a class="menuid btn btn-primary btn-sm" href="javascript:history.go(-1)">返回</a>
                 <div class="hr-line-dashed m-t-sm m-b-sm"></div>
                 <form class="form-horizontal m-t-md" action="{{route('seckill.edit')}}" method="POST">
-                    <input type="hidden" name="id" value="{{$data['id']}}" />
+                    <input type="hidden" name="id" value="{{$data['id']}}"/>
                     <div class="form-group">
                         <label class="col-sm-2 control-label">商品名称</label>
                         <div class="input-group col-sm-2">
-                            <input type="text" value="{{$gname->name}}" class="form-control" required data-msg-required="">
+                            <input type="text" value="{{$gname->name}}" class="form-control" required
+                                   data-msg-required="">
                         </div>
                     </div>
                     <div class="form-group">
@@ -32,7 +35,8 @@
                                     <option>暂无规格</option>
                                 @else
                                     @foreach($gdata as $k=>$item)
-                                        <option value="<?php echo $item->id?>" selected="selected" @if($skudata->id == $item->id) selected="selected"@endif >
+                                        <option value="{{e($item->id)}}"
+                                                @if($skudata->id == $item->id) selected @endif >
                                             @php
                                                 $attr  = json_decode($skudata->attr_value);
                                                 $attr_value =json_decode($item->attr_value);
@@ -52,7 +56,7 @@
                                             @endforeach
 
                                         </option>
-                                 @endif
+                                        @endif
                             </select>
                         </div>
                     </div>
@@ -61,35 +65,39 @@
                     <div class="form-group">
                         <label class="col-sm-2 control-label">开始时间：</label>
                         <div class="input-group col-sm-2">
-                            <input type="datetime-local" class="form-control" class="one_time" value="{{$start_time or ''}}" name="start_time" placeholder="请选择时间">
+                            <input type="datetime-local" class="form-control" class="one_time"
+                                   value="{{$start_time or ''}}" name="start_time" placeholder="请选择时间">
                         </div>
                     </div>
                     <div class="hr-line-dashed m-t-sm m-b-sm"></div>
                     <div class="form-group">
                         <label class="col-sm-2 control-label">结束时间：</label>
                         <div class="input-group col-sm-2">
-                            <input type="datetime-local" class="form-control" class="end_at" value="{{$end_time or ''}}" name="end_time" placeholder="请选择时间">
+                            <input type="datetime-local" class="form-control" class="end_at" value="{{$end_time or ''}}"
+                                   name="end_time" placeholder="请选择时间">
                         </div>
                     </div>
                     <div class="hr-line-dashed m-t-sm m-b-sm"></div>
                     <div class="form-group">
                         <label class="col-sm-2 control-label">秒杀价格：</label>
                         <div class="input-group col-sm-2">
-                            <input type="text" name="kill_price" value="{{$data['kill_price']}}" class="form-control" required data-msg-required="">
+                            <input type="text" name="kill_price" value="{{$data['kill_price']}}" class="form-control"
+                                   required data-msg-required="">
                         </div>
                     </div>
                     <div class="hr-line-dashed m-t-sm m-b-sm"></div>
                     <div class="form-group">
                         <label class="col-sm-2 control-label">秒杀库存：</label>
                         <div class="input-group col-sm-2">
-                            <input type="text" name="num" value="{{$data['num']}}" class="form-control" required data-msg-required="">
+                            <input type="text" name="num" value="{{$data['num']}}" class="form-control" required
+                                   data-msg-required="">
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label class="col-sm-2 control-label">秒杀规则：</label>
                         <div class="input-group col-sm-2">
-                            <textarea name="kill_rule" id=""  cols="60" rows="6">{{$data['kill_rule'] or ''}}</textarea>
+                            <textarea name="kill_rule" id="" cols="60" rows="6">{{$data['kill_rule'] or ''}}</textarea>
                         </div>
                     </div>
                     <div class="hr-line-dashed m-t-sm m-b-sm"></div>
@@ -112,10 +120,10 @@
 @section('footer-js')
     <script>
 
-        function showicon(){
+        function showicon() {
             layer.open({
                 type: 1,
-                title:'点击选择图标',
+                title: '点击选择图标',
                 area: ['800px', '80%'], //宽高
                 anim: 2,
                 shadeClose: true, //开启遮罩关闭
@@ -123,9 +131,9 @@
             });
         }
 
-        $('.fontawesome-icon-list .fa-hover').find('a').click(function(){
-            var str=$(this).text();
-            $('#fonts').val( $.trim(str));
+        $('.fontawesome-icon-list .fa-hover').find('a').click(function () {
+            var str = $(this).text();
+            $('#fonts').val($.trim(str));
             layer.closeAll();
         })
     </script>

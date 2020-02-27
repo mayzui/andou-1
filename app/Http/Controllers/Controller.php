@@ -282,8 +282,6 @@ class Controller extends BaseController {
 
             Header("Location: $url");
 
-            exit();
-
         } else {
 
             $access_token = $this->getSingleAccessToken($code);

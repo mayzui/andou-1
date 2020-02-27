@@ -313,6 +313,5 @@ class LoginController extends Controller {
      */
     public function caches() {
         return $a = Redis::get('18883562091');
-        exit();
     }
 }
