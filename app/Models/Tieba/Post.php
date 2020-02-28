@@ -37,6 +37,12 @@ class Post extends BaseModel {
             ->selectRaw("CONCAT('{$this->domain}', image_url) AS image_url");
     }
 
+    public function commentCount() {
+        return $this
+            ->hasOne(PostComment::class, 'post_id', 'id')
+            ->where('status', 1);
+    }
+
     public function comments($limit = 3) {
         return $this
             ->hasMany(PostComment::class, 'post_id', 'id')
@@ -68,6 +74,8 @@ class Post extends BaseModel {
             $user = $post->user()->first();
             $post->setAttribute('name', $user->name);
             $post->setAttribute('avator', $user->avator);
+
+            $post->setAttribute('comment_count', $post->commentCount()->count());
 
             $post->setAttribute('images', $post->images()->pluck('image_url'));
 

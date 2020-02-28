@@ -26,6 +26,7 @@ class TiebaController extends Controller {
      * @api {get} /api/tieba/list 帖文列表
      * @apiName list
      * @apiGroup tieba
+     * @apiParam {Number} [uid] type=mine 时必传
      * @apiParam {String=public,mine} [type=public] 类型，public - 广场；mine - 我的
      * @apiParam {Number} [page=1] 页码
      * @apiSuccessExample {json} Success-Response:
@@ -34,7 +35,7 @@ class TiebaController extends Controller {
      */
     public function list(Request $request) {
         $data = $this->validate($request, [
-            'uid' => 'field|numeric|exists:users,id',
+            'uid' => 'required_if:type,mine|numeric|exists:users,id',
             'type' => 'field|string|in:public,mine',
             'page' => 'nullable|numeric|min:1'
         ]);
@@ -92,6 +93,7 @@ class TiebaController extends Controller {
      * @api {post} /api/tieba/upvote 帖文点赞
      * @apiName upvote
      * @apiGroup tieba
+     * @apiParam {Number} uid
      * @apiParam {Number} post_id 帖文 ID
      * @apiParam {Number=1,0} [vote=1] 默认点赞，0 为取消
      * @apiSuccessExample {json} Success-Response:
@@ -130,6 +132,7 @@ class TiebaController extends Controller {
      * @api {post} /api/tieba/comment 帖文评论/回复
      * @apiName comment
      * @apiGroup tieba
+     * @apiParam {Number} uid
      * @apiParam {Number} post_id 帖文 ID
      * @apiParam {String} content 评论内容
      * @apiParam {Number} [comment_id] 评论 ID，回复用户时必传
@@ -198,12 +201,13 @@ class TiebaController extends Controller {
      * @api {post} /api/tieba/post 发布帖文
      * @apiName post
      * @apiGroup tieba
+     * @apiParam {Number} uid
      * @apiParam {String} title 标题
      * @apiParam {String} content 内容
-     * @apiParam {Object[]} images 图片
-     * @apiParam {Number} type_id 类型 ID
+     * @apiParam {Object[]} [images] 图片
+     * @apiParam {Number} type_id 类型 ID，通过 types 接口获取
      * @apiParam {String} contact_info 联系方式
-     * @apiParam {Number} top_post 是否置顶
+     * @apiParam {Boolean} top_post 是否置顶
      * @apiSuccessExample {json} Success-Response:
      * {}
      *

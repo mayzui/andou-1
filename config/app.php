@@ -169,7 +169,7 @@ return [
          * Package Service Providers...
          */
         Jacobcyl\AliOSS\AliOssServiceProvider::class,
-	    Germey\Geetest\GeetestServiceProvider::class,
+        Germey\Geetest\GeetestServiceProvider::class,
 
         /*
          * Application Service Providers...
