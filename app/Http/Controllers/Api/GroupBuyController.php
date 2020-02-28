@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\GoodsModel;
 use App\Models\PuzzleGoodsModel;
 use App\Models\PuzzleGroupModel;
 use App\Models\PuzzleUserModel;
@@ -258,6 +259,7 @@ class GroupBuyController extends Controller
                     "goods_id": "商品id",
                     "sku_id": "规格id",
                     "price": "团购价格",
+                    "old_price": "团购原价"
                     "storage": "团购库存",
                     "top_member": "单团人数上限",
                     "begin_time": "团购开始时间",
@@ -305,6 +307,10 @@ class GroupBuyController extends Controller
         $sale_total = PuzzleUserModel::whereIn('group_id', $group_ids)
             ->sum('buy_num');
         $group_goods['sale_total'] = $sale_total;
+        // 加个团购原价
+        $group_goods['old_price'] = DB::table('goods_sku')->where('id', $group_goods['sku_id'])
+            ->value('price');
+
         // 状态和时间 1团购中 0未开始 2已结束
         $now = Carbon::now()->toDateTimeString();
         if ($now >= $group_goods['begin_time'] &&  $now <= $group_goods['finish_time']) {
@@ -392,9 +398,12 @@ class GroupBuyController extends Controller
             return $this->responseJson(500, '未知错误，请稍后再试');
         }
 
+        $goods = GoodsModel::find($puzzle_goods->goods_id);
+        if (! $goods || $goods->is_sale != 1 || $goods->is_del == 1 || empty($goods->merchant_id)) return $this->responseJson(201, '商品不存在或已下架');
+
         $all['goods_id'] = $puzzle_goods->goods_id;
         $all['goods_sku_id'] = $puzzle_goods->sku_id;
-        $all['merchant_id'] = $puzzle_goods->merchant_id;
+        $all['merchant_id'] = $goods->merchant_id;
         // 订单参数
         $alldata['address_id']=$address->id;
         $alldata['puzzle_id'] = $puzzle_id;
@@ -479,7 +488,10 @@ class GroupBuyController extends Controller
         $puzzle_id = empty($all['puzzle_id']) ? 0 : $all['puzzle_id'];
         $open_join = empty($all['open_join']) ? 0 : $all['open_join'];
         $group_id = empty($all['group_id']) ? 0 : $all['group_id'];
-        if ($puzzle_id) {
+        if ($orders->puzzle_id != 0) {
+            if (empty($puzzle_id)) {
+                return $this->responseJson(201, '团购参数错误');
+            }
             try {
                 $goods = DB::table('order_goods')->where('order_id',$sNo)->first();
                 if (! $goods) {
@@ -492,8 +504,6 @@ class GroupBuyController extends Controller
                 $this->service->openOrJoinGroup($orders->id, $puzzle_id, $open_join, $num, $all['uid'], $group_id);
             }
             catch (\Exception $e) {
-                // 删除订单
-                //                 $service->deleteOrder($sNo);
                 if ($e->getCode() == 201) {
                     return $this->responseJson(201, '拼团失败,' . $e->getMessage());
                 }
@@ -503,7 +513,7 @@ class GroupBuyController extends Controller
             return $this->responseJson(200, '拼团成功');
         }
         else {
-            return $this->responseJson(201, '缺少参数');
+            return $this->responseJson(201, '非拼团订单');
         }
     }
 
@@ -513,6 +523,11 @@ class GroupBuyController extends Controller
      */
     public function scanFailedGroups()
     {
+        $token = \request()->input('token', '');
+        if (! $token || $token != md5('andou2020')) {
+            return $this->responseJson(400, '参数错误');
+        }
+
         try {
             $res = $this->service->scanPuzzleGroups();
         }
@@ -528,5 +543,44 @@ class GroupBuyController extends Controller
 
         \Log::info('数据已更新完毕');
         return $this->responseJson(200, '数据已更新完毕');
+    }
+
+    /**
+     * 清理过期未付款的秒杀拼团订单
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function scanOverTimeOrders()
+    {
+        $token = \request()->input('token', '');
+        if (! $token || $token != md5('andou2020')) {
+            return $this->responseJson(400, '参数错误');
+        }
+
+        $minutes_ago = Carbon::now()->subMinutes(10)->toDateTimeString();
+        $where = [];
+        $where['o.status'] = 10;
+        $where[] = ['o.updated_at', '<', $minutes_ago];
+
+        try {
+            $puzzle_count = DB::table('orders as o')
+                ->join('order_goods as og', 'o.order_sn', '=', 'og.order_id')
+                ->where($where)
+                ->where('o.puzzle_id', '!=', 0)
+                ->update(['o.status' => 0, 'og.status' => 0]);
+            $sec_count = DB::table('orders as o')
+                ->join('order_goods as og', 'o.order_sn', '=', 'og.order_id')
+                ->where($where)
+                ->where('o.sec_id', '!=', 0)
+                ->update(['o.status' => 0, 'og.status' => 0]);
+        }
+        catch (\Exception $e) {
+            \Log::error("清理拼团秒杀订单失败," . $e->getMessage());
+            return $this->responseJson(500, '清理失败');
+        }
+        if ($puzzle_count > 0) $puzzle_count = $puzzle_count / 2;
+        if ($sec_count > 0) $sec_count = $sec_count / 2;
+        \Log::info("清除未付款团购订单: {$puzzle_count}条, 秒杀订单: {$sec_count}条");
+
+        return $this->responseJson(200, 'ok', compact('puzzle_count', 'sec_count'));
     }
 }

@@ -9,6 +9,7 @@
 namespace App\Services;
 
 
+use App\Models\GoodsModel;
 use App\Models\PuzzleGoodsModel;
 use App\Models\PuzzleGroupModel;
 use App\Models\PuzzleUserModel;
@@ -198,6 +199,11 @@ class GroupService
     {
         $puzzle_goods = $this->groupOrderCheck($puzzle_id, $uid, $num, $open_join, $group_id);
 
+        $goods = GoodsModel::find($puzzle_goods->goods_id);
+        if (! $goods || $goods->is_sale != 1 || $goods->is_del == 1 || empty($goods->merchant_id)) {
+            throw new \Exception('商品不存在或已下架', 201);
+        }
+
         // 开团/拼团，针对同一个商品不能再次开团或拼团
         $this->checkHasPartInGoods($puzzle_id, $uid);
 
@@ -227,7 +233,7 @@ class GroupService
                 $res = PuzzleGoodsModel::where(['id' => $puzzle_id, 'storage' => $puzzle_goods->storage])
                     ->decrement('storage', $num);
                 if (!$res) {
-                    throw new \Exception('库存不足');
+                    throw new \Exception('库存不足', 201);
                 }
 
                 DB::commit();
@@ -249,7 +255,7 @@ class GroupService
                 $puzzle_group = PuzzleGroupModel::find($group_id);
                 $puzzle_group->member_num += 1;
                 if ($puzzle_group->member_num > $puzzle_group->total_member) {
-                    throw new \Exception('该团人数已满');
+                    throw new \Exception('该团人数已满', 201);
                 }
                 if ($puzzle_group->member_num == $puzzle_group->total_member) {
                     $puzzle_group->status = 2;
@@ -269,7 +275,7 @@ class GroupService
                 $res = PuzzleGoodsModel::where(['id' => $puzzle_id, 'storage' => $puzzle_goods->storage])
                     ->decrement('storage', $num);
                 if (!$res) {
-                    throw new \Exception('库存不足');
+                    throw new \Exception('库存不足', 201);
                 }
 
                 DB::commit();
