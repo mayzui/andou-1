@@ -17,6 +17,7 @@ yarn-error.log
 /app/Http/apidoc.json
 /app/Http/apidoc.md
 /public/apidoc
+/public/post
 /public/shop
 /public/uploads
 /public/.htaccess

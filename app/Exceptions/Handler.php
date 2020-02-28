@@ -4,9 +4,11 @@ namespace App\Exceptions;
 
 use Exception;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpFoundation\Response;
 
-class Handler extends ExceptionHandler
-{
+class Handler extends ExceptionHandler {
     /**
      * A list of the exception types that are not reported.
      *
@@ -31,23 +33,32 @@ class Handler extends ExceptionHandler
      *
      * This is a great spot to send exceptions to Sentry, Bugsnag, etc.
      *
-     * @param  \Exception  $exception
+     * @param Exception $exception
+     *
      * @return void
+     * @throws Exception
      */
-    public function report(Exception $exception)
-    {
+    public function report(Exception $exception) {
         parent::report($exception);
     }
 
     /**
      * Render an exception into an HTTP response.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Exception  $exception
-     * @return \Illuminate\Http\Response
+     * @param Request   $request
+     * @param Exception $exception
+     *
+     * @return Response
      */
-    public function render($request, Exception $exception)
-    {
+    public function render($request, Exception $exception) {
+        // 拦截验证器错误
+        if ($exception instanceof ValidationException) {
+            return response()->json([
+                'code' => 201,
+                'msg' => getFirstInvalidMsg($exception->errors())
+            ], 200);
+        }
+
         return parent::render($request, $exception);
     }
 }

@@ -106,8 +106,11 @@ class UsersaddressController extends Controller {
             ->leftJoin('util_area AS ac', 'ac.id', 'city_id')
             ->leftJoin('util_area AS aa', 'aa.id', 'area_id')
             ->where('user_id', $all['uid'])
-            ->get(['user_address.id', 'user_address.name', 'mobile', 'is_defualt', 'ap.name AS province',
-                'ac.name AS city', 'aa.name AS area', 'address']);
+            ->where('status', 1)
+            ->select(['user_address.id', 'user_address.name', 'mobile', 'is_defualt', 'address', 'ap.name AS province',
+                'ac.name AS city'])
+            ->selectRaw("IFNULL(aa.name, '') AS area")
+            ->get();
         return $this->rejson(200, '查询成功', $data);
     }
 
@@ -176,13 +179,17 @@ class UsersaddressController extends Controller {
             return $this->rejson(201, '缺少参数');
         }
         $data = DB::table('user_address')
-            ->select('id', 'name', 'mobile', 'is_defualt', 'province_id', 'city_id', 'area_id', 'address')
-            ->where(['user_id' => $all['uid'], 'id' => $all['id']])
+            ->leftJoin('util_area AS ap', 'ap.id', 'province_id')
+            ->leftJoin('util_area AS ac', 'ac.id', 'city_id')
+            ->leftJoin('util_area AS aa', 'aa.id', 'area_id')
+            ->where('user_id', $all['uid'])
+            ->where('user_address.id', $all['id'])
+            ->where('status', 1)
+            ->select(['user_address.id', 'user_address.name', 'mobile', 'is_defualt', 'province_id', 'city_id', 'area_id',
+                'address', 'ap.name AS province', 'ac.name AS city'])
+            ->selectRaw("IFNULL(aa.name, '') AS area")
             ->first();
-        $data->province = DB::table('util_area')->find($data->province_id)->value('name') ?? '';
-        $data->city = DB::table('util_area')->find($data->city_id)->value('name') ?? '';
-        $data->area = DB::table('util_area')->find($data->area_id)->value('name') ?? '';
-        return $this->rejson(200, '查询成功', $data);
+        return $this->responseJson(200, 'OK', $data);
     }
 
     /**
@@ -249,7 +256,9 @@ class UsersaddressController extends Controller {
         }
         $re = DB::table('user_address')
             ->where(['user_id' => $all['uid'], 'id' => $all['id']])
-            ->delete();
+            ->update([
+                'status' => -1
+            ]);
         if ($re) {
             return $this->rejson(200, '删除成功');
         } else {
