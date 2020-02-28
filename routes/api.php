@@ -206,7 +206,7 @@ Route::group(['namespace' => 'Api'], function () {
     Route::get('tieba/detail', 'TiebaController@detail');
     Route::post('tieba/upvote', 'TiebaController@upvote');
     Route::post('tieba/comment', 'TiebaController@comment');
-    Route::post('tieba/share', 'TiebaController@share');
+    Route::get('tieba/share', 'TiebaController@share');
     Route::get('tieba/types', 'TiebaController@types');
     Route::post('tieba/post', 'TiebaController@post');
 });
