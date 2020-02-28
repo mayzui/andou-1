@@ -197,6 +197,16 @@ Route::group(['namespace' => 'Api'], function () {
     Route::post('group/group_order', 'GroupBuyController@groupOrderAdd'); // 开团/拼团订单
     Route::post('group/group_buy_test', 'GroupBuyController@groupBuyTest'); // 生成开团/拼团入库测试
     Route::get('group/scan_failed', 'GroupBuyController@scanFailedGroups'); // 清理失败拼团
+    Route::get('group/scan_over_orders', 'GroupBuyController@scanOverTimeOrders'); // 清理未付款订单
     Route::post('invites/makeinvite', 'InvitesController@makeInvite');    //生成邀请码
     Route::get('invites/invitenum', 'InvitesController@inviteNum');    //邀请码下级数
+
+    // ------------------------- 贴吧 -------------------------
+    Route::get('tieba/list', 'TiebaController@list');
+    Route::get('tieba/detail', 'TiebaController@detail');
+    Route::post('tieba/upvote', 'TiebaController@upvote');
+    Route::post('tieba/comment', 'TiebaController@comment');
+    Route::post('tieba/share', 'TiebaController@share');
+    Route::get('tieba/types', 'TiebaController@types');
+    Route::post('tieba/post', 'TiebaController@post');
 });

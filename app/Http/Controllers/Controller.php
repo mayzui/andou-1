@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\UtilArea;
 use Endroid\QrCode\QrCode;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 
@@ -79,30 +81,14 @@ class Controller extends BaseController {
         }
     }
 
-    /**地址查询
-     * [districts description]
+    /**
+     * @param int $parent_id
      *
-     * @return [type] [description]
+     * @return Collection
      */
-    public function districts() {
-        $provincelist = Db::table('districts')->select('name', 'id', 'pid')->where('deep', 0)->get();
-        $citylist = Db::table('districts')->select('name', 'id', 'pid')->where('deep', 1)->get();
-        $arealist = Db::table('districts')->select('name', 'id', 'pid')->where('deep', 2)->get();
-        $provinceArray = [];
-        $cityArray = [];
-        $areaArray = [];
-        foreach ($arealist as $area) {
-            $areaArray[$area->pid][] = $area;
-        }
-        foreach ($citylist as $city) {
-            $city->areas = isset($areaArray[$city->id]) ? $areaArray[$city->id] : null;
-            $cityArray[$city->pid][] = $city;
-        }
-        foreach ($provincelist as $province) {
-            $province->cities = isset($cityArray[$province->id]) ? $cityArray[$province->id] : null;
-            $provinceArray[] = $province;
-        }
-        return $provinceArray;
+    public function districts($parent_id = 1) {
+        $parent_id = $parent_id > 1 ? $parent_id : 1;
+        return UtilArea::getInstance()->getChildren($parent_id);
     }
 
     /**生成随机字符串
@@ -402,32 +388,32 @@ class Controller extends BaseController {
 
     }
 
-    protected function responseJson($code, $message = '', $data = '')
-    {
+    protected function responseJson($code, $message = '', $data = '') {
         return response()->json([
             'code' => $code,
-            'msg'  => $message,
+            'msg' => $message,
             'data' => $data
         ]);
     }
 
     /**
      * @explain 生成邀请码
+     *
      * @param $user_id
+     *
      * @return
      * 返回邀请码
      */
-    public function createCode ($user_id)
-    {
+    public function createCode($user_id) {
         static $source_string = 'E5FCDG3HQA4B1NOPIJ2RSTUV67MWX89KLYZ';
         $num = $user_id;
         $code = '';
         while ($num > 0) {
             $mod = $num % 35;
             $num = ($num - $mod) / 35;
-            $code = $source_string[$mod].$code;
+            $code = $source_string[$mod] . $code;
         }
-        if(empty($code[5])){
+        if (empty($code[5])) {
             $code = str_pad($code, 6, '0', STR_PAD_LEFT);
         }
         return $code;
@@ -435,20 +421,21 @@ class Controller extends BaseController {
 
     /**
      * @explain 根据邀请码查看用户id
+     *
      * @param $code
+     *
      * @return
      * 返回用户id
      */
-    public function deCode ($code)
-    {
+    public function deCode($code) {
         static $source_string = 'E5FCDG3HQA4B1NOPIJ2RSTUV67MWX89KLYZ';
-        if (strrpos($code, '0') !== false){
-            $code = substr($code, strrpos($code, '0')+1);
+        if (strrpos($code, '0') !== false) {
+            $code = substr($code, strrpos($code, '0') + 1);
         }
         $len = strlen($code);
         $code = strrev($code);
         $num = 0;
-        for ($i=0; $i < $len; $i++){
+        for ($i = 0; $i < $len; $i++) {
             $num += strpos($source_string, $code[$i]) * pow(35, $i);
         }
         return $num;

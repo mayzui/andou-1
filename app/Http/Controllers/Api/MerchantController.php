@@ -141,6 +141,7 @@ class MerchantController extends Controller
         if ($data['districts']) {
             $data['districts']=json_decode($data['districts'],1);
         }else{
+            // TODO: 此处地区信息需要调整
             $data['districts']=$this->districts();
             Redis::set('districts',json_encode($data['districts'],1));
         }

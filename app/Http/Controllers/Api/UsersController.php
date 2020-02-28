@@ -396,7 +396,7 @@ class UsersController extends Controller
         $data['order_sn']=$this->suiji();
         $re=DB::table('vip_recharge')->insert($data);
         if ($all['pay_id']==1) {//微信支付
-            $this->wxpay($data['order_sn']);
+           return $this->wxpay($data['order_sn']);
         }else if($all['pay_id']==2){//支付宝支付
             return $this->rejson(201,'暂未开通');
         }else if($all['pay_id']==3){//银联支付
