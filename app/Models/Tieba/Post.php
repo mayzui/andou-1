@@ -64,7 +64,7 @@ class Post extends BaseModel {
             })
             ->orderByDesc('top_post')
             ->orderByDesc('created_at')
-            ->select(['id', 'user_id', 'title', 'vote'])
+            ->select(['id', 'user_id', 'title', 'vote', 'share'])
             ->selectRaw('LEFT(content, ?) AS content', [64])
             ->forPage($page, $page_size)
             ->get();
@@ -97,13 +97,15 @@ class Post extends BaseModel {
     }
 
     public function getDetail($post_id) {
-        $detail = $this->find($post_id, ['id', 'user_id', 'title', 'content', 'vote']);
+        $detail = $this->find($post_id, ['id', 'user_id', 'title', 'content', 'vote', 'share']);
 
         $user = $detail->user();
         $detail->setAttribute('name', $user->value('name'));
         $detail->setAttribute('avator', $user->value('avator'));
 
         $detail->setAttribute('images', $detail->images()->pluck('image_url'));
+
+        $detail->setAttribute('comment_count', $detail->commentCount()->count());
 
         $comments = $detail->comments(10)->get();
         /** @var PostComment $comment */
