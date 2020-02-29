@@ -49,7 +49,8 @@ class Post extends BaseModel {
             ->join('users AS u', 'u.id', 'user_id')
             ->where('tieba_post_comment.status', 1)
             ->orderByDesc('tieba_post_comment.created_at')
-            ->select(['tieba_post_comment.id', 'u.name', 'content', 'comment_id'])
+            ->select(['tieba_post_comment.id', 'content', 'comment_id', 'u.name'])
+            ->selectRaw("CONCAT('{$this->domain}', u.avator) AS avator")
             ->limit($limit);
     }
 
@@ -65,7 +66,8 @@ class Post extends BaseModel {
             ->orderByDesc('top_post')
             ->orderByDesc('created_at')
             ->select(['id', 'user_id', 'title', 'vote', 'share'])
-            ->selectRaw('LEFT(content, ?) AS content', [64])
+            ->selectRaw("LEFT(content, ?) AS content, DATE_FORMAT(created_at, ?) AS created_at",
+                [64, '%Y-%m-%d %H:%i'])
             ->forPage($page, $page_size)
             ->get();
 
@@ -97,7 +99,10 @@ class Post extends BaseModel {
     }
 
     public function getDetail($post_id) {
-        $detail = $this->find($post_id, ['id', 'user_id', 'title', 'content', 'vote', 'share']);
+        $detail = $this
+            ->select(['id', 'user_id', 'title', 'content', 'vote', 'share'])
+            ->selectRaw('DATE_FORMAT(created_at, ?) AS created_at', ['%Y-%m-%d %H:%i'])
+            ->find($post_id);
 
         $user = $detail->user();
         $detail->setAttribute('name', $user->value('name'));

@@ -26,8 +26,10 @@ class PostComment extends BaseModel {
             ->join('users AS u', 'u.id', 'user_id')
             ->where('post_id', $post_id)
             ->where('tieba_post_comment.status', 1)
+            ->select(['tieba_post_comment.id', 'content', 'comment_id', 'u.name'])
+            ->selectRaw("CONCAT('{$this->domain}', u.avator) AS avator")
             ->forPage($page, 10)
-            ->get(['tieba_post_comment.id', 'u.name', 'content', 'comment_id']);
+            ->get();
 
         /** @var PostComment $comment */
         foreach ($comments as $key => $comment) {
