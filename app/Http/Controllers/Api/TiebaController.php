@@ -23,7 +23,7 @@ class TiebaController extends Controller {
      *
      * @return JsonResponse
      *
-     * @api {get} /api/tieba/list 帖文列表
+     * @api {get} /api/tieba/list 贴文列表
      * @apiName list
      * @apiGroup tieba
      * @apiParam {Number} [uid] type=mine 时必传
@@ -59,10 +59,10 @@ class TiebaController extends Controller {
      * @param Request $request
      *
      * @return JsonResponse
-     * @api {get} /api/tieba/detail 帖文详情
+     * @api {get} /api/tieba/detail 贴文详情
      * @apiName detail
      * @apiGroup tieba
-     * @apiParam {Number} post_id 帖文 ID
+     * @apiParam {Number} post_id 贴文 ID
      * @apiParam {Number} [page=1] 页码
      * @apiSuccessExample {json} Success-Response:
      * {}
@@ -77,8 +77,9 @@ class TiebaController extends Controller {
         if (isset($data['page']) && $data['page'] > 1) {
             return $this->responseJson(
                 200,
-                'OK',
-                PostComment::getInstance()->getComment($data['post_id'], $data['page'])
+                'OK', [
+                    'comments' => PostComment::getInstance()->getComment($data['post_id'], $data['page'])
+                ]
             );
         }
 
@@ -90,11 +91,11 @@ class TiebaController extends Controller {
      *
      * @return JsonResponse
      *
-     * @api {post} /api/tieba/upvote 帖文点赞
+     * @api {post} /api/tieba/upvote 贴文点赞
      * @apiName upvote
      * @apiGroup tieba
      * @apiParam {Number} uid
-     * @apiParam {Number} post_id 帖文 ID
+     * @apiParam {Number} post_id 贴文 ID
      * @apiParam {Number=1,0} [vote=1] 默认点赞，0 为取消
      * @apiSuccessExample {json} Success-Response:
      * {}
@@ -129,11 +130,11 @@ class TiebaController extends Controller {
      *
      * @return JsonResponse
      *
-     * @api {post} /api/tieba/comment 帖文评论/回复
+     * @api {post} /api/tieba/comment 贴文评论/回复
      * @apiName comment
      * @apiGroup tieba
      * @apiParam {Number} uid
-     * @apiParam {Number} post_id 帖文 ID
+     * @apiParam {Number} post_id 贴文 ID
      * @apiParam {String} content 评论内容
      * @apiParam {Number} [comment_id] 评论 ID，回复用户时必传
      * @apiSuccessExample {json} Success-Response:
@@ -168,21 +169,36 @@ class TiebaController extends Controller {
     /**
      * @param Request $request
      *
-     * @api {get} /api/tieba/share 帖文分享
+     * @return JsonResponse
+     *
+     * @api {get} /api/tieba/share 贴文分享
      * @apiName share
      * @apiGroup tieba
+     * @apiParam {Number} post_id 贴文 ID
      * @apiSuccessExample {json} Success-Response:
      * {}
      *
      */
     public function share(Request $request) {
-        // TODO:
+        $postId = $request->get('post_id');
+        if ($postId) {
+            $post = Post::getInstance()->find($postId);
+            if ($post) {
+                return $this->responseJson(200, 'OK', [
+                    'title' => '',
+                    'desc' => '',
+                    'img' => '',
+                    'link' => ''
+                ]);
+            }
+        }
+        return $this->responseJson(201, '分享失败');
     }
 
     /**
      * @return JsonResponse
      *
-     * @api {get} /api/tieba/types 帖文类型
+     * @api {get} /api/tieba/types 贴文类型
      * @apiName types
      * @apiGroup tieba
      * @apiSuccessExample {json} Success-Response:
@@ -198,7 +214,7 @@ class TiebaController extends Controller {
      *
      * @return JsonResponse
      *
-     * @api {post} /api/tieba/post 发布帖文
+     * @api {post} /api/tieba/post 发布贴文
      * @apiName post
      * @apiGroup tieba
      * @apiParam {Number} uid
