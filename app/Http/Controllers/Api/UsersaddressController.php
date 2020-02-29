@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\UserAddress;
 use Illuminate\Support\Facades\DB;
 
 class UsersaddressController extends Controller {
@@ -29,9 +30,7 @@ class UsersaddressController extends Controller {
      * @apiParam {string} token 验证登陆
      * @apiParam {string} name 收货人名字
      * @apiParam {string} mobile 收货人电话
-     * @apiParam {string} province_id 地址省id
-     * @apiParam {string} city_id 地址市id
-     * @apiParam {string} district_id 地址区id
+     * @apiParam {string} area_id 地址区id
      * @apiParam {string} address 详细地址
      * @apiParam {string} is_defualt 设为默认地址 1是 0不是
      * @apiSuccessExample 参数返回:
@@ -43,33 +42,39 @@ class UsersaddressController extends Controller {
      */
     public function addressAdd() {
         $all = request()->all();
-        if (!isset($all['name']) || !isset($all['mobile']) || !isset($all['address']) || !isset($all['district_id']) ||
-            !isset($all['city_id']) || !isset($all['province_id']) || !isset($all['is_defualt'])) {
+        if (!isset($all['name']) || !isset($all['mobile']) || !isset($all['address']) ||
+            !isset($all['area_id']) || !isset($all['is_defualt'])) {
             return $this->rejson(201, '缺少参数');
         }
         $data['name'] = $all['name'];
         $data['mobile'] = $all['mobile'];
         $data['address'] = $all['address'];
-        $data['province_id'] = $all['province_id'];
-        $data['city_id'] = $all['city_id'];
-        $data['area_id'] = $all['district_id'];
         $data['created_at'] = $data['updated_at'] = date('Y-m-d H:i:s', time());
         $data['is_defualt'] = $all['is_defualt'];
         $data['user_id'] = $all['uid'];
 
+        $addrIds = UserAddress::getInstance()->getAddrIds($all['area_id']);
+        $data['province_id'] = $addrIds[0];
+        $data['city_id'] = $addrIds[1];
+        $data['area_id'] = isset($addrIds[2]) ? $addrIds[2] : 0;
+
         DB::beginTransaction(); //开启事务
         if ($all['is_defualt'] == 1) {
-            $datas['is_defualt'] = 0;
-            $re = DB::table('user_address')->where('user_id', $all['uid'])->update($datas);
+            $ret = DB::table('user_address')->where('user_id', $all['uid'])->update([
+                'is_defualt' => 0
+            ]);
+            if ($ret === false) {
+                DB::rollBack();
+                return $this->responseJson(201, ' 添加失败');
+            }
         }
-        $res = DB::table('user_address')->insert($data);
-        if ($res) {
+        $ret = DB::table('user_address')->insert($data);
+        if ($ret) {
             DB::commit();
-            return $this->rejson(200, '添加成功');
-        } else {
-            DB::rollback();
-            return $this->rejson(201, '添加失败');
+            return $this->responseJson(200, '添加成功');
         }
+        DB::rollback();
+        return $this->responseJson(201, '添加失败');
     }
 
     /**
@@ -89,7 +94,7 @@ class UsersaddressController extends Controller {
      * "is_defualt":'1为默认地址'
      * "province_id": "省id",
      * "city_id": "市id",
-     * "district_id": "区id",
+     * "area_id": "区id",
      * "address": "详细地址",
      * "province": "省地址",
      * "city": "市地址",
@@ -164,7 +169,7 @@ class UsersaddressController extends Controller {
      * "is_defualt":'1为默认地址'
      * "province_id": "省id",
      * "city_id": "市id",
-     * "district_id": "区id",
+     * "area_id": "区id",
      * "address": "详细地址",
      * "province": "省地址",
      * "city": "市地址",
@@ -201,9 +206,7 @@ class UsersaddressController extends Controller {
      * @apiParam {string} token 验证登陆
      * @apiParam {string} name 收货人名字
      * @apiParam {string} mobile 收货人电话
-     * @apiParam {string} province_id 地址省id
-     * @apiParam {string} city_id 地址市id
-     * @apiParam {string} district_id 地址区id
+     * @apiParam {string} area_id 地址区id
      * @apiParam {string} address 详细地址
      * @apiParam {string} is_defualt 是否默认地址 1为默认
      * @apiSuccessExample 参数返回:
@@ -215,24 +218,29 @@ class UsersaddressController extends Controller {
      */
     public function addressEdit() {
         $all = request()->all();
-        if (!isset($all['name']) || !isset($all['mobile']) || !isset($all['address']) || !isset($all['district_id']) || !isset($all['city_id']) || !isset($all['province_id']) || !isset($all['id']) || !isset($all['is_defualt'])) {
-            return $this->rejson(201, '缺少参数');
+        if (!isset($all['name']) || !isset($all['mobile']) || !isset($all['address']) ||
+            !isset($all['area_id']) || !isset($all['id']) || !isset($all['is_defualt'])) {
+            return $this->responseJson(201, '缺少参数');
         }
         $data['name'] = $all['name'];
         $data['mobile'] = $all['mobile'];
         $data['address'] = $all['address'];
-        $data['area_id'] = $all['district_id'];
-        $data['city_id'] = $all['city_id'];
-        $data['province_id'] = $all['province_id'];
         $data['updated_at'] = date('Y-m-d H:i:s', time());
         $data['is_defualt'] = $all['is_defualt'];
         $data['user_id'] = $all['uid'];
+
+        $addrIds = UserAddress::getInstance()->getAddrIds($all['area_id']);
+        $data['province_id'] = $addrIds[0];
+        $data['city_id'] = $addrIds[1];
+        $data['area_id'] = isset($addrIds[2]) ? $addrIds[2] : 0;
+
         if ($all['is_defualt'] == 1) {
-            $datas['is_defualt'] = 0;
-            DB::table('user_address')->where('user_id', $all['uid'])->update($datas);
+            DB::table('user_address')->where('user_id', $all['uid'])->update([
+                'is_defualt' => 0
+            ]);
         }
         DB::table('user_address')->where(['user_id' => $all['uid'], 'id' => $all['id']])->update($data);
-        return $this->rejson(200, '修改成功');
+        return $this->responseJson(200, '修改成功');
     }
 
     /**
