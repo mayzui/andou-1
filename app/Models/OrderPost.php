@@ -13,4 +13,10 @@ class OrderPost extends BaseModel {
 
     protected $table = 'order_post';
     protected $fillable = ['post_id', 'top_day'];
+
+    private static $model;
+
+    public static function getInstance() {
+        return self::$model ?: self::$model = new self();
+    }
 }

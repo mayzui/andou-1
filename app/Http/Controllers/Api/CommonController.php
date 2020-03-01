@@ -3,8 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\OrderPost;
+use App\Models\Orders;
+use App\Models\Tieba\Post;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class CommonController extends Controller {
 
@@ -184,7 +189,28 @@ class CommonController extends Controller {
             $ress = DB::table('orders')->where(['order_sn' => $out_trade_no, 'status' => 10])->first();
             // var_dump($ress);exit();
             if (!empty($ress)) {
-                $re = DB::table('orders')->where('order_sn', $out_trade_no)->update($datas);
+
+                $order = Orders::getInstance()->where('order_sn', $out_trade_no)->first();
+                // 贴吧订单
+                if ($order->type = 4) {
+                    $orderPost = OrderPost::getInstance()->where('order_id', $order->id)->first();
+                    if ($orderPost) {
+                        $post = Post::getInstance()->where('status', 1)->find($orderPost->post_id);
+                        if ($post) {
+                            $post->update([
+                                'is_show' => 1,
+                                'top_day' => $orderPost->top_day,
+                                'updated_at' => Carbon::now()->toDateTimeString()
+                            ]);
+                        } else {
+                            Log::error('帖子不存在，ID：' . $orderPost->post_id);
+                        }
+                    } else {
+                        Log::error('贴吧订单支付回调异常，订单号：' . $out_trade_no);
+                    }
+                }
+
+                $re = $order->update($datas);
                 $res = DB::table('order_goods')->where('order_id', $out_trade_no)->update($datas);
                 if ($re && $res) {
                     $str = '<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>';
