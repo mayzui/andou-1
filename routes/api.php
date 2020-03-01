@@ -209,4 +209,8 @@ Route::group(['namespace' => 'Api'], function () {
     Route::get('tieba/share', 'TiebaController@share');
     Route::get('tieba/types', 'TiebaController@types');
     Route::post('tieba/post', 'TiebaController@post');
+    Route::post('tieba/create_top_order', 'TiebaController@createTopOrder');
+
+    // ------------------------- 信息 -------------------------
+    Route::get('info/list', 'InformationController@list');
 });
