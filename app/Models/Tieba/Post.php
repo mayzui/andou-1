@@ -136,7 +136,7 @@ class Post extends BaseModel {
      * @param array $post_data
      * @param array $images
      *
-     * @return bool
+     * @return bool|int
      * @throws Exception
      */
     public function addPost($post_data, $images = []) {
@@ -159,7 +159,7 @@ class Post extends BaseModel {
 
             if (PostImage::getInstance()->insert($imageData)) {
                 DB::commit();;
-                return true;
+                return $postId;
             }
         }
 

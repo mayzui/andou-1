@@ -9,7 +9,9 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Common\WeChat\WeChatPay;
 use App\Http\Controllers\Controller;
+use App\Models\Orders;
 use App\Models\Tieba\{Post, PostComment, PostType, PostVote};
 use Carbon\Carbon;
 use Exception;
@@ -119,7 +121,7 @@ class TiebaController extends Controller {
                 return $this->responseJson(200, '操作成功');
             }
         } catch (Exception $e) {
-            Log::error('贴吧点赞异常，错误消息：' . $e->getMessage(), $e->getTrace());
+            Log::error('贴吧点赞异常，错误信息：' . $e->getMessage(), $e->getTrace());
         }
 
         return $this->responseJson(201, '操作失败');
@@ -157,8 +159,13 @@ class TiebaController extends Controller {
             $data['comment_id'] = 0;
         }
 
-        $ret = PostComment::getInstance()
-            ->addComment($data['uid'], $data['post_id'], $data['content'], $data['comment_id']);
+        try {
+            $ret = PostComment::getInstance()
+                ->addComment($data['uid'], $data['post_id'], $data['content'], $data['comment_id']);
+        } catch (Exception $e) {
+            Log::error('添加评论/回复异常，错误信息：' . $e->getMessage(), $e->getTrace());
+            return $this->responseJson(201, '回复异常');
+        }
 
         if ($ret) {
             return $this->responseJson(200, '回复成功', $ret);
@@ -276,17 +283,81 @@ class TiebaController extends Controller {
                 'top_post' => (int)$data['top_post']
             ], isset($successes) ? $successes : []);
         } catch (Exception $e) {
-            Log::error('贴吧发帖异常，错误消息：' . $e->getMessage(), $e->getTrace());
+            Log::error('贴吧发帖异常，错误信息：' . $e->getMessage(), $e->getTrace());
             return $this->responseJson(201, '发帖异常，请重试');
         }
 
         if ($ret) {
-            if ($data['top_post']) {
-                // TODO: 付费流程
-            }
-            return $this->responseJson(200, '发帖成功');
+            return $this->responseJson(200, '发帖成功', ['post_id' => $ret]);
         }
 
         return $this->responseJson(201, '发帖失败，请重试');
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @return JsonResponse
+     *
+     * @api {post} /api/tieba/create_top_order 创建置顶订单
+     * @apiName create_top_order
+     * @apiGroup tieba
+     * @apiParam {Number} uid
+     * @apiParam {Number} post_id 贴文 ID
+     * @apiParam {Number=1,2,3} method 置顶方式
+     * @apiParam {Number=1,2,3,4} pay_way 支付方式，1 -微信；2-支付宝；3-银联；4-余额支付
+     * @apiSuccessExample {json} Success-Response:
+     * {}
+     *
+     */
+    public function createTopOrder(Request $request) {
+        $data = $this->validate($request, [
+            'uid' => 'required|numeric|min:1|exists:users,id',
+            'post_id' => 'required|numeric|min:1|exists:tieba_post,id',
+            'method' => 'required|numeric|in:1,2,3',
+            'pay_way' => 'required|numeric|in:1,2,3,4'
+        ]);
+
+        $post = Post::getInstance()->where('user_id', $data['uid'])->find($data['post_id']);
+
+        if (!$post) {
+            return $this->responseJson(201, '贴文不存在');
+        }
+
+        if (!$post->top_post) {
+            return $this->responseJson(201, '该贴文无需付费');
+        }
+
+        try {
+            $orderSn = (string)app('Snowflake\Snowflake')->next();
+            $orderMoney = $data['method'] * 10;
+            $ret = Orders::getInstance()->createPostOrder([
+                'user_id' => $data['uid'],
+                'order_sn' => $orderSn,
+                'order_money' => $orderMoney,
+                'pay_way' => $data['pay_way'],
+                'type' => 4,
+                'created_at' => Carbon::now()->toDateTimeString()
+            ], $data['post_id'], $data['method']);
+        } catch (Exception $e) {
+            Log::error('创建贴吧订单失败，错误信息：' . $e->getMessage(), $e->getTrace());
+            return $this->responseJson(201, '创建订单异常');
+        }
+
+        if ($ret) {
+            $ret = WeChatPay::getInstance()->createOrder(
+                $data['trade_no'],
+                $orderMoney * 100,
+                '安抖科技-消费',
+                '贴吧服务',
+                $request->ip(),
+                Carbon::now()->addHour()->format('YmdHis')
+            );
+
+            if (is_array($ret)) {
+                return $this->responseJson(200, 'OK', ['params' => $ret]);
+            }
+        }
+        return $this->responseJson(201, '创建订单失败');
     }
 }

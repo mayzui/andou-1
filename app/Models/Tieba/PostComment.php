@@ -10,7 +10,10 @@
 namespace App\Models\Tieba;
 
 use App\Models\BaseModel;
+use App\Models\Information\Information;
 use App\Models\Users;
+use Exception;
+use Illuminate\Support\Facades\DB;
 
 class PostComment extends BaseModel {
 
@@ -67,8 +70,10 @@ class PostComment extends BaseModel {
      * @param int $reply_comment_id
      *
      * @return array|bool
+     * @throws Exception
      */
     public function addComment($user_id, $post_id, $content, $reply_comment_id = 0) {
+        DB::beginTransaction();
         $commentId = $this->insertGetId([
             'user_id' => $user_id,
             'post_id' => $post_id,
@@ -77,24 +82,44 @@ class PostComment extends BaseModel {
         ]);
 
         if ($commentId) {
-            $user_name = Users::find($user_id, ['name'])->name;
+            $userName = Users::find($user_id)->value('name');
 
             $latestComment = [
                 'id' => $commentId,
-                'name' => $user_name,
+                'name' => $userName,
                 'content' => $content,
             ];
 
             if ($reply_comment_id) {
-                $to = $this
+                $user = $this
                     ->join('users AS u', 'u.id', 'user_id')
-                    ->find($reply_comment_id, ['name'])
-                    ->name;
-                $latestComment['to'] = $to;
+                    ->find($reply_comment_id, ['user_id', 'name']);
+                $latestComment['to'] = $user->name;
+                $infoUserId = $user->user_id;
+                $infoType = 5;
+                $targetId = $reply_comment_id;
+            } else {
+                $infoUserId = Post::getInstance()->find($post_id)->value('user_id');
+                $infoType = 4;
+                $targetId = $post_id;
             }
 
-            return $latestComment;
+            if ($user_id != $infoUserId) {
+                if (Information::getInstance()->insert([
+                    'user_id' => $infoUserId,
+                    'type_id' => $infoType,
+                    'target_id' => $targetId
+                ])) {
+                    DB::commit();
+                    return $latestComment;
+                }
+            } else {
+                DB::commit();
+                return $latestComment;
+            }
+
         }
+        DB::rollBack();
         return false;
     }
 }
