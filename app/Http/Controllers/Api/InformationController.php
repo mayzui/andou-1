@@ -11,8 +11,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Information\Information;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class InformationController extends Controller {
 
@@ -45,7 +47,7 @@ class InformationController extends Controller {
             $data['type_id'] = null;
         }
 
-        if ($data['level'] == 2) {
+        if ($data['level'] != 3) {
             $count = Information::getInstance()->getInfoCount($data['uid'], $data['level'], $data['type_id']);
             return $this->responseJson(200, 'OK', ['count' => $count]);
         }
@@ -54,5 +56,36 @@ class InformationController extends Controller {
 
         $list = Information::getInstance()->getInfoList($data['uid'], $data['type_id'], $data['page']);
         return $this->responseJson(200, 'OK', ['list' => $list]);
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @return JsonResponse
+     *
+     * @api {get} /api/info/read 更新已读
+     * @apiName read
+     * @apiGroup info
+     * @apiParam {Number} uid
+     * @apiParam {Number} info_id
+     * @apiSuccessExample {json} Success-Response:
+     * {}
+     */
+    public function read(Request $request) {
+        $data = $this->validate($request, [
+            'uid' => 'required|numeric|exists:users,id',
+            'info_id' => 'required|numeric|exists,information,id'
+        ]);
+
+        $info = Information::getInstance()->getInfo($data['uid'], $data['info_id']);
+        if (!$info || $info->update([
+                'read' => 1,
+                'read_at' => Carbon::now()->toDateTimeString()
+            ])) {
+            Log::error("更新消息已读状态失败，用户 ID：{$data['uid']}，消息 ID：{$data['info_id']}");
+
+        }
+
+        return $this->responseJson(200, 'OK');
     }
 }

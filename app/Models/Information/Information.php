@@ -102,9 +102,11 @@ class Information extends BaseModel {
                             ->join('users AS u', 'u.id', 'tpv.user_id')
                             ->where('information.user_id', $user_id)
                             ->where('information.type_id', $type_id)
-                            ->where('information.read', 0)
-                            ->selectRaw("tp.id AS post_id, CONCAT('{$this->domain}', u.avator) AS avator,
-                             u.name AS from_user, tp.title, DATE_FORMAT(tpv.created_at, ?) AS created_at", ['%Y-%m-%d %H:%i'])
+                            ->where('information.status', 1)
+                            ->selectRaw("information.id AS info_id, tp.id AS post_id,
+                            CONCAT('{$this->domain}', u.avator) AS avator, u.name AS from_user, tp.title, read,
+                            DATE_FORMAT(tpv.created_at, ?) AS created_at", ['%Y-%m-%d %H:%i'])
+                            ->orderByDesc('information.created_at')
                             ->forPage($page, 10)
                             ->get();
                         break;
@@ -116,9 +118,10 @@ class Information extends BaseModel {
                             ->join('users AS u', 'u.id', 'tp.user_id')
                             ->where('information.user_id', $user_id)
                             ->where('information.type_id', $type_id)
-                            ->where('information.read', 0)
-                            ->selectRaw("tp.id AS post_id, CONCAT('{$this->domain}', u.avator) AS avator,
-                            u.name AS from_user, tp.title, DATE_FORMAT(tp.created_at, ?) AS created_at", ['%Y-%m-%d %H:%i'])
+                            ->where('information.status', 1)
+                            ->selectRaw("information.id AS info_id, tp.id AS post_id,
+                            CONCAT('{$this->domain}', u.avator) AS avator, u.name AS from_user, tp.title, read,
+                            DATE_FORMAT(tp.created_at, ?) AS created_at", ['%Y-%m-%d %H:%i'])
                             ->forPage($page, 10)
                             ->get();
                         break;
@@ -131,9 +134,10 @@ class Information extends BaseModel {
                             ->join('users AS u', 'u.id', 'tpc.user_id')
                             ->where('information.user_id', $user_id)
                             ->where('information.type_id', $type_id)
-                            ->where('information.read', 0)
-                            ->selectRaw("tp.id AS post_id, CONCAT('{$this->domain}', u.avator) AS avator,
-                            u.name AS from_user, tp.title, DATE_FORMAT(tpc.created_at, ?) AS created_at", ['%Y-%m-%d %H:%i'])
+                            ->where('information.status', 1)
+                            ->selectRaw("information.id AS info_id, tp.id AS post_id,
+                            CONCAT('{$this->domain}', u.avator) AS avator, u.name AS from_user, tp.title, read,
+                            DATE_FORMAT(tpc.created_at, ?) AS created_at", ['%Y-%m-%d %H:%i'])
                             ->forPage($page, 10)
                             ->get();
                         break;
@@ -145,5 +149,9 @@ class Information extends BaseModel {
                     'list' => $list
                 ];
         }
+    }
+
+    public function getInfo($user_id, $id) {
+        return $this->where('user_id', $user_id)->find($id);
     }
 }

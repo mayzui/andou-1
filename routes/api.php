@@ -103,6 +103,7 @@ Route::group(['namespace' => 'Api'], function () {
     Route::post('order/pay', 'OrderController@pay');
     Route::post('order/express', 'OrderController@express');
     Route::post('order/confirm', 'OrderController@confirm');
+    Route::post('order/cancel', 'OrderController@cancel');
 
     Route::post('login/login', 'LoginController@login');
     Route::post('login/send', 'LoginController@send');
@@ -213,4 +214,5 @@ Route::group(['namespace' => 'Api'], function () {
 
     // ------------------------- 信息 -------------------------
     Route::get('info/list', 'InformationController@list');
+    Route::post('/api/info/read', 'InformationController@read');
 });
