@@ -105,7 +105,7 @@ class Information extends BaseModel {
                             ->where('information.status', 1)
                             ->selectRaw("information.id AS info_id, tp.id AS post_id,
                             CONCAT('{$this->domain}', u.avator) AS avator, u.name AS from_user, tp.title, read,
-                            DATE_FORMAT(tpv.created_at, ?) AS created_at", ['%Y-%m-%d %H:%i'])
+                            DATE_FORMAT(tpv.created_at, '?') AS created_at", ['%Y-%m-%d %H:%i'])
                             ->orderByDesc('information.created_at')
                             ->forPage($page, 10)
                             ->get();
@@ -121,7 +121,7 @@ class Information extends BaseModel {
                             ->where('information.status', 1)
                             ->selectRaw("information.id AS info_id, tp.id AS post_id,
                             CONCAT('{$this->domain}', u.avator) AS avator, u.name AS from_user, tp.title, read,
-                            DATE_FORMAT(tp.created_at, ?) AS created_at", ['%Y-%m-%d %H:%i'])
+                            DATE_FORMAT(tp.created_at, '?') AS created_at", ['%Y-%m-%d %H:%i'])
                             ->forPage($page, 10)
                             ->get();
                         break;
@@ -137,7 +137,7 @@ class Information extends BaseModel {
                             ->where('information.status', 1)
                             ->selectRaw("information.id AS info_id, tp.id AS post_id,
                             CONCAT('{$this->domain}', u.avator) AS avator, u.name AS from_user, tp.title, read,
-                            DATE_FORMAT(tpc.created_at, ?) AS created_at", ['%Y-%m-%d %H:%i'])
+                            DATE_FORMAT(tpc.created_at, '?') AS created_at", ['%Y-%m-%d %H:%i'])
                             ->forPage($page, 10)
                             ->get();
                         break;

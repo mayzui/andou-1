@@ -42,9 +42,9 @@ class WeChatPay {
     private $notify_url;
 
     public function __construct() {
-        $appId = config('tencent.WeChat.Pay.AppID');
-        $mchId = config('tencent.WeChat.Pay.MchID');
-        $apiKey = config('tencent.WeChat.Pay.APIKey');
+        $appId = 'wxa2ea994d7f5b42e9';
+        $mchId = '1527302001';
+        $apiKey = '941404112888b260f94824b01574da2d';
 
         $this->appId = $appId;
         $this->mchId = $mchId;
