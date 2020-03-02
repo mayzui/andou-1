@@ -163,12 +163,10 @@ return [
         Illuminate\Translation\TranslationServiceProvider::class,
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
-        Overtrue\LaravelUEditor\UEditorServiceProvider::class,
 
         /*
          * Package Service Providers...
          */
-        Jacobcyl\AliOSS\AliOssServiceProvider::class,
         Germey\Geetest\GeetestServiceProvider::class,
 
         /*

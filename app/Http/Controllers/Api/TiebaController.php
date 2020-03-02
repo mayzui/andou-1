@@ -37,8 +37,8 @@ class TiebaController extends Controller {
      */
     public function list(Request $request) {
         $data = $this->validate($request, [
+            'type' => 'filled|string|in:public,mine',
             'uid' => 'required_if:type,mine|numeric|exists:users,id',
-            'type' => 'field|string|in:public,mine',
             'page' => 'nullable|numeric|min:1'
         ]);
 

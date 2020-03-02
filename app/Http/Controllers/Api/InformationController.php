@@ -74,16 +74,16 @@ class InformationController extends Controller {
     public function read(Request $request) {
         $data = $this->validate($request, [
             'uid' => 'required|numeric|exists:users,id',
-            'info_id' => 'required|numeric|exists,information,id'
+            'info_id' => 'required|numeric|exists:information,id'
         ]);
 
         $info = Information::getInstance()->getInfo($data['uid'], $data['info_id']);
-        if (!$info || $info->update([
-                'read' => 1,
-                'read_at' => Carbon::now()->toDateTimeString()
-            ])) {
-            Log::error("更新消息已读状态失败，用户 ID：{$data['uid']}，消息 ID：{$data['info_id']}");
-
+        if ($info) {
+            $info->read = 1;
+            $info->read_at = Carbon::now()->toDateTimeString();
+            if (!$info->save()) {
+                Log::error("更新消息已读状态失败，用户 ID：{$data['uid']}，消息 ID：{$data['info_id']}");
+            }
         }
 
         return $this->responseJson(200, 'OK');
