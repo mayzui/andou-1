@@ -4,7 +4,7 @@
 * example目录下为简单的支付样例，仅能用于搭建快速体验微信支付使用
 * 样例的作用仅限于指导如何使用sdk，在安全上面仅做了简单处理， 复制使用样例代码时请慎重
 * 请勿直接直接使用样例对外提供服务
-* 
+*
 **/
 require_once base_path()."/wxpay/lib/WxPay.Config.Interface.php";
 
@@ -12,7 +12,7 @@ require_once base_path()."/wxpay/lib/WxPay.Config.Interface.php";
 *
 * 该类需要业务自己继承， 该类只是作为deamon使用
 * 实际部署时，请务必保管自己的商户密钥，证书等
-* 
+*
 */
 
 class WxPayConfig extends WxPayConfigInterface
@@ -21,11 +21,11 @@ class WxPayConfig extends WxPayConfigInterface
 	/**
 	 * TODO: 修改这里配置为您自己申请的商户信息
 	 * 微信公众号信息配置
-	 * 
+	 *
 	 * APPID：绑定支付的APPID（必须配置，开户邮件中可查看）
-	 * 
+	 *
 	 * MCHID：商户号（必须配置，开户邮件中可查看）
-	 * 
+	 *
 	 */
 	public function GetAppId()
 	{
@@ -35,7 +35,7 @@ class WxPayConfig extends WxPayConfigInterface
 	{
 		return '1527302001';
 	}
-	
+
 	//=======【支付相关配置：支付成功回调地址/签名方式】===================================
 	/**
 	* TODO:支付回调url
@@ -62,7 +62,7 @@ class WxPayConfig extends WxPayConfigInterface
 		$proxyHost = "0.0.0.0";
 		$proxyPort = 0;
 	}
-	
+
 
 	//=======【上报信息配置】===================================
 	/**
@@ -82,14 +82,14 @@ class WxPayConfig extends WxPayConfigInterface
 	/*
 	 * KEY：商户支付密钥，参考开户邮件设置（必须配置，登录商户平台自行设置）, 请妥善保管， 避免密钥泄露
 	 * 设置地址：https://pay.weixin.qq.com/index.php/account/api_cert
-	 * 
+	 *
 	 * APPSECRET：公众帐号secert（仅JSAPI支付的时候需要配置， 登录公众平台，进入开发者中心可设置）， 请妥善保管， 避免密钥泄露
 	 * 获取地址：https://mp.weixin.qq.com/advanced/advanced?action=dev&t=advanced/dev&token=2005451881&lang=zh_CN
 	 * @var string
 	 */
 	public function GetKey()
 	{
-		return 'AndoubendishenghuoXIdoukeji66888';
+		return '941404112888b260f94824b01574da2d';
 	}
 	public function GetAppSecret()
 	{

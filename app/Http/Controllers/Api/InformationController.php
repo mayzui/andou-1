@@ -63,7 +63,7 @@ class InformationController extends Controller {
      *
      * @return JsonResponse
      *
-     * @api {get} /api/info/read 更新已读
+     * @api {post} /api/info/read 更新已读
      * @apiName read
      * @apiGroup info
      * @apiParam {Number} uid

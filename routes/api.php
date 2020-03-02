@@ -214,5 +214,5 @@ Route::group(['namespace' => 'Api'], function () {
 
     // ------------------------- 信息 -------------------------
     Route::get('info/list', 'InformationController@list');
-    Route::post('/api/info/read', 'InformationController@read');
+    Route::post('info/read', 'InformationController@read');
 });
