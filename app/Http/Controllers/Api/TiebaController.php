@@ -13,6 +13,7 @@ use App\Common\WeChat\WeChatPay;
 use App\Http\Controllers\Controller;
 use App\Models\Orders;
 use App\Models\Tieba\{Post, PostComment, PostType, PostVote};
+use App\Models\Users;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\{JsonResponse, Request, UploadedFile};
@@ -328,6 +329,13 @@ class TiebaController extends Controller {
             return $this->responseJson(201, '该贴文无需付费');
         }
 
+        if ($data['pay_way'] == 4) {
+            $balance = Users::find($data['uid'])->money;
+            if ($balance < $data['method'] * 10) {
+                return $this->responseJson(201, '余额不足');
+            }
+        }
+
         try {
             $orderSn = (string)app('Snowflake\Snowflake')->next();
             $orderMoney = $data['method'] * 10;
@@ -344,20 +352,36 @@ class TiebaController extends Controller {
             return $this->responseJson(201, '创建订单异常');
         }
 
-        if ($ret) {
-            $ret = WeChatPay::getInstance()->createOrder(
-                $data['trade_no'],
-                $orderMoney * 100,
-                '安抖科技-消费',
-                '贴吧服务',
-                $request->ip(),
-                Carbon::now()->addHour()->format('YmdHis')
-            );
+        if ($ret === -1) {
+            return $this->responseJson(201, '余额不足');
+        }
 
-            if (is_array($ret)) {
-                return $this->responseJson(200, 'OK', ['params' => $ret]);
+        if ($ret) {
+            switch ($data['pay_way']) {
+                case 1:
+                    // WeChatPay
+                    $ret = WeChatPay::getInstance()->createOrder(
+                        $orderSn,
+                        $orderMoney * 100,
+                        '安抖科技-消费',
+                        '贴吧服务',
+                        $request->ip(),
+                        Carbon::now()->addHour()->format('YmdHis')
+                    );
+                    if (is_array($ret)) {
+                        return $this->responseJson(200, 'OK', ['params' => $ret]);
+                    }
+                    break;
+                case 2:
+                    // Alipay
+                case 3:
+                    // UnionPay
+                case 4:
+                    // Balance Pay
+                    return $this->responseJson(200, '支付成功');
             }
         }
+
         return $this->responseJson(201, '创建订单失败');
     }
 }

@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\DB;
 class Post extends BaseModel {
 
     protected $table = 'tieba_post';
+    protected $fillable = ['is_show', 'top_day'];
     private static $model;
 
     public static function getInstance() {
@@ -65,7 +66,7 @@ class Post extends BaseModel {
             })
             ->orderByDesc('top_post')
             ->orderByDesc('created_at')
-            ->select(['id', 'user_id', 'title', 'vote', 'share'])
+            ->select(['id', 'user_id', 'title', 'vote', 'share', 'top_post'])
             ->selectRaw("LEFT(content, ?) AS content, DATE_FORMAT(created_at, ?) AS created_at",
                 [64, '%Y-%m-%d %H:%i'])
             ->forPage($page, $page_size)
@@ -100,7 +101,7 @@ class Post extends BaseModel {
 
     public function getDetail($post_id) {
         $detail = $this
-            ->select(['id', 'user_id', 'title', 'content', 'vote', 'share'])
+            ->select(['id', 'user_id', 'title', 'content', 'vote', 'share', 'top_post'])
             ->selectRaw('DATE_FORMAT(created_at, ?) AS created_at', ['%Y-%m-%d %H:%i'])
             ->find($post_id);
 

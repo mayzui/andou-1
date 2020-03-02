@@ -9,6 +9,7 @@
 namespace App\Models;
 
 
+use App\Models\Tieba\Post;
 use Exception;
 use Illuminate\Support\Facades\DB;
 
@@ -30,11 +31,30 @@ class Orders extends BaseModel {
      * @param int   $post_id
      * @param int   $top_day
      *
-     * @return bool
+     * @return bool|int
      * @throws Exception
      */
     public function createPostOrder($order_data, $post_id, $top_day) {
         DB::beginTransaction();
+
+        if ($order_data['pay_way'] == 4) {
+            $user = Users::find($order_data['user_id']);
+            if ($user->money >= $order_data['order_money']) {
+                $user->money -= $order_data['order_money'];
+                if ($user->save() &&
+                    Post::getInstance()->find($post_id)->update(['is_show' => 1, 'top_day' => $top_day])) {
+                    $order_data['status'] = 20;
+                    $order_data['pay_time'] = $order_data['created_at'];
+                    $order_data['pay_money'] = $order_data['order_money'];
+                } else {
+                    DB::rollBack();
+                    return false;
+                }
+            } else {
+                DB::rollBack();
+                return -1;
+            }
+        }
 
         $ret = self::create($order_data);
         if ($ret) {
@@ -44,6 +64,7 @@ class Orders extends BaseModel {
                 return true;
             }
         }
+
         DB::rollBack();
         return false;
     }
