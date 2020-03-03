@@ -81,6 +81,7 @@ class InformationController extends Controller {
         if ($info) {
             $info->read = 1;
             $info->read_at = Carbon::now()->toDateTimeString();
+            $info->updated_at = $info->read_at;
             if (!$info->save()) {
                 Log::error("更新消息已读状态失败，用户 ID：{$data['uid']}，消息 ID：{$data['info_id']}");
             }
