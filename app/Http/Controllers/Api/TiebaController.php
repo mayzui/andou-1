@@ -44,17 +44,13 @@ class TiebaController extends Controller {
         ]);
 
         $page = 1;
-        $user_id = null;
 
         if (isset($data['page']) && $data['page'] > 1) {
             $page = $data['page'];
         }
 
-        if (isset($data['type']) && $data['type'] === 'mine') {
-            $user_id = $data['uid'];
-        }
-
-        return $this->responseJson(200, 'OK', Post::getInstance()->getPostList($page, $user_id));
+        return $this->responseJson(200, 'OK',
+            Post::getInstance()->getPostList($page, $data['type'] ?? 'public', $data['uid'] ?? 0));
     }
 
     /**

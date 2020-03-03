@@ -56,15 +56,15 @@ class Post extends BaseModel {
             ->limit($limit);
     }
 
-    public function getPostList($page = 1, $user_id = null, $page_size = 10) {
+    public function getPostList($page = 1, $type = 'public', $user_id = null) {
         $posts = $this
             ->leftJoin('tieba_post_vote AS tpv', function (JoinClause $join) use ($user_id) {
                 $join->on('tpv.post_id', 'tieba_post.id')->whereRaw('tpv.user_id = ?', [$user_id ?: 0]);
             })
             ->where('tieba_post.is_show', 1)
             ->where('tieba_post.status', 1)
-            ->where(function (Builder $query) use ($user_id) {
-                if ($user_id) {
+            ->where(function (Builder $query) use ($user_id, $type) {
+                if ($type === 'mine') {
                     $query->where('tieba_post.user_id', $user_id);
                 }
             })
@@ -75,7 +75,7 @@ class Post extends BaseModel {
             ->selectRaw("IF(tpv.id IS NULL, 0, 1) AS is_vote, LEFT(tieba_post.content, ?) AS content,
                 DATE_FORMAT(tieba_post.created_at, ?) AS created_at",
                 [64, '%Y-%m-%d %H:%i'])
-            ->forPage($page, $page_size)
+            ->forPage($page, 10)
             ->get();
 
         /** @var Post $post */
