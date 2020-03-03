@@ -175,13 +175,13 @@ class HtorderController extends Controller
                 DB::commit();
                 $all=request()->all();
             if ($all['pay_way']==1) {//微信支付
-                $this->wxpay($data['book_sn']);
+                return $this->wxpay($data['book_sn']);
             }else if($all['pay_way']==2){//支付宝支付
                 return $this->rejson(201,'暂未开通');
             }else if($all['pay_way']==3){//银联支付
                 return $this->rejson(201,'暂未开通');
             }else if($all['pay_way']==4){//余额支付
-                $this->balancePay($data['book_sn']);
+                return $this->balancePay($data['book_sn']);
             }else if($all['pay_way']==5){//其他支付
                 return $this->rejson(201,'暂未开通');
             }else{
