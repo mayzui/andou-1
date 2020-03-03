@@ -119,7 +119,7 @@ class GoodsController extends Controller {
         }
         $data = DB::table('goods')
             ->join('merchants AS m', 'm.id', 'merchant_id')
-            ->select(['goods.name', 'merchant_id', 'm.tel' . 'goods.weight', 'goods.img', 'goods.album', 'goods.price',
+            ->select(['goods.name', 'merchant_id', 'm.tel', 'goods.weight', 'goods.img', 'goods.album', 'goods.price',
                 'goods.dilivery', 'goods.volume', 'goods.is_sec'])
             ->where('goods.id', $all['id'])
             ->first();
@@ -770,7 +770,7 @@ class GoodsController extends Controller {
         if (!$sec_rule || $sec_rule->status != 1) {
             return $this->rejson(201, '秒杀商品不存在或已下架');
         }
-        list($start_time, $end_time) = $this->secTimeGet(1);
+        [$start_time, $end_time] = $this->secTimeGet(1);
         if ($start_time < $sec_rule->start_time || $end_time > $sec_rule->end_time) {
             return $this->rejson(201, '当前不在秒杀时间段');
         }

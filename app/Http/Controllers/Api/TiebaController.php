@@ -65,6 +65,7 @@ class TiebaController extends Controller {
      * @api {get} /api/tieba/detail 贴文详情
      * @apiName detail
      * @apiGroup tieba
+     * @apiParam {uid} [uid]
      * @apiParam {Number} post_id 贴文 ID
      * @apiParam {Number} [page=1] 页码
      * @apiSuccessExample {json} Success-Response:
@@ -73,6 +74,7 @@ class TiebaController extends Controller {
      */
     public function detail(Request $request) {
         $data = $this->validate($request, [
+            'uid' => 'filled|numeric|exists:users,id',
             'post_id' => 'required|numeric|exists:tieba_post,id',
             'page' => 'nullable|numeric|min:1'
         ]);
@@ -86,7 +88,9 @@ class TiebaController extends Controller {
             );
         }
 
-        return $this->responseJson(200, 'OK', Post::getInstance()->getDetail($data['post_id']));
+        return $this->responseJson(200, 'OK',
+            Post::getInstance()->getDetail($data['post_id'], $data['uid'] ?? 0)
+        );
     }
 
     /**

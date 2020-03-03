@@ -13,6 +13,7 @@ use App\Models\BaseModel;
 use App\Models\Users;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Facades\DB;
 
 class Post extends BaseModel {
@@ -57,17 +58,22 @@ class Post extends BaseModel {
 
     public function getPostList($page = 1, $user_id = null, $page_size = 10) {
         $posts = $this
-            ->where('is_show', 1)
-            ->where('status', 1)
+            ->leftJoin('tieba_post_vote AS tpv', function (JoinClause $join) use ($user_id) {
+                $join->on('tpv.post_id', 'tieba_post.id')->whereRaw('tpv.user_id = ?', [$user_id ?: 0]);
+            })
+            ->where('tieba_post.is_show', 1)
+            ->where('tieba_post.status', 1)
             ->where(function (Builder $query) use ($user_id) {
                 if ($user_id) {
-                    $query->where('user_id', $user_id);
+                    $query->where('tieba_post.user_id', $user_id);
                 }
             })
-            ->orderByDesc('top_post')
-            ->orderByDesc('created_at')
-            ->select(['id', 'user_id', 'title', 'vote', 'share', 'top_post'])
-            ->selectRaw("LEFT(content, ?) AS content, DATE_FORMAT(created_at, ?) AS created_at",
+            ->orderByDesc('tieba_post.top_post')
+            ->orderByDesc('tieba_post.created_at')
+            ->select(['tieba_post.id', 'tieba_post.user_id', 'tieba_post.title', 'tieba_post.vote', 'tieba_post.share',
+                'tieba_post.top_post'])
+            ->selectRaw("IF(tpv.id IS NULL, 0, 1) AS is_vote, LEFT(tieba_post.content, ?) AS content,
+                DATE_FORMAT(tieba_post.created_at, ?) AS created_at",
                 [64, '%Y-%m-%d %H:%i'])
             ->forPage($page, $page_size)
             ->get();
@@ -99,10 +105,15 @@ class Post extends BaseModel {
         return $posts;
     }
 
-    public function getDetail($post_id) {
+    public function getDetail($post_id, $user_id = null) {
         $detail = $this
-            ->select(['id', 'user_id', 'title', 'content', 'vote', 'share', 'top_post'])
-            ->selectRaw('DATE_FORMAT(created_at, ?) AS created_at', ['%Y-%m-%d %H:%i'])
+            ->leftJoin('tieba_post_vote AS tpv', function (JoinClause $join) use ($user_id) {
+                $join->on('tpv.post_id', 'tieba_post.id')->whereRaw('tpv.user_id = ?', [$user_id]);
+            })
+            ->select(['tieba_post.id', 'tieba_post.user_id', 'tieba_post.title', 'tieba_post.content', 'tieba_post.vote',
+                'tieba_post.share', 'tieba_post.top_post'])
+            ->selectRaw('IF(tpv.id IS NULL, 0, 1) AS is_vote, DATE_FORMAT(tieba_post.created_at, ?) AS created_at',
+                ['%Y-%m-%d %H:%i'])
             ->find($post_id);
 
         $user = $detail->user();
