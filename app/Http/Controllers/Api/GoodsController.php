@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\GoodsModel;
 use App\Models\SecDetailModel;
 use App\Models\SecRuleModel;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Log;
 
@@ -93,21 +93,21 @@ class GoodsController extends Controller {
      *       "code": "200",
      *       "data": {
      *          "name": "商品名字",
-                "img": "商品封面图",
-                "album": "商品轮播图",
-                "price": "价格",
-                "dilivery": "运费",
-                "volume": "销量",
-                "is_sec": "是否秒杀商品 1是 0否",
-                "store_num": "库存"
-                "merchant": {
-                    "id":"商家id"
-                    "name": "商家名字",
-                    "logo_img": "商家头像"
-                },
-                "is_collection": "1为以收藏 0未收藏",
-                "start_time": "秒杀开始时间",
-                "end_time": "秒杀结束时间"
+     * "img": "商品封面图",
+     * "album": "商品轮播图",
+     * "price": "价格",
+     * "dilivery": "运费",
+     * "volume": "销量",
+     * "is_sec": "是否秒杀商品 1是 0否",
+     * "store_num": "库存"
+     * "merchant": {
+     * "id":"商家id"
+     * "name": "商家名字",
+     * "logo_img": "商家头像"
+     * },
+     * "is_collection": "1为以收藏 0未收藏",
+     * "start_time": "秒杀开始时间",
+     * "end_time": "秒杀结束时间"
      *       },
      *       "msg":"查询成功"
      *     }
@@ -118,8 +118,10 @@ class GoodsController extends Controller {
             return $this->rejson(201, '缺少参数');
         }
         $data = DB::table('goods')
-            ->select('name', 'merchant_id', 'weight', 'img', 'album', 'price', 'dilivery', 'volume', 'is_sec')
-            ->where('id', $all['id'])
+            ->join('merchants AS m', 'm.id', 'merchant_id')
+            ->select(['goods.name', 'merchant_id', 'm.tel' . 'goods.weight', 'goods.img', 'goods.album', 'goods.price',
+                'goods.dilivery', 'goods.volume', 'goods.is_sec'])
+            ->where('goods.id', $all['id'])
             ->first();
         if ($data->album) {
             $data->album = json_decode($data->album, 1);
@@ -162,18 +164,17 @@ class GoodsController extends Controller {
         }
 
         // hcq新增：判断是否秒杀商品,是就返回秒杀开始结束时间
-         if ($data->is_sec == 1) {
-             $sec_rule = SecRuleModel::where('goods_id', $all['id'])
-                 ->where('status', 1)
-                 ->select('start_time', 'end_time')->first();
-             if ($sec_rule) {
-                 $data->start_time = $sec_rule->start_time;
-                 $data->end_time = $sec_rule->end_time;
-             }
-             else {
-                 $data->is_sec = 0;
-             }
-         }
+        if ($data->is_sec == 1) {
+            $sec_rule = SecRuleModel::where('goods_id', $all['id'])
+                ->where('status', 1)
+                ->select('start_time', 'end_time')->first();
+            if ($sec_rule) {
+                $data->start_time = $sec_rule->start_time;
+                $data->end_time = $sec_rule->end_time;
+            } else {
+                $data->is_sec = 0;
+            }
+        }
 
         return $this->rejson(200, '查询成功', $data);
     }
@@ -589,59 +590,59 @@ class GoodsController extends Controller {
      *       "code": "200",
      *       "data": {
      *          "sec_status": "秒杀状态 1进行中 0未开始 2已结束",
-                "top_goods": [
-                    {
-                        "sec_id": "秒杀id",
-                        "goods_id": "商品id",
-                        "sku_id": "规格id",
-                        "name": "商品名称",
-                        "img": "图片",
-                        "kill_price": "秒杀价"
-                    },
-                    {
-                        "sec_id": 2,
-                        "goods_id": 43,
-                        "sku_id": 108,
-                        "name": "【新年礼物】纪梵希节日限量 禁忌之吻霓虹唇膏口红N28 N27 散粉",
-                        "img": "andou.test/uploads/05cafd118675c550b5e0202a64dab5b6.jpg",
-                        "kill_price": "166.00"
-                    }
-                ],
-                "goods_list": [
-                    {
-                        "sec_id": "秒杀id",
-                        "goods_id": "商品id",
-                        "sku_id": "规格id",
-                        "name": "博洋家纺（BEYOND）床品套件 纯棉四件套北欧风全棉斜纹床单被套双人床1.8m床上用品 西莉雅220*240cm",
-                        "img": "andou.test/uploads/a1430211d841e00f986d96bf1e50c113.jpg",
-                        "price": "原价",
-                        "kill_price": "秒杀价",
-                        "num": "总数",
-                        "kill_num": "已秒数",
-                        "start_time": "秒杀开始时间",
-                        "end_time": "秒杀结束时间",
-                        "kill_percent": "已秒百分比",
-                        "is_finish": "是否秒完 0否 1是",
-                        "in_sec": "秒杀状态 1进行中 0未开始 2已结束",
-                        "has_sec": "是否秒已经秒杀过 0否 1是"
-                    },
-                    {
-                        "sec_id": 4,
-                        "name": "【情人节限量】纪梵希红丝绒n37口红套装 散粉 心无禁忌香水正品",
-                        "img": "andou.test/uploads/99f2f434793a671a62a274a6ecfeb8ab.jpg",
-                        "price": "888.00",
-                        "kill_price": "800.00",
-                        "num": 134,
-                        "kill_num": 50,
-                        "start_time": "2020-02-14 18:00:00",
-                        "end_time": "2020-02-14 19:00:00",
-                        "kill_percent": 39,
-                        "is_finish": 0,
-                        "in_sec": 0,
-                        "has_sec": 0
-                    }
-                ]
-            },
+     * "top_goods": [
+     * {
+     * "sec_id": "秒杀id",
+     * "goods_id": "商品id",
+     * "sku_id": "规格id",
+     * "name": "商品名称",
+     * "img": "图片",
+     * "kill_price": "秒杀价"
+     * },
+     * {
+     * "sec_id": 2,
+     * "goods_id": 43,
+     * "sku_id": 108,
+     * "name": "【新年礼物】纪梵希节日限量 禁忌之吻霓虹唇膏口红N28 N27 散粉",
+     * "img": "andou.test/uploads/05cafd118675c550b5e0202a64dab5b6.jpg",
+     * "kill_price": "166.00"
+     * }
+     * ],
+     * "goods_list": [
+     * {
+     * "sec_id": "秒杀id",
+     * "goods_id": "商品id",
+     * "sku_id": "规格id",
+     * "name": "博洋家纺（BEYOND）床品套件 纯棉四件套北欧风全棉斜纹床单被套双人床1.8m床上用品 西莉雅220*240cm",
+     * "img": "andou.test/uploads/a1430211d841e00f986d96bf1e50c113.jpg",
+     * "price": "原价",
+     * "kill_price": "秒杀价",
+     * "num": "总数",
+     * "kill_num": "已秒数",
+     * "start_time": "秒杀开始时间",
+     * "end_time": "秒杀结束时间",
+     * "kill_percent": "已秒百分比",
+     * "is_finish": "是否秒完 0否 1是",
+     * "in_sec": "秒杀状态 1进行中 0未开始 2已结束",
+     * "has_sec": "是否秒已经秒杀过 0否 1是"
+     * },
+     * {
+     * "sec_id": 4,
+     * "name": "【情人节限量】纪梵希红丝绒n37口红套装 散粉 心无禁忌香水正品",
+     * "img": "andou.test/uploads/99f2f434793a671a62a274a6ecfeb8ab.jpg",
+     * "price": "888.00",
+     * "kill_price": "800.00",
+     * "num": 134,
+     * "kill_num": 50,
+     * "start_time": "2020-02-14 18:00:00",
+     * "end_time": "2020-02-14 19:00:00",
+     * "kill_percent": 39,
+     * "is_finish": 0,
+     * "in_sec": 0,
+     * "has_sec": 0
+     * }
+     * ]
+     * },
      *       "msg":"ok"
      *     }
      */
@@ -674,24 +675,24 @@ class GoodsController extends Controller {
 
         // 必抢好货
         $top_goods = GoodsModel::from('goods as g')
-                ->join('seckill_rules as sr', 'g.id', '=', 'sr.goods_id')
-                ->where($list_where)
-                ->select(['sr.id as sec_id', 'sr.goods_id', 'sr.sku_id', 'g.name', 'g.img', 'sr.kill_price'])
-                ->limit(3)
-                ->get()
-                ->toArray();
+            ->join('seckill_rules as sr', 'g.id', '=', 'sr.goods_id')
+            ->where($list_where)
+            ->select(['sr.id as sec_id', 'sr.goods_id', 'sr.sku_id', 'g.name', 'g.img', 'sr.kill_price'])
+            ->limit(3)
+            ->get()
+            ->toArray();
 
         // 秒杀列表
         $list_where['sr.is_top'] = 0;
         $goods_list = GoodsModel::from('goods as g')
-                    ->join('seckill_rules as sr', 'g.id', '=', 'sr.goods_id')
-                    ->join('goods_sku as gs', 'sr.sku_id', '=', 'gs.id')
-                    ->where($list_where)
-                    ->select(['sr.id as sec_id', 'sr.goods_id', 'sr.sku_id', 'g.name', 'g.img', 'gs.price', 'sr.kill_price', 'sr.num', 'sr.kill_num', 'sr.start_time', 'sr.end_time'])
-                    ->offset($offset)
-                    ->limit(10)
-                    ->get()
-                    ->toArray();
+            ->join('seckill_rules as sr', 'g.id', '=', 'sr.goods_id')
+            ->join('goods_sku as gs', 'sr.sku_id', '=', 'gs.id')
+            ->where($list_where)
+            ->select(['sr.id as sec_id', 'sr.goods_id', 'sr.sku_id', 'g.name', 'g.img', 'gs.price', 'sr.kill_price', 'sr.num', 'sr.kill_num', 'sr.start_time', 'sr.end_time'])
+            ->offset($offset)
+            ->limit(10)
+            ->get()
+            ->toArray();
 
         $now_hour = Carbon::now()->hour;
         $sec_hour = $request->input('sec_hour', $now_hour);
@@ -762,11 +763,11 @@ class GoodsController extends Controller {
 
         // 请求参数
         $sec_id = $request->input('sec_id', '');
-        if (! $sec_id || ! is_numeric($sec_id)) return $this->rejson(201, '参数错误');
+        if (!$sec_id || !is_numeric($sec_id)) return $this->rejson(201, '参数错误');
 
         // 秒杀验证
         $sec_rule = SecRuleModel::find($sec_id);
-        if (! $sec_rule || $sec_rule->status != 1) {
+        if (!$sec_rule || $sec_rule->status != 1) {
             return $this->rejson(201, '秒杀商品不存在或已下架');
         }
         list($start_time, $end_time) = $this->secTimeGet(1);
@@ -779,7 +780,7 @@ class GoodsController extends Controller {
 
         // 商品状态验证
         $goods = GoodsModel::find($sec_rule->goods_id);
-        if (! $goods || $goods->is_sale != 1 || $goods->is_del == 1 || empty($goods->merchant_id)) return $this->rejson(201, '商品不存在或已下架');
+        if (!$goods || $goods->is_sale != 1 || $goods->is_del == 1 || empty($goods->merchant_id)) return $this->rejson(201, '商品不存在或已下架');
         if ($goods->is_sec != 1) return $this->rejson(201, '该商品未参与秒杀');
 
         // 是否秒杀验证
@@ -794,8 +795,8 @@ class GoodsController extends Controller {
         try {
             DB::beginTransaction();
 
-            $address = Db::table('user_address')->where(['user_id'=>$uid,'is_defualt'=>1])->first();
-            if (! $address) {
+            $address = Db::table('user_address')->where(['user_id' => $uid, 'is_defualt' => 1])->first();
+            if (!$address) {
                 throw new \Exception('请填写收货地址', 205);
             }
 
@@ -830,7 +831,7 @@ class GoodsController extends Controller {
 
             return $this->rejson(206, '秒杀失败，请稍后再试');
         }
-        
+
         return $this->rejson(200, '秒杀成功', ['order_sn' => $order_sn]);
     }
 
@@ -849,6 +850,7 @@ class GoodsController extends Controller {
 
         return [$start_time, $end_time];
     }
+
     /**
      * @api {post} /api/goods/sec_details 秒杀详情
      * @apiName sec_details
@@ -859,28 +861,27 @@ class GoodsController extends Controller {
      *       "code": "200",
      *       "msg":"秒杀成功",
      *           "data": {
-                    "goods_id": "商品id",
-                    "sku_id": "规格id",
-                    "kill_price": "秒杀价",
-                    "old_price": "原价"
-                    "kill_num": "秒杀数",
-                    "storage": "秒杀库存",
-                    "start_time": "2020-02-20 14:00:00",
-                    "end_time": "2020-02-20 15:00:00",
-                    "sec_status": "秒杀状态 1进行中 0未开始 2已结束",
-                    "now": "服务器当前时间"
-                }
+     * "goods_id": "商品id",
+     * "sku_id": "规格id",
+     * "kill_price": "秒杀价",
+     * "old_price": "原价"
+     * "kill_num": "秒杀数",
+     * "storage": "秒杀库存",
+     * "start_time": "2020-02-20 14:00:00",
+     * "end_time": "2020-02-20 15:00:00",
+     * "sec_status": "秒杀状态 1进行中 0未开始 2已结束",
+     * "now": "服务器当前时间"
+     * }
      *     }
      */
-    public function getSecRule(Request $request)
-    {
+    public function getSecRule(Request $request) {
         // hcq新增：获取一个秒杀明细
         $sec_id = $request->input('sec_id', '');
-        if (empty($sec_id || ! is_numeric($sec_id))) {
+        if (empty($sec_id || !is_numeric($sec_id))) {
             return $this->responseJson(201, '参数错误');
         }
         $sec_rule = SecRuleModel::find($sec_id);
-        if (! $sec_rule) {
+        if (!$sec_rule) {
             return $this->responseJson(404, '没有该秒杀相关信息');
         }
         if ($sec_rule->status != 1) {
@@ -891,11 +892,9 @@ class GoodsController extends Controller {
         // 秒杀状态 1进行中 0未开始 2已结束
         if ($now >= $sec_rule->start_time && $now <= $sec_rule->end_time) {
             $sec_status = 1;
-        }
-        elseif ($now < $sec_rule->start_time) {
+        } else if ($now < $sec_rule->start_time) {
             $sec_status = 0;
-        }
-        else {
+        } else {
             $sec_status = 2;
         }
         // 加个秒杀原价
@@ -916,8 +915,7 @@ class GoodsController extends Controller {
         return $this->responseJson(200, 'ok', $data);
     }
 
-    private function createSecOrder($sec_id, $goods_id, $sku_id, $merchantsid, $address_id, $uid, $kill_price)
-    {
+    private function createSecOrder($sec_id, $goods_id, $sku_id, $merchantsid, $address_id, $uid, $kill_price) {
         $order_data = $goods_data = [];
 
         $order_data['sec_id'] = $sec_id;
@@ -925,29 +923,29 @@ class GoodsController extends Controller {
         $order_data['status'] = $goods_data['status'] = 10;
         $order_data['user_id'] = $goods_data['user_id'] = $uid;
         $order_data['order_sn'] = $goods_data['order_id'] = $this->suiji();
-        $order_data['created_at'] = $order_data['updated_at']=$goods_data['created_at'] = $goods_data['updated_at'] =date('Y-m-d H:i:s',time());
-        $goods_data['goods_id']=$goods_id;
-        $goods_data['merchant_id']=$merchantsid;
-        $goods_data['goods_sku_id']=$sku_id;
-        $goods_data['num']=1;
-        $goods_data['pay_discount']=1;
+        $order_data['created_at'] = $order_data['updated_at'] = $goods_data['created_at'] = $goods_data['updated_at'] = date('Y-m-d H:i:s', time());
+        $goods_data['goods_id'] = $goods_id;
+        $goods_data['merchant_id'] = $merchantsid;
+        $goods_data['goods_sku_id'] = $sku_id;
+        $goods_data['num'] = 1;
+        $goods_data['pay_discount'] = 1;
 
-        $dilivery=Db::table('goods')->select('dilivery','weight')->where('id',$goods_id)->first();
+        $dilivery = Db::table('goods')->select('dilivery', 'weight')->where('id', $goods_id)->first();
         if ($dilivery->dilivery > 0) {
-            $order_data['shipping_free']=$goods_data['shipping_free']=$this->freight($dilivery->weight*1,1,$dilivery->dilivery);
-        }else{
-            $order_data['shipping_free']=$goods_data['shipping_free']=0;
+            $order_data['shipping_free'] = $goods_data['shipping_free'] = $this->freight($dilivery->weight * 1, 1, $dilivery->dilivery);
+        } else {
+            $order_data['shipping_free'] = $goods_data['shipping_free'] = 0;
         }
 
-        $order_data['order_money']=$goods_data['pay_money']=$goods_data['total']=$kill_price+$order_data['shipping_free'];
-        $order_data['type']=1;
-        $order_data['remark']='';
-        $order_data['auto_receipt']=0;
+        $order_data['order_money'] = $goods_data['pay_money'] = $goods_data['total'] = $kill_price + $order_data['shipping_free'];
+        $order_data['type'] = 1;
+        $order_data['remark'] = '';
+        $order_data['auto_receipt'] = 0;
 
-        $re=DB::table('order_goods')->insert($goods_data);
-        $res=DB::table('orders')->insertGetId($order_data);
+        $re = DB::table('order_goods')->insert($goods_data);
+        $res = DB::table('orders')->insertGetId($order_data);
 
-        if (! $re || ! $res) {
+        if (!$re || !$res) {
             throw new \Exception('下单失败', 205);
         }
 
