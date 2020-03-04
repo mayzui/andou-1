@@ -324,6 +324,9 @@ class PuzzleController extends BaseController
             return $this->view('',['data'=>$data,'times'=>$times]);
 
         }
+        if(!isset($input['id'])){
+            return $this->responseJson(201, '数据不存在');
+        }
         $p_id = $input['id'];
         $where[] = ['puzzle_goods.id',$p_id];
         if(!empty($i)){

@@ -902,6 +902,7 @@ class OrderController extends Controller {
      * @apiParam {string} content 评价内容（非必填）
      * @apiParam {string} stars 评价星级（必填）
      * @apiParam {string} image 商品图片（非必填）
+     * @apiParam {Number} [vote=0]
      * @apiSuccessExample 参数返回:
      *     {
      *       "code": "200",
@@ -945,8 +946,11 @@ class OrderController extends Controller {
             'type' => 2,
         ];
         $status['status'] = 60;
-        $re = DB::table('orders')->where('order_sn', $all['order_id'])->update($status);
-        $res = DB::table('order_goods')->where('order_id', $all['order_id'])->update($status);
+        DB::table('orders')->where('order_sn', $all['order_id'])->update($status);
+        DB::table('order_goods')->where('order_id', $all['order_id'])->update($status);
+        if (isset($all['vote']) && $all['vote'] == 1) {
+            DB::table('merchants')->find($all['merchants_id'])->increment('praise_num');
+        }
         $i = DB::table('order_commnets')->insert($data);
         if ($i) {
             return $this->rejson(200, '添加成功');
