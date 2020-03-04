@@ -145,7 +145,7 @@
                         @endif
                     @endif
                        @else
-                    {{ $list->appends(['status'=>6,'named'=>$names]) }}
+                    {{ $list->appends(['status'=>6,'name'=>$names]) }}
                 @endif
             </div>
         </div>

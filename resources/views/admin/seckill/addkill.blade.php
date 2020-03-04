@@ -144,6 +144,9 @@
         //搜索
         $("#search").click(function () {
             var search = $("#names").val();
+            if(search ==''){
+                alert("请输入要搜索的商品"),history.go(-1);
+            }
             location.href="{{route('seckill.addkill')}}?name="+search
         })
 
