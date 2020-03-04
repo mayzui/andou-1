@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Common\WeChat\WeChatPay;
 use App\Http\Controllers\Controller;
+use App\Models\OrderCancel;
+use App\Models\OrderCancelReason;
 use App\Models\Orders;
+use App\Models\Users;
 use App\Services\GroupService;
 use Carbon\Carbon;
 use Exception;
@@ -1006,26 +1010,93 @@ class OrderController extends Controller {
      * @param Request $request
      *
      * @return JsonResponse
+     * @throws Exception
      *
      * @api {post} /api/order/cancel 取消订单
      * @apiName cancel
      * @apiGroup order
      * @apiParam {Number} uid
-     * @apiParam {Number} order_id
+     * @apiParam {String} order_sn
+     * @apiParam {Number} reason_id
+     * @apiParam {String} [reason]
      * @apiSuccessExample Success-Response:
      * {}
      */
     public function cancel(Request $request) {
         $data = $this->validate($request, [
             'uid' => 'required|numeric|exists:users,id',
-            'order_id' => 'required|numeric|exists:orders,id'
+            'order_sn' => 'required|numeric|exists:orders,order_sn',
+            'reason_id' => 'required|numeric|exists:order_cancel_reason,id',
+            'reason' => 'nullable|string|max:255'
         ]);
-
-        $order = Orders::getInstance()->where('user_id', $data['uid'])->find($data['order_id']);
+        $order = Orders::getInstance()->where('user_id', $data['uid'])
+            ->where('order_sn', $data['order_sn'])->first();
         if ($order) {
-            if ($order->update(['status' => 0, 'updated_at' => Carbon::now()->toDateTimeString()])) {
-                return $this->responseJson(200, '取消成功');
+            switch ($order->status) {
+                case 0:
+                    return $this->responseJson(201, '订单已取消');
+                case 10:
+                    if (!in_array((int)$data['reason_id'], [1, 2, 3, 4])) {
+                        return $this->responseJson(201, '无效原因信息');
+                    }
+                    break;
+                default:
+                    if (in_array((int)$data['reason_id'], [1, 2, 3, 4])) {
+                        return $this->responseJson(201, '无效原因信息');
+                    }
+
+                    do {
+                        try {
+                            $refund_no = app('Snowflake\Snowflake')->next();
+                        } catch (Exception $e) {
+                            $refund_no = null;
+                        }
+                    } while (!$refund_no);
+
+                    $reason = OrderCancelReason::getInstance()->find($data['reason_id'])->value('reason');
+
+                    // 退款流程
+                    switch ($order->pay_way) {
+                        case 1:
+                            if (!WeChatPay::getInstance()->refundOrder(
+                                $refund_no,
+                                $order->order_money * 100,
+                                $order->order_money * 100,
+                                $order->order_sn,
+                                null,
+                                $reason ?? null
+                            )) {
+                                return $this->responseJson(201, '退款失败');
+                            }
+                            break;
+                        case 2:
+                            // Alipay
+                        case 3:
+                            // UnionPay
+                        case 4:
+                            // Balance Pay
+                            if (!Users::getInstance()->find($order->user_id)
+                                ->increment('money', $order->order_money)) {
+                                return $this->responseJson(201, '退款失败');
+                            }
+                    }
             }
+
+            $order->status = 0;
+            $order->updated_at = Carbon::now()->toDateTimeString();
+
+            DB::beginTransaction();
+            if ($order->save()) {
+                if (OrderCancel::getInstance()->insert([
+                    'order_id' => $order->id,
+                    'reason_id' => $data['reason_id'],
+                    'reason' => $data['reason'] ?? ''
+                ])) {
+                    DB::commit();
+                    return $this->responseJson(200, '取消成功');
+                }
+            }
+            DB::rollBack();
             return $this->responseJson(201, '取消失败');
         }
         return $this->responseJson(201, '订单不存在');

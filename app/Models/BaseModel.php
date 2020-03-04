@@ -20,4 +20,12 @@ class BaseModel extends Model {
         parent::__construct($attributes);
         $this->domain = env('APP_URL');
     }
+
+    public function increment($column, $amount = 1, array $extra = []) {
+        return parent::increment($column, $amount, $extra);
+    }
+
+    public function decrement($column, $amount = 1, array $extra = []) {
+        return parent::decrement($column, $amount, $extra);
+    }
 }

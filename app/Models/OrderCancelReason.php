@@ -3,17 +3,15 @@
 /**
  * Created by IntelliJ IDEA.
  * User: maxsky
- * Date: 2020/2/27
- * Time: 16:35
+ * Date: 2020/3/4
+ * Time: 14:05
  */
 
 namespace App\Models;
 
-class Users extends BaseModel {
+class OrderCancelReason extends BaseModel {
 
-    protected $table = 'users';
-    protected $fillable = ['order_money'];
-
+    protected $table = 'order_cancel_reason';
     private static $model;
 
     public static function getInstance() {
