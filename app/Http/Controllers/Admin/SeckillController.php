@@ -38,6 +38,7 @@ class SeckillController extends BaseController
                     ->paginate(10);
                 return $this->view('seclist',['list'=>$seckData,'names'=>$names]);
             }
+
             $names  = $input['name'];     //要搜索的商品名字
             $seckData = DB::table("seckill_rules")
                 ->join("goods",'seckill_rules.goods_id','=','goods.id')
@@ -83,27 +84,7 @@ class SeckillController extends BaseController
             }elseif($status==1){
                 $seckData = Seckill::where('status',1)->orderBy('id','desc')->paginate(10);
             }elseif($status==6){     //搜索
-                if ($i){
-                    $names  = $input['named'];     //要搜索的商品名字
-                    $seckData = DB::table("seckill_rules")
-                        ->join("goods",'seckill_rules.goods_id','=','goods.id')
-                        ->where('seckill_rules.status','=',1)
-                        ->where('goods.is_sec','=',1)
-                        ->where('goods.name','like','%'.$names.'%')
-                        ->where('seckill_rules.merchantsid','=',$i->id)
-                        ->select(['goods.name','seckill_rules.num','seckill_rules.start_time','seckill_rules.end_time','seckill_rules.kill_num','seckill_rules.id as seid'])
-                        ->paginate(10);
-                    return $this->view('seclist',['list'=>$seckData,'names'=>$names]);
-                }
-                $names  = $input['named'];     //要搜索的商品名字
-                $seckData = DB::table("seckill_rules")
-                    ->join("goods",'seckill_rules.goods_id','=','goods.id')
-                    ->where('seckill_rules.status','=',1)
-                    ->where('goods.is_sec','=',1)
-                    ->where('goods.name','like','%'.$names.'%')
-                    ->select(['goods.name','seckill_rules.num','seckill_rules.start_time','seckill_rules.end_time','seckill_rules.kill_num','seckill_rules.id as seid'])
-                    ->paginate(10);
-                return $this->view('seclist',['list'=>$seckData,'names'=>$names]);
+                 $seckData = Seckill::where('status',1)->orderBy('id','desc')->paginate(10);
             }else{}
         }else{
             $status = 0;
