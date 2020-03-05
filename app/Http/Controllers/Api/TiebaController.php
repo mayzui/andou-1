@@ -39,7 +39,7 @@ class TiebaController extends Controller {
     public function list(Request $request) {
         $data = $this->validate($request, [
             'type' => 'filled|string|in:public,mine',
-            'uid' => 'required_if:type,mine|numeric|exists:users,id',
+            'uid' => 'required_if:type,mine|nullable|numeric|exists:users,id',
             'page' => 'nullable|numeric|min:1'
         ]);
 
@@ -70,7 +70,7 @@ class TiebaController extends Controller {
      */
     public function detail(Request $request) {
         $data = $this->validate($request, [
-            'uid' => 'filled|numeric|exists:users,id',
+            'uid' => 'nullable|numeric|exists:users,id',
             'post_id' => 'required|numeric|exists:tieba_post,id',
             'page' => 'nullable|numeric|min:1'
         ]);
@@ -149,7 +149,7 @@ class TiebaController extends Controller {
             'uid' => 'required|numeric|exists:users,id',
             'post_id' => 'required|numeric|exists:tieba_post,id',
             'content' => 'required|string|max:60',
-            'comment_id' => 'filled|numeric|exists:tieba_post_comment,id'
+            'comment_id' => 'nullable|numeric|exists:tieba_post_comment,id'
         ]);
 
         if (isset($data['comment_id']) && $data['comment_id']) {
@@ -363,7 +363,7 @@ class TiebaController extends Controller {
                     $ret = WeChatPay::getInstance()->createOrder(
                         $orderSn,
                         $orderMoney * 100,
-                        '安抖科技-消费',
+                        '安抖本地生活-消费',
                         '贴吧服务',
                         $request->ip(),
                         Carbon::now()->addHour()->format('YmdHis')

@@ -14,9 +14,6 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use WxPayApi;
-use WxPayConfig;
-use WxPayUnifiedOrder;
 
 class OrderController extends Controller {
     public function __construct() {
@@ -864,30 +861,19 @@ class OrderController extends Controller {
 
         $pay_money = 100 * ($orders->order_money - $integral);
 
-        $input = new WxPayUnifiedOrder();
-
-        $input->SetBody("安抖商城平台");
-        $input->SetOut_trade_no($sNo);
-        $input->SetTotal_fee($pay_money);
-        // $input->SetTotal_fee(1);
-        $input->SetNotify_url("http://andou.zhuosongkj.com/api/common/wxnotify");
-        $input->SetTrade_type("APP");
-        $input->SetSpbill_create_ip($_SERVER['REMOTE_ADDR']);
-//        $input->SetAttach($uid);
-        $config = new WxPayConfig();
-        $order = WxPayApi::unifiedOrder($config, $input);
+        $order = WeChatPay::getInstance()->createOrder(
+            $sNo,
+            $pay_money,
+            '安抖本地生活-购物',
+            '购物订单',
+            request()->ip(),
+            Carbon::now()->addHours(2)->format('YmdHis')
+        );
         // var_dump($order);exit();
-        if ($order['return_code'] == "SUCCESS") {
-            // var_dump($order);exit();
-            $time = time();
-            $string = "appid=" . $order['appid'] . "&noncestr=" . $order['nonce_str'] . "&package=" . "Sign=WXPay" . "&partnerid=" . $order['mch_id'] . "&prepayid=" . $order['prepay_id'] . "&timestamp=" . $time . "&key=AndoubendishenghuoXIdoukeji66888";
-            $string = md5($string);
-            $order['sign'] = strtoupper($string);
-            $order['timestamp'] = $time;
+        if ($order) {
             return $this->rejson(200, '获取支付信息成功！', $order);
-        } else {
-            return $this->rejson(201, '获取支付信息失败！');
         }
+        return $this->rejson(201, '获取支付信息失败！');
     }
 
     /**
