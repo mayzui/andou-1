@@ -10,6 +10,8 @@
 namespace App\Models\Information;
 
 use App\Models\BaseModel;
+use Illuminate\Database\Query\JoinClause;
+use Illuminate\Support\Collection;
 
 class Information extends BaseModel {
 
@@ -38,7 +40,7 @@ class Information extends BaseModel {
      * @param int $level
      * @param int $type_id
      *
-     * @return array|\Illuminate\Support\Collection|null
+     * @return array|Collection|null
      */
     public function getInfoCount($user_id, $level = 1, $type_id = null) {
         $infoType = InformationType::getInstance();
@@ -67,7 +69,9 @@ class Information extends BaseModel {
 
         if ($type_id) {
             return $infoType
-                ->leftJoin('information AS i', 'i.type_id', 'information_type.id')
+                ->leftJoin('information AS i', function (JoinClause $join) use ($user_id) {
+                    $join->on('i.type_id', 'information_type.id')->where('i.user_id', $user_id);
+                })
                 ->where('parent_id', $type_id)
                 ->select(['information_type.id', 'type_name'])
                 ->selectRaw('COUNT(i.read = ? OR NULL) AS unread', [0])
@@ -91,7 +95,6 @@ class Information extends BaseModel {
             case 1:
                 break;
             case 2:
-
                 switch ($type_id) {
                     case 3:
                         $joinMsg = '赞了您的帖子';
