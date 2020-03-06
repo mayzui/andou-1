@@ -32,29 +32,21 @@ class WeChatPay {
     private $gateway;
     protected static $wechatPay;
 
-    private $appId;
-    private $mchId;
-    private $apiKey;
+    private $appId = 'wxa2ea994d7f5b42e9';
+    private $mchId = '1527302001';
+    private $apiKey = '941404112888b260f94824b01574da2d';
+    private $notify_url = 'http://andou.zhuosongkj.com/api/common/wxnotify';
     private $certPath;
     private $keyPath;
-    private $notify_url;
 
     public function __construct() {
-        $appId = 'wxa2ea994d7f5b42e9';
-        $mchId = '1527302001';
-        $apiKey = '941404112888b260f94824b01574da2d';
-
-        $this->appId = $appId;
-        $this->mchId = $mchId;
-        $this->apiKey = $apiKey;
         $this->certPath = base_path('wxpay/lib/cert/apiclient_cert.pem');
         $this->keyPath = base_path('wxpay/lib/cert/apiclient_key.pem');
-        $this->notify_url = 'http://andou.zhuosongkj.com/api/common/wxnotify';
 
         $this->gateway = Omnipay::create('WechatPay_App');
-        $this->gateway->setAppId($appId);
-        $this->gateway->setMchId($mchId);
-        $this->gateway->setApiKey($apiKey);
+        $this->gateway->setAppId($this->appId);
+        $this->gateway->setMchId($this->mchId);
+        $this->gateway->setApiKey($this->apiKey);
         $this->gateway->setNotifyUrl($this->notify_url); // 通知回调地址
         $this->gateway->setCertPath($this->certPath);
         $this->gateway->setKeyPath($this->keyPath);
@@ -67,12 +59,11 @@ class WeChatPay {
         return self::$wechatPay;
     }
 
+    /**
+     * @return $this
+     */
     public function copy() {
-        return clone $this;
-    }
-
-    public function clone() {
-        return clone $this;
+        return clone self::$wechatPay;
     }
 
     /**
@@ -86,20 +77,17 @@ class WeChatPay {
      *                          WechatPay_Pos 刷卡支付
      *                          WechatPay_Mweb H5 支付
      * @param string $appId
-     * @param string $mchId
-     * @param string $apiKey
+     * @param string $notify_url 通知回调地址
      *
      * @return WeChatPay
      */
-    public function resetGateway($gateway, $appId = null, $mchId = null, $apiKey = null) {
-        $this->gateway = Omnipay::create($gateway);
+    public function resetGateway($gateway = 'WechatPay_App', $notify_url = null, $appId = null) {
+        if ($gateway != 'WechatPay_App') {
+            $this->gateway = Omnipay::create($gateway);
+            // TODO: reset params
+        }
         $this->gateway->setAppId($appId ?: $this->appId);
-        $this->gateway->setMchId($mchId ?: $this->mchId);
-        $this->gateway->setApiKey($apiKey ?: $this->apiKey);
-        $this->gateway->setCertPath($this->certPath);
-        $this->gateway->setKeyPath($this->keyPath);
-        $this->gateway->setNotifyUrl($this->notify_url); // 通知回调地址
-
+        $this->gateway->setNotifyUrl($notify_url ?: $this->notify_url);
         return $this;
     }
 

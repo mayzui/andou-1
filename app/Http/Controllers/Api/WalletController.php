@@ -2,27 +2,29 @@
 
 namespace App\Http\Controllers\Api;
 
-use Illuminate\Http\Request;
+use App\Common\WeChat\WeChatPay;
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
+use Exception;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Redis;
-class WalletController extends Controller
-{
-   public function __construct()
-   {
-       $all=request()->all();
-       $token=request()->header('token')??'';
-       if ($token!='') {
-           $all['token']=$token;
-       }
-       if (empty($all['uid'])||empty($all['token'])) {
-           return $this->rejson(202,'登陆失效');
-       }
-       $check=$this->checktoten($all['uid'],$all['token']);
-       if ($check['code']==202) {
-           return $this->rejson($check['code'],$check['msg']);
-       }
-   }
+use function request;
+
+class WalletController extends Controller {
+    public function __construct() {
+        $all = request()->all();
+        $token = request()->header('token') ?? '';
+        if ($token != '') {
+            $all['token'] = $token;
+        }
+        if (empty($all['uid']) || empty($all['token'])) {
+            return $this->rejson(202, '登陆失效');
+        }
+        $check = $this->checktoten($all['uid'], $all['token']);
+        if ($check['code'] == 202) {
+            return $this->rejson($check['code'], $check['msg']);
+        }
+    }
+
     /**
      * @api {post} /api/wallet/index 余额明细
      * @apiName index
@@ -35,49 +37,48 @@ class WalletController extends Controller
      *       "code": "200",
      *       "msg":"查询成功",
      *       "data": {
-         "log":[
-            "superior_id": "上级id",
-            "price": "流动金额",
-            "describe": "流动描述",
-            "create_time": "流动时间",
-            "state": "1获得 2消费"
-        ],
-        "money": "总金额"
+     * "log":[
+     * "superior_id": "上级id",
+     * "price": "流动金额",
+     * "describe": "流动描述",
+     * "create_time": "流动时间",
+     * "state": "1获得 2消费"
+     * ],
+     * "money": "总金额"
      *      }
      *     }
      */
-    public function index(){
-        $all = \request() -> all();
+    public function index() {
+        $all = request()->all();
         $num = 10;
         // 根据获取的id
-        if(empty($all['uid'])){
-            return $this->rejson(201,'请输入用户id');
+        if (empty($all['uid'])) {
+            return $this->rejson(201, '请输入用户id');
         }
-        if (isset($all['page'])) {
-            $pages=($all['page']-1)*$num;
-        }else{
-            $pages=0;
+        if (!isset($all['page'])) {
+            $all['page'] = 1;
         }
         // 根据用户id 查询资金流动表
         $data['log'] = DB::table('user_logs')
-            -> where('user_id',$all['uid'])
-            -> whereIn('type_id',[2,4])
-            -> where('user_logs.is_del',0)
-            -> select(['user_logs.superior_id','user_logs.price','user_logs.describe','user_logs.create_time','user_logs.state'])
-            -> offset($pages)
-            -> limit($num)
-            -> get();
+            ->where('user_id', $all['uid'])
+            ->whereIn('type_id', [2, 4])
+            ->where('user_logs.is_del', 0)
+            ->select(['user_logs.superior_id', 'user_logs.price', 'user_logs.describe', 'user_logs.create_time', 'user_logs.state'])
+            ->orderByDesc('create_time')
+            ->forPage($all['page'], 10)
+            ->get();
         $data['money'] = DB::table('users')
-            -> where('id',$all['uid'])
-            -> select('money')
-            -> first()
-            ->money ?? '';
-        if(!empty($data)){
-            return $this->rejson(200,'查询成功',$data);
-        }else{
-            return $this->rejson(201,'未查询到该id');
+                ->where('id', $all['uid'])
+                ->select('money')
+                ->first()
+                ->money ?? '';
+        if (!empty($data)) {
+            return $this->rejson(200, '查询成功', $data);
+        } else {
+            return $this->rejson(201, '未查询到该id');
         }
     }
+
     /**
      * @api {post} /api/wallet/cash 提现明细
      * @apiName cash
@@ -90,49 +91,51 @@ class WalletController extends Controller
      *       "code": "200",
      *       "msg":"查询成功",
      *       "data": {
-         "log":[
-            "superior_id": "上级id",
-            "price": "流动金额",
-            "describe": "流动描述",
-            "create_time": "流动时间",
-            "state": "1获得 2消费"
-        ],
-        "money": "总金额"
+     * "log":[
+     * "superior_id": "上级id",
+     * "price": "流动金额",
+     * "describe": "流动描述",
+     * "create_time": "流动时间",
+     * "state": "1获得 2消费"
+     * ],
+     * "money": "总金额"
      *      }
      *     }
      */
-    public function cash(){
-        $all = \request() -> all();
+    public function cash() {
+        $all = request()->all();
         $num = 10;
         // 根据获取的id
-        if(empty($all['uid'])){
-            return $this->rejson(201,'请输入用户id');
+        if (empty($all['uid'])) {
+            return $this->rejson(201, '请输入用户id');
         }
         if (isset($all['page'])) {
-            $pages=($all['page']-1)*$num;
-        }else{
-            $pages=0;
+            $pages = ($all['page'] - 1) * $num;
+        } else {
+            $pages = 0;
         }
         // 根据用户id 查询资金流动表
         $data['log'] = DB::table('user_logs')
-            -> where('user_id',$all['uid'])
-            -> where('type_id',3)
-            -> where('user_logs.is_del',0)
-            -> select(['user_logs.superior_id','user_logs.price','user_logs.describe','user_logs.create_time','user_logs.state'])
-            -> offset($pages)
-            -> limit($num)
-            -> get();
+            ->where('user_id', $all['uid'])
+            ->where('type_id', 3)
+            ->where('user_logs.is_del', 0)
+            ->select(['user_logs.superior_id', 'user_logs.price', 'user_logs.describe', 'user_logs.create_time', 'user_logs.state'])
+            ->orderByDesc('create_time')
+            ->offset($pages)
+            ->limit($num)
+            ->get();
         $data['money'] = DB::table('users')
-            -> where('id',$all['uid'])
-            -> select('money')
-            -> first()
-            -> money ?? '';
-        if(!empty($data)){
-            return $this->rejson(200,'查询成功',$data);
-        }else{
-            return $this->rejson(201,'未查询到该id');
+                ->where('id', $all['uid'])
+                ->select('money')
+                ->first()
+                ->money ?? '';
+        if (!empty($data)) {
+            return $this->rejson(200, '查询成功', $data);
+        } else {
+            return $this->rejson(201, '未查询到该id');
         }
     }
+
     /**
      * @api {post} /api/wallet/integral 积分明细
      * @apiName integral
@@ -145,49 +148,50 @@ class WalletController extends Controller
      *       "code": "200",
      *       "msg":"查询成功",
      *       "data": {
-         "log":[
-            "superior_id": "上级id",
-            "price": "流动金额",
-            "describe": "流动描述",
-            "create_time": "流动时间",
-            "state": "1获得 2消费"
-        ],
-        "integral": "总积分"
+     * "log":[
+     * "superior_id": "上级id",
+     * "price": "流动金额",
+     * "describe": "流动描述",
+     * "create_time": "流动时间",
+     * "state": "1获得 2消费"
+     * ],
+     * "integral": "总积分"
      *      }
      *     }
      */
-    public function integral(){
-        $all = \request() -> all();
+    public function integral() {
+        $all = request()->all();
         $num = 10;
         // 根据获取的id
-        if(empty($all['uid'])){
-            return $this->rejson(201,'请输入用户id');
+        if (empty($all['uid'])) {
+            return $this->rejson(201, '请输入用户id');
         }
         if (isset($all['page'])) {
-            $pages=($all['page']-1)*$num;
-        }else{
-            $pages=0;
+            $pages = ($all['page'] - 1) * $num;
+        } else {
+            $pages = 0;
         }
         // 根据用户id 查询资金流动表
         $data['log'] = DB::table('user_logs')
-            -> where('user_id',$all['uid'])
-            -> where('type_id',1)
-            -> where('user_logs.is_del',0)
-            -> select(['user_logs.superior_id','user_logs.price','user_logs.describe','user_logs.create_time','user_logs.state'])
-            -> offset($pages)
-            -> limit($num)
-            -> get();
+            ->where('user_id', $all['uid'])
+            ->where('type_id', 1)
+            ->where('user_logs.is_del', 0)
+            ->select(['user_logs.superior_id', 'user_logs.price', 'user_logs.describe', 'user_logs.create_time', 'user_logs.state'])
+            ->offset($pages)
+            ->limit($num)
+            ->get();
         $data['integral'] = DB::table('users')
-            -> where('id',$all['uid'])
-            -> select('integral')
-            -> first()
-            -> integral ?? '';
-        if(!empty($data)){
-            return $this->rejson(200,'查询成功',$data);
-        }else{
-            return $this->rejson(201,'未查询到该id');
+                ->where('id', $all['uid'])
+                ->select('integral')
+                ->first()
+                ->integral ?? '';
+        if (!empty($data)) {
+            return $this->rejson(200, '查询成功', $data);
+        } else {
+            return $this->rejson(201, '未查询到该id');
         }
     }
+
     /**
      * @api {post} /api/wallet/cash_withdrawal 余额提现
      * @apiName cash_withdrawal
@@ -203,24 +207,24 @@ class WalletController extends Controller
      *       "msg":"查询成功",
      *       "data": ""
      */
-    public function cash_withdrawal(){
-        $all = \request() -> all();
+    public function cash_withdrawal() {
+        $all = request()->all();
         // 根据获取的id
-        if (empty($all['money']) || empty($all['phone']) ||empty($all['num'])) {
-            return $this->rejson(201,'缺少必填项');
+        if (empty($all['money']) || empty($all['phone']) || empty($all['num'])) {
+            return $this->rejson(201, '缺少必填项');
         }
         $data = DB::table('users')
-            -> where('id',$all['uid'])
-            -> select('money')
-            -> first();
-        $yue = $data -> money - $all['money'];
-        if($yue < 0){
-            return $this->rejson(201,'当前余额不足');
+            ->where('id', $all['uid'])
+            ->select('money')
+            ->first();
+        $yue = $data->money - $all['money'];
+        if ($yue < 0) {
+            return $this->rejson(201, '当前余额不足');
         }
         DB::beginTransaction();
-        try{
+        try {
             // 当前用户减少金额
-            DB::table('users') -> where('id',$all['uid']) -> update(['money'=>$yue]);
+            DB::table('users')->where('id', $all['uid'])->update(['money' => $yue]);
             // 提现成功，添加提现明细
             $add = [
                 'user_id' => $all['uid'],
@@ -232,18 +236,18 @@ class WalletController extends Controller
                 'phone' => $all['phone'],
                 'card' => $all['num']
             ];
-            $i = DB::table('user_logs') -> insert($add);
+            $i = DB::table('user_logs')->insert($add);
 
-            if($i){
+            if ($i) {
                 DB::commit();
-                return $this->rejson(200,'提现成功');
-            }else{
+                return $this->rejson(200, '提现成功');
+            } else {
                 DB::rollBack();
-                return $this->rejson(201,'未查询到该id');
+                return $this->rejson(201, '未查询到该id');
             }
-        }catch (\Exception $e){
+        } catch (Exception $e) {
             DB::rollBack();
-            return $this->rejson(201,'提现失败');
+            return $this->rejson(201, '提现失败');
         }
 
     }
@@ -259,24 +263,24 @@ class WalletController extends Controller
      *       "code": "200",
      *       "msg":"查询成功",
      *       "data": {
-                    'money' "总金额",
-                    'mobile' "联系方式"
+     * 'money' "总金额",
+     * 'mobile' "联系方式"
      *          }
      */
 
-    public function rechar()
-    {
-        $all =\request()->all();
+    public function rechar() {
+        $all = request()->all();
         $data = DB::table('users')
-            ->where('id',$all['uid'])
-            ->select('money','mobile')
+            ->where('id', $all['uid'])
+            ->select('money', 'mobile')
             ->first();
-        if($data){
-            return $this->rejson('200','查询成功',$data);
-        }else{
-            return $this->rejson('201','未找到用户');
+        if ($data) {
+            return $this->rejson('200', '查询成功', $data);
+        } else {
+            return $this->rejson('201', '未找到用户');
         }
     }
+
     /**
      * @api {post} /api/wallet/payWays 支付方式
      * @apiName payWays
@@ -287,20 +291,20 @@ class WalletController extends Controller
      *     {
      *       "code": "200",
      *       "data":  [
-                        {
-                        "id": "支付方式id",
-                        "pay_way": "支付方式名字",
-                        "logo": "图标"
-                        }
-                        ],
+     * {
+     * "id": "支付方式id",
+     * "pay_way": "支付方式名字",
+     * "logo": "图标"
+     * }
+     * ],
      *       "msg":"查询成功"
      *     }
      */
-    public function payWays(){
-        $data=DB::table('pay_ways')->select('id','pay_way','logo')
-            ->having('id','!=',4)
-            ->where('status',1)->get();
-        return $this->rejson(200,'查询成功',json_decode($data,JSON_UNESCAPED_UNICODE));
+    public function payWays() {
+        $data = DB::table('pay_ways')->select('id', 'pay_way', 'logo')
+            ->having('id', '!=', 4)
+            ->where('status', 1)->get();
+        return $this->rejson(200, '查询成功', json_decode($data, JSON_UNESCAPED_UNICODE));
     }
 
     /**
@@ -318,86 +322,54 @@ class WalletController extends Controller
      *       "msg":"查询成功",
      *       "data": ""
      */
-    public function recharge(){
-        $all = \request() -> all();
+    public function recharge() {
+        $all = request()->all();
         // 根据获取的id
         if (empty($all['money']) || empty($all['mobile']) || empty($all['method'])) {
-            return $this->rejson(201,'缺少必填项');
+            return $this->rejson(201, '缺少必填项');
         }
-        DB::beginTransaction();
-        try{
+        try {
+            DB::beginTransaction();
             $add = [
-                'order_sn'=>$this->suiji(),
+                'order_sn' => app('Snowflake\Snowflake')->next(),
                 'user_id' => $all['uid'],
                 'price' => $all['money'],
-                'create_time' => date('Y-m-d H:i:s'),
+                'create_time' => Carbon::now()->toDateTimeString(),
                 'phone' => $all['mobile'],
                 'method' => $all['method'],
             ];
-            $sNo = $add['order_sn'];
-            $i = DB::table('recharge') -> insert($add);
-            if($i){
-                if ($all['method']==1) {//微信支付
-                    $this->wxPay($sNo);
-                }else if($all['method']==2){//支付宝支付
-                    return $this->rejson(201,'暂未开通');
-                }else if($all['method']==0){//银联支付
-                    return $this->rejson(201,'暂未开通');
-                }else{
-                    return $this->rejson(201,'暂未开通');
-                }
+            $i = DB::table('recharge')->insert($add);
+            if ($i) {
                 DB::commit();
-                return $this->rejson(200,'充值成功');
-            }else{
-                DB::rollBack();
-                return $this->rejson(201,'未查询到该id');
+                if ($all['method'] == 1) {//微信支付
+                    return $this->responseJson(200, 'OK', $this->wxPay($add['order_sn'], $add['price']));
+                } else if ($all['method'] == 2) {//支付宝支付
+                    return $this->rejson(201, '暂未开通');
+                } else if ($all['method'] == 0) {//银联支付
+                    return $this->rejson(201, '暂未开通');
+                } else {
+                    return $this->rejson(201, '暂未开通');
+                }
             }
-        }catch (\Exception $e){
             DB::rollBack();
-            return $this->rejson(201,'充值失败');
+            return $this->rejson(201, '未查询到该id');
+        } catch (Exception $e) {
+            DB::rollBack();
+            return $this->rejson(201, '充值失败');
         }
     }
 
-    public function wxPay($sNo){
-        require_once base_path()."/wxpay/lib/WxPay.Api.php";
-        require_once base_path()."/wxpay/example/WxPay.NativePay.php";
-
-        if (empty($sNo)) {
-            return $this->rejson(201,'参数错误');
-        }
-        //查找表里是否有此订单
-        $orders = DB::table('recharge')
-            ->where('order_sn',$sNo)
-            ->first();
-        if (empty($orders)) {
-            return $this->rejson(201,'订单不存在');
-        }
-
-        $pay_money = 100*($orders->price);
-
-        $input = new \WxPayUnifiedOrder();
-
-        $input->SetBody("安抖商城平台");
-        $input->SetOut_trade_no($sNo);
-         $input->SetTotal_fee($pay_money);
-//        $input->SetTotal_fee(1);
-        $input->SetNotify_url("http://andou.zhuosongkj.com/api/common/wxRecharge");
-        $input->SetTrade_type("APP");
-        $input->SetSpbill_create_ip($_SERVER['REMOTE_ADDR']);
-//        $input->SetAttach($uid);
-        $config = new \WxPayConfig();
-        $order = \WxPayApi::unifiedOrder($config, $input);
-        // var_dump($order);exit();
-        if($order['return_code']=="SUCCESS"){
-            $time = time();
-            $string = "appid=".$order['appid']."&noncestr=".$order['nonce_str']."&package="."Sign=WXPay"."&partnerid=".$order['mch_id']."&prepayid=".$order['prepay_id']."&timestamp=".$time."&key=AndoubendishenghuoXIdoukeji66888";
-            $string = md5($string);
-            $order['sign'] = strtoupper($string);
-            $order['timestamp'] = $time;
-            return  $this->rejson(200,'获取支付信息成功！',$order);
-        }else{
-            return  $this->rejson(201,'获取支付信息失败！');
-        }
+    public function wxPay($sNo, $money) {
+        return WeChatPay::getInstance()->copy()
+            ->resetGateway('WechatPay_App', 'http://andou.zhuosongkj.com/api/common/wxRecharge')
+            ->createOrder(
+                $sNo,
+                $money * 100,
+                '安抖本地生活-消费',
+                '余额充值',
+                request()->ip(),
+                Carbon::now()->addHour()->format('YmdHis')
+            );
     }
 
     /**
@@ -411,53 +383,53 @@ class WalletController extends Controller
      *       "code": "200",
      *       "msg":"查询成功",
      *       "data": {
-        "id":'用户id',
-        "name":'用户名称',
-        "avator":'用户头像',
-        "grade":'用户vip等级',
-        "status":'是否是会员 0普通用户 1超级会员',
-        "money":'用户总金额',
-        "integral":'用户积分',
-        "collect":'商品收藏数',
-        "focus":'关注店铺数',
-        "record":'浏览记录数',
-        "goodordernum":"商城订单数",
-        "foodsordernum":"饭店订单数",
-        "booksordernum":"酒店订单数",
-     }
+     * "id":'用户id',
+     * "name":'用户名称',
+     * "avator":'用户头像',
+     * "grade":'用户vip等级',
+     * "status":'是否是会员 0普通用户 1超级会员',
+     * "money":'用户总金额',
+     * "integral":'用户积分',
+     * "collect":'商品收藏数',
+     * "focus":'关注店铺数',
+     * "record":'浏览记录数',
+     * "goodordernum":"商城订单数",
+     * "foodsordernum":"饭店订单数",
+     * "booksordernum":"酒店订单数",
+     * }
      */
-    public function personal(){
-        $all = \request() -> all();
+    public function personal() {
+        $all = request()->all();
         // 根据获取的id
-        if(empty($all['uid'])){
-            return $this->rejson(201,'请输入用户id');
+        if (empty($all['uid'])) {
+            return $this->rejson(201, '请输入用户id');
         }
         $data = DB::table('users')
-            -> where('id',$all['uid'])
-            -> select(['id','name','avator','money','integral'])
-            -> first();
+            ->where('id', $all['uid'])
+            ->select(['id', 'name', 'avator', 'money', 'integral'])
+            ->first();
         $grade = DB::table('vip')
-            -> where('user_id',$all['uid'])
-            -> where('is_del',0)
-            -> select('grade')
-            -> first();
-        $data->collect = DB::table('collection')->where('user_id',$all['uid'])->where('type',1)->count();
-        $data->focus = DB::table('collection')->where('user_id',$all['uid'])->where('type',3)->count();
-        $data->record = DB::table('see_log')->where('user_id',$all['uid'])->where('type',2)->count();
-        $data->goodordernum=DB::table('order_goods')->where('user_id',$all['uid'])->whereIn('status',['10','50'])->count();
-        $data->booksordernum=DB::table('books')->where('user_id',$all['uid'])->whereIn('status',['20'])->count();
-        $data->foodsordernum=DB::table('foods_user_ordering')->where('user_id',$all['uid'])->whereIn('status',['20'])->count();
-        if(empty($grade)){
+            ->where('user_id', $all['uid'])
+            ->where('is_del', 0)
+            ->select('grade')
+            ->first();
+        $data->collect = DB::table('collection')->where('user_id', $all['uid'])->where('type', 1)->count();
+        $data->focus = DB::table('collection')->where('user_id', $all['uid'])->where('type', 3)->count();
+        $data->record = DB::table('see_log')->where('user_id', $all['uid'])->where('type', 2)->count();
+        $data->goodordernum = DB::table('order_goods')->where('user_id', $all['uid'])->whereIn('status', ['10', '50'])->count();
+        $data->booksordernum = DB::table('books')->where('user_id', $all['uid'])->whereIn('status', ['20'])->count();
+        $data->foodsordernum = DB::table('foods_user_ordering')->where('user_id', $all['uid'])->whereIn('status', ['20'])->count();
+        if (empty($grade)) {
             $data->status = 0;
-            $data -> grade = 0;
-        }else{
+            $data->grade = 0;
+        } else {
             $data->status = 1;
-            $data -> grade = $grade -> grade;
+            $data->grade = $grade->grade;
         }
-        if(!empty($data)){
-            return $this->rejson(200,'查询成功',$data);
-        }else{
-            return $this->rejson(201,'未查询到该id');
+        if (!empty($data)) {
+            return $this->rejson(200, '查询成功', $data);
+        } else {
+            return $this->rejson(201, '未查询到该id');
         }
     }
 

@@ -10,12 +10,13 @@ namespace App\Models;
 
 
 use App\Models\Tieba\Post;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\DB;
 
 class Orders extends BaseModel {
     protected $table = 'orders';
-    protected $fillable = ['user_id', 'order_sn', 'order_money', 'type', 'created_at'];
+    protected $fillable = ['user_id', 'order_sn', 'order_money', 'type', 'status', 'updated_at'];
     private static $model;
 
     public static function getInstance() {
@@ -46,6 +47,18 @@ class Orders extends BaseModel {
                     $order_data['status'] = 20;
                     $order_data['pay_time'] = $order_data['created_at'];
                     $order_data['pay_money'] = $order_data['order_money'];
+                    // 写明细
+                    if (!UserLog::getInstance()->insert([
+                        'user_id' => $order_data['user_id'],
+                        'merchant_id' => 0,
+                        'describe' => '贴吧置顶服务消费',
+                        'create_time' => Carbon::now()->toDateTimeString(),
+                        'type_id' => 2,
+                        'state' => 2,
+                    ])) {
+                        DB::rollBack();
+                        return false;
+                    }
                 } else {
                     DB::rollBack();
                     return false;
