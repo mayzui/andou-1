@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Common\WeChat\WeChatPay;
 use App\Http\Controllers\Controller;
+use App\Jobs\Order\AutoCancel;
 use App\Models\OrderCancel;
 use App\Models\OrderCancelReason;
+use App\Models\OrderGoods;
 use App\Models\Orders;
 use App\Models\Users;
 use App\Services\GroupService;
@@ -235,6 +237,7 @@ class OrderController extends Controller {
     }
 
     /**
+     * @throws Exception
      * @api {post} /api/order/add_order 立即购买
      * @apiName add_order
      * @apiGroup order
@@ -272,7 +275,7 @@ class OrderController extends Controller {
         $data['num'] = $all['num'];
         $data['pay_discount'] = 1;
         $alldata['user_id'] = $data['user_id'] = $all['uid'];
-        $alldata['order_sn'] = $data['order_id'] = $this->suiji();
+        $alldata['order_sn'] = $data['order_id'] = app('Snowflake\Snowflake')->next();
         $alldata['created_at'] = $alldata['updated_at'] = $data['created_at'] = $data['updated_at'] = date('Y-m-d H:i:s', time());
         $dilivery = DB::table('goods')->select('dilivery', 'weight')->where('id', $all['goods_id'])->first();
         if ($dilivery->dilivery > 0) {
@@ -295,6 +298,9 @@ class OrderController extends Controller {
         $res = DB::table('orders')->insert($alldata);
         if ($res && $re) {
             DB::commit();
+            // 30 分钟自动关闭订单
+            AutoCancel::dispatch([$data['order_id']])
+                ->delay(Carbon::now()->addMinutes(30))->onQueue('OrderAutoCancel');
             return $this->rejson(200, '下单成功', ['order_sn' => $data['order_id']]);
         } else {
             DB::rollback();
@@ -797,8 +803,6 @@ class OrderController extends Controller {
     }
 
     public function wxPay() {
-        require_once base_path() . "/wxpay/lib/WxPay.Api.php";
-        require_once base_path() . "/wxpay/example/WxPay.NativePay.php";
         $all = request()->all();
         if (empty($all['sNo'])) {
             return $this->rejson(201, '参数错误');
@@ -867,7 +871,7 @@ class OrderController extends Controller {
             '安抖本地生活-购物',
             '购物订单',
             request()->ip(),
-            Carbon::now()->addHours(2)->format('YmdHis')
+            Carbon::now()->addHour()->format('YmdHis')
         );
         // var_dump($order);exit();
         if ($order) {
@@ -1015,7 +1019,7 @@ class OrderController extends Controller {
     public function cancel(Request $request) {
         $data = $this->validate($request, [
             'uid' => 'required|numeric|exists:users,id',
-            'order_sn' => 'required|numeric|exists:orders,order_sn',
+            'order_sn' => 'required|string|exists:orders,order_sn',
             'reason_id' => 'required|numeric|exists:order_cancel_reason,id',
             'reason' => 'nullable|string|max:255'
         ]);
@@ -1077,11 +1081,15 @@ class OrderController extends Controller {
 
             DB::beginTransaction();
             if ($order->save()) {
-                if (OrderCancel::getInstance()->insert([
-                    'order_id' => $order->id,
-                    'reason_id' => $data['reason_id'],
-                    'reason' => $data['reason'] ?? ''
-                ])) {
+                $ret = OrderGoods::getInstance()
+                    ->where('order_id', $data['order_sn'])
+                    ->update(['status' => 0, 'updated_at' => $order->updated_at]);
+
+                if ($ret != false && OrderCancel::getInstance()->insert([
+                        'order_id' => $order->id,
+                        'reason_id' => $data['reason_id'],
+                        'reason' => $data['reason'] ?? ''
+                    ])) {
                     DB::commit();
                     return $this->responseJson(200, '取消成功');
                 }

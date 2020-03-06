@@ -63,6 +63,7 @@ Route::group(['namespace' => 'Api'], function () {
     Route::post('Usersaddress/address_del', 'UsersaddressController@addressDel');
 
     Route::post('users/merchant_record', 'UsersController@merchantRecord');
+    Route::post('users/delete_record', 'UsersController@deleteRecord');
     Route::post('users/fabulous', 'UsersController@fabulous');
     Route::post('users/envelopes', 'UsersController@envelopes');
     Route::post('users/envelopes_add', 'UsersController@envelopesAdd');
