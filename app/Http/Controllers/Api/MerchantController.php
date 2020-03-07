@@ -292,32 +292,38 @@ class MerchantController extends Controller {
         }
         $where[] = ['is_sale', 1];
         $where[] = ['is_del', 0];
+
         $orderBy = 'pv';
         $sort = 'DESC';
+
         if (isset($all['price_sort'])) {
-            if ($all['price_sort'] == 1) {
-                $orderBy = 'price';
-            } else if ($all['price_sort'] == 2) {
-                $orderBy = 'price';
+            $orderBy = 'price';
+            if ($all['price_sort'] == 0) {
                 $sort = 'ASC';
             }
         }
+
         if (isset($all['volume_sort'])) {
-            if ($all['volume_sort'] == 1) {
-                $orderBy = 'volume';
-            } else if ($all['volume_sort'] == 2) {
-                $orderBy = 'volume';
+            $orderBy = 'volume';
+            if ($all['volume_sort'] == 0) {
                 $sort = 'ASC';
             }
         }
+
         $id = $all['id'];
         $data = DB::table('merchants')->select('name', 'banner_img', 'logo_img')->where('id', $id)->first();
-        $arr = DB::table('collection')->where('user_id', $all['uid'])->where('type', 3)->where('pid', $all['id'])->first();
-        if ($arr) {
-            $data->status = 1;
+
+        if(isset($all['uid'])){
+            $arr = DB::table('collection')->where('user_id', $all['uid'])->where('type', 3)->where('pid', $all['id'])->first();
+            if ($arr) {
+                $data->status = 1;
+            } else {
+                $data->status = 0;
+            }
         } else {
             $data->status = 0;
         }
+
         $data->goods = DB::table('goods')
             ->select('name', 'img', 'price', 'id')
             ->where($where)
