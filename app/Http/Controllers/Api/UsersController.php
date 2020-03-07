@@ -64,7 +64,7 @@ class UsersController extends Controller {
             ->join('merchants as m', 'm.id', '=', 'c.pid')
             ->where(['c.user_id' => $all['uid'], 'c.type' => 2, 'c.status' => 1])
             ->select('m.id', 'm.address', 'm.merchant_type_id', 'm.tel', 'm.stars_all', 'm.praise_num', 'm.name', 'm.logo_img')
-            ->orderBy('c.id', "DESC")
+            ->orderByDesc('c.id')
             ->offset($start)
             ->limit($num)
             ->get();
@@ -93,8 +93,8 @@ class UsersController extends Controller {
         $ids = array_values($data['ids']);
         DB::table('see_log')
             ->where('user_id', $data['uid'])
-            ->whereIn('id', $ids)
-            ->update(['status' => -1]);
+            ->whereIn('pid', $ids)
+            ->update(['status' => -1, 'updated_at' => Carbon::now()->toDateTimeString()]);
         return $this->responseJson(200, '删除成功');
     }
 
@@ -349,6 +349,7 @@ class UsersController extends Controller {
      *     }
      */
     public function envelopesAdd() {
+        // TODO: uid 存在问题
         $all = request()->all();
         $re = DB::table('user_logs')->where(['user_id' => $all['uid'], 'type_id' => '4'])->first();
         if (!empty($re)) {
