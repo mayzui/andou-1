@@ -2,21 +2,22 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
-class Goods extends Model
-{
+class Goods extends BaseModel {
 
     protected $table = 'goods';
+    protected $fillable = ['volume'];
+    private static $model;
 
-    public function goodsCate ()
-    {
-        return $this->belongsTo('App\Models\GoodsCate','goods_cate_id','id')->select('id','name');
+    public static function getInstance() {
+        return self::$model ?: self::$model = new self();
     }
 
-    public function goodBrands ()
-    {
-        return $this->belongsTo('App\Models\GoodBrands','goods_brand_id','id')->select('id','name');
+    public function goodsCate() {
+        return $this->belongsTo('App\Models\GoodsCate', 'goods_cate_id', 'id')->select('id', 'name');
+    }
+
+    public function goodBrands() {
+        return $this->belongsTo('App\Models\GoodBrands', 'goods_brand_id', 'id')->select('id', 'name');
     }
 
 }
