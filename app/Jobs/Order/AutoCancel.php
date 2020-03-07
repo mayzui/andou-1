@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Order;
 
+use App\Models\Goods;
 use App\Models\OrderCancel;
 use App\Models\OrderGoods;
 use App\Models\Orders;
@@ -51,11 +52,18 @@ class AutoCancel implements ShouldQueue {
                     $updatedAt = Carbon::now()->toDateTimeString();
                     // 更新状态
                     if ($order->update(['status' => 0, 'updated_at' => $updatedAt])) {
-                        $ret = OrderGoods::getInstance()
-                            ->where('order_id', $this->order_sn)
-                            ->update(['status' => 0, 'updated_at' => $updatedAt]);
+                        $orderGood = OrderGoods::getInstance()->where('order_id', $this->order_sn);
+
+                        // 还原销量
+                        $goodIds = $orderGood->pluck('goods_id');
+                        foreach ($goodIds as $goodId) {
+                            Goods::getInstance()->find($goodId)->decrement('volume');
+                        }
+
+                        $updateRet = $orderGood->update(['status' => 0, 'updated_at' => $updatedAt]);
+
                         // 写取消记录
-                        if ($ret !== false && OrderCancel::getInstance()->insert([
+                        if ($updateRet !== false && OrderCancel::getInstance()->insert([
                                 'order_id' => $order->id,
                                 'reason_id' => 4,
                                 'reason' => '超时未支付自动取消'

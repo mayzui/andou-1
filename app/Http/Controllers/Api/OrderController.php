@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Common\WeChat\WeChatPay;
 use App\Http\Controllers\Controller;
 use App\Jobs\Order\AutoCancel;
+use App\Models\Goods;
 use App\Models\OrderCancel;
 use App\Models\OrderCancelReason;
 use App\Models\OrderGoods;
@@ -127,14 +128,12 @@ class OrderController extends Controller {
         } else {
             $pages = 0;
         }
-        if (empty($all['type'])) {
-
-        } else {
-            $where[] = ['o.status', $all['type']];
-        }
 
         $where[] = ['o.user_id', $all['uid']];
 
+        if (isset($all['type'])) {
+            $where[] = ['o.status', $all['type']];
+        }
 
         $data = DB::table('order_goods as o')
             ->join('goods as g', 'g.id', '=', 'o.goods_id')
@@ -296,7 +295,8 @@ class OrderController extends Controller {
         DB::beginTransaction(); //开启事务
         $re = DB::table('order_goods')->insert($data);
         $res = DB::table('orders')->insert($alldata);
-        if ($res && $re) {
+        $ret = DB::table('goods')->where('id', $all['goods_id'])->increment('volume');
+        if ($res && $re && $ret) {
             DB::commit();
             // 30 分钟自动关闭订单
             AutoCancel::dispatch([$data['order_id']])
@@ -1081,11 +1081,17 @@ class OrderController extends Controller {
 
             DB::beginTransaction();
             if ($order->save()) {
-                $ret = OrderGoods::getInstance()
-                    ->where('order_id', $data['order_sn'])
-                    ->update(['status' => 0, 'updated_at' => $order->updated_at]);
+                $orderGood = OrderGoods::getInstance()->where('order_id', $data['order_sn']);
 
-                if ($ret != false && OrderCancel::getInstance()->insert([
+                // 还原销量
+                $goodIds = $orderGood->pluck('goods_id');
+                foreach ($goodIds as $goodId) {
+                    Goods::getInstance()->find($goodId)->decrement('volume');
+                }
+
+                $updateRet = $orderGood->update(['status' => 0, 'updated_at' => $order->updated_at]);
+
+                if ($updateRet != false && OrderCancel::getInstance()->insert([
                         'order_id' => $order->id,
                         'reason_id' => $data['reason_id'],
                         'reason' => $data['reason'] ?? ''
