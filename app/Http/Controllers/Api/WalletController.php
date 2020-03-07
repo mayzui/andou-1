@@ -415,7 +415,11 @@ class WalletController extends Controller {
             ->first();
         $data->collect = DB::table('collection')->where('user_id', $all['uid'])->where('type', 1)->count();
         $data->focus = DB::table('collection')->where('user_id', $all['uid'])->where('type', 3)->count();
-        $data->record = DB::table('see_log')->where('user_id', $all['uid'])->where('type', 2)->count();
+        $data->record = DB::table('see_log')
+            ->where('user_id', $all['uid'])
+            ->where('type', 2)
+            ->where('status', 1)
+            ->count();
         $data->goodordernum = DB::table('order_goods')->where('user_id', $all['uid'])->whereIn('status', ['10', '50'])->count();
         $data->booksordernum = DB::table('books')->where('user_id', $all['uid'])->whereIn('status', ['20'])->count();
         $data->foodsordernum = DB::table('foods_user_ordering')->where('user_id', $all['uid'])->whereIn('status', ['20'])->count();
