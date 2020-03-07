@@ -113,7 +113,7 @@ if (!function_exists('msectime')) {
      * @return string
      */
     function msectime($msec_length = 3, $random_length = 0, $dot = false, $delay = 0) {
-        list($msec, $sec) = explode(' ', microtime());
+        [$msec, $sec] = explode(' ', microtime());
         $rand = $random_length > 0 ?
             number_format(
                 mt_rand(1, (int)str_repeat('9', $random_length))

@@ -106,13 +106,17 @@ return [
 
     'redis' => [
 
-        'client' => 'predis',
+        'client' => 'phpredis',
 
         'default' => [
             'host' => env('REDIS_HOST', '127.0.0.1'),
             'password' => env('REDIS_PASSWORD', null),
             'port' => env('REDIS_PORT', 6379),
             'database' => 0,
+            'prefix' => null,
+            'timeout' => 60,
+            'read_timeout' => 60,
+            'persistent' => false
         ],
 
     ],
