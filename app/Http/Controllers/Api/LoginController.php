@@ -88,12 +88,12 @@ class LoginController extends Controller {
             DB::table('users')->where('openid', $user['openid'])->update($datas);
             $re->token = $token['noncestr'];
             return $this->rejson(200, '登陆成功', $re);
-        } else {
-            $data['openid'] = $user['openid'];
-            $data['name'] = $user['nickname'];
-            $data['avator'] = $user['headimgurl'];
-            return $this->rejson(203, '绑定手机号密码', $data);
         }
+        // 绑定流程
+        $data['openid'] = $user['openid'];
+        $data['name'] = $user['nickname'];
+        $data['avator'] = $user['headimgurl'];
+        return $this->rejson(200, '绑定手机号密码', $data);
     }
 
     /**
