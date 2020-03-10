@@ -183,13 +183,13 @@ class CommonController extends Controller {
             //这里根据项目需求来写你的操作 如更新订单状态等信息 更新成功返回'success'即可
             $trade_no = $values['transaction_id'];
             $total = $values['total_fee'] / 100;
-            $datas = ['status' => 20, 'pay_way' => 1, 'out_trade_no' => $trade_no, 'pay_time' => date('Y-m-d H:i:s', time()), 'pay_money' => $total];
+            $time = Carbon::now()->toDateTimeString();
+            $datas = ['status' => 20, 'pay_way' => 1, 'out_trade_no' => $trade_no, 'pay_time' => $time, 'pay_money' => $total];
             $out_trade_no = $values['out_trade_no'];
             // echo $out_trade_no;
             $ress = DB::table('orders')->where(['order_sn' => $out_trade_no, 'status' => 10])->first();
             // var_dump($ress);exit();
             if (!empty($ress)) {
-
                 $order = Orders::getInstance()->where('order_sn', $out_trade_no)->first();
                 // 贴吧订单
                 if ($order->type = 4) {
@@ -200,7 +200,8 @@ class CommonController extends Controller {
                             $post->update([
                                 'is_show' => 1,
                                 'top_day' => $orderPost->top_day,
-                                'updated_at' => Carbon::now()->toDateTimeString()
+                                'paid_at' => $time,
+                                'updated_at' => $time
                             ]);
                         } else {
                             Log::error('帖子不存在，ID：' . $orderPost->post_id);

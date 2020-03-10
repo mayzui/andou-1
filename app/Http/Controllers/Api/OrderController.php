@@ -10,6 +10,7 @@ use App\Models\OrderCancel;
 use App\Models\OrderCancelReason;
 use App\Models\OrderGoods;
 use App\Models\Orders;
+use App\Models\UserAddress;
 use App\Models\Users;
 use App\Services\GroupService;
 use Carbon\Carbon;
@@ -1103,6 +1104,51 @@ class OrderController extends Controller {
             DB::rollBack();
             return $this->responseJson(201, '取消失败');
         }
+        return $this->responseJson(201, '订单不存在');
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @return JsonResponse
+     *
+     * @api {post} /api/order/refresh_addr 重选地址
+     * @apiName refresh_addr
+     * @apiGroup order
+     * @apiParam {Number} uid
+     * @apiParam {String} order_sn
+     * @apiParam {Number} addr_id
+     * @apiSuccessExample Success-Response:
+     * {}
+     */
+    public function refreshAddr(Request $request) {
+        $data = $this->validate($request, [
+            'uid' => 'required|numeric|exists:users,id',
+            'order_sn' => 'required|string|exists:orders,order_sn',
+            'addr_id' => 'required|numeric|exists:user_address,id'
+        ]);
+
+        $order = Orders::getInstance()
+            ->where('user_id', $data['uid'])
+            ->where('order_sn', $data['order_sn'])
+            ->where('status', 10) // 只能修改未支付订单
+            ->first();
+
+        if ($order) {
+            $addr = UserAddress::getInstance()
+                ->where('user_id', $data['uid'])
+                ->where('status', 1)
+                ->find($data['addr_id'])
+                ->exists();
+            if ($addr) {
+                if($order->update(['address_id' => $data['addr_id']])){
+                    return $this->responseJson(200, '更新地址成功');
+                }
+                return $this->responseJson(201,'更新地址失败');
+            }
+            return $this->responseJson(201, '用户地址信息不存在');
+        }
+
         return $this->responseJson(201, '订单不存在');
     }
 }

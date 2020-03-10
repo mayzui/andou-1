@@ -9,6 +9,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Common\Ali\Alipay;
 use App\Common\WeChat\WeChatPay;
 use App\Http\Controllers\Controller;
 use App\Models\Orders;
@@ -300,6 +301,36 @@ class TiebaController extends Controller {
      *
      * @return JsonResponse
      *
+     * @api {post} /api/tieba/delete 删除贴文
+     * @apiName delete
+     * @apiGroup tieba
+     * @apiParam {Number} uid
+     * @apiParam {Number} post_id 贴文 ID
+     * @apiSuccessExample {json} Success-Response:
+     * {}
+     */
+    public function delete(Request $request) {
+        $data = $this->validate($request, [
+            'uid' => 'required|numeric|exists:users,id',
+            'post_id' => 'required|numeric|exists:tieba_post,id'
+        ]);
+
+        $post = Post::getInstance()->where('user_id', $data['uid'])->find($data['post_id']);
+        if($post){
+            if($post->update(['status' => -1])){
+                return $this->responseJson(200, '删除成功');
+            }
+            return $this->responseJson(201, '删除失败');
+        }
+
+        return $this->responseJson(201, '贴文不存在');
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @return JsonResponse
+     *
      * @api {post} /api/tieba/create_top_order 创建置顶订单
      * @apiName create_top_order
      * @apiGroup tieba
@@ -374,6 +405,16 @@ class TiebaController extends Controller {
                     break;
                 case 2:
                     // Alipay
+                    $ret = Alipay::getInstance()->createOrder(
+                        $orderSn,
+                        $orderMoney,
+                        '安抖本地生活-消费',
+                        '贴吧服务',
+                        Carbon::now()->addHour()->format('Y-m-d H:i'));
+                    if ($ret) {
+                        return $this->responseJson(200, 'OK', ['orderstr' => $ret]);
+                    }
+                    break;
                 case 3:
                     // UnionPay
                 case 4:

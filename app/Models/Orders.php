@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\DB;
 
 class Orders extends BaseModel {
     protected $table = 'orders';
-    protected $fillable = ['user_id', 'order_sn', 'order_money', 'type', 'status', 'updated_at'];
+    protected $fillable = ['user_id', 'order_sn', 'order_money', 'type', 'address_id', 'status', 'updated_at'];
     private static $model;
 
     public static function getInstance() {
