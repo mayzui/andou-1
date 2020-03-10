@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Common\WeChat\WeChatPay;
 use App\Http\Controllers\Controller;
+use App\Jobs\Order\AutoCancel;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -90,6 +91,7 @@ class HtorderController extends Controller {
     }
 
     /**
+     * @throws \Exception
      * @api {post} /api/htorder/add_order 酒店预定
      * @apiName add_order
      * @apiGroup htorder
@@ -175,7 +177,7 @@ class HtorderController extends Controller {
         $alldata['order_money'] = $data['money'];
         $alldata['type'] = 2;
         $alldata['remark'] = $all['remark'] ?? '';
-        $alldata['order_sn'] = $data['book_sn'] = $this->suiji();
+        $alldata['order_sn'] = $data['book_sn'] = app('Snowflake\Snowflake')->next();
         $alldata['user_id'] = $data['user_id'] = $all['uid'];
         $alldata['shipping_free'] = 0;
         $alldata['created_at'] = $alldata['updated_at'] = $data['created_at'] = $data['updated_at'] = date('Y-m-d H:i:s', time());
@@ -186,7 +188,11 @@ class HtorderController extends Controller {
         $res = DB::table('orders')->insert($alldata);
         if ($re && $res) {
             DB::commit();
-            $all = request()->all();
+
+            // 30 分钟自动关闭订单
+            AutoCancel::dispatch($data['book_sn'])
+                ->delay(Carbon::now()->addMinutes(30))->onQueue('OrderAutoCancel');
+
             if ($all['pay_way'] == 1) {//微信支付
                 return $this->responseJson(200, 'OK', $this->wxpay($data['book_sn']));
             } else if ($all['pay_way'] == 2) {//支付宝支付

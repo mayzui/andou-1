@@ -10,6 +10,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Common\WeChat\WeChatPay;
 use App\Http\Controllers\Controller;
+use App\Jobs\Order\AutoCancel;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -574,6 +575,7 @@ class GourmetController extends Controller {
     }
 
     /**
+     * @throws \Exception
      * @api {post} /api/gourmet/timely 立即预定
      * @apiName timely
      * @apiGroup gourmet
@@ -649,7 +651,7 @@ class GourmetController extends Controller {
             'user_name' => $users->name,
             'people' => $all['people'],
             'prices' => $prices,
-            'order_sn' => $this->suiji(),
+            'order_sn' => app('Snowflake\Snowflake')->next(),
             'method' => $all['method'],
             'integral' => $integral
         ];
@@ -666,10 +668,17 @@ class GourmetController extends Controller {
         $alldata['shipping_free'] = 0;
         $alldata['integral'] = $integral;
         $sNo = $res['order_sn'];
+        DB::beginTransaction();
         $datas = DB::table('orders')->insert($alldata);
         $data = DB::table('foods_user_ordering')->insert($res);
         $resss = DB::table("foods_cart")->where('user_id', $all['uid'])->where('merchant_id', $all['merchant_id'])->delete();
-        if ($data) {
+        if ($datas && $data && $resss) {
+            DB::commit();
+
+            // 30 分钟自动关闭订单
+            AutoCancel::dispatch($data['book_sn'])
+                ->delay(Carbon::now()->addMinutes(30))->onQueue('OrderAutoCancel');
+
             if ($all['method'] == 1) {//微信支付
                 return $this->responseJson(200, 'OK', $this->wxpay($sNo));
             } else if ($all['method'] == 2) {//支付宝支付
@@ -684,9 +693,9 @@ class GourmetController extends Controller {
                 return $this->rejson(201, '暂未开通');
             }
             return $this->rejson('200', '下单成功');
-        } else {
-            return $this->rejson('201', '添加失败');
         }
+        DB::rollBack();
+        return $this->rejson('201', '添加失败');
     }
 
     /**

@@ -300,7 +300,7 @@ class OrderController extends Controller {
         if ($res && $re && $ret) {
             DB::commit();
             // 30 分钟自动关闭订单
-            AutoCancel::dispatch([$data['order_id']])
+            AutoCancel::dispatch($data['order_id'])
                 ->delay(Carbon::now()->addMinutes(30))->onQueue('OrderAutoCancel');
             return $this->rejson(200, '下单成功', ['order_sn' => $data['order_id']]);
         } else {

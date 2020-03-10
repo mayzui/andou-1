@@ -50,8 +50,17 @@ return [
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
             'prefix' => '',
-            'strict' => true,
             'engine' => null,
+            'strict' => true,
+            'modes' => [
+                // 'ONLY_FULL_GROUP_BY',
+                'ERROR_FOR_DIVISION_BY_ZERO',
+                'STRICT_TRANS_TABLES',
+                'NO_ZERO_IN_DATE',
+                'NO_ZERO_DATE',
+                'NO_AUTO_CREATE_USER',
+                'NO_ENGINE_SUBSTITUTION'
+            ],
         ],
 
         'pgsql' => [
