@@ -61,7 +61,7 @@ class Post extends BaseModel {
             ->leftJoin('tieba_post_vote AS tpv', function (JoinClause $join) use ($user_id) {
                 $join->on('tpv.post_id', 'tieba_post.id')->whereRaw('tpv.user_id = ?', [$user_id ?: 0]);
             })
-            ->join('tieba_post_type AS tpt', 'tpt.id', 'tieba_post.type_ic')
+            ->join('tieba_post_type AS tpt', 'tpt.id', 'tieba_post.type_id')
             ->where('tieba_post.is_show', 1)
             ->where('tieba_post.status', 1)
             ->where(function (Builder $query) use ($user_id, $type) {
