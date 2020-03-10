@@ -61,6 +61,7 @@ class Post extends BaseModel {
             ->leftJoin('tieba_post_vote AS tpv', function (JoinClause $join) use ($user_id) {
                 $join->on('tpv.post_id', 'tieba_post.id')->whereRaw('tpv.user_id = ?', [$user_id ?: 0]);
             })
+            ->join('tieba_post_type AS tpt', 'tpt.id', 'tieba_post.type_ic')
             ->where('tieba_post.is_show', 1)
             ->where('tieba_post.status', 1)
             ->where(function (Builder $query) use ($user_id, $type) {
@@ -68,14 +69,14 @@ class Post extends BaseModel {
                     $query->where('tieba_post.user_id', $user_id);
                 }
             })
-            ->select(['tieba_post.id', 'tieba_post.user_id', 'tieba_post.title', 'tieba_post.vote', 'tieba_post.share',
-                'tieba_post.top_post'])
+            ->select(['tieba_post.id', 'tieba_post.user_id', 'tieba_post.title', 'tpt.type_name', 'tieba_post.vote',
+                'tieba_post.share', 'tieba_post.top_post'])
             ->selectRaw("IF(NOW() <= DATE_ADD(tieba_post.paid_at, INTERVAL top_day DAY), ?, ?) AS top_post,
                 IF(tpv.id IS NULL, 0, 1) AS is_vote, LEFT(tieba_post.content, ?) AS content,
                 DATE_FORMAT(tieba_post.created_at, ?) AS created_at",
                 [1, 0, 64, '%Y-%m-%d %H:%i']);
 
-        if ($user_id) {
+        if ($type === 'mine') {
             $condition = $condition->orderByDesc('tieba_post.created_at');
         } else {
             $condition = $condition->orderByDesc('tieba_post.top_post')->orderByDesc('tieba_post.created_at');
