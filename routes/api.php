@@ -105,6 +105,7 @@ Route::group(['namespace' => 'Api'], function () {
     Route::post('order/express', 'OrderController@express');
     Route::post('order/confirm', 'OrderController@confirm');
     Route::post('order/cancel', 'OrderController@cancel');
+    Route::post('order/refresh_addr', 'OrderController@refreshAddr');
 
     Route::post('login/login', 'LoginController@login');
     Route::post('login/send', 'LoginController@send');
@@ -212,8 +213,10 @@ Route::group(['namespace' => 'Api'], function () {
     Route::get('tieba/types', 'TiebaController@types');
     Route::post('tieba/post', 'TiebaController@post');
     Route::post('tieba/create_top_order', 'TiebaController@createTopOrder');
+    Route::post('tieba/delete', 'TiebaController@delete');
 
     // ------------------------- 信息 -------------------------
     Route::get('info/list', 'InformationController@list');
     Route::post('info/read', 'InformationController@read');
+    Route::any('test/test', 'Test@index');
 });

@@ -64,17 +64,28 @@ class HtorderController extends Controller {
         $startdate = strtotime($data['start']);
         $enddate = strtotime($data['end']);
         $data['days'] = round(($enddate - $startdate) / 3600 / 24);
-        $data['room'] = DB::table('hotel_room as h')
+
+        $room = DB::table('hotel_room as h')
             ->join('merchants as m', 'h.merchant_id', '=', 'm.id')
             ->select('h.house_name', 'h.img', 'h.price', 'h.merchant_id', 'h.id', 'm.name')
             ->where(['h.status' => 1, 'h.id' => $id])
             ->first();
-        if (empty($data['room'])) {
+        if (!$room) {
             return $this->rejson(201, '房间不存在');
         }
+
+        $domain = env('APP_URL');
+        $imgs = json_decode($room->img, true);
+        foreach ($imgs as &$img) {
+            $img = $domain . $img;
+        }
+
+        $room->img = $imgs;
+
+        $data['room'] = $room;
         $integral = DB::table('config')->where('key', 'integral')->first()->value;
-        $data['integral'] = floor($data['room']->price * $data['days'] * $integral);
-        $data['allprice'] = $data['room']->price * $data['days'] - $data['integral'];
+        $data['integral'] = floor($room->price * $data['days'] * $integral);
+        $data['allprice'] = $room->price * $data['days'] - $data['integral'];
         return $this->rejson('200', '查询成功', $data);
     }
 
