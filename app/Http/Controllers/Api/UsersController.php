@@ -351,6 +351,9 @@ class UsersController extends Controller {
     public function envelopesAdd() {
         // TODO: uid 存在问题
         $all = request()->all();
+        if (!isset($all['uid']) || !$all['uid']) {
+            return $this->responseJson(201, '用户信息不存在');
+        }
         $re = DB::table('user_logs')->where(['user_id' => $all['uid'], 'type_id' => '4'])->first();
         if (!empty($re)) {
             return $this->rejson(201, '该用户已经领取过新用户红包');
