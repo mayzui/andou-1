@@ -85,6 +85,7 @@ Route::group(['namespace' => 'Api'], function () {
     Route::post('common/qrcode', 'CommonController@qrcode');
     Route::any('common/gourmet', 'CommonController@gourmet');
     Route::post('common/treaty', 'CommonController@treaty');
+    Route::post('common/alipay_notify', 'CommonController@alipayNotify');
 
     //vip充值回调
     Route::post('common/viprecharge', 'CommonController@viprecharge');
@@ -218,5 +219,4 @@ Route::group(['namespace' => 'Api'], function () {
     // ------------------------- 信息 -------------------------
     Route::get('info/list', 'InformationController@list');
     Route::post('info/read', 'InformationController@read');
-    Route::any('test/test', 'Test@index');
 });

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Common\Ali\Alipay;
 use App\Common\WeChat\WeChatPay;
 use App\Http\Controllers\Controller;
 use App\Jobs\Order\AutoCancel;
@@ -196,7 +197,17 @@ class HtorderController extends Controller {
             if ($all['pay_way'] == 1) {//微信支付
                 return $this->responseJson(200, 'OK', $this->wxpay($data['book_sn']));
             } else if ($all['pay_way'] == 2) {//支付宝支付
-                return $this->rejson(201, '暂未开通');
+
+                $orderStr = Alipay::getInstance()->createOrder(
+                    $data['book_sn'],
+                    '安抖本地生活-消费',
+                    '酒店预定',
+                    $data['money'],
+                    Carbon::now()->addHour()->format('Y-m-d H:i'),
+                    0
+                );
+
+                return $this->responseJson(200, 'OK', ['orderstr' => $orderStr]);
             } else if ($all['pay_way'] == 3) {//银联支付
                 return $this->rejson(201, '暂未开通');
             } else if ($all['pay_way'] == 4) {//余额支付

@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\DB;
 class Post extends BaseModel {
 
     protected $table = 'tieba_post';
-    protected $fillable = ['is_show', 'top_day', 'status'];
+    protected $fillable = ['is_show', 'top_day', 'status', 'paid_at', 'updated_at'];
     private static $model;
 
     public static function getInstance() {

@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Common\Ali\Alipay;
 use App\Http\Controllers\Controller;
-use App\Models\OrderPost;
+use App\Models\FailedNotify;
 use App\Models\Orders;
-use App\Models\Tieba\Post;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Omnipay\Common\Exception\InvalidRequestException;
 
 class CommonController extends Controller {
 
@@ -187,35 +188,21 @@ class CommonController extends Controller {
             $datas = ['status' => 20, 'pay_way' => 1, 'out_trade_no' => $trade_no, 'pay_time' => $time, 'pay_money' => $total];
             $out_trade_no = $values['out_trade_no'];
             // echo $out_trade_no;
-            $ress = DB::table('orders')->where(['order_sn' => $out_trade_no, 'status' => 10])->first();
+            $ress = Orders::getInstance()->where(['order_sn' => $out_trade_no, 'status' => 10])->first();
             // var_dump($ress);exit();
             if (!empty($ress)) {
-                $order = Orders::getInstance()->where('order_sn', $out_trade_no)->first();
                 // 贴吧订单
-                if ($order->type = 4) {
-                    $orderPost = OrderPost::getInstance()->where('order_id', $order->id)->first();
-                    if ($orderPost) {
-                        $post = Post::getInstance()->where('status', 1)->find($orderPost->post_id);
-                        if ($post) {
-                            $post->update([
-                                'is_show' => 1,
-                                'top_day' => $orderPost->top_day,
-                                'paid_at' => $time,
-                                'updated_at' => $time
-                            ]);
-                        } else {
-                            Log::error('帖子不存在，ID：' . $orderPost->post_id);
-                        }
-                    } else {
-                        Log::error('贴吧订单支付回调异常，订单号：' . $out_trade_no);
+                if ($ress->type = 4) {
+                    if (Orders::getInstance()->paidPostOrder($ress->id, 1, $total, $trade_no)) {
+                        return '<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>';
                     }
+                    return 'fail';
                 }
 
-                $re = $order->update($datas);
+                $re = $ress->update($datas);
                 $res = DB::table('order_goods')->where('order_id', $out_trade_no)->update($datas);
                 if ($re && $res) {
-                    $str = '<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>';
-                    return $str;
+                    return '<xml><return_code><![CDATA[SUCCESS]]></return_code><return_msg><![CDATA[OK]]></return_msg></xml>';
 
                 } else {
                     return 'fail1';
@@ -430,7 +417,122 @@ class CommonController extends Controller {
         } else {
             return 'fail3';
         }
-
     }
 
+    /**
+     * @param Request $request
+     *
+     * @return string
+     */
+    public function alipayNotify(Request $request) {
+        $reqAppId = $request->post('app_id');
+        $reqSellerId = $request->post('seller_id');
+        $appId = config('ali.pay.app_id');
+        $sellerId = config('ali.pay.seller_id');
+
+        if ($reqAppId === $appId && $reqSellerId === $sellerId) {
+            if ($request->post('receipt_amount')) {
+                $type = 'pay';
+            } else if ($request->post('refund_fee')) {
+                $type = 'refund';
+            } else {
+                $ret = FailedNotify::call()
+                    ->insertLog(json_encode($request->all(), JSON_UNESCAPED_UNICODE), 'alipay', 'other');
+                // 写数据库失败日志则改写日志
+                if (!$ret) {
+                    Log::warning('Received Unknown Alipay Notify: ', $request->server());
+                    return 'fail';
+                }
+                // 返回成功报文，交由相关人员手动处理
+                return 'success';
+            }
+
+            $params = $request->post();
+
+            try {
+                $result = Alipay::getInstance()->notify($params, $type);
+                if ($result === -1) {
+                    return 'fail';
+                }
+            } catch (InvalidRequestException $e) {
+                Log::error('Received Alipay Notify With Exception: ' . $e->getMessage(), $request->server());
+                Log::error('Received Alipay Notify With Exception: ' . $e->getMessage(), $request->all());
+                return 'fail';
+            }
+
+            if ($type === 'refund') {
+                $refundData = $result->getData();
+                $result = $result->isRefunded();
+            } else {
+                $refundData = null;
+            }
+
+            if ($result) {
+                $trans_no = $request->get('trade_no');
+                switch ($type) {
+                    case 'pay':
+                        $trade_no = $request->get('out_trade_no');
+                        $pay_amount = $request->get('buyer_pay_amount');
+                        $ret = $this->successPaid($trade_no, $trans_no, $pay_amount);
+                        break;
+                    case 'refund':
+                        $refund_no = $refundData['out_biz_no'];
+                        // TODO: do refunded process
+                        $ret = $this->successRefund();
+                        break;
+                    default:
+                        $ret = false;
+                }
+
+                if ($ret === true) {
+                    return 'success';
+                }
+                // 写数据库失败日志
+                $ret = FailedNotify::call()->insertLog(json_encode($request->all()), 'alipay', $type);
+                if (!$ret) {
+                    // 写日志
+                    Log::warning('Alipay notify failed: ', $request->all());
+                }
+            }
+        }
+        return 'fail';
+    }
+
+    /**
+     * @param string $trade_no 商户订单号
+     * @param string $transaction_no 交易流水号
+     * @param double $pay_amount 支付总额
+     *
+     * @return bool
+     */
+    private function successPaid($trade_no, $transaction_no, $pay_amount) {
+        $order = Orders::getInstance()->where('order_sn', $trade_no)->first();
+        if ($order->status != 10) {
+            // paid
+            return true;
+        }
+
+        // verify pay amount
+        if ($order->order_money == $pay_amount) {
+            switch ($order->type) {
+                case 1:
+                    // shop
+                    return Orders::getInstance()->paidShopOrder($order->id, 2, $pay_amount, $transaction_no);
+                case 2:
+                    // hotel
+                    return Orders::getInstance()->paidHotelOrder($order->id, 2, $pay_amount, $transaction_no);
+                case 3:
+                    // restaurant
+                    return Orders::getInstance()->paidRestaurantOrder($order->id, 2, $pay_amount, $transaction_no);
+                case 4:
+                    // tieba
+                    return Orders::getInstance()->paidPostOrder($order->id, 2, $pay_amount, $transaction_no);
+            }
+        }
+        return false;
+    }
+
+    private function successRefund() {
+        return false;
+    }
 }

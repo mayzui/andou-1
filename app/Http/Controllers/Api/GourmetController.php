@@ -8,6 +8,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Common\Ali\Alipay;
 use App\Common\WeChat\WeChatPay;
 use App\Http\Controllers\Controller;
 use App\Jobs\Order\AutoCancel;
@@ -682,7 +683,15 @@ class GourmetController extends Controller {
             if ($all['method'] == 1) {//微信支付
                 return $this->responseJson(200, 'OK', $this->wxpay($sNo));
             } else if ($all['method'] == 2) {//支付宝支付
-                return $this->rejson(201, '暂未开通');
+                $orderStr = Alipay::getInstance()->createOrder(
+                    $res['order_sn'],
+                    '安抖本地生活-消费',
+                    '饭店预定',
+                    $prices,
+                    Carbon::now()->addHour()->format('Y-m-d H:i'),
+                    0
+                );
+                return $this->responseJson(200, 'OK', ['orderstr' => $orderStr]);
             } else if ($all['method'] == 3) {//银联支付
                 return $this->rejson(201, '暂未开通');
             } else if ($all['method'] == 4) {//余额支付

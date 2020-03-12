@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Common\Ali\Alipay;
 use App\Common\WeChat\WeChatPay;
 use App\Http\Controllers\Controller;
 use App\Jobs\Order\AutoCancel;
@@ -692,7 +693,7 @@ class OrderController extends Controller {
         if ($all['pay_id'] == 1) {//微信支付
             return $this->wxpay();
         } else if ($all['pay_id'] == 2) {//支付宝支付
-            return $this->rejson(201, '暂未开通');
+            return $this->aliPay();
         } else if ($all['pay_id'] == 3) {//银联支付
             return $this->rejson(201, '暂未开通');
         } else if ($all['pay_id'] == 4) {//余额支付
@@ -877,6 +878,83 @@ class OrderController extends Controller {
         // var_dump($order);exit();
         if ($order) {
             return $this->rejson(200, '获取支付信息成功！', $order);
+        }
+        return $this->rejson(201, '获取支付信息失败！');
+    }
+
+    public function aliPay() {
+        $all = request()->all();
+        if (empty($all['sNo'])) {
+            return $this->rejson(201, '参数错误');
+        }
+
+        $sNo = $all['sNo'];
+
+        $orders = DB::table('orders')
+            ->where('order_sn', $sNo)
+            ->first();
+        if (empty($orders)) {
+            return $this->rejson(201, '订单不存在');
+        }
+        $order_goods = DB::table('order_goods')->where('order_id', $sNo)->get();
+        if (isset($all['is_integral']) && $all['is_integral'] == 1) {
+            $allintegral = DB::table('users')->where('id', $all['uid'])->first()->integral;
+            $integrals = DB::table('config')->where('key', 'integral')->first()->value;
+            $integral = floor(($orders->order_money - $orders->shipping_free) * $integrals);
+            if ($allintegral < $integral) {
+                return $this->rejson(201, '积分不足');
+            } else {
+                foreach ($order_goods as $key => $value) {
+                    $uporder['integral'] = floor(($value->pay_money - $value->shipping_free) * $integrals);
+                    $uporder['pay_money'] = $value->pay_money - $uporder['integral'];
+                    DB::table('order_goods')->where('id', $value->id)->update($uporder);
+                }
+                $dataintegral['integral'] = $integral;
+                DB::table('orders')->where('order_sn', $sNo)->update($dataintegral);
+            }
+        } else {
+            $integral = 0;
+        }
+
+        // hcq新增：团购支付处理
+        $puzzle_id = empty($all['puzzle_id']) ? 0 : $all['puzzle_id'];
+        $open_join = empty($all['open_join']) ? 0 : $all['open_join'];
+        $group_id = empty($all['group_id']) ? 0 : $all['group_id'];
+        if ($orders->puzzle_id != 0) {
+            if (empty($puzzle_id)) {
+                return $this->rejson(201, '团购参数错误');
+            }
+            $service = new GroupService();
+            try {
+                $goods = Db::table('order_goods')->where('order_id', $sNo)->first();
+                if (!$goods) {
+                    return $this->rejson(201, '没有该订单数据');
+                }
+                if ($orders->puzzle_id == 0 || $orders->puzzle_id != $puzzle_id || $orders->is_del == 1) {
+                    return $this->rejson(201, '非法订单');
+                }
+                $num = $goods->num;
+                $service->openOrJoinGroup($orders->id, $puzzle_id, $open_join, $num, $all['uid'], $group_id);
+            } catch (Exception $e) {
+                if ($e->getCode() == 201) {
+                    return $this->rejson(201, '拼团失败,' . $e->getMessage());
+                }
+                return $this->rejson(500, '未知错误,拼团失败');
+            }
+        }
+
+        $pay_money = $orders->order_money - $integral;
+
+        $orderStr = Alipay::getInstance()->createOrder(
+            $sNo,
+            '安抖本地生活-消费',
+            '饭店预定',
+            $pay_money,
+            Carbon::now()->addHour()->format('Y-m-d H:i'),
+            0
+        );
+        if ($orderStr) {
+            return $this->rejson(200, '获取支付信息成功！', ['orderstr' => $orderStr]);
         }
         return $this->rejson(201, '获取支付信息失败！');
     }

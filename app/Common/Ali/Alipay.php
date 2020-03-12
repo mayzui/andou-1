@@ -44,7 +44,7 @@ class Alipay {
         $this->gateway->setPrivateKey(file_get_contents(storage_path('app/ali_cert/appPrivateKey')));
         $this->gateway->setAppCert(storage_path('app/ali_cert/appCertPublicKey_2019030463414995.crt'));
         $this->gateway->setEncryptKey('pKTAunEMjwfJoxedQrHnjA==');
-        $this->gateway->setNotifyUrl(''); // 通知回调地址
+        $this->gateway->setNotifyUrl('http://andou.zhuosongkj.com/index.php/api/common/alipay_notify'); // 通知回调地址
     }
 
     public static function getInstance() {
@@ -227,7 +227,7 @@ class Alipay {
      * @param array  $params
      * @param string $type
      *
-     * @return bool|int|AopCompletePurchaseResponse|AopCompleteRefundResponse|ResponseInterface
+     * @return bool|int|AopCompleteRefundResponse
      * @throws InvalidRequestException
      */
     public function notify(array $params, $type) {
